@@ -42,26 +42,26 @@ model User {
   image         String?
   role          UserRole  @default(VIEWER)
   bio           String?
-  cv            String?   // URL to CV file
+  cv            String? // URL to CV file
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-  
+
   // Writer-specific relations
-  artworks      Artwork[]
-  
+  artworks Artwork[]
+
   // Created/Updated relations
-  artistsCreated    Artist[]  @relation("ArtistCreatedBy")
-  artistsUpdated    Artist[]  @relation("ArtistUpdatedBy")
-  conceptsCreated   Concept[] @relation("ConceptCreatedBy")
-  conceptsUpdated   Concept[] @relation("ConceptUpdatedBy")
-  placesCreated     Place[]   @relation("PlaceCreatedBy")
-  placesUpdated     Place[]   @relation("PlaceUpdatedBy")
-  keywordsCreated   Keyword[] @relation("KeywordCreatedBy")
-  keywordsUpdated   Keyword[] @relation("KeywordUpdatedBy")
-  imagesCreated     Image[]   @relation("ImageCreatedBy")
-  imagesUpdated     Image[]   @relation("ImageUpdatedBy")
+  artistsCreated  Artist[]  @relation("ArtistCreatedBy")
+  artistsUpdated  Artist[]  @relation("ArtistUpdatedBy")
+  conceptsCreated Concept[] @relation("ConceptCreatedBy")
+  conceptsUpdated Concept[] @relation("ConceptUpdatedBy")
+  placesCreated   Place[]   @relation("PlaceCreatedBy")
+  placesUpdated   Place[]   @relation("PlaceUpdatedBy")
+  keywordsCreated Keyword[] @relation("KeywordCreatedBy")
+  keywordsUpdated Keyword[] @relation("KeywordUpdatedBy")
+  imagesCreated   Image[]   @relation("ImageCreatedBy")
+  imagesUpdated   Image[]   @relation("ImageUpdatedBy")
 
   @@unique([email])
   @@map("user")
@@ -113,125 +113,125 @@ model Verification {
 }
 
 model Artist {
-  id            String    @id @default(cuid())
-  firstName     String
-  lastName      String
-  birthDate     DateTime?
-  deathDate     DateTime?
-  biography     String?   // Rich text biography
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdById   String
-  updatedById   String
-  
+  id          String    @id @default(cuid())
+  firstName   String
+  lastName    String
+  birthDate   DateTime?
+  deathDate   DateTime?
+  biography   String? // Rich text biography
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+  updatedById String
+
   // Relations
-  artworks      ArtworkArtist[]
-  createdBy     User      @relation("ArtistCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User      @relation("ArtistUpdatedBy", fields: [updatedById], references: [id])
+  artworks  ArtworkArtist[]
+  createdBy User            @relation("ArtistCreatedBy", fields: [createdById], references: [id])
+  updatedBy User            @relation("ArtistUpdatedBy", fields: [updatedById], references: [id])
 
   @@map("artist")
 }
 
 model Concept {
-  id            String    @id @default(cuid())
-  name          String    @unique
-  description   String?   // Rich text explanation for modal/popup
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdById   String
-  updatedById   String
-  
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String? // Rich text explanation for modal/popup
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  updatedById String
+
   // Relations
-  createdBy     User      @relation("ConceptCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User      @relation("ConceptUpdatedBy", fields: [updatedById], references: [id])
+  createdBy User @relation("ConceptCreatedBy", fields: [createdById], references: [id])
+  updatedBy User @relation("ConceptUpdatedBy", fields: [updatedById], references: [id])
 
   @@map("concept")
 }
 
 model Place {
-  id            String    @id @default(cuid())
-  name          String
-  type          PlaceType
-  address       String?
-  city          String?
-  country       String?
-  latitude      Float?
-  longitude     Float?
-  website       String?
-  description   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdById   String
-  updatedById   String
-  
+  id          String    @id @default(cuid())
+  name        String
+  type        PlaceType
+  address     String?
+  city        String?
+  country     String?
+  latitude    Float?
+  longitude   Float?
+  website     String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+  updatedById String
+
   // Relations
-  artworks      Artwork[]
-  createdBy     User      @relation("PlaceCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User      @relation("PlaceUpdatedBy", fields: [updatedById], references: [id])
+  artworks  Artwork[]
+  createdBy User      @relation("PlaceCreatedBy", fields: [createdById], references: [id])
+  updatedBy User      @relation("PlaceUpdatedBy", fields: [updatedById], references: [id])
 
   @@map("place")
 }
 
 model Artwork {
-  id            String        @id @default(cuid())
-  title         String
-  creationYear  String?       // "2023", "19th century", etc.
-  medium        String?       // Oil on canvas, Bronze, etc.
-  dimensions    String?       // "100x80 cm" 
-  notice        String?       // Rich text notice content
-  sources       String?       // Bibliography/sources
-  status        ArtworkStatus @default(DRAFT)
-  publishedAt   DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
+  id           String        @id @default(cuid())
+  title        String
+  creationYear String? // "2023", "19th century", etc.
+  medium       String? // Oil on canvas, Bronze, etc.
+  dimensions   String? // "100x80 cm" 
+  notice       String? // Rich text notice content
+  sources      String? // Bibliography/sources
+  status       ArtworkStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
   // Relations
-  writerId      String
-  writer        User          @relation(fields: [writerId], references: [id])
-  placeId       String?
-  place         Place?        @relation(fields: [placeId], references: [id])
-    // Many-to-many relations
-  artists       ArtworkArtist[]
-  images        ArtworkImage[]
+  writerId String
+  writer   User            @relation(fields: [writerId], references: [id])
+  placeId  String?
+  place    Place?          @relation(fields: [placeId], references: [id])
+  // Many-to-many relations
+  artists  ArtworkArtist[]
+  images   ArtworkImage[]
 
   @@map("artwork")
 }
 
 model Keyword {
-  id            String    @id @default(cuid())
-  name          String    @unique
-  definition    String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdById   String
-  updatedById   String
-  
+  id          String   @id @default(cuid())
+  name        String   @unique
+  definition  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  updatedById String
+
   // Relations
-  createdBy     User      @relation("KeywordCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User      @relation("KeywordUpdatedBy", fields: [updatedById], references: [id])
+  createdBy User @relation("KeywordCreatedBy", fields: [createdById], references: [id])
+  updatedBy User @relation("KeywordUpdatedBy", fields: [updatedById], references: [id])
 
   @@map("keyword")
 }
 
 model Image {
-  id            String    @id @default(cuid())
-  url           String
-  alt           String?
-  caption       String?
-  width         Int?
-  height        Int?
-  size          Int?      // File size in bytes
-  mimeType      String?
-  isMain        Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdById   String
-  updatedById   String
-  
+  id          String   @id @default(cuid())
+  url         String
+  alt         String?
+  caption     String?
+  width       Int?
+  height      Int?
+  size        Int? // File size in bytes
+  mimeType    String?
+  isMain      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  updatedById String
+
   // Relations
-  artworks      ArtworkImage[]
-  createdBy     User      @relation("ImageCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User      @relation("ImageUpdatedBy", fields: [updatedById], references: [id])
+  artworks  ArtworkImage[]
+  createdBy User           @relation("ImageCreatedBy", fields: [createdById], references: [id])
+  updatedBy User           @relation("ImageUpdatedBy", fields: [updatedById], references: [id])
 
   @@map("image")
 }
@@ -239,27 +239,27 @@ model Image {
 // Junction tables for many-to-many relationships
 
 model ArtworkArtist {
-  id         String  @id @default(cuid())
-  artworkId  String
-  artistId   String
-  role       String? // "painter", "sculptor", "attributed to", etc.
-  
-  artwork    Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
-  artist     Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  
+  id        String  @id @default(cuid())
+  artworkId String
+  artistId  String
+  role      String? // "painter", "sculptor", "attributed to", etc.
+
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  artist  Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
   @@unique([artworkId, artistId])
   @@map("artwork_artist")
 }
 
 model ArtworkImage {
-  id            String  @id @default(cuid())
-  artworkId     String
-  imageId       String
-  sortOrder     Int     @default(0) // For image sorting
+  id        String @id @default(cuid())
+  artworkId String
+  imageId   String
+  sortOrder Int    @default(0) // For image sorting
 
-  artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
-  image     Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  image   Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
   @@unique([artworkId, imageId])
   @@map("artwork_image")
 }
