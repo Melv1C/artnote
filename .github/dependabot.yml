@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Enable version updates for npm/pnpm (Dependabot uses npm ecosystem for pnpm projects)
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'Melv1C'
+    assignees:
+      - 'Melv1C'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+    # Ignore patch releases for stable dependencies
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 3
+    reviewers:
+      - 'Melv1C'
+    assignees:
+      - 'Melv1C'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
