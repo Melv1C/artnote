@@ -179,7 +179,7 @@ model Artwork {
   medium        String?       // Oil on canvas, Bronze, etc.
   dimensions    String?       // "100x80 cm" 
   notice        String?       // Rich text notice content
-  references    String?       // Bibliography/sources
+  sources       String?       // Bibliography/sources
   status        ArtworkStatus @default(DRAFT)
   publishedAt   DateTime?
   createdAt     DateTime      @default(now())
@@ -252,11 +252,11 @@ model ArtworkArtist {
 }
 
 model ArtworkImage {
-  id        String  @id @default(cuid())
-  artworkId String
-  imageId   String
-  order     Int     @default(0) // For image ordering
-  
+  id            String  @id @default(cuid())
+  artworkId     String
+  imageId       String
+  sortOrder     Int     @default(0) // For image sorting
+
   artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
   image     Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
   
