@@ -130,9 +130,13 @@ jobs:
 
       - name: Validate Prisma schema
         run: pnpm prisma validate
+        env:
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/artnote'
 
       - name: Check Prisma format
         run: pnpm prisma format --check
+        env:
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/artnote'
   # TODO: Uncomment when ready to deploy
   # deploy-preview:
   #   name: Deploy Preview (Vercel)
