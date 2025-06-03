@@ -15,13 +15,11 @@ export interface UseAuthReturn {
   error: Error | null;
   /** Check if user has a specific role */
   hasRole: (role: User['role'] | User['role'][]) => boolean;
-  /** Check if user is admin (ADMIN or SUPER_ADMIN) */
+  /** Check if user is admin (ADMIN) */
   isAdmin: boolean;
-  /** Check if user is super admin */
-  isSuperAdmin: boolean;
   /** Check if user is writer */
   isWriter: boolean;
-  /** Check if user can write (WRITER, ADMIN, or SUPER_ADMIN) */
+  /** Check if user can write (WRITER or ADMIN) */
   canWrite: boolean;
 }
 
@@ -53,10 +51,9 @@ export function useAuth(): UseAuthReturn {
     return Array.isArray(role) ? role.includes(user.role) : user.role === role;
   };
 
-  const isAdmin = hasRole(['ADMIN', 'SUPER_ADMIN']);
-  const isSuperAdmin = hasRole('SUPER_ADMIN');
+  const isAdmin = hasRole('ADMIN');
   const isWriter = hasRole('WRITER');
-  const canWrite = hasRole(['WRITER', 'ADMIN', 'SUPER_ADMIN']);
+  const canWrite = hasRole(['WRITER', 'ADMIN']);
 
   return {
     user,
@@ -65,7 +62,6 @@ export function useAuth(): UseAuthReturn {
     error,
     hasRole,
     isAdmin,
-    isSuperAdmin,
     isWriter,
     canWrite,
   };
