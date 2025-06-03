@@ -3,7 +3,8 @@
 import { ModeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { AuthButton, AuthDialog } from '@/features/auth/components';
-import { BookOpen, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -23,9 +24,16 @@ export function Header() {
       {' '}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center">
-          {/* Logo */}
+          {' '}
+          {/* Logo */}{' '}
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <BookOpen className="h-6 w-6" />
+            <Image
+              src="/icon.png"
+              alt="ArtNote Logo"
+              width={48}
+              height={48}
+              className="h-12 w-12"
+            />
             <span className="font-bold text-xl">ArtNote</span>
           </Link>
           {/* Desktop Navigation */}
