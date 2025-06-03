@@ -3,15 +3,13 @@
 import { ModeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { AuthButton, AuthDialog } from '@/features/auth/components';
-import { useAuth } from '@/features/auth/hooks';
-import { BookOpen, Menu, PlusCircle, X } from 'lucide-react';
+import { BookOpen, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const { user, canWrite } = useAuth();
 
   const navigation = [
     { name: 'Découvrir', href: '/' },
@@ -41,18 +39,9 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
-          </nav>
+          </nav>{' '}
           {/* Right side */}
           <div className="flex flex-1 items-center justify-end space-x-2">
-            {/* Admin/Writer Actions */}
-            {user && canWrite && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Admin
-                </Link>
-              </Button>
-            )}
             {/* Theme Toggle */}
             <ModeToggle />
             {/* Auth Section */}
