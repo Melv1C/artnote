@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "./auth"
+import { UserSchema } from "../schemas";
 
 
 export const getSession = async () => {
@@ -13,7 +14,7 @@ export const getSession = async () => {
 export const getUser = async () => {
   const session = await getSession();
 
-  return session?.user;
+  return session ? UserSchema.parse(session.user) : null;
 }
 
 export const getRequiredUser = async () => {
