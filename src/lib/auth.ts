@@ -15,4 +15,11 @@ export const auth = betterAuth({
       },
     },
   },
+  user: {
+    additionalFields: {
+      role: { type: 'string', required: true, defaultValue: 'USER', input: false },
+      bio: { type: 'string', required: false, input: true },
+      cv: { type: 'string', required: false, input: true },
+    },
+  },
 });

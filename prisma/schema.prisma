@@ -14,33 +14,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  WRITER
-  VIEWER
-}
-
-enum ArtworkStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum PlaceType {
-  MUSEUM
-  CHURCH
-  PUBLIC_SPACE
-  OTHER
-}
-
 model User {
   id            String    @id
   name          String
   email         String
   emailVerified Boolean
   image         String?
-  role          UserRole  @default(VIEWER)
+  role          String
   bio           String?
   cv            String? // URL to CV file
   createdAt     DateTime
@@ -149,9 +129,9 @@ model Concept {
 }
 
 model Place {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  type        PlaceType
+  type        String
   address     String?
   city        String?
   country     String?
@@ -159,8 +139,8 @@ model Place {
   longitude   Float?
   website     String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   createdById String
   updatedById String
 
@@ -173,17 +153,17 @@ model Place {
 }
 
 model Artwork {
-  id           String        @id @default(cuid())
+  id           String    @id @default(cuid())
   title        String
   creationYear String? // "2023", "19th century", etc.
   medium       String? // Oil on canvas, Bronze, etc.
   dimensions   String? // "100x80 cm" 
   notice       String? // Rich text notice content
   sources      String? // Bibliography/sources
-  status       ArtworkStatus @default(DRAFT)
+  status       String
   publishedAt  DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
   writerId String
