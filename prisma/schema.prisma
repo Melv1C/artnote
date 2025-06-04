@@ -165,6 +165,10 @@ model Artwork {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  // Analytics fields (Hybrid Approach - Phase 1)
+  viewCount     Int       @default(0)
+  lastViewedAt  DateTime?
+
   // Relations
   writerId String
   writer   User            @relation(fields: [writerId], references: [id])
@@ -173,6 +177,8 @@ model Artwork {
   // Many-to-many relations
   artists  ArtworkArtist[]
   images   ArtworkImage[]
+  // Analytics relations
+  pageViews PageView[]
 
   @@map("artwork")
 }
@@ -239,7 +245,27 @@ model ArtworkImage {
 
   artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
   image   Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
-
   @@unique([artworkId, imageId])
   @@map("artwork_image")
+}
+
+// =============================================================================
+// ANALYTICS MODELS (Hybrid Approach)
+// =============================================================================
+
+model PageView {
+  id         String   @id @default(cuid())
+  artworkId  String
+  sessionId  String? // Anonymous session tracking
+  ipAddress  String?
+  userAgent  String?
+  referrer   String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  @@index([artworkId])
+  @@index([createdAt])
+  @@map("page_view")
 }

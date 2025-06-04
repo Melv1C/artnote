@@ -19,6 +19,9 @@ export const ArtworkSchema = z.object({
   updatedAt: z.date(),
   writerId: z.string(),
   placeId: z.string().nullable(),
+  // Analytics fields
+  viewCount: z.number().int().min(0).default(0),
+  lastViewedAt: z.date().nullable(),
 });
 
 // =============================================================================
@@ -138,6 +141,16 @@ export const ArtworkWithRelationsSchema = ArtworkSchema.extend({
       sortOrder: z.number(),
     })
   ),
+  // Analytics relations (optional for performance)
+  pageViews: z
+    .array(
+      z.object({
+        id: z.string(),
+        sessionId: z.string().nullable(),
+        createdAt: z.date(),
+      })
+    )
+    .optional(),
 });
 
 // =============================================================================

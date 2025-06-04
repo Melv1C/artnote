@@ -6,6 +6,7 @@ export * from './common';
 // =============================================================================
 // DATA MODEL SCHEMAS
 // =============================================================================
+export * from './analytics';
 export * from './artist';
 export * from './artwork';
 export * from './concept';
