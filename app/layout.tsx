@@ -1,4 +1,5 @@
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
+import { QueryProvider } from '@/lib/query-provider';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
@@ -44,8 +45,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConditionalLayout>{children}</ConditionalLayout>
-          <Toaster />
+          <QueryProvider>
+            <ConditionalLayout>{children}</ConditionalLayout>
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
