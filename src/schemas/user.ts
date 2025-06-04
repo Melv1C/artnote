@@ -14,8 +14,8 @@ export const UserSchema = z.object({
   role: UserRoleSchema,
   bio: z.string().nullable(),
   cv: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 // =============================================================================
