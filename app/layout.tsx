@@ -1,10 +1,10 @@
+import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
-import { MainLayout } from '@/components/layout/main-layout';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,15 +37,14 @@ export default function RootLayout({
           'h-full'
         )}
       >
+        {' '}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <MainLayout>
-            {children}
-          </MainLayout>
+          <ConditionalLayout>{children}</ConditionalLayout>
           <Toaster />
         </ThemeProvider>
       </body>
