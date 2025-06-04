@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
       GetUsersQuerySchema.parse(queryParams);
 
     // Build where clause for filtering
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
 
     if (search) {

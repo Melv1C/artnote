@@ -23,11 +23,13 @@ import { Suspense } from 'react';
 type StatCardProps = {
   title: string;
   value: string | number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any; // Lucide icon component
   subtitle?: string;
 };
 
 // Skeleton component for loading states
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: any }) {
   return (
     <Card>

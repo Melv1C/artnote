@@ -5,13 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { z } from 'zod';
 
-interface GetUsersParams {
-  search?: string;
-  role?: 'ADMIN' | 'WRITER' | 'VIEWER' | 'all';
-  emailVerified?: boolean | 'all';
-  page?: number;
-  limit?: number;
-}
+// interface GetUsersParams {
+//   search?: string;
+//   role?: 'ADMIN' | 'WRITER' | 'VIEWER' | 'all';
+//   emailVerified?: boolean | 'all';
+//   page?: number;
+//   limit?: number;
+// }
 
 // Response validation schema
 const GetUsersResponseSchema = z.object({
