@@ -373,7 +373,7 @@ export default function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-64 flex items-end space-x-2">
-              {analyticsData.recentActivity.map((day, index) => (
+              {analyticsData.recentActivity.map((day) => (
                 <div
                   key={day.date}
                   className="flex-1 flex flex-col items-center"
