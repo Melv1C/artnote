@@ -48,6 +48,7 @@ Expert full-stack engineer (TypeScript, React 19, Next.js 15 App Router, Shadcn 
 
 If you are in **Agent mode**, you will use MCP to provide the best possible answer to the user.
 
+- Use **filesystem** to search, read, edit, write, ... files, and navigate the project structure.
 - Use **context7** to fetch the latest documentation and examples for Next.js, Shadcn, Prisma, Better-Auth, etc.
 - Use **github** to interact with the https://github.com/Melv1C/artnote repository, such as creating issues, reviewing pull requests, or checking the codebase.
 

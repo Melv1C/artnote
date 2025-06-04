@@ -1,7 +1,7 @@
 {
   "github.copilot.chat.codeGeneration.instructions": [
     {
-      "file": "prisma/schema.prisma",
-    },
+      "file": "prisma/schema.prisma"
+    }
   ]
 }
