@@ -13,63 +13,11 @@
  * - Non-blocking loading allows for better UX
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { StatCard, StatCardSkeleton } from '@/components/stats';
 import { prisma } from '@/lib/prisma';
 import { ArtworkStatusSchema, UserRoleSchema } from '@/schemas';
 import { NotebookPen, TrendingUp, UserCheck, Users } from 'lucide-react';
 import { Suspense } from 'react';
-
-type StatCardProps = {
-  title: string;
-  value: string | number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any; // Lucide icon component
-  subtitle?: string;
-};
-
-// Skeleton component for loading states
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: any }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="h-8 w-20 mb-1" />
-        <Skeleton className="h-3 w-16" />
-      </CardContent>
-    </Card>
-  );
-}
-
-// Reusable stat card component
-function StatCard({ title, value, icon: Icon, subtitle }: StatCardProps) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 // Individual async components for each stat
 async function UserCountCard() {
