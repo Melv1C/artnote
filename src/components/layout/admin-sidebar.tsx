@@ -8,7 +8,6 @@ import {
   Home,
   Settings,
   Shield,
-  User as UserIcon,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -27,7 +26,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import type { User } from '@/schemas/user';
 
@@ -148,7 +146,6 @@ export function AdminSidebar({ user }: { user: User }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-
         {/* User Information */}
         <div className="flex items-center gap-2 p-4">
           <Avatar className="h-8 w-8">
@@ -156,9 +153,7 @@ export function AdminSidebar({ user }: { user: User }) {
               src={user.image || undefined}
               alt={user.name || 'User Avatar'}
             />
-            <AvatarFallback>
-              {getInitials(user.name || 'User')}
-            </AvatarFallback>
+            <AvatarFallback>{getInitials(user.name || 'User')}</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">{user.name}</span>

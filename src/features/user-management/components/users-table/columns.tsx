@@ -135,7 +135,7 @@ export const columns: ColumnDef<User>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: ({ row, table }) => {
+    cell: ({ row }) => {
       const user = row.original;
 
       return <UserRowActions user={user} />;
