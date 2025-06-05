@@ -11,6 +11,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce';
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useUsersWithSearch } from '../hooks';
 import { UsersDataTable, columns } from './users-table';
 import { UserActions } from './users-table/user-actions';
@@ -55,21 +56,25 @@ export function UsersList() {
       return matchesSearch && matchesRole && matchesEmailVerified;
     });
   }, [users, debouncedSearch, roleFilter, emailVerifiedFilter]);
+
   const handleClearFilters = () => {
     setSearchValue('');
     setRoleFilter('all');
     setEmailVerifiedFilter('all');
   };
 
-  const handleExportUsers = () => {
-    console.log('Exporting users...');
-    // TODO: Implement export functionality
+  const handleExportAllUsers = () => {
+    toast.warning('Exportation de tous les utilisateurs à venir !', {
+      description: `Nous travaillons actuellement sur cette fonctionnalité. ${filteredUsers.length} utilisateurs seraient exportés.`,
+    });
   };
 
-  const handleBulkEmail = () => {
-    console.log('Sending bulk email...');
-    // TODO: Implement bulk email functionality
+  const handleExportSelectedUsers = () => {
+    toast.warning('Exportation de la sélection à venir !', {
+      description: `Nous travaillons actuellement sur cette fonctionnalité. ${selectedRowCount} utilisateurs sélectionnés seraient exportés.`,
+    });
   };
+
   const handleRefresh = () => {
     refetch();
   };
@@ -78,7 +83,6 @@ export function UsersList() {
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between">
-          {' '}
           <div>
             <CardTitle>Gestion des utilisateurs</CardTitle>
             <CardDescription>
@@ -95,8 +99,8 @@ export function UsersList() {
           </div>
           <UserActions
             selectedCount={selectedRowCount}
-            onExportUsers={handleExportUsers}
-            onBulkEmail={handleBulkEmail}
+            onExportAllUsers={handleExportAllUsers}
+            onExportSelectedUsers={handleExportSelectedUsers}
             isLoading={isLoading}
           />
         </div>
