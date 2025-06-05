@@ -8,11 +8,13 @@ import {
   Home,
   Settings,
   Shield,
+  User as UserIcon,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +27,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
+import type { User } from '@/schemas/user';
 
 const navigationItems = [
   {
@@ -66,8 +70,18 @@ const navigationItems = [
   },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ user }: { user: User }) {
   const pathname = usePathname();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((word) => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -80,7 +94,7 @@ export function AdminSidebar() {
             </span>
           </div>
         </div>
-      </SidebarHeader>{' '}
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -134,6 +148,26 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+
+        {/* User Information */}
+        <div className="flex items-center gap-2 p-4">
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src={user.image || undefined}
+              alt={user.name || 'User Avatar'}
+            />
+            <AvatarFallback>
+              {getInitials(user.name || 'User')}
+            </AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">{user.name}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {user.email}
+            </span>
+          </div>
+        </div>
+
         <div className="p-4 text-xs text-muted-foreground border-t">
           <div className="text-center">ArtNote Administration v1.0</div>
         </div>

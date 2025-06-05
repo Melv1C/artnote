@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
+import { PropsWithChildren } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,9 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: PropsWithChildren) {
   return (
     <html suppressHydrationWarning lang="en" className="h-full">
       <body

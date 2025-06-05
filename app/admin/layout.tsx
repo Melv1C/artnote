@@ -5,17 +5,23 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { ReactNode } from 'react';
+import { getUser } from '@/lib/auth-server';
+import { UserRoleSchema } from '@/schemas';
+import { unauthorized } from 'next/navigation';
+import { PropsWithChildren } from 'react';
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
+export default async function AdminLayout({ children }: PropsWithChildren) {
+  // Check if user is authenticated and has admin role
+  const user = await getUser();
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+  if (!user || user.role !== UserRoleSchema.Values.ADMIN) {
+    unauthorized();
+  }
+
   return (
     <div className="h-screen">
       <SidebarProvider>
-        <AdminSidebar />
+        <AdminSidebar user={user} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
