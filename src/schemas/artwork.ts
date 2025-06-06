@@ -70,7 +70,7 @@ export const ArtworkFormSchema = z.object({
   dimensions: z.string().optional(),
   notice: z.string().optional(),
   sources: z.string().optional(),
-  status: ArtworkStatusSchema.default('DRAFT'),
+  status: ArtworkStatusSchema,
   placeId: z.string().optional(),
   artistIds: z.array(z.string()).optional(),
   imageIds: z.array(z.string()).optional(),
