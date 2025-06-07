@@ -1,6 +1,17 @@
-import { Button } from '@/components/ui/button';
-import { ArtworkHeader, ArtworkStats } from '@/features/artworks';
-import { Filter, Search } from 'lucide-react';
+import {
+  ArtworkHeader,
+  ArtworkList,
+  ArtworkListSkeleton,
+  ArtworkStats,
+} from '@/features/artworks';
+import {
+  deleteArtwork,
+  toggleArchiveArtwork,
+} from '@/features/artworks/actions';
+import { getRequiredUser } from '@/lib/auth-server';
+import { prisma } from '@/lib/prisma';
+import { ArtworkSchema } from '@/schemas';
+import { Suspense } from 'react';
 
 export default async function ArtworksPage() {
   return (
@@ -8,17 +19,38 @@ export default async function ArtworksPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <ArtworkHeader />
+
         {/* Stats Cards */}
         <ArtworkStats />
-        {/* TODO: Implement ArtworkFilters component */}
-        {/* <ArtworkFilters /> */} {/* Filters and Search */}
-        {/* TODO: Implement ArtworkFilters component with search and filtering */}
-        
-        {/* TODO: Implement ArtworkList component */}
-        {/* <ArtworkList artworks={userArtworks} /> */}
-        {/* Artworks List - Temporary mock data display */}
-        {/* TODO: Replace with ArtworkList component that uses real data */}
+
+        {/* Main Content with ArtworkList */}
+        <div className="mt-8">
+          <Suspense fallback={<ArtworkListSkeleton />}>
+            <ArtworkListWrapper />
+          </Suspense>
+        </div>
       </div>
     </div>
+  );
+}
+
+async function ArtworkListWrapper() {
+  const user = await getRequiredUser();
+
+  const initialArtworks = ArtworkSchema.array().parse(
+    await prisma.artwork.findMany({
+      where: {
+        writerId: user.id,
+      },
+      orderBy: { updatedAt: 'desc' },
+    })
+  );
+
+  return (
+    <ArtworkList
+      initialArtworks={initialArtworks}
+      onArchiveToggle={toggleArchiveArtwork}
+      onDelete={deleteArtwork}
+    />
   );
 }

@@ -32,7 +32,7 @@ export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkRes
         dimensions: validatedData.dimensions || null,
         notice: validatedData.notice || null,
         sources: validatedData.sources || null,
-        status: validatedData.status || 'DRAFT',
+        status: validatedData.status,
         writerId: user.id,
         placeId: validatedData.placeId || null,
         // Initialize analytics fields
