@@ -40,7 +40,7 @@ export function ArtworkFiltersDropdown({
   onClearFilters,
   activeFiltersCount,
 }: ArtworkFiltersDropdownProps) {
-  const updateFilter = (key: keyof ArtworkFilter, value: any) => {
+  const updateFilter = (key: keyof ArtworkFilter, value: string | Date | number | undefined) => {
     onFiltersChange({
       ...filters,
       [key]: value === 'all' || value === '' ? undefined : value,

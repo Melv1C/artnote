@@ -78,8 +78,8 @@ export function ArtworkList({
       const sortOrder = currentFilters.sortOrder || 'desc';
 
       filteredArtworks.sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
+        let aValue: string | Date | number;
+        let bValue: string | Date | number;
 
         switch (sortBy) {
           case 'title':
