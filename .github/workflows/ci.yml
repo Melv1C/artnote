@@ -70,7 +70,8 @@ jobs:
         run: pnpm build
         env:
           # Dummy environment variables for build
-          DATABASE_URL: 'prisma+postgres://user:password@localhost:5432/artnote'
+          NODE_ENV: 'development'
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/artnote'
           BETTER_AUTH_SECRET: 'dummy-secret-for-build'
           BETTER_AUTH_URL: 'http://localhost:3000'
 
