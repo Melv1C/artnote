@@ -25,18 +25,22 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { CreateArtworkResponse } from '../actions';
+import type { CreateArtworkResponse, UpdateArtworkResponse } from '../actions';
 
 interface ArtworkFormProps {
   initialValues?: Partial<ArtworkForm>;
-  createArtwork: (data: ArtworkForm) => Promise<CreateArtworkResponse>;
+  onSubmit: (
+    data: ArtworkForm
+  ) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
   submitLabel?: string;
+  successMessage?: string;
 }
 
 export function ArtworkForm({
   initialValues,
-  createArtwork,
+  onSubmit,
   submitLabel = 'Enregistrer',
+  successMessage = 'Notice enregistrée avec succès !',
 }: ArtworkFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,27 +58,29 @@ export function ArtworkForm({
     },
   });
 
-  const onSubmit = async (data: ArtworkForm) => {
+  const handleSubmit = async (data: ArtworkForm) => {
     try {
       setIsSubmitting(true);
-      const result = await createArtwork(data);
+      const result = await onSubmit(data);
 
       if (result.success) {
-        toast.success('Notice créée avec succès !');
+        toast.success(successMessage);
         router.push('/dashboard/artworks');
       } else {
         setIsSubmitting(false);
-        toast.error(result.error || 'Erreur lors de la création de la notice');
+        toast.error(
+          result.error || "Erreur lors de l'enregistrement de la notice"
+        );
       }
     } catch (error) {
-      console.error('Error creating artwork:', error);
+      console.error('Error saving artwork:', error);
       setIsSubmitting(false);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <FormField
