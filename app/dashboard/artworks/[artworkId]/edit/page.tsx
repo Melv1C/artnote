@@ -12,16 +12,17 @@ import { ArtworkSchema } from '@/schemas';
 import { notFound } from 'next/navigation';
 
 interface EditArtworkPageProps {
-  params: { artworkId: string };
+  params: Promise<{ artworkId: string }>;
 }
 
 export default async function EditArtworkPage({
   params,
 }: EditArtworkPageProps) {
   const user = await getRequiredUser();
+  const { artworkId } = await params;
 
   const artwork = await prisma.artwork.findUnique({
-    where: { id: params.artworkId },
+    where: { id: artworkId },
   });
 
   if (!artwork || artwork.writerId !== user.id) {
@@ -53,7 +54,7 @@ export default async function EditArtworkPage({
         <CardContent>
           <ArtworkForm
             initialValues={initialValues}
-            onSubmit={(data) => updateArtwork(params.artworkId, data)}
+            onSubmit={(data) => updateArtwork(artworkId, data)}
             submitLabel="Mettre à jour"
             successMessage="Notice mise à jour avec succès !"
           />
