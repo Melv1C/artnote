@@ -20,8 +20,9 @@ export default function CreateArtworkPage() {
         </CardHeader>
         <CardContent>
           <ArtworkForm
-            createArtwork={createArtwork}
+            onSubmit={createArtwork}
             submitLabel="Créer la notice"
+            successMessage="Notice créée avec succès !"
           />
         </CardContent>
       </Card>
