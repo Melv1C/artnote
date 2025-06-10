@@ -54,7 +54,7 @@ export default async function EditArtworkPage({
         <CardContent>
           <ArtworkForm
             initialValues={initialValues}
-            onSubmit={(data) => updateArtwork(artworkId, data)}
+            onSubmit={updateArtwork.bind(null, artworkId)}
             submitLabel="Mettre à jour"
             successMessage="Notice mise à jour avec succès !"
           />
