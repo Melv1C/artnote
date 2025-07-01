@@ -15,6 +15,7 @@
     "prisma:format": "prisma format"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.10.1",
     "@prisma/extension-accelerate": "^2.0.1",
@@ -29,6 +30,8 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tanstack/react-query": "^5.80.3",
     "@tanstack/react-table": "^8.21.3",
+    "@types/react-dropzone": "^5.1.0",
+    "@vercel/blob": "^1.1.1",
     "axios": "^1.10.0",
     "better-auth": "^1.2.8",
     "class-variance-authority": "^0.7.1",
@@ -40,6 +43,7 @@
     "prisma": "^6.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.59.0",
     "sonner": "^2.0.4",
     "tailwind-merge": "^3.3.0",

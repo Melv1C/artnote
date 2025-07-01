@@ -1,9 +1,15 @@
-import type { NextConfig } from "next";
+import { env } from '@/lib/env';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
-    authInterrupts: true
+    authInterrupts: true,
+  },
+  images: {
+    remotePatterns: [
+      new URL(`${env.REMOTE_IMAGE_DOMAIN}/**`),
+    ],
   },
 };
 

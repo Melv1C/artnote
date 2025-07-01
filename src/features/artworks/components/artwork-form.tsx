@@ -26,9 +26,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { CreateArtworkResponse, UpdateArtworkResponse } from '../actions';
+import { ImageUpload } from './image-upload';
 
 interface ArtworkFormProps {
-  initialValues?: Partial<ArtworkForm>;
+  initialValues?: ArtworkForm;
   onSubmit: (
     data: ArtworkForm
   ) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
@@ -44,16 +45,18 @@ export function ArtworkForm({
 }: ArtworkFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<ArtworkForm>({
     resolver: zodResolver(ArtworkFormSchema),
     defaultValues: {
       title: '',
-      creationYear: '',
-      medium: '',
-      dimensions: '',
-      notice: '',
-      sources: '',
+      creationYear: null,
+      medium: null,
+      dimensions: null,
+      notice: null,
+      sources: null,
       status: ArtworkStatusSchema.Values.DRAFT,
+      images: [],
       ...initialValues,
     },
   });
@@ -61,6 +64,7 @@ export function ArtworkForm({
   const handleSubmit = async (data: ArtworkForm) => {
     try {
       setIsSubmitting(true);
+
       const result = await onSubmit(data);
 
       if (result.success) {
@@ -75,12 +79,32 @@ export function ArtworkForm({
     } catch (error) {
       console.error('Error saving artwork:', error);
       setIsSubmitting(false);
+      toast.error(
+        'Une erreur inattendue est survenue. Vérifiez la console pour plus de détails.'
+      );
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Debug: Show form errors in development */}
+        {process.env.NODE_ENV === 'development' &&
+          Object.keys(form.formState.errors).length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <h4 className="text-red-800 font-semibold mb-2">
+                Erreurs de validation:
+              </h4>
+              <ul className="text-red-700 text-sm">
+                {Object.entries(form.formState.errors).map(([field, error]) => (
+                  <li key={field}>
+                    <strong>{field}:</strong> {error?.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <FormField
@@ -105,7 +129,12 @@ export function ArtworkForm({
               <FormItem>
                 <FormLabel>Année de création</FormLabel>
                 <FormControl>
-                  <Input placeholder="2023, XIXe siècle..." {...field} />
+                  <Input
+                    placeholder="2023, XIXe siècle..."
+                    {...field}
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -147,7 +176,12 @@ export function ArtworkForm({
               <FormItem>
                 <FormLabel>Technique</FormLabel>
                 <FormControl>
-                  <Input placeholder="Huile sur toile, Bronze..." {...field} />
+                  <Input
+                    placeholder="Huile sur toile, Bronze..."
+                    {...field}
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -162,7 +196,12 @@ export function ArtworkForm({
               <FormItem>
                 <FormLabel>Dimensions</FormLabel>
                 <FormControl>
-                  <Input placeholder="100 x 80 cm" {...field} />
+                  <Input
+                    placeholder="100 x 80 cm"
+                    {...field}
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,6 +221,8 @@ export function ArtworkForm({
                   placeholder="Contenu de la notice explicative..."
                   className="min-h-[200px]"
                   {...field}
+                  value={field.value || ''}
+                  onChange={(e) => field.onChange(e.target.value || null)}
                 />
               </FormControl>
               <FormMessage />
@@ -201,6 +242,26 @@ export function ArtworkForm({
                   placeholder="Bibliographie et sources..."
                   className="min-h-[100px]"
                   {...field}
+                  value={field.value || ''} // Ensure controlled input
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Images */}
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <ImageUpload
+                  images={field.value}
+                  onChange={field.onChange}
+                  maxImages={10}
                 />
               </FormControl>
               <FormMessage />

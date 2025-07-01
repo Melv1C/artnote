@@ -9,6 +9,7 @@ import { ArtworkForm, updateArtwork } from '@/features/artworks';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema } from '@/schemas';
+import { ArtworkImageSchemaSimplified } from '@/schemas/artwork-image';
 import { notFound } from 'next/navigation';
 
 interface EditArtworkPageProps {
@@ -23,6 +24,16 @@ export default async function EditArtworkPage({
 
   const artwork = await prisma.artwork.findUnique({
     where: { id: artworkId },
+    include: {
+      images: {
+        include: {
+          image: true,
+        },
+        orderBy: {
+          sortOrder: 'asc',
+        },
+      },
+    },
   });
 
   if (!artwork || artwork.writerId !== user.id) {
@@ -30,17 +41,6 @@ export default async function EditArtworkPage({
   }
 
   const parsed = ArtworkSchema.parse(artwork);
-
-  const initialValues = {
-    title: parsed.title,
-    creationYear: parsed.creationYear || undefined,
-    medium: parsed.medium || undefined,
-    dimensions: parsed.dimensions || undefined,
-    notice: parsed.notice || undefined,
-    sources: parsed.sources || undefined,
-    status: parsed.status,
-    placeId: parsed.placeId || undefined,
-  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -53,7 +53,7 @@ export default async function EditArtworkPage({
         </CardHeader>
         <CardContent>
           <ArtworkForm
-            initialValues={initialValues}
+            initialValues={parsed}
             onSubmit={updateArtwork.bind(null, artworkId)}
             submitLabel="Mettre à jour"
             successMessage="Notice mise à jour avec succès !"

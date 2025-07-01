@@ -25,10 +25,17 @@ const envSchema = z.object({
     message: 'BETTER_AUTH_URL must be a valid URL',
   }),
 
-  // Optional: Add other environment variables as needed
-  // For example, if you plan to use external services:
-  // UPLOADTHING_SECRET: z.string().optional(),
-  // UPLOADTHING_APP_ID: z.string().optional(),
+  BLOB_READ_WRITE_TOKEN: z
+    .string()
+    .refine((val) => !val || val.startsWith('vercel_blob_'), {
+      message:
+        'BLOB_READ_WRITE_TOKEN must start with "vercel_blob_" if provided',
+    }),
+
+  // Remote image domain for Next.js image optimization
+  REMOTE_IMAGE_DOMAIN: z.string().url({
+    message: 'REMOTE_IMAGE_DOMAIN must be a valid URL',
+  }),
 });
 
 // Parse and validate environment variables
