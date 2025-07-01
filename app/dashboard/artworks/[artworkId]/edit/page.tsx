@@ -9,7 +9,6 @@ import { ArtworkForm, updateArtwork } from '@/features/artworks';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema } from '@/schemas';
-import { ArtworkImageSchemaSimplified } from '@/schemas/artwork-image';
 import { notFound } from 'next/navigation';
 
 interface EditArtworkPageProps {
