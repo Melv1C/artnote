@@ -32,16 +32,16 @@ model User {
   artworks Artwork[]
 
   // Created/Updated relations
-  artistsCreated  Artist[]  @relation("ArtistCreatedBy")
-  artistsUpdated  Artist[]  @relation("ArtistUpdatedBy")
-  conceptsCreated Concept[] @relation("ConceptCreatedBy")
-  conceptsUpdated Concept[] @relation("ConceptUpdatedBy")
-  placesCreated   Place[]   @relation("PlaceCreatedBy")
-  placesUpdated   Place[]   @relation("PlaceUpdatedBy")
-  keywordsCreated Keyword[] @relation("KeywordCreatedBy")
-  keywordsUpdated Keyword[] @relation("KeywordUpdatedBy")
-  imagesCreated   Image[]   @relation("ImageCreatedBy")
-  imagesUpdated   Image[]   @relation("ImageUpdatedBy")
+  artistsCreated  Artist[]       @relation("ArtistCreatedBy")
+  artistsUpdated  Artist[]       @relation("ArtistUpdatedBy")
+  conceptsCreated Concept[]      @relation("ConceptCreatedBy")
+  conceptsUpdated Concept[]      @relation("ConceptUpdatedBy")
+  placesCreated   Place[]        @relation("PlaceCreatedBy")
+  placesUpdated   Place[]        @relation("PlaceUpdatedBy")
+  keywordsCreated Keyword[]      @relation("KeywordCreatedBy")
+  keywordsUpdated Keyword[]      @relation("KeywordUpdatedBy")
+  imagesCreated   ArtworkImage[] @relation("ImageCreatedBy")
+  imagesUpdated   ArtworkImage[] @relation("ImageUpdatedBy")
 
   @@unique([email])
   @@map("user")
@@ -200,24 +200,17 @@ model Keyword {
 }
 
 model Image {
-  id          String   @id @default(cuid())
-  url         String
-  alt         String?
-  caption     String?
-  width       Int?
-  height      Int?
-  size        Int? // File size in bytes
-  mimeType    String?
-  isMain      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdById String
-  updatedById String
+  id       String  @id @default(cuid())
+  url      String
+  alt      String?
+  caption  String?
+  width    Int?
+  height   Int?
+  size     Int?
+  mimeType String?
 
   // Relations
-  artworks  ArtworkImage[]
-  createdBy User           @relation("ImageCreatedBy", fields: [createdById], references: [id])
-  updatedBy User           @relation("ImageUpdatedBy", fields: [updatedById], references: [id])
+  artworks ArtworkImage[]
 
   @@map("image")
 }
@@ -238,13 +231,23 @@ model ArtworkArtist {
 }
 
 model ArtworkImage {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   artworkId String
   imageId   String
-  sortOrder Int    @default(0) // For image sorting
+  sortOrder Int     @default(0) // For image sorting
+  isMain    Boolean @default(false)
+  source    String? // Source/credit for the image
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  updatedById String
 
   artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
   image   Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation("ImageCreatedBy", fields: [createdById], references: [id])
+  updatedBy User @relation("ImageUpdatedBy", fields: [updatedById], references: [id])
 
   @@unique([artworkId, imageId])
   @@map("artwork_image")
