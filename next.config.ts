@@ -1,4 +1,3 @@
-import { env } from '@/lib/env';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -8,7 +7,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      new URL(`${env.REMOTE_IMAGE_DOMAIN}/**`),
+      new URL(`${process.env.REMOTE_IMAGE_DOMAIN}/**`),
     ],
   },
 };
