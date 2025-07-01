@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ArtworkStatusSchema, PaginationSchema, SearchSchema } from './common';
 import { ArtworkImageSchemaSimplified } from './artwork-image';
+import { ArtworkStatusSchema } from './common';
 
 // =============================================================================
 // BASE SCHEMA
@@ -8,7 +8,10 @@ import { ArtworkImageSchemaSimplified } from './artwork-image';
 
 export const ArtworkSchema = z.object({
   id: z.string(),
-  title: z.string().min(2, 'Le titre doit comporter au moins 2 caractères').max(255, 'Le titre ne peut pas dépasser 255 caractères'),
+  title: z
+    .string()
+    .min(2, 'Le titre doit comporter au moins 2 caractères')
+    .max(255, 'Le titre ne peut pas dépasser 255 caractères'),
   creationYear: z.string().nullable(),
   medium: z.string().nullable(),
   dimensions: z.string().nullable(),
@@ -66,8 +69,6 @@ export const ArtworkFormSchema = ArtworkSchema.omit({
   images: ArtworkImageSchemaSimplified.array(),
   artistIds: z.array(z.string()).optional(),
 });
-
-
 
 // =============================================================================
 // TYPE EXPORTS
