@@ -48,7 +48,7 @@ export async function updateArtwork(
           notice: validatedData.notice || null,
           sources: validatedData.sources || null,
           status: validatedData.status,
-          placeId: validatedData.placeId || null,
+          placeId: null, // TODO: Handle placeId later
         },
       });
 

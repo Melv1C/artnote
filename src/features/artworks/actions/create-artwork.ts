@@ -38,7 +38,7 @@ export async function createArtwork(
           sources: validatedData.sources,
           status: validatedData.status,
           writerId: user.id,
-          placeId: validatedData.placeId,
+          placeId: null, // TODO: Handle placeId later
           // Initialize analytics fields
           viewCount: 0,
           lastViewedAt: null,
