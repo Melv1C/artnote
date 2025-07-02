@@ -17,6 +17,7 @@ export function Header() {
     { name: 'Œuvres', href: '/artworks' },
     { name: 'Artistes', href: '/artists' },
     { name: 'Lieux', href: '/places' },
+    { name: 'Nouveautés', href: '/whats-new' },
   ];
 
   return (
