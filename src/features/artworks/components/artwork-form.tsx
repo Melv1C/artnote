@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { ArtworkStatusSchema } from '@/schemas';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -217,12 +218,9 @@ export function ArtworkForm({
             <FormItem>
               <FormLabel>Notice</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Contenu de la notice explicative..."
-                  className="min-h-[200px]"
-                  {...field}
+                <RichTextEditor
                   value={field.value || ''}
-                  onChange={(e) => field.onChange(e.target.value || null)}
+                  onChange={(val) => field.onChange(val)}
                 />
               </FormControl>
               <FormMessage />
