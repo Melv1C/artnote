@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarUpload } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/features/auth/hooks';
 import {
-  Camera,
   Download,
   Eye,
   Link as LinkIcon,
@@ -116,34 +115,7 @@ export default function ProfilePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage
-                      src={user.image || undefined}
-                      alt={user.name}
-                    />
-                    <AvatarFallback className="text-lg">
-                      {user.name
-                        ?.split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  {isEditing && (
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Camera className="mr-2 h-4 w-4" />
-                        Changer
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <AvatarUpload user={user} editable={isEditing} />
 
                 <div className="mt-6 space-y-2">
                   <div className="flex justify-between">
