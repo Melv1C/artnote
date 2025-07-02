@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/features/auth/hooks';
+import { updateProfile } from '@/features/profile';
+import { toast } from 'sonner';
 import {
   Camera,
   Download,
@@ -39,13 +41,22 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setIsLoading(true);
-    // TODO: Implement save logic with your API
     try {
-      // await updateProfile(formData);
-      console.log('Saving profile:', formData);
-      setIsEditing(false);
+      const result = await updateProfile({
+        name: formData.name,
+        bio: formData.bio,
+        cv: formData.cv,
+      });
+
+      if (result.success) {
+        toast.success('Profil mis à jour !');
+        setIsEditing(false);
+      } else {
+        toast.error(result.error || 'Erreur lors de la mise à jour');
+      }
     } catch (error) {
       console.error('Failed to save profile:', error);
+      toast.error('Une erreur inattendue est survenue');
     } finally {
       setIsLoading(false);
     }
