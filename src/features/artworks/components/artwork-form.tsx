@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import {
   Select,
   SelectContent,
@@ -17,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { ArtworkStatusSchema } from '@/schemas';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 import { zodResolver } from '@hookform/resolvers/zod';
