@@ -236,11 +236,10 @@ export function ArtworkForm({
             <FormItem>
               <FormLabel>Sources</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Bibliographie et sources..."
-                  className="min-h-[100px]"
-                  {...field}
-                  value={field.value || ''} // Ensure controlled input
+                <RichTextEditor
+                  value={field.value || ''}
+                  onChange={(val) => field.onChange(val)}
+                  placeholder="Ajoutez des liens ou des références"
                 />
               </FormControl>
               <FormMessage />

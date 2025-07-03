@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Color } from '@tiptap/extension-color';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Link } from '@tiptap/extension-link';
+import { Superscript } from '@tiptap/extension-superscript';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
@@ -29,6 +30,7 @@ import {
   Quote,
   Redo,
   Strikethrough,
+  Superscript as SuperscriptIcon,
   Type,
   Underline as UnderlineIcon,
   Undo,
@@ -36,6 +38,83 @@ import {
 } from 'lucide-react';
 import { useEffect } from 'react';
 
+// Shared configuration for both editor and viewer
+const getEditorExtensions = (isViewer = false) => [
+  StarterKit.configure({
+    // Configure extensions with Tailwind classes
+    bulletList: {
+      HTMLAttributes: {
+        class: 'list-disc pl-6 space-y-1',
+      },
+    },
+    orderedList: {
+      HTMLAttributes: {
+        class: 'list-decimal pl-6 space-y-1',
+      },
+    },
+    listItem: {
+      HTMLAttributes: {
+        class: 'leading-relaxed',
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class:
+          'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
+      },
+    },
+    heading: {
+      levels: [1, 2, 3],
+      HTMLAttributes: {
+        class: 'font-bold leading-tight',
+      },
+    },
+    paragraph: {
+      HTMLAttributes: {
+        class: 'leading-relaxed',
+      },
+    },
+  }),
+  TextStyle,
+  Color,
+  Highlight.configure({
+    multicolor: true,
+    HTMLAttributes: {
+      class: 'bg-yellow-200 dark:bg-yellow-900/50 rounded px-1',
+    },
+  }),
+  Underline.configure({
+    HTMLAttributes: {
+      class: 'underline decoration-2',
+    },
+  }),
+  Superscript.configure({
+    HTMLAttributes: {
+      class: 'text-xs align-super',
+    },
+  }),
+  TextAlign.configure({
+    types: ['heading', 'paragraph'],
+  }),
+  Link.configure({
+    openOnClick: isViewer, // Enable link clicking in viewer mode
+    HTMLAttributes: {
+      class: `text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50 ${
+        isViewer ? 'cursor-pointer' : ''
+      }`,
+    },
+  }),
+];
+
+const getEditorProps = (isViewer = false) => ({
+  attributes: {
+    class: `prose prose-sm max-w-none ${
+      isViewer ? '' : 'min-h-[150px]'
+    } prose-headings:font-bold prose-headings:leading-tight prose-h1:text-2xl prose-h1:mt-6 prose-h1:mb-4 prose-h2:text-xl prose-h2:mt-5 prose-h2:mb-3 prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 focus:outline-none`,
+  },
+});
+
+// Rich Text Editor Component
 interface RichTextEditorProps {
   value: string | null;
   onChange: (value: string | null) => void;
@@ -50,66 +129,7 @@ export function RichTextEditor({
   placeholder = 'Commencez à écrire...',
 }: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        // Configure extensions with Tailwind classes
-        bulletList: {
-          HTMLAttributes: {
-            class: 'list-disc pl-6 space-y-1',
-          },
-        },
-        orderedList: {
-          HTMLAttributes: {
-            class: 'list-decimal pl-6 space-y-1',
-          },
-        },
-        listItem: {
-          HTMLAttributes: {
-            class: 'leading-relaxed',
-          },
-        },
-        blockquote: {
-          HTMLAttributes: {
-            class:
-              'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
-          },
-        },
-        heading: {
-          levels: [1, 2, 3],
-          HTMLAttributes: {
-            class: 'font-bold leading-tight',
-          },
-        },
-        paragraph: {
-          HTMLAttributes: {
-            class: 'leading-relaxed',
-          },
-        },
-      }),
-      TextStyle,
-      Color,
-      Highlight.configure({
-        multicolor: true,
-        HTMLAttributes: {
-          class: 'bg-yellow-200 dark:bg-yellow-900/50 rounded px-1',
-        },
-      }),
-      Underline.configure({
-        HTMLAttributes: {
-          class: 'underline decoration-2',
-        },
-      }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class:
-            'text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50',
-        },
-      }),
-    ],
+    extensions: getEditorExtensions(false),
     content: value || '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -118,12 +138,7 @@ export function RichTextEditor({
         onChange(html === '<p></p>' ? null : html);
       }
     },
-    editorProps: {
-      attributes: {
-        class:
-          'prose prose-sm max-w-none min-h-[150px] prose-headings:font-bold prose-headings:leading-tight prose-h1:text-2xl prose-h1:mt-6 prose-h1:mb-4 prose-h2:text-xl prose-h2:mt-5 prose-h2:mb-3 prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 focus:outline-none',
-      },
-    },
+    editorProps: getEditorProps(false),
   });
 
   useEffect(() => {
@@ -265,6 +280,7 @@ export function RichTextEditor({
               ...(editor.isActive('italic') ? ['italic'] : []),
               ...(editor.isActive('underline') ? ['underline'] : []),
               ...(editor.isActive('strike') ? ['strike'] : []),
+              ...(editor.isActive('superscript') ? ['superscript'] : []),
             ]}
             onValueChange={(values) => {
               // Handle bold
@@ -294,6 +310,13 @@ export function RichTextEditor({
               if (shouldBeStrike !== isStrike) {
                 editor.chain().focus().toggleStrike().run();
               }
+
+              // Handle superscript
+              const shouldBeSuperscript = values.includes('superscript');
+              const isSuperscript = editor.isActive('superscript');
+              if (shouldBeSuperscript !== isSuperscript) {
+                editor.chain().focus().toggleSuperscript().run();
+              }
             }}
             size="sm"
             className="border rounded-md"
@@ -317,6 +340,13 @@ export function RichTextEditor({
             </ToggleGroupItem>
             <ToggleGroupItem value="strike" className="h-8 px-3" title="Barré">
               <Strikethrough className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="superscript"
+              className="h-8 px-3"
+              title="Exposant"
+            >
+              <SuperscriptIcon className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
 
@@ -494,6 +524,53 @@ export function RichTextEditor({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Rich Text Viewer Component
+interface RichTextViewerProps {
+  content: string | null;
+  className?: string;
+}
+
+export function RichTextViewer({ content, className }: RichTextViewerProps) {
+  const editor = useEditor({
+    extensions: getEditorExtensions(true),
+    content: content || '',
+    editable: false, // Make it read-only
+    editorProps: getEditorProps(true),
+  });
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '');
+    }
+  }, [content, editor]);
+
+  if (!editor) {
+    return (
+      <div className={cn('animate-pulse', className)}>
+        <div className="space-y-3">
+          <div className="h-4 bg-muted rounded w-3/4"></div>
+          <div className="h-4 bg-muted rounded w-1/2"></div>
+          <div className="h-4 bg-muted rounded w-2/3"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if there's no content
+  if (!content || content.trim() === '' || content === '<p></p>') {
+    return null;
+  }
+
+  return (
+    <div className={cn('prose prose-sm max-w-none', className)}>
+      <EditorContent
+        editor={editor}
+        className="[&_.ProseMirror]:outline-none [&_.ProseMirror_h1]:text-2xl [&_.ProseMirror_h1]:font-bold [&_.ProseMirror_h1]:mt-6 [&_.ProseMirror_h1]:mb-4 [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:mt-5 [&_.ProseMirror_h2]:mb-3 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-bold [&_.ProseMirror_h3]:mt-4 [&_.ProseMirror_h3]:mb-2"
+      />
     </div>
   );
 }
