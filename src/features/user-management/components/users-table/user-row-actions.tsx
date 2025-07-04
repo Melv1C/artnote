@@ -37,12 +37,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   // Helper function to get user-friendly role names
   const getRoleDisplayName = (role: UserRole) => {
     switch (role) {
-      case 'ADMIN':
+      case UserRoleSchema.enum.admin:
         return 'Administrateur';
-      case 'WRITER':
+      case UserRoleSchema.enum.writer:
         return 'Rédacteur';
-      case 'VIEWER':
-        return 'Lecteur';
+      case UserRoleSchema.enum.user:
+        return 'Utilisateur';
       default:
         return role;
     }

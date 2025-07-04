@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { UserRoleSchema } from '@/schemas';
 import { User } from '@/schemas/user';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
@@ -85,14 +86,14 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const role = row.getValue('role') as string;
       const roleLabels = {
-        ADMIN: 'Administrateur',
-        WRITER: 'Rédacteur',
-        VIEWER: 'Lecteur',
+        [UserRoleSchema.enum.admin]: 'Administrateur',
+        [UserRoleSchema.enum.writer]: 'Rédacteur',
+        [UserRoleSchema.enum.user]: 'Utilisateur',
       };
       const roleColors = {
-        ADMIN: 'destructive',
-        WRITER: 'default',
-        VIEWER: 'secondary',
+        [UserRoleSchema.enum.admin]: 'destructive',
+        [UserRoleSchema.enum.writer]: 'default',
+        [UserRoleSchema.enum.user]: 'secondary',
       } as const;
 
       return (

@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { UserRoleSchema } from '@/schemas';
 import { X } from 'lucide-react';
 
 interface ActiveFiltersProps {
@@ -26,12 +27,12 @@ export function ActiveFilters({
 
   const getRoleDisplayName = (role: string) => {
     switch (role) {
-      case 'ADMIN':
+      case UserRoleSchema.enum.admin:
         return 'Administrateur';
-      case 'WRITER':
+      case UserRoleSchema.enum.writer:
         return 'Rédacteur';
-      case 'VIEWER':
-        return 'Lecteur';
+      case UserRoleSchema.enum.user:
+        return 'Utilisateur';
       default:
         return role;
     }
