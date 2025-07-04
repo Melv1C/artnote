@@ -23,6 +23,8 @@ interface FiltersDropdownProps {
   onRoleFilterChange: (value: string) => void;
   emailVerifiedFilter: string;
   onEmailVerifiedFilterChange: (value: string) => void;
+  banStatusFilter: string;
+  onBanStatusFilterChange: (value: string) => void;
   onClearFilters: () => void;
   activeFiltersCount: number;
 }
@@ -32,6 +34,8 @@ export function FiltersDropdown({
   onRoleFilterChange,
   emailVerifiedFilter,
   onEmailVerifiedFilterChange,
+  banStatusFilter,
+  onBanStatusFilterChange,
   onClearFilters,
   activeFiltersCount,
 }: FiltersDropdownProps) {
@@ -85,6 +89,25 @@ export function FiltersDropdown({
               <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="true">Vérifié</SelectItem>
               <SelectItem value="false">Non vérifié</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="p-2">
+          <label className="text-sm font-medium mb-2 block">
+            Statut du compte
+          </label>
+          <Select
+            value={banStatusFilter}
+            onValueChange={onBanStatusFilterChange}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Tous" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous</SelectItem>
+              <SelectItem value="active">Actif</SelectItem>
+              <SelectItem value="banned">Suspendu</SelectItem>
             </SelectContent>
           </Select>
         </div>

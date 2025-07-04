@@ -28,7 +28,7 @@ async function UserCountCard() {
 async function WriterCountCard() {
   const writerCount = await prisma.user.count({
     where: {
-      role: UserRoleSchema.Values.WRITER,
+      role: UserRoleSchema.Values.writer,
     },
   });
   return (

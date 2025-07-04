@@ -27,6 +27,8 @@ interface DataTableProps<TData, TValue> {
   onRoleFilterChange: (value: string) => void;
   emailVerifiedFilter: string;
   onEmailVerifiedFilterChange: (value: string) => void;
+  banStatusFilter: string;
+  onBanStatusFilterChange: (value: string) => void;
   onClearFilters: () => void;
 }
 
@@ -40,6 +42,8 @@ export function UsersDataTable<TData, TValue>({
   onRoleFilterChange,
   emailVerifiedFilter,
   onEmailVerifiedFilterChange,
+  banStatusFilter,
+  onBanStatusFilterChange,
   onClearFilters,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -84,6 +88,8 @@ export function UsersDataTable<TData, TValue>({
         onRoleFilterChange={onRoleFilterChange}
         emailVerifiedFilter={emailVerifiedFilter}
         onEmailVerifiedFilterChange={onEmailVerifiedFilterChange}
+        banStatusFilter={banStatusFilter}
+        onBanStatusFilterChange={onBanStatusFilterChange}
         onClearFilters={onClearFilters}
       />
 

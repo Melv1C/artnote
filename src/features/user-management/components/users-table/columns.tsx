@@ -115,6 +115,26 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
+    accessorKey: 'banned',
+    header: 'Statut',
+    cell: ({ row }) => {
+      const user = row.original;
+      const isBanned = user.banned;
+      const banExpires = user.banExpires;
+
+      if (isBanned) {
+        const isExpired = banExpires && new Date(banExpires) < new Date();
+        return (
+          <Badge variant="destructive">
+            {isExpired ? 'Suspendu (expiré)' : 'Suspendu'}
+          </Badge>
+        );
+      }
+
+      return <Badge variant="default">Actif</Badge>;
+    },
+  },
+  {
     accessorKey: 'createdAt',
     header: ({ column }) => {
       return (

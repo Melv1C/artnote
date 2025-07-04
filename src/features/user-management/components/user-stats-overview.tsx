@@ -22,7 +22,7 @@ async function TotalUsersCard() {
 async function AdminUsersCard() {
   const adminCount = await prisma.user.count({
     where: {
-      role: UserRoleSchema.Values.ADMIN,
+      role: UserRoleSchema.Values.admin,
     },
   });
   return <StatCard title="Administrateurs" value={adminCount} icon={Shield} />;
@@ -31,7 +31,7 @@ async function AdminUsersCard() {
 async function WriterUsersCard() {
   const writerCount = await prisma.user.count({
     where: {
-      role: UserRoleSchema.Values.WRITER,
+      role: UserRoleSchema.Values.writer,
     },
   });
   return <StatCard title="Rédacteurs" value={writerCount} icon={UserCheck} />;

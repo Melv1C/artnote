@@ -21,6 +21,7 @@ export function UsersList() {
   const [searchValue, setSearchValue] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [emailVerifiedFilter, setEmailVerifiedFilter] = useState('all');
+  const [banStatusFilter, setBanStatusFilter] = useState('all');
   const [selectedRowCount, setSelectedRowCount] = useState(0);
 
   // TODO: When we have more users (>1000), consider implementing:
@@ -31,11 +32,12 @@ export function UsersList() {
   // Debounce search to reduce re-filtering
   const debouncedSearch = useDebounce(searchValue, 300);
 
-  // Fetch users using TanStack Query
+  // Fetch users using Better Auth admin plugin
   const { data, isLoading, error, refetch } = useUsersWithSearch();
 
   const users = data?.users || [];
   const totalCount = data?.pagination.totalCount || 0;
+
   // Client-side filtering for better UX
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -53,14 +55,31 @@ export function UsersList() {
         emailVerifiedFilter === 'all' ||
         user.emailVerified.toString() === emailVerifiedFilter;
 
-      return matchesSearch && matchesRole && matchesEmailVerified;
+      // Ban status filter
+      const matchesBanStatus = (() => {
+        if (banStatusFilter === 'all') return true;
+        if (banStatusFilter === 'active') return !user.banned;
+        if (banStatusFilter === 'banned') return user.banned;
+        return true;
+      })();
+
+      return (
+        matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus
+      );
     });
-  }, [users, debouncedSearch, roleFilter, emailVerifiedFilter]);
+  }, [
+    users,
+    debouncedSearch,
+    roleFilter,
+    emailVerifiedFilter,
+    banStatusFilter,
+  ]);
 
   const handleClearFilters = () => {
     setSearchValue('');
     setRoleFilter('all');
     setEmailVerifiedFilter('all');
+    setBanStatusFilter('all');
   };
 
   const handleExportAllUsers = () => {
@@ -131,6 +150,8 @@ export function UsersList() {
             onRoleFilterChange={setRoleFilter}
             emailVerifiedFilter={emailVerifiedFilter}
             onEmailVerifiedFilterChange={setEmailVerifiedFilter}
+            banStatusFilter={banStatusFilter}
+            onBanStatusFilterChange={setBanStatusFilter}
             onClearFilters={handleClearFilters}
           />
         )}

@@ -43,6 +43,10 @@ model User {
   imagesCreated   ArtworkImage[] @relation("ImageCreatedBy")
   imagesUpdated   ArtworkImage[] @relation("ImageUpdatedBy")
 
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
   @@unique([email])
   @@map("user")
 }
@@ -57,6 +61,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@map("session")

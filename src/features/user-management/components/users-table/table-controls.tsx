@@ -10,6 +10,8 @@ interface TableControlsProps {
   onRoleFilterChange: (value: string) => void;
   emailVerifiedFilter: string;
   onEmailVerifiedFilterChange: (value: string) => void;
+  banStatusFilter: string;
+  onBanStatusFilterChange: (value: string) => void;
   onClearFilters: () => void;
 }
 
@@ -20,11 +22,14 @@ export function TableControls({
   onRoleFilterChange,
   emailVerifiedFilter,
   onEmailVerifiedFilterChange,
+  banStatusFilter,
+  onBanStatusFilterChange,
   onClearFilters,
 }: TableControlsProps) {
   const activeFiltersCount = [
     roleFilter && roleFilter !== 'all',
     emailVerifiedFilter && emailVerifiedFilter !== 'all',
+    banStatusFilter && banStatusFilter !== 'all',
   ].filter(Boolean).length;
 
   return (
@@ -41,6 +46,8 @@ export function TableControls({
           onRoleFilterChange={onRoleFilterChange}
           emailVerifiedFilter={emailVerifiedFilter}
           onEmailVerifiedFilterChange={onEmailVerifiedFilterChange}
+          banStatusFilter={banStatusFilter}
+          onBanStatusFilterChange={onBanStatusFilterChange}
           onClearFilters={onClearFilters}
           activeFiltersCount={activeFiltersCount}
         />

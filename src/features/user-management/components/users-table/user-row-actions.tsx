@@ -16,9 +16,15 @@ import {
 import { UserRole, UserRoleSchema } from '@/schemas';
 import { User } from '@/schemas/user';
 import { useQueryClient } from '@tanstack/react-query';
-import { MoreHorizontal } from 'lucide-react';
+import { Ban, MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
-import { deleteUser, updateUserRole } from '../../actions/user-actions';
+import {
+  banUser,
+  deleteUser,
+  impersonateUser,
+  unbanUser,
+  updateUserRole,
+} from '../../actions/user-actions';
 
 interface UserRowActionsProps {
   user: User;
@@ -27,6 +33,7 @@ interface UserRowActionsProps {
 export function UserRowActions({ user }: UserRowActionsProps) {
   // Get query client for invalidation
   const queryClient = useQueryClient();
+
   // Helper function to get user-friendly role names
   const getRoleDisplayName = (role: UserRole) => {
     switch (role) {
@@ -47,6 +54,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       description: `ID: ${user.id}`,
     });
   };
+
   const handleViewProfile = () => {
     // TODO: Navigate to user profile view
     toast.info('Fonctionnalité en cours de développement');
@@ -56,28 +64,76 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     try {
       await updateUserRole(user.id, newRole);
       toast.success(`Rôle mis à jour vers ${getRoleDisplayName(newRole)}`);
-      queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate users query to refresh data
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     } catch (error) {
       console.error('Error updating user role:', error);
       toast.error('Erreur lors de la mise à jour du rôle');
     }
   };
 
+  const handleBanUser = async () => {
+    const reason = prompt('Raison de la suspension (optionnel):');
+    if (reason === null) return; // User cancelled
+
+    try {
+      await banUser({
+        userId: user.id,
+        banReason: reason || undefined,
+      });
+      toast.success('Utilisateur suspendu avec succès');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    } catch (error) {
+      console.error('Error banning user:', error);
+      toast.error("Erreur lors de la suspension de l'utilisateur");
+    }
+  };
+
+  const handleUnbanUser = async () => {
+    try {
+      await unbanUser({ userId: user.id });
+      toast.success('Suspension levée avec succès');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    } catch (error) {
+      console.error('Error unbanning user:', error);
+      toast.error('Erreur lors de la levée de suspension');
+    }
+  };
+
+  const handleImpersonateUser = async () => {
+    if (
+      confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)
+    ) {
+      try {
+        await impersonateUser(user.id);
+        toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
+          description: 'Cette session durera 1 heure maximum',
+        });
+        // Refresh the page to update the session
+        window.location.reload();
+      } catch (error) {
+        console.error('Error impersonating user:', error);
+        toast.error("Erreur lors de l'impersonation");
+      }
+    }
+  };
+
   const handleDeleteUser = async () => {
-    // Show confirmation dialog before deletion
     if (
       confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)
     ) {
       try {
         await deleteUser(user.id);
         toast.success('Utilisateur supprimé avec succès');
-        queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate users query to refresh data
+        queryClient.invalidateQueries({ queryKey: ['users'] });
       } catch (error) {
         console.error('Error deleting user:', error);
         toast.error("Erreur lors de la suppression de l'utilisateur");
       }
     }
   };
+
+  const isBanned = user.banned;
+  const banExpired = user.banExpires && new Date(user.banExpires) < new Date();
 
   return (
     <DropdownMenu>
@@ -96,6 +152,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         <DropdownMenuItem onClick={handleViewProfile}>
           Voir le profil
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -113,6 +170,23 @@ export function UserRowActions({ user }: UserRowActionsProps) {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleImpersonateUser}>
+          <UserCheck className="mr-2 h-4 w-4" />
+          Se faire passer pour
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {isBanned && !banExpired ? (
+          <DropdownMenuItem onClick={handleUnbanUser}>
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            Lever la suspension
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={handleBanUser}>
+            <Ban className="mr-2 h-4 w-4" />
+            Suspendre l'utilisateur
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive"

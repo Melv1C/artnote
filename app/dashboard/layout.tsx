@@ -16,8 +16,8 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
 
   if (
     !user ||
-    (user.role !== UserRoleSchema.Values.ADMIN &&
-      user.role !== UserRoleSchema.Values.WRITER)
+    (user.role !== UserRoleSchema.Values.admin &&
+      user.role !== UserRoleSchema.Values.writer)
   ) {
     unauthorized();
   }
