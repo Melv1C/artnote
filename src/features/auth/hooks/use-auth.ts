@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from '@/lib/auth-client';
+import { UserRoleSchema } from '@/schemas';
 import { UserSchema, type User } from '@/schemas/user';
 import { useMemo } from 'react';
 
@@ -51,9 +52,9 @@ export function useAuth(): UseAuthReturn {
     return Array.isArray(role) ? role.includes(user.role) : user.role === role;
   };
 
-  const isAdmin = hasRole('ADMIN');
-  const isWriter = hasRole('WRITER');
-  const canWrite = hasRole(['WRITER', 'ADMIN']);
+  const isAdmin = hasRole(UserRoleSchema.enum.admin);
+  const isWriter = hasRole(UserRoleSchema.enum.writer);
+  const canWrite = hasRole([UserRoleSchema.enum.writer, UserRoleSchema.enum.admin]);
 
   return {
     user,
