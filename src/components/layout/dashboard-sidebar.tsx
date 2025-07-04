@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  ArrowLeft,
-  BarChart3,
-  Database,
-  FileText,
-  Home,
-  Settings,
-  Shield,
-  Users,
-} from 'lucide-react';
+import { ArrowLeft, Database, FileText, Home, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -31,44 +22,26 @@ import type { User } from '@/schemas/user';
 
 const navigationItems = [
   {
-    title: 'Dashboard',
-    url: '/admin',
+    title: 'Tableau de bord',
+    url: '/dashboard',
     icon: Home,
     description: "Vue d'ensemble",
   },
   {
+    title: 'Mes Notices',
+    url: '/dashboard/artworks',
+    icon: FileText,
+    description: 'Gestion des notices',
+  },
+  {
     title: 'Utilisateurs',
-    url: '/admin/users',
+    url: '/dashboard/users',
     icon: Users,
     description: 'Gestion des utilisateurs',
   },
-  {
-    title: 'Contenu',
-    url: '/admin/content',
-    icon: FileText,
-    description: 'Modération du contenu',
-  },
-  {
-    title: 'Statistiques',
-    url: '/admin/analytics',
-    icon: BarChart3,
-    description: 'Analyses et métriques',
-  },
-  {
-    title: 'Système',
-    url: '/admin/settings',
-    icon: Settings,
-    description: 'Configuration système',
-  },
-  {
-    title: 'Journaux',
-    url: '/admin/logs',
-    icon: Shield,
-    description: 'Logs et sécurité',
-  },
 ];
 
-export function AdminSidebar({ user }: { user: User }) {
+export function DashboardSidebar({ user }: { user: User }) {
   const pathname = usePathname();
 
   const getInitials = (name: string) => {
@@ -86,9 +59,9 @@ export function AdminSidebar({ user }: { user: User }) {
         <div className="flex items-center gap-2 px-4 py-2">
           <Database className="h-8 w-8 text-primary" />
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">ArtNote Admin</span>
+            <span className="truncate font-semibold">ArtNote</span>
             <span className="truncate text-xs text-muted-foreground">
-              Panneau d'administration
+              Tableau de bord
             </span>
           </div>
         </div>
@@ -107,7 +80,7 @@ export function AdminSidebar({ user }: { user: User }) {
                         Retour au site
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        Quitter l'administration
+                        Quitter le tableau de bord
                       </span>
                     </div>
                   </Link>
@@ -118,7 +91,7 @@ export function AdminSidebar({ user }: { user: User }) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Administration</SidebarGroupLabel>
+          <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
@@ -164,7 +137,7 @@ export function AdminSidebar({ user }: { user: User }) {
         </div>
 
         <div className="p-4 text-xs text-muted-foreground border-t">
-          <div className="text-center">ArtNote Administration v1.0</div>
+          <div className="text-center">ArtNote v1.0</div>
         </div>
       </SidebarFooter>
       <SidebarRail />

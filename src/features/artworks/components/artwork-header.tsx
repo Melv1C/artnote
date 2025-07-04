@@ -4,10 +4,12 @@ import Link from 'next/link';
 
 export function ArtworkHeader() {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Mes Notices</h1>
-        <p className="text-muted-foreground mt-2">Gérez vos notices</p>
+        <h1 className="text-2xl font-bold text-foreground">Mes Notices</h1>
+        <p className="text-muted-foreground">
+          Gérez vos notices d'œuvres d'art
+        </p>
       </div>
       <Link href="/dashboard/artworks/create">
         <Button>

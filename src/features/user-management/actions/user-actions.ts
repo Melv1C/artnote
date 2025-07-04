@@ -59,7 +59,7 @@ export async function updateUserRole(userId: string, role: UserRole) {
     });
 
     // Revalidate the users page to update the UI
-    revalidatePath('/admin/users');
+    revalidatePath('/dashboard/users');
 
     return { success: true };
   } catch (error) {
@@ -103,7 +103,7 @@ export async function deleteUser(userId: string) {
     });
 
     // Revalidate the users page to update the UI
-    revalidatePath('/admin/users');
+    revalidatePath('/dashboard/users');
 
     return { success: true };
   } catch (error) {

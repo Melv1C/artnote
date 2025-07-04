@@ -11,7 +11,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
 
   // Skip MainLayout for admin routes
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/dashboard')) {
     return <>{children}</>;
   }
 

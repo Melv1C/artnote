@@ -14,9 +14,7 @@ import { useAuth } from '@/features/auth/hooks';
 import {
   LayoutDashboard,
   LogOut,
-  NotebookPen,
-  Shield,
-  User,
+  NotebookPen, User
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -71,31 +69,14 @@ export function UserButton({ user }: UserButtonProps) {
             <span>Mon Profil</span>
           </Link>
         </DropdownMenuItem>{' '}
-        {/* Writer/Admin Content Management */}
-        {canWrite && (
-          <>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/artworks">
-                <NotebookPen className="mr-2 h-4 w-4" />
-                <span>Mes Notices</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+        {/* Admin Panel */}
+        {isAdmin && (
+          <DropdownMenuItem asChild>
               <Link href="/dashboard">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>Tableau de Bord</span>
               </Link>
             </DropdownMenuItem>
-          </>
-        )}
-        {/* Admin Panel */}
-        {isAdmin && (
-          <DropdownMenuItem asChild>
-            <Link href="/admin">
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Administration</span>
-            </Link>
-          </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         {/* Sign Out */}

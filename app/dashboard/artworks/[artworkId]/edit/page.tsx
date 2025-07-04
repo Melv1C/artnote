@@ -42,12 +42,19 @@ export default async function EditArtworkPage({
   const parsed = ArtworkSchema.parse(artwork);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Modifier la notice</h1>
+        <p className="text-muted-foreground">
+          Mettez à jour les informations de l'œuvre d'art
+        </p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Modifier la notice</CardTitle>
+          <CardTitle>Informations de l'œuvre</CardTitle>
           <CardDescription>
-            Mettez à jour les informations de l'œuvre d'art
+            Modifiez les détails de l'œuvre d'art
           </CardDescription>
         </CardHeader>
         <CardContent>

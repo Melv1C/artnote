@@ -33,6 +33,7 @@ interface ArtworkFormProps {
   onSubmit: (
     data: ArtworkForm
   ) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
+  onCancel?: () => void;
   submitLabel?: string;
   successMessage?: string;
 }
@@ -40,6 +41,7 @@ interface ArtworkFormProps {
 export function ArtworkForm({
   initialValues,
   onSubmit,
+  onCancel,
   submitLabel = 'Enregistrer',
   successMessage = 'Notice enregistrée avec succès !',
 }: ArtworkFormProps) {
@@ -266,6 +268,14 @@ export function ArtworkForm({
         />
 
         <div className="flex justify-end space-x-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onCancel?.() || router.push('/dashboard/artworks')}
+            disabled={isSubmitting}
+          >
+            Annuler
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Enregistrement...' : submitLabel}
           </Button>

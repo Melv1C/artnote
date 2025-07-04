@@ -4,7 +4,7 @@ import { UsersList } from './users-list';
 
 export function UserManagement() {
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-8">
       <UserManagementHeader />
       <UserStatsOverview />
       <UsersList />

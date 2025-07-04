@@ -9,13 +9,19 @@ import { ArtworkForm, createArtwork } from '@/features/artworks';
 
 export default function CreateArtworkPage() {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Créer une nouvelle notice</h1>
+        <p className="text-muted-foreground">
+          Remplissez les informations sur l'œuvre d'art et sa notice explicative
+        </p>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Informations de l'œuvre</CardTitle>
           <CardDescription>
-            Remplissez les informations sur l'œuvre d'art et sa notice
-            explicative
+            Remplissez les détails de l'œuvre d'art
           </CardDescription>
         </CardHeader>
         <CardContent>

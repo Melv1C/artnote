@@ -15,20 +15,18 @@ import { Suspense } from 'react';
 
 export default async function ArtworksPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <ArtworkHeader />
+    <div className="space-y-6">
+      {/* Header */}
+      <ArtworkHeader />
 
-        {/* Stats Cards */}
-        <ArtworkStats />
+      {/* Stats Cards */}
+      <ArtworkStats />
 
-        {/* Main Content with ArtworkList */}
-        <div className="mt-8">
-          <Suspense fallback={<ArtworkListSkeleton />}>
-            <ArtworkListWrapper />
-          </Suspense>
-        </div>
+      {/* Main Content with ArtworkList */}
+      <div>
+        <Suspense fallback={<ArtworkListSkeleton />}>
+          <ArtworkListWrapper />
+        </Suspense>
       </div>
     </div>
   );
