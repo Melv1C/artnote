@@ -15,42 +15,33 @@ export const statement = {
 
   // Artwork management permissions
   artwork: [
-    'create', // Create new artworks
-    'read', // View artworks (including drafts)
-    'update', // Edit artwork content
-    'delete', // Remove artworks
+    'read', // View artworks (excluding drafts),
+    'readAll', // View all artworks including drafts
+    'manage', // Manage artworks (create, update, delete)
   ],
 
   // Artist management permissions
   artist: [
-    'create', // Create new artist entries
     'read', // View artist information
-    'update', // Edit artist information
-    'delete', // Remove artists
+    'manage', // Manage artists (create, update, delete)
   ],
 
   // Place management permissions
   place: [
-    'create', // Create new places
     'read', // View places
-    'update', // Edit place information
-    'delete', // Remove places
+    'manage', // Manage places (create, update, delete)
   ],
 
   // Concept management permissions
   concept: [
-    'create', // Create new concepts
     'read', // View concepts
-    'update', // Edit concepts
-    'delete', // Remove concepts
+    'manage', // Manage concepts (create, update, delete)
   ],
 
   // Keyword management permissions
   keyword: [
-    'create', // Create new keywords
     'read', // View keywords
-    'update', // Edit keywords
-    'delete', // Remove keywords
+    'manage', // Manage keywords (create, update, delete)
   ],
 } as const;
 
@@ -70,19 +61,19 @@ export const ac = createAccessControl(statement);
  */
 export const admin = ac.newRole({
   // All artwork management permissions
-  artwork: ['create', 'read', 'update', 'delete'],
+  artwork: ['read', 'manage'],
 
   // All artist management permissions
-  artist: ['create', 'read', 'update', 'delete'],
+  artist: ['read', 'manage'],
 
   // All place management permissions
-  place: ['create', 'read', 'update', 'delete'],
+  place: ['read', 'manage'],
 
   // All concept management permissions
-  concept: ['create', 'read', 'update', 'delete'],
+  concept: ['read', 'manage'],
 
   // All keyword management permissions
-  keyword: ['create', 'read', 'update', 'delete'],
+  keyword: ['read', 'manage'],
 
   // Include all default admin permissions (user management, session management)
   ...adminAc.statements,
@@ -94,19 +85,19 @@ export const admin = ac.newRole({
  */
 export const writer = ac.newRole({
   // Full artwork management for their own content
-  artwork: ['create', 'read', 'update', 'delete'],
+  artwork: ['read', 'manage'],
 
   // Artist management - can create and edit
-  artist: ['create', 'read', 'update'],
+  artist: ['read', 'manage'],
 
   // Place management - can create and edit
-  place: ['create', 'read', 'update'],
+  place: ['read', 'manage'],
 
   // Concept management - can create and edit
-  concept: ['create', 'read', 'update'],
+  concept: ['read', 'manage'],
 
   // Keyword management - can create and edit
-  keyword: ['create', 'read', 'update'],
+  keyword: ['read', 'manage'],
 });
 
 /**
