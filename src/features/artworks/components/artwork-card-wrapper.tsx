@@ -8,33 +8,19 @@ import { ArtworkCard } from './artwork-card';
 
 interface ArtworkCardWrapperProps {
   artwork: Artwork;
-  onArchiveToggle: (artworkId: string) => Promise<ArtworkActionResponse>;
   onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
+  onStatusChange?: (
+    artworkId: string,
+    status: string
+  ) => Promise<ArtworkActionResponse>;
 }
 
 export function ArtworkCardWrapper({
   artwork,
-  onArchiveToggle,
   onDelete,
+  onStatusChange,
 }: ArtworkCardWrapperProps) {
   const [isPending, startTransition] = useTransition();
-
-  const handleArchiveToggle = async (artworkId: string) => {
-    startTransition(async () => {
-      try {
-        const result = await onArchiveToggle(artworkId);
-
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.error || 'Une erreur est survenue');
-        }
-      } catch (error) {
-        console.error('Error toggling archive status:', error);
-        toast.error('Une erreur inattendue est survenue');
-      }
-    });
-  };
 
   const handleDelete = async (artworkId: string) => {
     // Show confirmation dialog
@@ -62,11 +48,30 @@ export function ArtworkCardWrapper({
     });
   };
 
+  const handleStatusChange = async (artworkId: string, status: string) => {
+    if (!onStatusChange) return;
+
+    startTransition(async () => {
+      try {
+        const result = await onStatusChange(artworkId, status);
+
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.error || 'Une erreur est survenue');
+        }
+      } catch (error) {
+        console.error('Error changing status:', error);
+        toast.error('Une erreur inattendue est survenue');
+      }
+    });
+  };
+
   return (
     <ArtworkCard
       artwork={artwork}
-      onArchiveToggle={handleArchiveToggle}
       onDelete={handleDelete}
+      onStatusChange={handleStatusChange}
       isPending={isPending}
     />
   );

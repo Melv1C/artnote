@@ -14,17 +14,23 @@ import { ArtworkFilters } from './artwork-filters';
 
 interface ArtworkListProps {
   initialArtworks: Artwork[];
-  onArchiveToggle: (artworkId: string) => Promise<ArtworkActionResponse>;
   onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
+  onStatusChange?: (
+    artworkId: string,
+    status: string
+  ) => Promise<ArtworkActionResponse>;
 }
 
 export function ArtworkList({
   initialArtworks,
-  onArchiveToggle,
   onDelete,
+  onStatusChange,
 }: ArtworkListProps) {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
-  const [filters, setFilters] = useState<ArtworkFilter>({});
+  // Default filters: exclude archived artworks by default
+  const [filters, setFilters] = useState<ArtworkFilter>({
+    status: ['DRAFT', 'PUBLISHED'], // Default to show only DRAFT and PUBLISHED
+  });
 
   // Debounce search to avoid too many filter operations
   const debouncedSearchTerm = useDebounce(filters.search || '', 300);
@@ -35,9 +41,9 @@ export function ArtworkList({
       let filteredArtworks = [...initialArtworks];
 
       // Filter by status
-      if (currentFilters.status && currentFilters.status !== 'ALL') {
-        filteredArtworks = filteredArtworks.filter(
-          (artwork) => artwork.status === currentFilters.status
+      if (currentFilters.status && currentFilters.status.length > 0) {
+        filteredArtworks = filteredArtworks.filter((artwork) =>
+          currentFilters.status!.includes(artwork.status)
         );
       }
 
@@ -123,6 +129,25 @@ export function ArtworkList({
     setFilters(newFilters);
   }, []);
 
+  // Calculate active filters count
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (key === 'search') return false;
+    if (key === 'sortBy' && value === 'updatedAt') return false;
+    if (key === 'sortOrder' && value === 'desc') return false;
+    if (key === 'status') {
+      // Status filter is active if it's not the default (DRAFT + PUBLISHED)
+      const statusArray = value as string[];
+      if (!statusArray || statusArray.length === 0) return false;
+      const defaultStatus = ['DRAFT', 'PUBLISHED'];
+      return !(
+        statusArray.length === 2 &&
+        statusArray.includes('DRAFT') &&
+        statusArray.includes('PUBLISHED')
+      );
+    }
+    return value !== undefined && value !== null && value !== '';
+  }).length;
+
   return (
     <div>
       {' '}
@@ -155,23 +180,22 @@ export function ArtworkList({
             <FileText className="h-6 w-6 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium mb-2">
-            {Object.keys(filters).some(
-              (key) => filters[key as keyof ArtworkFilter] !== undefined
-            )
+            {activeFiltersCount > 0
               ? 'Aucune notice trouvée'
               : 'Aucune notice créée'}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            {Object.keys(filters).some(
-              (key) => filters[key as keyof ArtworkFilter] !== undefined
-            )
+            {activeFiltersCount > 0
               ? "Essayez de modifier vos filtres ou d'effectuer une recherche différente."
               : 'Commencez par créer votre première notice artistique.'}
           </p>
-          {Object.keys(filters).some(
-            (key) => filters[key as keyof ArtworkFilter] !== undefined
-          ) ? (
-            <Button variant="outline" onClick={() => handleFilterChange({})}>
+          {activeFiltersCount > 0 ? (
+            <Button
+              variant="outline"
+              onClick={() =>
+                handleFilterChange({ status: ['DRAFT', 'PUBLISHED'] })
+              }
+            >
               Effacer les filtres
             </Button>
           ) : (
@@ -189,8 +213,8 @@ export function ArtworkList({
             <ArtworkCardWrapper
               key={artwork.id}
               artwork={artwork}
-              onArchiveToggle={onArchiveToggle}
               onDelete={onDelete}
+              onStatusChange={onStatusChange}
             />
           ))}
         </div>

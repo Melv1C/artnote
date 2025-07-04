@@ -5,8 +5,8 @@ import {
   ArtworkStats,
 } from '@/features/artworks';
 import {
+  changeArtworkStatus,
   deleteArtwork,
-  toggleArchiveArtwork,
 } from '@/features/artworks/actions';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
@@ -40,6 +40,16 @@ async function ArtworkListWrapper() {
       where: {
         writerId: user.id,
       },
+      include: {
+        images: {
+          include: {
+            image: true,
+          },
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+      },
       orderBy: { updatedAt: 'desc' },
     })
   );
@@ -47,8 +57,8 @@ async function ArtworkListWrapper() {
   return (
     <ArtworkList
       initialArtworks={initialArtworks}
-      onArchiveToggle={toggleArchiveArtwork}
       onDelete={deleteArtwork}
+      onStatusChange={changeArtworkStatus}
     />
   );
 }

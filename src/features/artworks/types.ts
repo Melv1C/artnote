@@ -2,7 +2,7 @@ import { ArtworkStatus } from '@/schemas';
 
 export type ArtworkFilter = {
   search?: string;
-  status?: ArtworkStatus | 'ALL';
+  status?: ArtworkStatus[];
   sortBy?: 'title' | 'createdAt' | 'updatedAt' | 'viewCount';
   sortOrder?: 'asc' | 'desc';
   createdAfter?: string;

@@ -27,7 +27,9 @@ export function ArtworkFilters({
 
   // Clear all filters
   const handleClearFilters = () => {
-    onFilterChange({});
+    onFilterChange({
+      status: ['DRAFT', 'PUBLISHED'], // Reset to default (exclude archived)
+    });
   };
 
   // Count active filters (excluding search and defaults)
@@ -35,7 +37,17 @@ export function ArtworkFilters({
     if (key === 'search') return false;
     if (key === 'sortBy' && value === 'updatedAt') return false;
     if (key === 'sortOrder' && value === 'desc') return false;
-    if (key === 'status' && value === 'ALL') return false;
+    if (key === 'status') {
+      // Status filter is active if it's not the default (DRAFT + PUBLISHED)
+      const statusArray = value as string[];
+      if (!statusArray || statusArray.length === 0) return false;
+      const defaultStatus = ['DRAFT', 'PUBLISHED'];
+      return !(
+        statusArray.length === 2 &&
+        statusArray.includes('DRAFT') &&
+        statusArray.includes('PUBLISHED')
+      );
+    }
     return value !== undefined && value !== null && value !== '';
   }).length;
   return (

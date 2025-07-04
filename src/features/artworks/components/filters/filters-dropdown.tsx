@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import MultipleSelector, { Option } from '@/components/ui/multiselect';
 import {
   Select,
   SelectContent,
@@ -34,17 +35,45 @@ const sortOptions: ArtworkSortOption[] = [
   { value: 'viewCount', label: 'Nombre de vues' },
 ];
 
+const statusOptions: Option[] = [
+  { value: 'DRAFT', label: 'Brouillon' },
+  { value: 'PUBLISHED', label: 'Publié' },
+  { value: 'ARCHIVED', label: 'Archivé' },
+];
+
 export function ArtworkFiltersDropdown({
   filters,
   onFiltersChange,
   onClearFilters,
   activeFiltersCount,
 }: ArtworkFiltersDropdownProps) {
-  const updateFilter = (key: keyof ArtworkFilter, value: string | Date | number | undefined) => {
+  const updateFilter = (
+    key: keyof ArtworkFilter,
+    value: string | Date | number | undefined | string[]
+  ) => {
     onFiltersChange({
       ...filters,
-      [key]: value === 'all' || value === '' ? undefined : value,
+      [key]:
+        value === 'all' ||
+        value === '' ||
+        (Array.isArray(value) && value.length === 0)
+          ? undefined
+          : value,
     });
+  };
+
+  const handleStatusChange = (options: Option[]) => {
+    const statusValues = options.map((option) => option.value);
+    updateFilter('status', statusValues);
+  };
+
+  const getSelectedStatusOptions = (): Option[] => {
+    if (!filters.status || filters.status.length === 0) {
+      return [];
+    }
+    return statusOptions.filter((option) =>
+      filters.status!.includes(option.value as any)
+    );
   };
 
   return (
@@ -73,20 +102,18 @@ export function ArtworkFiltersDropdown({
             <Filter className="h-3 w-3" />
             Statut
           </label>
-          <Select
-            value={filters.status || 'ALL'}
-            onValueChange={(value) => updateFilter('status', value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tous les statuts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Tous les statuts</SelectItem>
-              <SelectItem value="DRAFT">Brouillon</SelectItem>
-              <SelectItem value="PUBLISHED">Publié</SelectItem>
-              <SelectItem value="ARCHIVED">Archivé</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultipleSelector
+            value={getSelectedStatusOptions()}
+            onChange={handleStatusChange}
+            defaultOptions={statusOptions}
+            placeholder="Sélectionner les statuts..."
+            emptyIndicator={
+              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                Aucun statut trouvé.
+              </p>
+            }
+            className="w-full"
+          />
         </div>
 
         <DropdownMenuSeparator />
