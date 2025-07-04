@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ArtworkStatus } from '@/schemas';
 import { Calendar, Filter, SortAsc, X } from 'lucide-react';
 import { ArtworkFilter, ArtworkSortOption } from '../../types';
 
@@ -72,7 +73,7 @@ export function ArtworkFiltersDropdown({
       return [];
     }
     return statusOptions.filter((option) =>
-      filters.status!.includes(option.value as any)
+      filters.status!.includes(option.value as ArtworkStatus)
     );
   };
 

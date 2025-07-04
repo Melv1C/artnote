@@ -12,7 +12,6 @@ import { Artwork, ArtworkStatusSchema } from '@/schemas';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
-  Archive,
   Calendar,
   Clock,
   Edit,

@@ -41,7 +41,6 @@ export function ArtworkFilters({
       // Status filter is active if it's not the default (DRAFT + PUBLISHED)
       const statusArray = value as string[];
       if (!statusArray || statusArray.length === 0) return false;
-      const defaultStatus = ['DRAFT', 'PUBLISHED'];
       return !(
         statusArray.length === 2 &&
         statusArray.includes('DRAFT') &&
