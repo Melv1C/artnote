@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/features/auth/hooks';
 import { LayoutDashboard, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
+import { ContentManagerGate } from './permission-gate';
 
 interface UserButtonProps {
   user: {
@@ -25,8 +25,6 @@ interface UserButtonProps {
 }
 
 export function UserButton({ user }: UserButtonProps) {
-  const { isAdmin } = useAuth();
-
   const handleSignOut = async () => {
     const { signOut } = await import('@/lib/auth-client');
     await signOut();
@@ -66,14 +64,14 @@ export function UserButton({ user }: UserButtonProps) {
           </Link>
         </DropdownMenuItem>{' '}
         {/* Admin Panel */}
-        {isAdmin && (
+        <ContentManagerGate>
           <DropdownMenuItem asChild>
             <Link href="/dashboard">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Tableau de Bord</span>
             </Link>
           </DropdownMenuItem>
-        )}
+        </ContentManagerGate>
         <DropdownMenuSeparator />
         {/* Sign Out */}
         <DropdownMenuItem

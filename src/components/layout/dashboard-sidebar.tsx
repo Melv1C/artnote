@@ -18,6 +18,10 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import {
+  AdminGate,
+  ContentManagerGate,
+} from '@/features/auth/components/permission-gate';
 import type { User } from '@/schemas/user';
 
 const navigationItems = [
@@ -26,20 +30,23 @@ const navigationItems = [
     url: '/dashboard',
     icon: Home,
     description: "Vue d'ensemble",
+    requiresPermission: null, // Always visible for authenticated users
   },
   {
     title: 'Mes Notices',
     url: '/dashboard/artworks',
     icon: FileText,
     description: 'Gestion des notices',
+    requiresPermission: 'contentManager', // Writers and admins
   },
   {
     title: 'Utilisateurs',
     url: '/dashboard/users',
     icon: Users,
     description: 'Gestion des utilisateurs',
+    requiresPermission: 'admin', // Admin only
   },
-];
+] as const;
 
 export function DashboardSidebar({ user }: { user: User }) {
   const pathname = usePathname();
@@ -96,7 +103,9 @@ export function DashboardSidebar({ user }: { user: User }) {
             <SidebarMenu>
               {navigationItems.map((item) => {
                 const isActive = pathname === item.url;
-                return (
+
+                // Render item based on permission requirements
+                const renderItem = () => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link href={item.url}>
@@ -113,6 +122,20 @@ export function DashboardSidebar({ user }: { user: User }) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
+
+                // Apply conditional rendering based on permission requirements
+                if (item.requiresPermission === 'admin') {
+                  return <AdminGate key={item.title}>{renderItem()}</AdminGate>;
+                } else if (item.requiresPermission === 'contentManager') {
+                  return (
+                    <ContentManagerGate key={item.title}>
+                      {renderItem()}
+                    </ContentManagerGate>
+                  );
+                } else {
+                  // Always visible for authenticated users
+                  return renderItem();
+                }
               })}
             </SidebarMenu>
           </SidebarGroupContent>

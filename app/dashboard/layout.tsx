@@ -5,20 +5,25 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { checkRolePermission } from '@/features/auth';
 import { getUser } from '@/lib/auth-server';
-import { UserRoleSchema } from '@/schemas';
 import { unauthorized } from 'next/navigation';
 import { PropsWithChildren } from 'react';
 
 export default async function DashboardLayout({ children }: PropsWithChildren) {
-  // Check if user is authenticated and has writer/admin role
+  // Check if user is authenticated and has dashboard access
   const user = await getUser();
 
-  if (
-    !user ||
-    (user.role !== UserRoleSchema.Values.admin &&
-      user.role !== UserRoleSchema.Values.writer)
-  ) {
+  if (!user) {
+    unauthorized();
+  }
+
+  // Check if user has permission to view dashboard
+  const canViewDashboard = await checkRolePermission(user.role, {
+    artwork: ['read'],
+  });
+
+  if (!canViewDashboard) {
     unauthorized();
   }
 

@@ -20,8 +20,6 @@ export interface UseAuthReturn {
   isAdmin: boolean;
   /** Check if user is writer */
   isWriter: boolean;
-  /** Check if user can write (WRITER or ADMIN) */
-  canWrite: boolean;
 }
 
 /**
@@ -54,8 +52,7 @@ export function useAuth(): UseAuthReturn {
 
   const isAdmin = hasRole(UserRoleSchema.enum.admin);
   const isWriter = hasRole(UserRoleSchema.enum.writer);
-  const canWrite = hasRole([UserRoleSchema.enum.writer, UserRoleSchema.enum.admin]);
-
+  
   return {
     user,
     isAuthenticated: !!user,
@@ -64,6 +61,5 @@ export function useAuth(): UseAuthReturn {
     hasRole,
     isAdmin,
     isWriter,
-    canWrite,
   };
 }
