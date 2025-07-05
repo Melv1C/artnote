@@ -17,7 +17,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   AdminGate,
   ContentManagerGate,
@@ -50,6 +57,7 @@ const navigationItems = [
 
 export function DashboardSidebar({ user }: { user: User }) {
   const pathname = usePathname();
+  const { state } = useSidebar();
 
   const getInitials = (name: string) => {
     return name
@@ -61,7 +69,7 @@ export function DashboardSidebar({ user }: { user: User }) {
   };
 
   return (
-    <Sidebar variant="inset">
+    <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
           <Database className="h-8 w-8 text-primary" />
@@ -79,7 +87,7 @@ export function DashboardSidebar({ user }: { user: User }) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild tooltip="Retour au site">
                   <Link href="/">
                     <ArrowLeft className="h-4 w-4" />
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -107,7 +115,11 @@ export function DashboardSidebar({ user }: { user: User }) {
                 // Render item based on permission requirements
                 const renderItem = () => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                    >
                       <Link href={item.url}>
                         <item.icon className="h-4 w-4" />
                         <div className="grid flex-1 text-left text-sm leading-tight">
@@ -143,23 +155,45 @@ export function DashboardSidebar({ user }: { user: User }) {
       </SidebarContent>
       <SidebarFooter>
         {/* User Information */}
-        <div className="flex items-center gap-2 p-4">
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={user.image || undefined}
-              alt={user.name || 'User Avatar'}
-            />
-            <AvatarFallback>{getInitials(user.name || 'User')}</AvatarFallback>
-          </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">
-              {user.email}
-            </span>
+        <div className="flex items-center gap-2 p-2">
+          <div className="flex items-center gap-2 w-full group-data-[collapsible=icon]:justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Avatar className="h-8 w-8 shrink-0 cursor-pointer">
+                    <AvatarImage
+                      src={user.image || undefined}
+                      alt={user.name || 'User Avatar'}
+                    />
+                    <AvatarFallback>
+                      {getInitials(user.name || 'User')}
+                    </AvatarFallback>
+                  </Avatar>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  align="center"
+                  hidden={state !== 'collapsed'}
+                >
+                  <div className="text-sm">
+                    <div className="font-semibold">{user.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {user.email}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+              <span className="truncate font-semibold">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {user.email}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="p-4 text-xs text-muted-foreground border-t">
+        <div className="p-2 text-xs text-muted-foreground border-t group-data-[collapsible=icon]:hidden">
           <div className="text-center">ArtNote v1.0</div>
         </div>
       </SidebarFooter>
