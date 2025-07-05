@@ -15,7 +15,7 @@ export const UserSchema = z.object({
   bio: z.string().nullish(),
   cv: z.string().nullish(),
   // Admin plugin fields
-  banned: z.boolean().default(false),
+  banned: z.boolean().nullish(),
   banReason: z.string().nullish(),
   banExpires: z.coerce.date().nullish(),
   createdAt: z.coerce.date(),
