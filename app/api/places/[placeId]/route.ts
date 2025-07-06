@@ -6,14 +6,17 @@ import { NextRequest } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { placeId: string } }
+  { params }: { params: Promise<{ placeId: string }> }
 ) {
   try {
     // Check authentication
     await getRequiredUser();
 
+    // Await the params promise
+    const { placeId } = await params;
+
     const place = await prisma.place.findUnique({
-      where: { id: params.placeId },
+      where: { id: placeId },
       include: {
         createdBy: {
           select: { id: true, name: true },
