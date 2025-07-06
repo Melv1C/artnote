@@ -37,11 +37,12 @@ export async function createPlace(formData: FormData) {
     });
 
     revalidatePath('/dashboard/places');
-    redirect('/dashboard/places');
   } catch (error) {
     console.error('Error creating place:', error);
     throw error;
   }
+  
+  redirect('/dashboard/places');
 }
 
 export async function updatePlace(placeId: string, formData: FormData) {
@@ -75,11 +76,12 @@ export async function updatePlace(placeId: string, formData: FormData) {
     });
 
     revalidatePath('/dashboard/places');
-    redirect('/dashboard/places');
   } catch (error) {
     console.error('Error updating place:', error);
     throw error;
   }
+  
+  redirect('/dashboard/places');
 }
 
 export async function deletePlace(placeId: string) {

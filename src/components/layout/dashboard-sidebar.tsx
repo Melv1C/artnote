@@ -6,6 +6,7 @@ import {
   FileText,
   Home,
   MapPin,
+  Palette,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -51,6 +52,13 @@ const navigationItems = [
     url: '/dashboard/artworks',
     icon: FileText,
     description: 'Gestion des notices',
+    requiresPermission: 'contentManager', // Writers and admins
+  },
+  {
+    title: 'Artistes',
+    url: '/dashboard/artists',
+    icon: Palette,
+    description: 'Gestion des artistes',
     requiresPermission: 'contentManager', // Writers and admins
   },
   {
