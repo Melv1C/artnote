@@ -1,6 +1,13 @@
 'use client';
 
-import { ArrowLeft, Database, FileText, Home, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Database,
+  FileText,
+  Home,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -44,6 +51,13 @@ const navigationItems = [
     url: '/dashboard/artworks',
     icon: FileText,
     description: 'Gestion des notices',
+    requiresPermission: 'contentManager', // Writers and admins
+  },
+  {
+    title: 'Lieux',
+    url: '/dashboard/places',
+    icon: MapPin,
+    description: 'Gestion des lieux',
     requiresPermission: 'contentManager', // Writers and admins
   },
   {

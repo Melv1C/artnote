@@ -4,11 +4,7 @@ import { z } from 'zod';
 // ENUMS
 // =============================================================================
 
-export const UserRoleSchema = z.enum([
-  'admin',
-  'writer',
-  'user',
-]);
+export const UserRoleSchema = z.enum(['admin', 'writer', 'user']);
 export const ArtworkStatusSchema = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']);
 export const PlaceTypeSchema = z.enum([
   'MUSEUM',
@@ -29,7 +25,7 @@ export const PaginationSchema = z.object({
 
 // Common search schema
 export const SearchSchema = z.object({
-  query: z.string().optional(),
+  search: z.string().optional(),
 });
 
 // =============================================================================
