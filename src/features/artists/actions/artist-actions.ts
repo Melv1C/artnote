@@ -37,7 +37,7 @@ export async function createArtist(formData: FormData) {
     console.error('Error creating artist:', error);
     throw error;
   }
-  
+
   redirect('/dashboard/artists');
 }
 
@@ -72,7 +72,7 @@ export async function updateArtist(artistId: string, formData: FormData) {
     console.error('Error updating artist:', error);
     throw error;
   }
-  
+
   redirect('/dashboard/artists');
 }
 

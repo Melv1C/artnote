@@ -41,7 +41,7 @@ export async function createPlace(formData: FormData) {
     console.error('Error creating place:', error);
     throw error;
   }
-  
+
   redirect('/dashboard/places');
 }
 
@@ -80,7 +80,7 @@ export async function updatePlace(placeId: string, formData: FormData) {
     console.error('Error updating place:', error);
     throw error;
   }
-  
+
   redirect('/dashboard/places');
 }
 
