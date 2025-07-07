@@ -38,7 +38,7 @@
     "@tiptap/extension-highlight": "^2.23.1",
     "@tiptap/extension-link": "^2.23.1",
     "@tiptap/extension-list-item": "^2.23.1",
-    "@tiptap/extension-ordered-list": "^2.23.1",
+    "@tiptap/extension-ordered-list": "^2.25.0",
     "@tiptap/extension-superscript": "^2.24.0",
     "@tiptap/extension-text-align": "^2.23.1",
     "@tiptap/extension-text-style": "^2.23.1",
