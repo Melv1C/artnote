@@ -63,8 +63,8 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tiptap/extension-bullet-list':
-        specifier: ^2.23.1
-        version: 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
+        specifier: ^2.25.0
+        version: 2.25.0(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
       '@tiptap/extension-color':
         specifier: ^2.23.1
         version: 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))(@tiptap/extension-text-style@2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1)))
@@ -1173,8 +1173,8 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-bullet-list@2.23.1':
-    resolution: {integrity: sha512-0g9U42m+boLJZP3x9KoJHDCp9WD5abaVdqNbTg9sFPDNsepb7Zaeu8AEB+yZLP/fuTI1I4ko6qkdr3UaaIYcmA==}
+  '@tiptap/extension-bullet-list@2.25.0':
+    resolution: {integrity: sha512-KD+q/q6KIU2anedjtjG8vELkL5rYFdNHWc5XcUJgQoxbOCK3/sBuOgcn9mnFA2eAS6UkraN9Yx0BXEDbXX2HOw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -3980,7 +3980,7 @@ snapshots:
       '@tiptap/pm': 2.23.1
       tippy.js: 6.3.7
 
-  '@tiptap/extension-bullet-list@2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-bullet-list@2.25.0(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.23.1(@tiptap/pm@2.23.1)
 
@@ -4124,7 +4124,7 @@ snapshots:
       '@tiptap/core': 2.23.1(@tiptap/pm@2.23.1)
       '@tiptap/extension-blockquote': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
       '@tiptap/extension-bold': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
-      '@tiptap/extension-bullet-list': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
+      '@tiptap/extension-bullet-list': 2.25.0(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
       '@tiptap/extension-code': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
       '@tiptap/extension-code-block': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       '@tiptap/extension-document': 2.23.1(@tiptap/core@2.23.1(@tiptap/pm@2.23.1))
