@@ -44,7 +44,7 @@
     "@tiptap/extension-text-style": "^2.23.1",
     "@tiptap/extension-underline": "^2.23.1",
     "@tiptap/react": "^2.3.0",
-    "@tiptap/starter-kit": "^2.3.0",
+    "@tiptap/starter-kit": "^3.0.1",
     "@types/react-dropzone": "^5.1.0",
     "@vercel/blob": "^1.1.1",
     "axios": "^1.10.0",
