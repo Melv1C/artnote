@@ -33,7 +33,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-table": "^8.21.3",
-    "@tiptap/extension-bullet-list": "^2.23.1",
+    "@tiptap/extension-bullet-list": "^3.0.9",
     "@tiptap/extension-color": "^2.23.1",
     "@tiptap/extension-highlight": "^2.23.1",
     "@tiptap/extension-link": "^2.23.1",
