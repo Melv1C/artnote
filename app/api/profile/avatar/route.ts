@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const timestamp = Date.now();
-    const filename = `avatars/${user.id}-${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filename = `avatars/${user.id}`;
 
     const blob = await put(filename, file, { access: 'public', addRandomSuffix: true });
 
