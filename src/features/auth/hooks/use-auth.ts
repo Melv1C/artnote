@@ -20,6 +20,8 @@ export interface UseAuthReturn {
   isAdmin: boolean;
   /** Check if user is writer */
   isWriter: boolean;
+  /** Refetch the session */
+  refetch: () => void;
 }
 
 /**
@@ -29,7 +31,7 @@ export interface UseAuthReturn {
  * - Loading and error states
  */
 export function useAuth(): UseAuthReturn {
-  const { data: session, isPending, error } = useSession();
+  const { data: session, isPending, error, refetch } = useSession();
 
   // Parse and validate user data with schema
   const user = useMemo(() => {
@@ -61,5 +63,6 @@ export function useAuth(): UseAuthReturn {
     hasRole,
     isAdmin,
     isWriter,
+    refetch
   };
 }

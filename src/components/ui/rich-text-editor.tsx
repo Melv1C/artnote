@@ -131,6 +131,7 @@ export function RichTextEditor({
   const editor = useEditor({
     extensions: getEditorExtensions(false),
     content: value || '',
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       // Only call onChange if content actually changed
@@ -538,6 +539,7 @@ export function RichTextViewer({ content, className }: RichTextViewerProps) {
   const editor = useEditor({
     extensions: getEditorExtensions(true),
     content: content || '',
+    immediatelyRender: false,
     editable: false, // Make it read-only
     editorProps: getEditorProps(true),
   });
