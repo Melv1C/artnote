@@ -19,17 +19,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArtworkStatusSchema } from '@/schemas';
-import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
+import { Artist } from '@/schemas/artist';
+import {
+  Artwork,
+  ArtworkFormSchema,
+  type ArtworkForm,
+} from '@/schemas/artwork';
+import { Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { CreateArtworkResponse, UpdateArtworkResponse } from '../actions';
+import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
+import { PlaceSelector } from './place-selector';
 
 interface ArtworkFormProps {
-  initialValues?: ArtworkForm;
+  initialValues?: Artwork;
   onSubmit: (
     data: ArtworkForm
   ) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
@@ -47,6 +55,12 @@ export function ArtworkForm({
 }: ArtworkFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
+    initialValues?.artists.map((a) => a.artist) || []
+  );
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(
+    initialValues?.place || null
+  );
 
   const form = useForm<ArtworkForm>({
     resolver: zodResolver(ArtworkFormSchema),
@@ -59,6 +73,8 @@ export function ArtworkForm({
       sources: null,
       status: ArtworkStatusSchema.Values.DRAFT,
       images: [],
+      placeId: null,
+      artistIds: initialValues?.artists?.map((a) => a.artist.id) || [],
       ...initialValues,
     },
   });
@@ -203,6 +219,48 @@ export function ArtworkForm({
                     {...field}
                     value={field.value || ''}
                     onChange={(e) => field.onChange(e.target.value || null)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Place Selector */}
+          <FormField
+            control={form.control}
+            name="placeId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lieu de conservation</FormLabel>
+                <FormControl>
+                  <PlaceSelector
+                    selectedPlace={selectedPlace}
+                    onSelectionChange={(place) => {
+                      setSelectedPlace(place);
+                      field.onChange(place?.id || null);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Artists Selector */}
+          <FormField
+            control={form.control}
+            name="artistIds"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Artistes</FormLabel>
+                <FormControl>
+                  <ArtistSelector
+                    selectedArtists={selectedArtists}
+                    onSelectionChange={(artists) => {
+                      setSelectedArtists(artists);
+                      field.onChange(artists.map((a) => a.id));
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

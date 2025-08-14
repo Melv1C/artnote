@@ -7,11 +7,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Place } from '@/schemas/place';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { deletePlace } from '../actions/place-actions';
@@ -146,17 +148,22 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Ouvrir le menu</span>
+              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/dashboard/places/${place.id}`}>Modifier</Link>
+              <Link href={`/dashboard/places/${place.id}`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Modifier
+              </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleDelete}
-              className="text-destructive"
+              className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Supprimer

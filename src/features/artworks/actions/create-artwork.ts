@@ -2,16 +2,11 @@
 
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
-import {
-  Artwork,
-  ArtworkFormSchema,
-  ArtworkSchema,
-  type ArtworkForm,
-} from '@/schemas/artwork';
+import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 
 export type CreateArtworkResponse = {
   success: boolean;
-  data?: Artwork;
+  message?: string;
   error?: string;
 };
 
@@ -38,7 +33,7 @@ export async function createArtwork(
           sources: validatedData.sources,
           status: validatedData.status,
           writerId: user.id,
-          placeId: null, // TODO: Handle placeId later
+          placeId: validatedData.placeId || null,
           // Initialize analytics fields
           viewCount: 0,
           lastViewedAt: null,
@@ -62,12 +57,24 @@ export async function createArtwork(
         });
       }
 
+      // Create artist associations if artistIds provided
+      if (validatedData.artistIds && validatedData.artistIds.length > 0) {
+        const artistAssociations = validatedData.artistIds.map(
+          (artistId, idx) => ({
+            artworkId: artwork.id,
+            artistId,
+            role: null, // TODO: role selection not implemented yet
+          })
+        );
+        await tx.artworkArtist.createMany({ data: artistAssociations });
+      }
+
       return artwork;
     });
 
     return {
       success: true,
-      data: ArtworkSchema.parse(result), // Return the created artwork data
+      message: 'Artwork created successfully',
     };
   } catch (error) {
     console.error('Error creating artwork:', error);

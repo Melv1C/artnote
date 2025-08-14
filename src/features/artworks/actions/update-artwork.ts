@@ -2,15 +2,11 @@
 
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
-import {
-  ArtworkFormSchema,
-  ArtworkSchema,
-  type ArtworkForm,
-} from '@/schemas/artwork';
+import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 
 export type UpdateArtworkResponse = {
   success: boolean;
-  data?: typeof ArtworkSchema._type;
+  message?: string;
   error?: string;
 };
 
@@ -35,7 +31,7 @@ export async function updateArtwork(
       return { success: false, error: 'Non autorisé' };
     }
 
-    // Update artwork with transaction to handle image associations
+    // Update artwork with transaction to handle image & artist associations
     const result = await prisma.$transaction(async (tx) => {
       // Update the artwork
       const updatedArtwork = await tx.artwork.update({
@@ -48,21 +44,16 @@ export async function updateArtwork(
           notice: validatedData.notice || null,
           sources: validatedData.sources || null,
           status: validatedData.status,
-          placeId: null, // TODO: Handle placeId later
+          placeId: validatedData.placeId || null,
         },
       });
 
       // Handle image associations if images are provided
       if (validatedData.images !== undefined) {
-        // Delete existing image associations
-        await tx.artworkImage.deleteMany({
-          where: { artworkId: artworkId },
-        });
-
-        // Create new image associations
+        await tx.artworkImage.deleteMany({ where: { artworkId } });
         if (validatedData.images.length > 0) {
           const imageAssociations = validatedData.images.map((imgData) => ({
-            artworkId: artworkId,
+            artworkId,
             imageId: imgData.imageId,
             sortOrder: imgData.sortOrder,
             isMain: imgData.isMain,
@@ -70,9 +61,20 @@ export async function updateArtwork(
             createdById: user.id,
             updatedById: user.id,
           }));
+          await tx.artworkImage.createMany({ data: imageAssociations });
+        }
+      }
 
-          await tx.artworkImage.createMany({
-            data: imageAssociations,
+      // Handle artist associations if artistIds provided
+      if (validatedData.artistIds !== undefined) {
+        await tx.artworkArtist.deleteMany({ where: { artworkId } });
+        if (validatedData.artistIds.length > 0) {
+          await tx.artworkArtist.createMany({
+            data: validatedData.artistIds.map((artistId) => ({
+              artworkId,
+              artistId,
+              role: null, // TODO: role selection not implemented yet
+            })),
           });
         }
       }
@@ -80,7 +82,7 @@ export async function updateArtwork(
       return updatedArtwork;
     });
 
-    return { success: true, data: ArtworkSchema.parse(result) };
+    return { success: true, message: 'Œuvre mise à jour avec succès' };
   } catch (error) {
     console.error('Error updating artwork:', error);
     if (error instanceof Error) {

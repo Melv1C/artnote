@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Place } from '@/schemas/place';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { createPlace, updatePlace } from '../actions/place-actions';
 
@@ -128,7 +128,11 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/places')}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push('/dashboard/places')}
+        >
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>

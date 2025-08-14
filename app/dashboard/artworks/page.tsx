@@ -49,6 +49,12 @@ async function ArtworkListWrapper() {
             sortOrder: 'asc',
           },
         },
+        place: true,
+        artists: {
+          include: {
+            artist: true,
+          },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     })

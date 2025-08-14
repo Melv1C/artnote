@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import { ArtistSchema } from './artist';
 import { ArtworkImageSchemaSimplified } from './artwork-image';
 import { ArtworkStatusSchema } from './common';
+import { PlaceSchema } from './place';
 
 // =============================================================================
 // BASE SCHEMA
@@ -22,12 +24,19 @@ export const ArtworkSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   writerId: z.string(),
+  place: PlaceSchema.nullable(),
   placeId: z.string().nullable(),
   // Analytics fields
   viewCount: z.number().int().min(0).default(0),
   lastViewedAt: z.date().nullable(),
 
   images: ArtworkImageSchemaSimplified.array().default([]),
+  artists: z
+    .object({
+      artist: ArtistSchema,
+      role: z.string().nullable(),
+    })
+    .array(),
 });
 
 // =============================================================================
@@ -39,6 +48,8 @@ export const CreateArtworkSchema = ArtworkSchema.omit({
   createdAt: true,
   updatedAt: true,
   publishedAt: true,
+  artists: true,
+  place: true,
 }).extend({
   status: ArtworkStatusSchema.optional(),
 });
@@ -61,13 +72,12 @@ export const ArtworkFormSchema = ArtworkSchema.omit({
   lastViewedAt: true,
   status: true,
   images: true,
-
-  // temporarily omit placeId for form simplicity
-  placeId: true,
+  artists: true,
+  place: true,
 }).extend({
   status: ArtworkStatusSchema,
   images: ArtworkImageSchemaSimplified.array(),
-  artistIds: z.array(z.string()).optional(),
+  artistIds: z.array(z.string()),
 });
 
 // =============================================================================

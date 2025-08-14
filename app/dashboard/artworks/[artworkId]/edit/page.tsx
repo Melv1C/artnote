@@ -32,6 +32,12 @@ export default async function EditArtworkPage({
           sortOrder: 'asc',
         },
       },
+      place: true,
+      artists: {
+        include: {
+          artist: true,
+        },
+      },
     },
   });
 
