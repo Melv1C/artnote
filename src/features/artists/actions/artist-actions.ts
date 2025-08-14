@@ -32,7 +32,7 @@ export async function createArtist(formData: FormData) {
       },
     });
 
-    revalidatePath('/dashboard/artists');
+    
   } catch (error) {
     console.error('Error creating artist:', error);
     throw error;

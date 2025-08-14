@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Artist } from '@/schemas/artist';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { createArtist, updateArtist } from '../actions/artist-actions';
@@ -17,6 +18,7 @@ interface ArtistFormProps {
 export function ArtistForm({ artist, mode }: ArtistFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   const handleSubmit = (formData: FormData) => {
     startTransition(async () => {
@@ -25,6 +27,7 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
       } else if (artist) {
         await updateArtist(artist.id, formData);
       }
+      queryClient.invalidateQueries({ queryKey: ['artists'] });
     });
   };
 
