@@ -2,7 +2,7 @@ import { LatestArtworkCard } from '@/components/artworks/latest-artwork-card';
 import { getFilteredArtworks } from '@/lib/artworks';
 
 interface ArtworksListProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     artist?: string;
     place?: string;
@@ -10,11 +10,12 @@ interface ArtworksListProps {
     year?: string;
     sort?: 'title' | 'artist' | 'year' | 'published';
     order?: 'asc' | 'desc';
-  };
+  }>;
 }
 
 export async function ArtworksList({ searchParams }: ArtworksListProps) {
-  const artworks = await getFilteredArtworks(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const artworks = await getFilteredArtworks(resolvedSearchParams);
 
   if (artworks.length === 0) {
     return (

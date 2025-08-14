@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 interface ArtworksPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     artist?: string;
     place?: string;
@@ -18,7 +18,7 @@ interface ArtworksPageProps {
     year?: string;
     sort?: 'title' | 'artist' | 'year' | 'published';
     order?: 'asc' | 'desc';
-  };
+  }>;
 }
 
 export default function ArtworksPage({ searchParams }: ArtworksPageProps) {
