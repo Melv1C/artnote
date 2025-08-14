@@ -13,15 +13,11 @@ ArtNote is a Next.js application for exploring artworks through detailed notes. 
    cp .env.example .env
    # edit .env
    ```
-3. (Optional) Start the local database with Docker:
-   ```bash
-   docker-compose up -d
-   ```
-4. Apply database migrations (this also generates the Prisma client):
+3. Apply database migrations (this also generates the Prisma client):
    ```bash
    pnpm prisma:migrate
    ```
-5. Run the development server:
+4. Run the development server:
    ```bash
    pnpm dev
    ```
