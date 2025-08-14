@@ -1,3 +1,4 @@
+import type { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, UserSchema } from '@/schemas';
 
@@ -65,7 +66,7 @@ export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
     } = filters;
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.ArtworkWhereInput = {
       status: 'PUBLISHED',
       publishedAt: {
         not: null,
@@ -170,7 +171,9 @@ export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
     }
 
     // Build orderBy clause
-    let orderBy: any;
+    let orderBy:
+      | Prisma.ArtworkOrderByWithRelationInput
+      | Prisma.ArtworkOrderByWithRelationInput[] = {};
     switch (sort) {
       case 'title':
         orderBy = { title: order };

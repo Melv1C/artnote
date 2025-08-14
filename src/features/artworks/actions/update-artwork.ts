@@ -32,7 +32,7 @@ export async function updateArtwork(
     }
 
     // Update artwork with transaction to handle image & artist associations
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Update the artwork
       const updatedArtwork = await tx.artwork.update({
         where: { id: artworkId },

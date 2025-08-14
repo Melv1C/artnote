@@ -7,7 +7,6 @@ import {
   UserSchema,
   type UserProfileForm,
 } from '@/schemas/user';
-import { revalidatePath } from 'next/cache';
 
 export type UpdateProfileResponse = {
   success: boolean;

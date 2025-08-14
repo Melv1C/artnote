@@ -21,7 +21,7 @@ export async function createArtwork(
     const validatedData = ArtworkFormSchema.parse(data);
 
     // Create the artwork in the database with transaction
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Create the artwork
       const artwork = await tx.artwork.create({
         data: {
@@ -60,7 +60,7 @@ export async function createArtwork(
       // Create artist associations if artistIds provided
       if (validatedData.artistIds && validatedData.artistIds.length > 0) {
         const artistAssociations = validatedData.artistIds.map(
-          (artistId, idx) => ({
+          (artistId) => ({
             artworkId: artwork.id,
             artistId,
             role: null, // TODO: role selection not implemented yet
