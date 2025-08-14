@@ -73,7 +73,7 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
         </div>
 
         {/* Content Section - Now on the right */}
-        <CardContent className="p-6 flex-1 flex flex-col justify-between">
+        <CardContent className="p-6 flex-1 flex flex-col justify-between gap-4">
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -130,10 +130,7 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
                   {writerInitials}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{writer.name}</span>
-                <span className="text-xs text-muted-foreground">Rédacteur</span>
-              </div>
+              <span className="text-sm font-medium">{writer.name}</span>
             </div>
 
             {publishedAt && (
