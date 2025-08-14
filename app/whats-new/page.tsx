@@ -1,44 +1,35 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { prisma } from '@/lib/prisma';
-import { ArtworkSchema, ArtworkStatusSchema } from '@/schemas';
+import { LatestArtworkCard } from '@/components/artworks';
+import { getLatestPublishedArtworks } from '@/lib/artworks';
 
 export const metadata = {
-  title: "Nouveautés - ArtNote",
+  title: 'Nouveautés - ArtNote',
 };
 
 export default async function WhatsNewPage() {
-  const latestArtworks = ArtworkSchema.array().parse(
-    await prisma.artwork.findMany({
-      where: { status: ArtworkStatusSchema.Values.PUBLISHED },
-      orderBy: { publishedAt: 'desc' },
-      take: 10,
-    })
-  );
+  const latestArtworks = await getLatestPublishedArtworks(12);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Nouveautés</h1>
+    <div className="container py-8">
+      {/* Page Header */}
+      <div className="max-w-2xl mb-12">
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Nouveautés</h1>
+        <p className="text-lg text-muted-foreground">
+          Découvrez les dernières notices d'œuvres d'art publiées par nos
+          rédacteurs experts.
+        </p>
+      </div>
+
+      {/* Artworks List */}
       {latestArtworks.length === 0 ? (
-        <p>Aucune notice publiée récemment.</p>
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">
+            Aucune notice publiée récemment.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           {latestArtworks.map((artwork) => (
-            <Card key={artwork.id}>
-              <CardHeader>
-                <CardTitle>{artwork.title}</CardTitle>
-                {artwork.publishedAt && (
-                  <CardDescription>
-                    Publié le{' '}
-                    {new Date(artwork.publishedAt).toLocaleDateString('fr-FR')}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              {artwork.notice && (
-                <CardContent>
-                  <p className="line-clamp-3">{artwork.notice}</p>
-                </CardContent>
-              )}
-            </Card>
+            <LatestArtworkCard key={artwork.id} artwork={artwork} />
           ))}
         </div>
       )}

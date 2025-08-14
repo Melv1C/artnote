@@ -13,10 +13,7 @@ export function Header() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
   const navigation = [
-    { name: 'Découvrir', href: '/' },
     { name: 'Œuvres', href: '/artworks' },
-    { name: 'Artistes', href: '/artists' },
-    { name: 'Lieux', href: '/places' },
     { name: 'Nouveautés', href: '/whats-new' },
   ];
 
