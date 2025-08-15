@@ -2,6 +2,16 @@
 
 Brief description of the changes made in this PR.
 
+## Branch Strategy
+
+**Source Branch:** <!-- e.g., feature/user-authentication -->
+**Target Branch:** <!-- Should be 'staging' for features, 'main' only for staging releases -->
+
+> ⚠️ **Important**:
+>
+> - Feature branches should target `staging`
+> - Only `staging` should target `main` for releases
+
 ## Type of Change
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
@@ -11,6 +21,7 @@ Brief description of the changes made in this PR.
 - [ ] Refactoring (no functional changes)
 - [ ] Performance improvement
 - [ ] Dependency update
+- [ ] Release (staging → main)
 
 ## Checklist
 
@@ -19,6 +30,7 @@ Brief description of the changes made in this PR.
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] My changes generate no new warnings
 - [ ] Any dependent changes have been merged and published
+- [ ] This PR targets the correct branch according to our branch strategy
 
 ## Database Changes
 

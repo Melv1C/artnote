@@ -1,0 +1,64 @@
+name: Branch Strategy Validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate-branch-strategy:
+    name: Validate Branch Strategy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Target Branch
+        run: |
+          echo "PR opened from: ${{ github.head_ref }}"
+          echo "PR targets: ${{ github.base_ref }}"
+
+          # Validate that feature branches target staging
+          if [[ "${{ github.head_ref }}" == feat/* ]] && [[ "${{ github.base_ref }}" != "staging" ]]; then
+            echo "❌ Feature branches should target 'staging', not '${{ github.base_ref }}'"
+            exit 1
+          fi
+
+          # Validate that only staging can target main
+          if [[ "${{ github.base_ref }}" == "main" ]] && [[ "${{ github.head_ref }}" != "staging" ]]; then
+            echo "❌ Only 'staging' branch should target 'main', not '${{ github.head_ref }}'"
+            exit 1
+          fi
+
+          echo "✅ Branch strategy is correct"
+
+      - name: Add PR Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const baseBranch = context.payload.pull_request.base.ref;
+            const headBranch = context.payload.pull_request.head.ref;
+
+            let labels = [];
+
+            // Add labels based on target branch
+            if (baseBranch === 'main') {
+              labels.push('🚀 production');
+            } else if (baseBranch === 'staging') {
+              labels.push('🧪 staging');
+            }
+
+            // Add labels based on source branch
+            if (headBranch.startsWith('feat/')) {
+              labels.push('✨ feature');
+            } else if (headBranch.startsWith('fix/')) {
+              labels.push('🐛 bugfix');
+            } else if (headBranch.startsWith('hotfix/')) {
+              labels.push('🔥 hotfix');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: number,
+                labels
+              });
+            }
