@@ -5,7 +5,7 @@ const envSchema = z.object({
   // Vercel environment
   VERCEL_ENV: z.enum(['development', 'preview', 'production']).default('development'),
 
-  VERCEL_URL: z.url().default('http://localhost:3000'),
+  VERCEL_URL: z.string().default('http://localhost:3000'),
 
   // Database
   PRISMA_DATABASE_URL: z.url(),
@@ -25,11 +25,6 @@ const parseEnv = () => {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Environment variable validation errors found:');
-      console.error(process.env);
-      error.issues.forEach(issue => {
-        console.error(` - ${issue.path.join('.')}: ${issue.message}`);
-      });
       const errorMessages = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
       throw new Error(`Invalid environment variables:\n${errorMessages.join('\n')}`);
     }
