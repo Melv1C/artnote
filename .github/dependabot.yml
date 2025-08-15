@@ -3,6 +3,7 @@ updates:
   # Enable version updates for npm/pnpm (Dependabot uses npm ecosystem for pnpm projects)
   - package-ecosystem: 'npm'
     directory: '/'
+    target-branch: 'staging'
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -23,6 +24,7 @@ updates:
   # Enable version updates for GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
+    target-branch: 'staging'
     schedule:
       interval: 'weekly'
       day: 'monday'
