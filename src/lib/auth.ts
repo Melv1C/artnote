@@ -11,7 +11,7 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: env.VERCEL_URL,
+  baseURL: env.BASE_URL,
   emailAndPassword: {
     enabled: true,
     signUp: {

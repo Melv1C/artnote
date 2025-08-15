@@ -5,7 +5,7 @@ const envSchema = z.object({
   // Vercel environment
   VERCEL_ENV: z.enum(['development', 'preview', 'production']).default('development'),
 
-  VERCEL_URL: z.string().default('http://localhost:3000'),
+  BASE_URL: z.url().default('http://localhost:3000'),
 
   // Database
   PRISMA_DATABASE_URL: z.url(),
