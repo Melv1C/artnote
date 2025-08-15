@@ -9,10 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:validate": "prisma validate",
-    "prisma:format": "prisma format"
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:validate": "dotenv -e .env.local -- prisma validate",
+    "prisma:format": "dotenv -e .env.local -- prisma format",
+    "prisma:reset": "dotenv -e .env.local -- prisma migrate reset"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -54,6 +55,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "dotenv-cli": "^10.0.0",
     "lucide-react": "^0.522.0",
     "next": "15.3.3",
     "next-themes": "^0.4.6",

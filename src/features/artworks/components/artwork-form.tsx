@@ -106,23 +106,6 @@ export function ArtworkForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        {/* Debug: Show form errors in development */}
-        {process.env.NODE_ENV === 'development' &&
-          Object.keys(form.formState.errors).length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <h4 className="text-red-800 font-semibold mb-2">
-                Erreurs de validation:
-              </h4>
-              <ul className="text-red-700 text-sm">
-                {Object.entries(form.formState.errors).map(([field, error]) => (
-                  <li key={field}>
-                    <strong>{field}:</strong> {error?.message}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <FormField

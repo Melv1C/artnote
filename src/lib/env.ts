@@ -1,41 +1,24 @@
-import { z } from 'zod';
-
-// Native enum for Node environments
-export enum NodeEnv {
-  DEVELOPMENT = 'development',
-  PRODUCTION = 'production',
-  TEST = 'test',
-}
+import { z } from 'zod/v4';
 
 // Zod schema for environment validation
 const envSchema = z.object({
-  // Node environment
-  NODE_ENV: z.nativeEnum(NodeEnv).default(NodeEnv.DEVELOPMENT),
+  // Vercel environment
+  VERCEL_ENV: z
+    .enum(['development', 'preview', 'production'])
+    .default('development'),
+
+  VERCEL_URL: z.url().default('http://localhost:3000'),
 
   // Database
-  DATABASE_URL: z.string().url({
-    message: 'DATABASE_URL must be a valid PostgreSQL connection string',
-  }),
+  PRISMA_DATABASE_URL: z.url(),
 
   // Better Auth configuration
-  BETTER_AUTH_SECRET: z.string().min(10, {
-    message: 'BETTER_AUTH_SECRET must be at least 10 characters long',
-  }),
-  BETTER_AUTH_URL: z.string().url({
-    message: 'BETTER_AUTH_URL must be a valid URL',
-  }),
+  BETTER_AUTH_SECRET: z.string().min(10),
 
-  BLOB_READ_WRITE_TOKEN: z
-    .string()
-    .refine((val) => !val || val.startsWith('vercel_blob_'), {
-      message:
-        'BLOB_READ_WRITE_TOKEN must start with "vercel_blob_" if provided',
-    }),
+  BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_'),
 
   // Remote image domain for Next.js image optimization
-  REMOTE_IMAGE_DOMAIN: z.string().url({
-    message: 'REMOTE_IMAGE_DOMAIN must be a valid URL',
-  }),
+  REMOTE_IMAGE_DOMAIN: z.url().optional(),
 });
 
 // Parse and validate environment variables
@@ -44,8 +27,8 @@ const parseEnv = () => {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessages = error.errors.map(
-        (err) => `${err.path.join('.')}: ${err.message}`
+      const errorMessages = error.issues.map(
+        (issue) => `${issue.path.join('.')}: ${issue.message}`
       );
       throw new Error(
         `Invalid environment variables:\n${errorMessages.join('\n')}`
@@ -62,6 +45,6 @@ export const env = parseEnv();
 export type Env = z.infer<typeof envSchema>;
 
 // Helper function to check if we're in a specific environment
-export const isDevelopment = () => env.NODE_ENV === NodeEnv.DEVELOPMENT;
-export const isProduction = () => env.NODE_ENV === NodeEnv.PRODUCTION;
-export const isTest = () => env.NODE_ENV === NodeEnv.TEST;
+export const isDevelopment = env.VERCEL_ENV === 'development';
+export const isPreview = env.VERCEL_ENV === 'preview';
+export const isProduction = env.VERCEL_ENV === 'production';

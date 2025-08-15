@@ -25,11 +25,7 @@ const signUpSchema = z
     email: z.string().email('Adresse email invalide'),
     password: z
       .string()
-      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre'
-      ),
+      .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -3,12 +3,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
 import { env } from './env';
-import {
-  ac,
-  admin as adminRole,
-  user,
-  writer,
-} from './permissions';
+import { ac, admin as adminRole, user, writer } from './permissions';
 import { prisma } from './prisma';
 
 export const auth = betterAuth({
@@ -16,7 +11,7 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: env.VERCEL_URL,
   emailAndPassword: {
     enabled: true,
     signUp: {

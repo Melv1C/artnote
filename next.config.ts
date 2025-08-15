@@ -1,3 +1,4 @@
+import { env } from '@/lib/env';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -6,10 +7,9 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
   },
   images: {
-    remotePatterns: process.env.REMOTE_IMAGE_DOMAIN ? 
-      [
-        new URL(`${process.env.REMOTE_IMAGE_DOMAIN}/**`),
-      ] : [],
+    remotePatterns: env.REMOTE_IMAGE_DOMAIN
+      ? [new URL(`${env.REMOTE_IMAGE_DOMAIN}/**`)]
+      : [],
   },
 };
 
