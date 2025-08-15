@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  ArrowLeft,
-  Database,
-  FileText,
-  Home,
-  MapPin,
-  Palette,
-  Users,
-} from 'lucide-react';
+import { ArrowLeft, Database, FileText, Home, MapPin, Palette, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -27,16 +19,8 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
-  AdminGate,
-  ContentManagerGate,
-} from '@/features/auth/components/permission-gate';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AdminGate, ContentManagerGate } from '@/features/auth/components/permission-gate';
 import type { User } from '@/schemas/user';
 
 const navigationItems = [
@@ -84,7 +68,7 @@ export function DashboardSidebar({ user }: { user: User }) {
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map((word) => word.charAt(0))
+      .map(word => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -97,9 +81,7 @@ export function DashboardSidebar({ user }: { user: User }) {
           <Database className="h-8 w-8 text-primary" />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">ArtNote</span>
-            <span className="truncate text-xs text-muted-foreground">
-              Tableau de bord
-            </span>
+            <span className="truncate text-xs text-muted-foreground">Tableau de bord</span>
           </div>
         </div>
       </SidebarHeader>
@@ -113,9 +95,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                   <Link href="/">
                     <ArrowLeft className="h-4 w-4" />
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">
-                        Retour au site
-                      </span>
+                      <span className="truncate font-medium">Retour au site</span>
                       <span className="truncate text-xs text-muted-foreground">
                         Quitter le tableau de bord
                       </span>
@@ -131,23 +111,17 @@ export function DashboardSidebar({ user }: { user: User }) {
           <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => {
+              {navigationItems.map(item => {
                 const isActive = pathname === item.url;
 
                 // Render item based on permission requirements
                 const renderItem = () => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.title}
-                    >
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
                       <Link href={item.url}>
                         <item.icon className="h-4 w-4" />
                         <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-medium">
-                            {item.title}
-                          </span>
+                          <span className="truncate font-medium">{item.title}</span>
                           <span className="truncate text-xs text-muted-foreground">
                             {item.description}
                           </span>
@@ -161,11 +135,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                 if (item.requiresPermission === 'admin') {
                   return <AdminGate key={item.title}>{renderItem()}</AdminGate>;
                 } else if (item.requiresPermission === 'contentManager') {
-                  return (
-                    <ContentManagerGate key={item.title}>
-                      {renderItem()}
-                    </ContentManagerGate>
-                  );
+                  return <ContentManagerGate key={item.title}>{renderItem()}</ContentManagerGate>;
                 } else {
                   // Always visible for authenticated users
                   return renderItem();
@@ -183,34 +153,21 @@ export function DashboardSidebar({ user }: { user: User }) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Avatar className="h-8 w-8 shrink-0 cursor-pointer">
-                    <AvatarImage
-                      src={user.image || undefined}
-                      alt={user.name || 'User Avatar'}
-                    />
-                    <AvatarFallback>
-                      {getInitials(user.name || 'User')}
-                    </AvatarFallback>
+                    <AvatarImage src={user.image || undefined} alt={user.name || 'User Avatar'} />
+                    <AvatarFallback>{getInitials(user.name || 'User')}</AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  align="center"
-                  hidden={state !== 'collapsed'}
-                >
+                <TooltipContent side="right" align="center" hidden={state !== 'collapsed'}>
                   <div className="text-sm">
                     <div className="font-semibold">{user.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {user.email}
-                    </div>
+                    <div className="text-xs text-muted-foreground">{user.email}</div>
                   </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-semibold">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">
-                {user.email}
-              </span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
             </div>
           </div>
         </div>

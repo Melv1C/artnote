@@ -5,12 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArtworkImageSimplified } from '@/schemas/artwork-image';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from '@hello-pangea/dnd';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Star, StarOff, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
@@ -23,11 +18,7 @@ interface ImageUploadProps {
   maxImages?: number;
 }
 
-export function ImageUpload({
-  images,
-  onChange,
-  maxImages = 10,
-}: ImageUploadProps) {
+export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = async (files: File[]) => {
@@ -39,7 +30,7 @@ export function ImageUpload({
     setIsUploading(true);
 
     try {
-      const uploadPromises = files.map(async (file) => {
+      const uploadPromises = files.map(async file => {
         const formData = new FormData();
         formData.append('file', file);
 
@@ -65,15 +56,13 @@ export function ImageUpload({
       const results = await Promise.all(uploadPromises);
 
       // Create new ArtworkImageSimplified objects
-      const newImages: ArtworkImageSimplified[] = results.map(
-        (result, index) => ({
-          imageId: result.imageId!,
-          sortOrder: images.length + index,
-          isMain: images.length === 0 && index === 0, // First image is main by default
-          source: null,
-          image: result.imageData!,
-        })
-      );
+      const newImages: ArtworkImageSimplified[] = results.map((result, index) => ({
+        imageId: result.imageId!,
+        sortOrder: images.length + index,
+        isMain: images.length === 0 && index === 0, // First image is main by default
+        source: null,
+        image: result.imageData!,
+      }));
 
       // We have the image ID from the database after upload
       const updatedImages = [...images, ...newImages];
@@ -91,7 +80,7 @@ export function ImageUpload({
     (acceptedFiles: File[]) => {
       handleFileUpload(acceptedFiles);
     },
-    [images.length, maxImages]
+    [images.length, maxImages],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -125,12 +114,7 @@ export function ImageUpload({
     const reorderedImages = updatedImages.map((img, i) => ({
       ...img,
       sortOrder: i,
-      isMain:
-        i === 0 && updatedImages.length > 0
-          ? true
-          : i === 0
-          ? false
-          : img.isMain,
+      isMain: i === 0 && updatedImages.length > 0 ? true : i === 0 ? false : img.isMain,
     }));
     onChange(reorderedImages);
   };
@@ -145,7 +129,7 @@ export function ImageUpload({
 
   const updateSource = (index: number, source: string) => {
     const updatedImages = images.map((img, i) =>
-      i === index ? { ...img, source: source || null } : img
+      i === index ? { ...img, source: source || null } : img,
     );
     onChange(updatedImages);
   };
@@ -157,11 +141,7 @@ export function ImageUpload({
         {...getRootProps()}
         className={`
           border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
-          ${
-            isDragActive
-              ? 'border-primary bg-primary/5'
-              : 'border-muted-foreground/25'
-          }
+          ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
           ${
             isUploading
               ? 'opacity-50 cursor-not-allowed'
@@ -173,9 +153,7 @@ export function ImageUpload({
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         <div className="space-y-2">
           <p className="text-sm font-medium">
-            {isDragActive
-              ? 'Déposez les images ici'
-              : 'Glissez-déposez vos images ici'}
+            {isDragActive ? 'Déposez les images ici' : 'Glissez-déposez vos images ici'}
           </p>
           <p className="text-xs text-muted-foreground">
             ou <span className="text-primary">cliquez pour parcourir</span>
@@ -190,18 +168,10 @@ export function ImageUpload({
       {images.length > 0 && (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="images">
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-3"
-              >
+            {provided => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
                 {images.map((imageData, index) => (
-                  <Draggable
-                    key={index}
-                    draggableId={`image-${index}`}
-                    index={index}
-                  >
+                  <Draggable key={index} draggableId={`image-${index}`} index={index}>
                     {(provided, snapshot) => (
                       <Card
                         ref={provided.innerRef}
@@ -214,10 +184,7 @@ export function ImageUpload({
                         <CardContent className="p-4">
                           <div className="flex items-center gap-4">
                             {/* Drag Handle */}
-                            <div
-                              {...provided.dragHandleProps}
-                              className="cursor-grab"
-                            >
+                            <div {...provided.dragHandleProps} className="cursor-grab">
                               <GripVertical className="h-5 w-5 text-muted-foreground" />
                             </div>
 
@@ -247,27 +214,20 @@ export function ImageUpload({
                                     <StarOff className="h-4 w-4" />
                                   )}
                                   <span className="ml-1 text-xs">
-                                    {imageData.isMain
-                                      ? 'Principale'
-                                      : 'Définir comme principale'}
+                                    {imageData.isMain ? 'Principale' : 'Définir comme principale'}
                                   </span>
                                 </Button>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Label
-                                  htmlFor={`source-${index}`}
-                                  className="text-xs"
-                                >
+                                <Label htmlFor={`source-${index}`} className="text-xs">
                                   Source:
                                 </Label>
                                 <Input
                                   id={`source-${index}`}
                                   placeholder="Crédit / source de l'image"
                                   value={imageData.source || ''}
-                                  onChange={(e) =>
-                                    updateSource(index, e.target.value)
-                                  }
+                                  onChange={e => updateSource(index, e.target.value)}
                                   className="h-8 text-xs"
                                 />
                               </div>

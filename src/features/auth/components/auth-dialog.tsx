@@ -30,9 +30,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {mode === 'signin' ? 'Se connecter' : 'Créer un compte'}
-          </DialogTitle>
+          <DialogTitle>{mode === 'signin' ? 'Se connecter' : 'Créer un compte'}</DialogTitle>
           <DialogDescription>
             {mode === 'signin'
               ? 'Connectez-vous à votre compte ArtNote'

@@ -1,5 +1,5 @@
-import z from "zod";
-import { ImageSchema } from "./image";
+import z from 'zod';
+import { ImageSchema } from './image';
 
 export const ArtworkImageSchema = z.object({
   id: z.string(),
@@ -14,7 +14,7 @@ export const ArtworkImageSchema = z.object({
   createdById: z.string(),
   updatedById: z.string(),
 
-  image: ImageSchema
+  image: ImageSchema,
 });
 export type ArtworkImage = z.infer<typeof ArtworkImageSchema>;
 

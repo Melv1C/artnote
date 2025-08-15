@@ -10,11 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
 import { Artist } from '@/schemas/artist';
@@ -44,17 +40,17 @@ export function ArtistSelector({
   const { data: artists = [], isLoading } = useArtists(debouncedSearch);
 
   const handleSelect = (artist: Artist) => {
-    const isSelected = selectedArtists.some((a) => a.id === artist.id);
+    const isSelected = selectedArtists.some(a => a.id === artist.id);
 
     if (isSelected) {
-      onSelectionChange(selectedArtists.filter((a) => a.id !== artist.id));
+      onSelectionChange(selectedArtists.filter(a => a.id !== artist.id));
     } else {
       onSelectionChange([...selectedArtists, artist]);
     }
   };
 
   const handleRemove = (artistId: string) => {
-    onSelectionChange(selectedArtists.filter((a) => a.id !== artistId));
+    onSelectionChange(selectedArtists.filter(a => a.id !== artistId));
   };
 
   const formatArtistName = (artist: Artist) => {
@@ -86,14 +82,10 @@ export function ArtistSelector({
               onValueChange={setSearchValue}
             />
             <CommandList>
-              <CommandEmpty>
-                {isLoading ? 'Chargement...' : 'Aucun artiste trouvé.'}
-              </CommandEmpty>
+              <CommandEmpty>{isLoading ? 'Chargement...' : 'Aucun artiste trouvé.'}</CommandEmpty>
               <CommandGroup>
-                {artists.map((artist) => {
-                  const isSelected = selectedArtists.some(
-                    (a) => a.id === artist.id
-                  );
+                {artists.map(artist => {
+                  const isSelected = selectedArtists.some(a => a.id === artist.id);
                   return (
                     <CommandItem
                       key={artist.id}
@@ -101,10 +93,7 @@ export function ArtistSelector({
                       onSelect={() => handleSelect(artist)}
                     >
                       <Check
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          isSelected ? 'opacity-100' : 'opacity-0'
-                        )}
+                        className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
                       />
                       {formatArtistName(artist)}
                     </CommandItem>
@@ -119,7 +108,7 @@ export function ArtistSelector({
       {/* Selected artists badges */}
       {selectedArtists.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {selectedArtists.map((artist) => (
+          {selectedArtists.map(artist => (
             <Badge key={artist.id} variant="secondary" className="pr-1">
               {formatArtistName(artist)}
               <Button
@@ -130,9 +119,7 @@ export function ArtistSelector({
                 disabled={disabled}
               >
                 <X className="h-3 w-3" />
-                <span className="sr-only">
-                  Supprimer {formatArtistName(artist)}
-                </span>
+                <span className="sr-only">Supprimer {formatArtistName(artist)}</span>
               </Button>
             </Badge>
           ))}

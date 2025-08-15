@@ -8,13 +8,11 @@ export default function HomePage() {
       <div className="container">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-            Découvrez l'art à travers des{' '}
-            <span className="text-primary">notices enrichies</span>
+            Découvrez l'art à travers des <span className="text-primary">notices enrichies</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Explorez les œuvres d'art avec des notices détaillées, découvrez les
-            artistes qui ont marqué l'histoire et visitez les lieux qui abritent
-            ces trésors culturels.
+            Explorez les œuvres d'art avec des notices détaillées, découvrez les artistes qui ont
+            marqué l'histoire et visitez les lieux qui abritent ces trésors culturels.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild>

@@ -23,12 +23,10 @@ const signUpSchema = z
   .object({
     name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
     email: z.string().email('Adresse email invalide'),
-    password: z
-      .string()
-      .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine(data => data.password === data.confirmPassword, {
     message: 'Les mots de passe ne correspondent pas',
     path: ['confirmPassword'],
   });
@@ -100,11 +98,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Nom complet</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Jean Dupont"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input placeholder="Jean Dupont" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -118,12 +112,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="votre@email.com"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="email" placeholder="votre@email.com" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -137,12 +126,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Mot de passe</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="password" placeholder="••••••••" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -156,12 +140,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Confirmer le mot de passe</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="password" placeholder="••••••••" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

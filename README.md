@@ -4,20 +4,40 @@ ArtNote is a Next.js application for exploring artworks through detailed notes. 
 
 ## Setup
 
-1. Install dependencies:
+1. Use the correct Node.js version:
+
+   ```bash
+   # If you have nvm installed
+   nvm use
+
+   # Or install Node.js 22 manually
+   # The project requires Node.js 22 (see .nvmrc)
+   ```
+
+2. Install dependencies:
+
    ```bash
    pnpm install
    ```
-2. Copy `.env.example` to `.env` and update the values for your environment:
+
+3. Set up environment variables:
+
    ```bash
+   # Copy .env.example to .env and update the values for your environment
    cp .env.example .env
-   # edit .env
+   # Edit .env with your local configuration
+
+   # Pull development environment variables from Vercel
+   vercel env pull .env.local
    ```
-3. Apply database migrations (this also generates the Prisma client):
+
+4. Apply database migrations (this also generates the Prisma client):
+
    ```bash
    pnpm prisma:migrate
    ```
-4. Run the development server:
+
+5. Run the development server:
    ```bash
    pnpm dev
    ```
@@ -30,4 +50,3 @@ ArtNote is a Next.js application for exploring artworks through detailed notes. 
 - `prisma/` – Prisma schema and database migrations.
 - `docker-compose.yml` – Local PostgreSQL setup for development.
 - `package.json` – Project scripts and dependencies.
-

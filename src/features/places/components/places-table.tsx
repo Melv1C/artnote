@@ -78,7 +78,7 @@ export function PlacesTable() {
           <Input
             placeholder="Rechercher un lieu..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -97,13 +97,13 @@ export function PlacesTable() {
         <Input
           placeholder="Ville"
           value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
+          onChange={e => setCityFilter(e.target.value)}
           className="w-32"
         />
         <Input
           placeholder="Pays"
           value={countryFilter}
-          onChange={(e) => setCountryFilter(e.target.value)}
+          onChange={e => setCountryFilter(e.target.value)}
           className="w-32"
         />
       </div>
@@ -112,16 +112,13 @@ export function PlacesTable() {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
+                {headerGroup.headers.map(header => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -129,27 +126,18 @@ export function PlacesTable() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
+              table.getRowModel().rows.map(row => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Aucun lieu trouvé
                 </TableCell>
               </TableRow>

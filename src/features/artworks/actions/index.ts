@@ -1,7 +1,4 @@
-export {
-  changeArtworkStatus,
-  deleteArtwork
-} from './artwork-actions';
+export { changeArtworkStatus, deleteArtwork } from './artwork-actions';
 export type { ArtworkActionResponse } from './artwork-actions';
 export { createArtwork } from './create-artwork';
 export type { CreateArtworkResponse } from './create-artwork';

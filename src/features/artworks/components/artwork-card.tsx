@@ -55,12 +55,7 @@ const statusConfig = {
   },
 } as const;
 
-export function ArtworkCard({
-  artwork,
-  onDelete,
-  onStatusChange,
-  isPending,
-}: ArtworkCardProps) {
+export function ArtworkCard({ artwork, onDelete, onStatusChange, isPending }: ArtworkCardProps) {
   const {
     id,
     title,
@@ -77,7 +72,7 @@ export function ArtworkCard({
   const statusInfo = statusConfig[status];
 
   // Get main image
-  const mainImage = images?.find((img) => img.isMain) || images?.[0];
+  const mainImage = images?.find(img => img.isMain) || images?.[0];
 
   const handleDelete = async () => {
     if (onDelete && !isPending) {
@@ -115,19 +110,14 @@ export function ArtworkCard({
             variant="secondary"
             className={`text-xs font-medium border ${statusInfo.className}`}
           >
-            <div
-              className={`w-2 h-2 rounded-full mr-1.5 ${statusInfo.dotColor}`}
-            />
+            <div className={`w-2 h-2 rounded-full mr-1.5 ${statusInfo.dotColor}`} />
             {statusInfo.label}
           </Badge>
         </div>
 
         {/* View Count - Top Right */}
         <div className="absolute top-3 right-3">
-          <Badge
-            variant="secondary"
-            className="text-xs bg-black/50 text-white border-transparent"
-          >
+          <Badge variant="secondary" className="text-xs bg-black/50 text-white border-transparent">
             <EyeIcon className="h-3 w-3 mr-1" />
             {viewCount || 0}
           </Badge>
@@ -185,13 +175,7 @@ export function ArtworkCard({
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
           {/* Main Edit Button */}
-          <Button
-            size="sm"
-            variant="default"
-            asChild
-            className="flex-1"
-            disabled={isPending}
-          >
+          <Button size="sm" variant="default" asChild className="flex-1" disabled={isPending}>
             <Link href={`/dashboard/artworks/${id}/edit`}>
               <Edit className="h-3.5 w-3.5 mr-1.5" />
               Modifier
@@ -209,12 +193,7 @@ export function ArtworkCard({
           {/* Status Change + More Actions */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                disabled={isPending}
-              >
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
                 <MoreHorizontal className="h-4 w-4" />
                 <span className="sr-only">Plus d'actions</span>
               </Button>
@@ -225,17 +204,15 @@ export function ArtworkCard({
                 Changer le statut
               </div>
               {ArtworkStatusSchema.options
-                .filter((s) => s !== status)
-                .map((newStatus) => (
+                .filter(s => s !== status)
+                .map(newStatus => (
                   <DropdownMenuItem
                     key={newStatus}
                     className="flex items-center gap-2"
                     onClick={() => handleStatusChange(newStatus)}
                     disabled={isPending}
                   >
-                    <div
-                      className={`w-2 h-2 rounded-full ${statusConfig[newStatus].dotColor}`}
-                    />
+                    <div className={`w-2 h-2 rounded-full ${statusConfig[newStatus].dotColor}`} />
                     {statusConfig[newStatus].label}
                   </DropdownMenuItem>
                 ))}

@@ -1,0 +1,15 @@
+node_modules/
+.idea/
+.vscode/
+.husky/
+coverage/
+data/
+dist/
+generated/
+src/generated/
+tmp/
+dep-graph.json
+CHANGELOG.md
+stats.html
+.next/
+pnpm-lock.yaml

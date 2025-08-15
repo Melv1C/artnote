@@ -29,12 +29,12 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
   } = artwork;
 
   // Get main image
-  const mainImage = images?.find((img) => img.isMain) || images?.[0];
+  const mainImage = images?.find(img => img.isMain) || images?.[0];
 
   // Get writer initials for avatar fallback
   const writerInitials = writer.name
     .split(' ')
-    .map((n) => n[0])
+    .map(n => n[0])
     .join('')
     .toUpperCase();
 
@@ -62,10 +62,7 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
 
           {/* View count badge */}
           <div className="absolute top-4 left-4">
-            <Badge
-              variant="secondary"
-              className="bg-black/50 text-white border-0 backdrop-blur-sm"
-            >
+            <Badge variant="secondary" className="bg-black/50 text-white border-0 backdrop-blur-sm">
               <Eye className="h-3 w-3 mr-1" />
               {viewCount || 0}
             </Badge>
@@ -84,10 +81,7 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
               {/* Artists */}
               {artists && artists.length > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Par{' '}
-                  {artists
-                    .map((a) => a.artist.firstName + ' ' + a.artist.lastName)
-                    .join(', ')}
+                  Par {artists.map(a => a.artist.firstName + ' ' + a.artist.lastName).join(', ')}
                 </p>
               )}
             </div>
@@ -122,10 +116,7 @@ export function LatestArtworkCard({ artwork }: LatestArtworkCardProps) {
           <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={writer.image || undefined}
-                  alt={writer.name}
-                />
+                <AvatarImage src={writer.image || undefined} alt={writer.name} />
                 <AvatarFallback className="text-xs bg-primary/10 text-primary">
                   {writerInitials}
                 </AvatarFallback>

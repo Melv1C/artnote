@@ -32,8 +32,8 @@ export function Footer() {
               <span className="font-bold text-xl">ArtNote</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Découvrez l'art à travers des notices enrichies et explorez les
-              œuvres qui façonnent notre patrimoine culturel.
+              Découvrez l'art à travers des notices enrichies et explorez les œuvres qui façonnent
+              notre patrimoine culturel.
             </p>
           </div>
 
@@ -41,7 +41,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Découvrir</h3>
             <ul className="space-y-2">
-              {footerLinks.discover.map((link) => (
+              {footerLinks.discover.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -58,7 +58,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">À propos</h3>
             <ul className="space-y-2">
-              {footerLinks.about.map((link) => (
+              {footerLinks.about.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -75,7 +75,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Légal</h3>
             <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
+              {footerLinks.legal.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}

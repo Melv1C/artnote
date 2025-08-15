@@ -1,13 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDebounce } from '@/hooks/use-debounce';
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -40,7 +34,7 @@ export function UsersList() {
 
   // Client-side filtering for better UX
   const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
+    return users.filter(user => {
       // Search filter using debounced search
       const matchesSearch =
         !debouncedSearch.trim() ||
@@ -52,8 +46,7 @@ export function UsersList() {
 
       // Email verified filter
       const matchesEmailVerified =
-        emailVerifiedFilter === 'all' ||
-        user.emailVerified.toString() === emailVerifiedFilter;
+        emailVerifiedFilter === 'all' || user.emailVerified.toString() === emailVerifiedFilter;
 
       // Ban status filter
       const matchesBanStatus = (() => {
@@ -63,17 +56,9 @@ export function UsersList() {
         return true;
       })();
 
-      return (
-        matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus
-      );
+      return matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus;
     });
-  }, [
-    users,
-    debouncedSearch,
-    roleFilter,
-    emailVerifiedFilter,
-    banStatusFilter,
-  ]);
+  }, [users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
 
   const handleClearFilters = () => {
     setSearchValue('');
@@ -128,9 +113,7 @@ export function UsersList() {
         {error ? (
           <div className="flex flex-col items-center justify-center h-32 gap-4">
             <div className="text-destructive text-center">
-              {error instanceof Error
-                ? error.message
-                : 'Une erreur est survenue'}
+              {error instanceof Error ? error.message : 'Une erreur est survenue'}
             </div>
             <Button onClick={handleRefresh} variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />

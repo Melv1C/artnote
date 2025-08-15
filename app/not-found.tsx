@@ -8,9 +8,7 @@ export default function NotFound() {
       <div className="max-w-md mx-auto text-center">
         <div className="mb-8">
           <h1 className="text-9xl font-bold text-primary/20">404</h1>
-          <h2 className="text-2xl font-bold tracking-tight mb-2">
-            Page introuvable
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Page introuvable</h2>
           <p className="text-muted-foreground mb-6">
             Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
           </p>

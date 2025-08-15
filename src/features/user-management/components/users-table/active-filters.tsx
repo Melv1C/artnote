@@ -18,8 +18,7 @@ export function ActiveFilters({
   onEmailVerifiedFilterChange,
 }: ActiveFiltersProps) {
   const hasActiveFilters =
-    (roleFilter && roleFilter !== 'all') ||
-    (emailVerifiedFilter && emailVerifiedFilter !== 'all');
+    (roleFilter && roleFilter !== 'all') || (emailVerifiedFilter && emailVerifiedFilter !== 'all');
 
   if (!hasActiveFilters) {
     return null;

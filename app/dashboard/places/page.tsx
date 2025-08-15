@@ -1,11 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlacesTable } from '@/features/places';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -31,9 +25,7 @@ export default function PlacesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Tous les lieux</CardTitle>
-          <CardDescription>
-            Liste des lieux d'exposition et de conservation
-          </CardDescription>
+          <CardDescription>Liste des lieux d'exposition et de conservation</CardDescription>
         </CardHeader>
         <CardContent>
           <PlacesTable />

@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtworkForm, updateArtwork } from '@/features/artworks';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
@@ -15,9 +9,7 @@ interface EditArtworkPageProps {
   params: Promise<{ artworkId: string }>;
 }
 
-export default async function EditArtworkPage({
-  params,
-}: EditArtworkPageProps) {
+export default async function EditArtworkPage({ params }: EditArtworkPageProps) {
   const user = await getRequiredUser();
   const { artworkId } = await params;
 
@@ -51,17 +43,13 @@ export default async function EditArtworkPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Modifier la notice</h1>
-        <p className="text-muted-foreground">
-          Mettez à jour les informations de l'œuvre d'art
-        </p>
+        <p className="text-muted-foreground">Mettez à jour les informations de l'œuvre d'art</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Informations de l'œuvre</CardTitle>
-          <CardDescription>
-            Modifiez les détails de l'œuvre d'art
-          </CardDescription>
+          <CardDescription>Modifiez les détails de l'œuvre d'art</CardDescription>
         </CardHeader>
         <CardContent>
           <ArtworkForm

@@ -8,10 +8,7 @@ interface ArtworkFiltersProps {
   onFilterChange: (filters: ArtworkFilter) => void;
 }
 
-export function ArtworkFilters({
-  filters,
-  onFilterChange,
-}: ArtworkFiltersProps) {
+export function ArtworkFilters({ filters, onFilterChange }: ArtworkFiltersProps) {
   // Handle search input changes
   const handleSearchChange = (search: string) => {
     onFilterChange({
@@ -54,10 +51,7 @@ export function ArtworkFilters({
       {/* Main filter controls */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 gap-2">
-          <ArtworkSearchInput
-            value={filters.search || ''}
-            onChange={handleSearchChange}
-          />
+          <ArtworkSearchInput value={filters.search || ''} onChange={handleSearchChange} />
           {/* Desktop filters dropdown */}
           <div className="">
             <ArtworkFiltersDropdown

@@ -24,19 +24,10 @@ export const metadata: Metadata = {
     "Explorez les œuvres d'art avec des notices détaillées et découvrez le patrimoine culturel français.",
 };
 
-export default function RootLayout({
-  children,
-}: PropsWithChildren) {
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html suppressHydrationWarning lang="en" className="h-full">
-      <body
-        className={cn(
-          geistSans.variable,
-          geistMono.variable,
-          'antialiased',
-          'h-full'
-        )}
-      >
+      <body className={cn(geistSans.variable, geistMono.variable, 'antialiased', 'h-full')}>
         {' '}
         <ThemeProvider
           attribute="class"

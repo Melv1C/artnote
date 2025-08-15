@@ -64,9 +64,7 @@ async function fetchAllUsers(): Promise<GetUsersResponse> {
   } catch (error) {
     console.error('Error fetching users:', error);
     throw new Error(
-      `Failed to fetch users: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`
+      `Failed to fetch users: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }

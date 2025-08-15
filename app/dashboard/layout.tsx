@@ -1,10 +1,6 @@
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { Separator } from '@/components/ui/separator';
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { checkRolePermission } from '@/features/auth';
 import { getUser } from '@/lib/auth-server';
 import { unauthorized } from 'next/navigation';

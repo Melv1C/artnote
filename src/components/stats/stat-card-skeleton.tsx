@@ -14,9 +14,7 @@ export function StatCardSkeleton({ title, icon: Icon }: StatCardSkeletonProps) {
       {' '}
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
         </div>
       </CardHeader>

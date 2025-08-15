@@ -36,22 +36,12 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="firstName">Prénom *</Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            defaultValue={artist?.firstName}
-            required
-          />
+          <Input id="firstName" name="firstName" defaultValue={artist?.firstName} required />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="lastName">Nom *</Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            defaultValue={artist?.lastName}
-            required
-          />
+          <Input id="lastName" name="lastName" defaultValue={artist?.lastName} required />
         </div>
 
         <div className="space-y-2">
@@ -61,9 +51,7 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
             name="birthDate"
             type="date"
             defaultValue={
-              artist?.birthDate
-                ? new Date(artist.birthDate).toISOString().split('T')[0]
-                : ''
+              artist?.birthDate ? new Date(artist.birthDate).toISOString().split('T')[0] : ''
             }
           />
         </div>
@@ -75,9 +63,7 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
             name="deathDate"
             type="date"
             defaultValue={
-              artist?.deathDate
-                ? new Date(artist.deathDate).toISOString().split('T')[0]
-                : ''
+              artist?.deathDate ? new Date(artist.deathDate).toISOString().split('T')[0] : ''
             }
           />
         </div>
@@ -95,19 +81,11 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.push('/dashboard/artists')}
-        >
+        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/artists')}>
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending
-            ? 'Enregistrement...'
-            : mode === 'create'
-            ? 'Créer'
-            : 'Modifier'}
+          {isPending ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Modifier'}
         </Button>
       </div>
     </form>

@@ -39,7 +39,7 @@ export function UserButton({ user }: UserButtonProps) {
             <AvatarFallback>
               {user.name
                 ?.split(' ')
-                .map((n) => n[0])
+                .map(n => n[0])
                 .join('')
                 .toUpperCase() || 'U'}
             </AvatarFallback>
@@ -50,9 +50,7 @@ export function UserButton({ user }: UserButtonProps) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -74,10 +72,7 @@ export function UserButton({ user }: UserButtonProps) {
         </ContentManagerGate>
         <DropdownMenuSeparator />
         {/* Sign Out */}
-        <DropdownMenuItem
-          className="text-red-600 dark:text-red-400"
-          onClick={handleSignOut}
-        >
+        <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Se déconnecter</span>
         </DropdownMenuItem>

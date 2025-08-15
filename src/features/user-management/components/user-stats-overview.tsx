@@ -14,9 +14,7 @@ import { Suspense } from 'react';
 // Individual async components for each user stat
 async function TotalUsersCard() {
   const totalUsers = await prisma.user.count();
-  return (
-    <StatCard title="Total Utilisateurs" value={totalUsers} icon={Users} />
-  );
+  return <StatCard title="Total Utilisateurs" value={totalUsers} icon={Users} />;
 }
 
 async function AdminUsersCard() {
@@ -72,9 +70,7 @@ async function NewUsersThisWeekCard() {
       ? newUsersThisWeek > 0
         ? 100
         : 0
-      : Math.round(
-          ((newUsersThisWeek - newUsersLastWeek) / newUsersLastWeek) * 100
-        );
+      : Math.round(((newUsersThisWeek - newUsersLastWeek) / newUsersLastWeek) * 100);
 
   const trend = percentageChange > 0 ? '+' : '';
   const subtitle = `${trend}${percentageChange}% vs semaine dernière`;
@@ -92,29 +88,19 @@ async function NewUsersThisWeekCard() {
 export function UserStatsOverview() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <Suspense
-        fallback={<StatCardSkeleton title="Total Utilisateurs" icon={Users} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Total Utilisateurs" icon={Users} />}>
         <TotalUsersCard />
       </Suspense>
 
-      <Suspense
-        fallback={<StatCardSkeleton title="Administrateurs" icon={Shield} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Administrateurs" icon={Shield} />}>
         <AdminUsersCard />
       </Suspense>
 
-      <Suspense
-        fallback={<StatCardSkeleton title="Rédacteurs" icon={UserCheck} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Rédacteurs" icon={UserCheck} />}>
         <WriterUsersCard />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <StatCardSkeleton title="Nouveaux Utilisateurs" icon={Activity} />
-        }
-      >
+      <Suspense fallback={<StatCardSkeleton title="Nouveaux Utilisateurs" icon={Activity} />}>
         <NewUsersThisWeekCard />
       </Suspense>
     </div>

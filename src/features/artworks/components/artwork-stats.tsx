@@ -12,9 +12,7 @@ async function TotalArtworksCard() {
       writerId: (await getRequiredUser()).id,
     },
   });
-  return (
-    <StatCard title="Total Notices" value={totalArtworks} icon={FileText} />
-  );
+  return <StatCard title="Total Notices" value={totalArtworks} icon={FileText} />;
 }
 
 async function PublishedArtworksCard() {
@@ -24,9 +22,7 @@ async function PublishedArtworksCard() {
       writerId: (await getRequiredUser()).id,
     },
   });
-  return (
-    <StatCard title="Publiées" value={publishedCount} icon={NotebookPen} />
-  );
+  return <StatCard title="Publiées" value={publishedCount} icon={NotebookPen} />;
 }
 
 async function DraftArtworksCard() {
@@ -47,27 +43,19 @@ async function TotalViewsCard() {
 export function ArtworkStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Suspense
-        fallback={<StatCardSkeleton title="Total Notices" icon={FileText} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Total Notices" icon={FileText} />}>
         <TotalArtworksCard />
       </Suspense>
 
-      <Suspense
-        fallback={<StatCardSkeleton title="Publiées" icon={NotebookPen} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Publiées" icon={NotebookPen} />}>
         <PublishedArtworksCard />
       </Suspense>
 
-      <Suspense
-        fallback={<StatCardSkeleton title="Brouillons" icon={Archive} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Brouillons" icon={Archive} />}>
         <DraftArtworksCard />
       </Suspense>
 
-      <Suspense
-        fallback={<StatCardSkeleton title="Vues Totales" icon={TrendingUp} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Vues Totales" icon={TrendingUp} />}>
         <TotalViewsCard />
       </Suspense>
     </div>

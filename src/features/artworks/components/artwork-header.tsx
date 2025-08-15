@@ -7,9 +7,7 @@ export function ArtworkHeader() {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Mes Notices</h1>
-        <p className="text-muted-foreground">
-          Gérez vos notices d'œuvres d'art
-        </p>
+        <p className="text-muted-foreground">Gérez vos notices d'œuvres d'art</p>
       </div>
       <Link href="/dashboard/artworks/create">
         <Button>

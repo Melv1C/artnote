@@ -9,11 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
 import { Place } from '@/schemas/place';
@@ -81,11 +77,9 @@ export function PlaceSelector({
               onValueChange={setSearchValue}
             />
             <CommandList>
-              <CommandEmpty>
-                {isLoading ? 'Chargement...' : 'Aucun lieu trouvé.'}
-              </CommandEmpty>
+              <CommandEmpty>{isLoading ? 'Chargement...' : 'Aucun lieu trouvé.'}</CommandEmpty>
               <CommandGroup>
-                {places.map((place) => (
+                {places.map(place => (
                   <CommandItem
                     key={place.id}
                     value={formatPlaceName(place)}
@@ -94,18 +88,14 @@ export function PlaceSelector({
                     <Check
                       className={cn(
                         'mr-2 h-4 w-4',
-                        selectedPlace?.id === place.id
-                          ? 'opacity-100'
-                          : 'opacity-0'
+                        selectedPlace?.id === place.id ? 'opacity-100' : 'opacity-0',
                       )}
                     />
                     <div className="flex flex-col">
                       <span className="font-medium">{place.name}</span>
                       {(place.city || place.country) && (
                         <span className="text-sm text-muted-foreground">
-                          {[place.city, place.country]
-                            .filter(Boolean)
-                            .join(', ')}
+                          {[place.city, place.country].filter(Boolean).join(', ')}
                         </span>
                       )}
                     </div>

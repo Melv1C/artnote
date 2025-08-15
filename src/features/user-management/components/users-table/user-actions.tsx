@@ -37,10 +37,7 @@ export function UserActions({
               </Button>
             </DropdownMenuTrigger>{' '}
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={onExportSelectedUsers}
-                className="gap-2"
-              >
+              <DropdownMenuItem onClick={onExportSelectedUsers} className="gap-2">
                 <Download className="h-4 w-4" />
                 Exporter la sélection
               </DropdownMenuItem>

@@ -69,7 +69,7 @@ export function ArtworksFilter() {
 
       router.push(`/artworks?${params.toString()}`);
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   // Update URL when debounced search changes
@@ -100,8 +100,7 @@ export function ArtworksFilter() {
   };
 
   // Check if any filters are active
-  const hasActiveFilters =
-    search || artist || place || medium || year || sortBy !== 'title-asc';
+  const hasActiveFilters = search || artist || place || medium || year || sortBy !== 'title-asc';
 
   return (
     <div className="space-y-6">
@@ -111,7 +110,7 @@ export function ArtworksFilter() {
         <Input
           placeholder="Rechercher par titre, artiste, ou mots-clés..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           className="pl-10"
         />
       </div>
@@ -125,7 +124,7 @@ export function ArtworksFilter() {
             id="artist-filter"
             placeholder="Nom de l'artiste"
             value={artist}
-            onChange={(e) => {
+            onChange={e => {
               setArtist(e.target.value);
               handleFilterChange('artist', e.target.value);
             }}
@@ -139,7 +138,7 @@ export function ArtworksFilter() {
             id="place-filter"
             placeholder="Musée, galerie..."
             value={place}
-            onChange={(e) => {
+            onChange={e => {
               setPlace(e.target.value);
               handleFilterChange('place', e.target.value);
             }}
@@ -153,7 +152,7 @@ export function ArtworksFilter() {
             id="medium-filter"
             placeholder="Huile sur toile..."
             value={medium}
-            onChange={(e) => {
+            onChange={e => {
               setMedium(e.target.value);
               handleFilterChange('medium', e.target.value);
             }}
@@ -167,7 +166,7 @@ export function ArtworksFilter() {
             id="year-filter"
             placeholder="Année de création"
             value={year}
-            onChange={(e) => {
+            onChange={e => {
               setYear(e.target.value);
               handleFilterChange('year', e.target.value);
             }}
@@ -185,7 +184,7 @@ export function ArtworksFilter() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {SORT_OPTIONS.map((option) => (
+              {SORT_OPTIONS.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -195,12 +194,7 @@ export function ArtworksFilter() {
         </div>
 
         {hasActiveFilters && (
-          <Button
-            variant="outline"
-            onClick={clearFilters}
-            className="gap-2"
-            size="sm"
-          >
+          <Button variant="outline" onClick={clearFilters} className="gap-2" size="sm">
             <RotateCcw className="h-4 w-4" />
             Réinitialiser
           </Button>

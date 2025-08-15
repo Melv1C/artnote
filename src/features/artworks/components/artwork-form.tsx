@@ -20,11 +20,7 @@ import {
 } from '@/components/ui/select';
 import { ArtworkStatusSchema } from '@/schemas';
 import { Artist } from '@/schemas/artist';
-import {
-  Artwork,
-  ArtworkFormSchema,
-  type ArtworkForm,
-} from '@/schemas/artwork';
+import { Artwork, ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 import { Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -38,9 +34,7 @@ import { PlaceSelector } from './place-selector';
 
 interface ArtworkFormProps {
   initialValues?: Artwork;
-  onSubmit: (
-    data: ArtworkForm
-  ) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
+  onSubmit: (data: ArtworkForm) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
   onCancel?: () => void;
   submitLabel?: string;
   successMessage?: string;
@@ -56,11 +50,9 @@ export function ArtworkForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
-    initialValues?.artists.map((a) => a.artist) || []
+    initialValues?.artists.map(a => a.artist) || [],
   );
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(
-    initialValues?.place || null
-  );
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(initialValues?.place || null);
 
   const form = useForm<ArtworkForm>({
     resolver: zodResolver(ArtworkFormSchema),
@@ -74,7 +66,7 @@ export function ArtworkForm({
       status: ArtworkStatusSchema.Values.DRAFT,
       images: [],
       placeId: null,
-      artistIds: initialValues?.artists?.map((a) => a.artist.id) || [],
+      artistIds: initialValues?.artists?.map(a => a.artist.id) || [],
       ...initialValues,
     },
   });
@@ -90,16 +82,12 @@ export function ArtworkForm({
         router.push('/dashboard/artworks');
       } else {
         setIsSubmitting(false);
-        toast.error(
-          result.error || "Erreur lors de l'enregistrement de la notice"
-        );
+        toast.error(result.error || "Erreur lors de l'enregistrement de la notice");
       }
     } catch (error) {
       console.error('Error saving artwork:', error);
       setIsSubmitting(false);
-      toast.error(
-        'Une erreur inattendue est survenue. Vérifiez la console pour plus de détails.'
-      );
+      toast.error('Une erreur inattendue est survenue. Vérifiez la console pour plus de détails.');
     }
   };
 
@@ -134,7 +122,7 @@ export function ArtworkForm({
                     placeholder="2023, XIXe siècle..."
                     {...field}
                     value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value || null)}
+                    onChange={e => field.onChange(e.target.value || null)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -149,10 +137,7 @@ export function ArtworkForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Statut</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un statut" />
@@ -181,7 +166,7 @@ export function ArtworkForm({
                     placeholder="Huile sur toile, Bronze..."
                     {...field}
                     value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value || null)}
+                    onChange={e => field.onChange(e.target.value || null)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -201,7 +186,7 @@ export function ArtworkForm({
                     placeholder="100 x 80 cm"
                     {...field}
                     value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value || null)}
+                    onChange={e => field.onChange(e.target.value || null)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -219,7 +204,7 @@ export function ArtworkForm({
                 <FormControl>
                   <PlaceSelector
                     selectedPlace={selectedPlace}
-                    onSelectionChange={(place) => {
+                    onSelectionChange={place => {
                       setSelectedPlace(place);
                       field.onChange(place?.id || null);
                     }}
@@ -240,9 +225,9 @@ export function ArtworkForm({
                 <FormControl>
                   <ArtistSelector
                     selectedArtists={selectedArtists}
-                    onSelectionChange={(artists) => {
+                    onSelectionChange={artists => {
                       setSelectedArtists(artists);
-                      field.onChange(artists.map((a) => a.id));
+                      field.onChange(artists.map(a => a.id));
                     }}
                   />
                 </FormControl>
@@ -260,10 +245,7 @@ export function ArtworkForm({
             <FormItem>
               <FormLabel>Notice</FormLabel>
               <FormControl>
-                <RichTextEditor
-                  value={field.value || ''}
-                  onChange={(val) => field.onChange(val)}
-                />
+                <RichTextEditor value={field.value || ''} onChange={val => field.onChange(val)} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -280,7 +262,7 @@ export function ArtworkForm({
               <FormControl>
                 <RichTextEditor
                   value={field.value || ''}
-                  onChange={(val) => field.onChange(val)}
+                  onChange={val => field.onChange(val)}
                   placeholder="Ajoutez des liens ou des références"
                 />
               </FormControl>
@@ -297,11 +279,7 @@ export function ArtworkForm({
             <FormItem>
               <FormLabel>Images</FormLabel>
               <FormControl>
-                <ImageUpload
-                  images={field.value}
-                  onChange={field.onChange}
-                  maxImages={10}
-                />
+                <ImageUpload images={field.value} onChange={field.onChange} maxImages={10} />
               </FormControl>
               <FormMessage />
             </FormItem>

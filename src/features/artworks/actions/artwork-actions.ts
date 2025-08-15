@@ -51,10 +51,7 @@ export async function deleteArtwork(artworkId: string) {
 /**
  * Change artwork status
  */
-export async function changeArtworkStatus(
-  artworkId: string,
-  newStatus: string
-) {
+export async function changeArtworkStatus(artworkId: string, newStatus: string) {
   try {
     // Verify user is authenticated
     const user = await getRequiredUser();
@@ -101,9 +98,7 @@ export async function changeArtworkStatus(
 
     return {
       success: true,
-      message: `Statut changé vers "${
-        statusLabels[newStatus as keyof typeof statusLabels]
-      }"`,
+      message: `Statut changé vers "${statusLabels[newStatus as keyof typeof statusLabels]}"`,
     };
   } catch (error) {
     console.error('Error changing artwork status:', error);

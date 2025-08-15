@@ -175,7 +175,10 @@ export function ContentManagerGate({
   fallback?: ReactNode;
 }) {
   return (
-    <RoleGate roles={[UserRoleSchema.Values.admin, UserRoleSchema.Values.writer]} fallback={fallback}>
+    <RoleGate
+      roles={[UserRoleSchema.Values.admin, UserRoleSchema.Values.writer]}
+      fallback={fallback}
+    >
       {children}
     </RoleGate>
   );

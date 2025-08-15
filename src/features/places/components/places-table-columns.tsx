@@ -30,17 +30,16 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={value => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -50,19 +49,13 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Nom
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => (
-      <Link
-        href={`/dashboard/places/${row.original.id}`}
-        className="font-medium hover:underline"
-      >
+      <Link href={`/dashboard/places/${row.original.id}`} className="font-medium hover:underline">
         {row.getValue('name')}
       </Link>
     ),
@@ -78,11 +71,7 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
         PUBLIC_SPACE: 'Espace public',
         OTHER: 'Autre',
       };
-      return (
-        <Badge variant="outline">
-          {typeLabels[type as keyof typeof typeLabels] || type}
-        </Badge>
-      );
+      return <Badge variant="outline">{typeLabels[type as keyof typeof typeLabels] || type}</Badge>;
     },
   },
   {
@@ -113,10 +102,7 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Créé le
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -161,10 +147,7 @@ export const columns: ColumnDef<PlaceWithRelations>[] = [
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleDelete}
-              className="text-red-600 hover:text-red-700"
-            >
+            <DropdownMenuItem onClick={handleDelete} className="text-red-600 hover:text-red-700">
               <Trash2 className="mr-2 h-4 w-4" />
               Supprimer
             </DropdownMenuItem>

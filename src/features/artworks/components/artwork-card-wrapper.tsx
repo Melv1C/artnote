@@ -9,25 +9,16 @@ import { ArtworkCard } from './artwork-card';
 interface ArtworkCardWrapperProps {
   artwork: Artwork;
   onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
-  onStatusChange?: (
-    artworkId: string,
-    status: string
-  ) => Promise<ArtworkActionResponse>;
+  onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
 }
 
-export function ArtworkCardWrapper({
-  artwork,
-  onDelete,
-  onStatusChange,
-}: ArtworkCardWrapperProps) {
+export function ArtworkCardWrapper({ artwork, onDelete, onStatusChange }: ArtworkCardWrapperProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async (artworkId: string) => {
     // Show confirmation dialog
     if (
-      !confirm(
-        'Êtes-vous sûr de vouloir supprimer cette œuvre ? Cette action est irréversible.'
-      )
+      !confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ? Cette action est irréversible.')
     ) {
       return;
     }

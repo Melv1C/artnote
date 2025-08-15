@@ -83,12 +83,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="votre@email.com"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="email" placeholder="votre@email.com" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,12 +97,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
             <FormItem>
               <FormLabel>Mot de passe</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="password" placeholder="••••••••" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

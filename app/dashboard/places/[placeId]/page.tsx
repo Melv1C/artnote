@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceForm } from '@/features/places';
 import { usePlace } from '@/features/places/hooks/use-places';
 import { useParams } from 'next/navigation';
@@ -41,9 +35,7 @@ export default function EditPlacePage() {
       <Card>
         <CardHeader>
           <CardTitle>Informations du lieu</CardTitle>
-          <CardDescription>
-            Modifiez les informations principales du lieu
-          </CardDescription>
+          <CardDescription>Modifiez les informations principales du lieu</CardDescription>
         </CardHeader>
         <CardContent>
           <PlaceForm mode="edit" place={place} />

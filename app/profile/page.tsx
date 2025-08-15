@@ -1,19 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  RichTextEditor,
-  RichTextViewer,
-} from '@/components/ui/rich-text-editor';
+import { RichTextEditor, RichTextViewer } from '@/components/ui/rich-text-editor';
 import { AvatarUpload } from '@/features/auth/components/avatar-upload';
 import { useAuth } from '@/features/auth/hooks';
 import { updateProfile } from '@/features/profile';
@@ -131,9 +122,7 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Photo de profil</CardTitle>
-                <CardDescription>
-                  Votre photo apparaîtra sur vos notices publiées
-                </CardDescription>
+                <CardDescription>Votre photo apparaîtra sur vos notices publiées</CardDescription>
               </CardHeader>
               <CardContent>
                 <AvatarUpload user={user} />
@@ -146,20 +135,14 @@ export default function ProfilePage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Membre depuis
-                    </span>
+                    <span className="text-sm text-muted-foreground">Membre depuis</span>
                     <span className="text-sm">
                       {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Email vérifié
-                    </span>
-                    <span className="text-sm">
-                      {user.emailVerified ? '✅ Oui' : '❌ Non'}
-                    </span>
+                    <span className="text-sm text-muted-foreground">Email vérifié</span>
+                    <span className="text-sm">{user.emailVerified ? '✅ Oui' : '❌ Non'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -170,25 +153,17 @@ export default function ProfilePage() {
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>Mes statistiques</CardTitle>
-                  <CardDescription>
-                    Aperçu de votre activité sur la plateforme
-                  </CardDescription>
+                  <CardDescription>Aperçu de votre activité sur la plateforme</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">5</div>
-                      <p className="text-sm text-muted-foreground">
-                        Notices publiées
-                      </p>
+                      <p className="text-sm text-muted-foreground">Notices publiées</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        1,234
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Vues totales
-                      </p>
+                      <div className="text-2xl font-bold text-primary">1,234</div>
+                      <p className="text-sm text-muted-foreground">Vues totales</p>
                     </div>
                   </div>
                 </CardContent>
@@ -206,8 +181,7 @@ export default function ProfilePage() {
                       <div>
                         <CardTitle>Informations personnelles</CardTitle>
                         <CardDescription>
-                          Ces informations seront visibles sur votre profil
-                          public
+                          Ces informations seront visibles sur votre profil public
                         </CardDescription>
                       </div>
                       {!isEditing ? (
@@ -237,21 +211,13 @@ export default function ProfilePage() {
                       <Label htmlFor="name">Nom complet</Label>
                       {isEditing ? (
                         <div>
-                          <Input
-                            id="name"
-                            {...register('name')}
-                            placeholder="Votre nom complet"
-                          />
+                          <Input id="name" {...register('name')} placeholder="Votre nom complet" />
                           {errors.name && (
-                            <p className="text-sm text-destructive mt-1">
-                              {errors.name.message}
-                            </p>
+                            <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
                           )}
                         </div>
                       ) : (
-                        <div className="py-2 px-3 border rounded-md bg-muted/50">
-                          {user.name}
-                        </div>
+                        <div className="py-2 px-3 border rounded-md bg-muted/50">{user.name}</div>
                       )}
                     </div>
 
@@ -274,7 +240,7 @@ export default function ProfilePage() {
                         <div>
                           <RichTextEditor
                             value={watchedBio || ''}
-                            onChange={(value) =>
+                            onChange={value =>
                               setValue('bio', value || '', {
                                 shouldDirty: true,
                               })
@@ -283,18 +249,13 @@ export default function ProfilePage() {
                             className="min-h-[200px]"
                           />
                           {errors.bio && (
-                            <p className="text-sm text-destructive mt-1">
-                              {errors.bio.message}
-                            </p>
+                            <p className="text-sm text-destructive mt-1">{errors.bio.message}</p>
                           )}
                         </div>
                       ) : (
                         <div className="py-2 px-3 border rounded-md bg-muted/50 min-h-[100px]">
                           {user.bio ? (
-                            <RichTextViewer
-                              content={user.bio}
-                              className="prose-sm"
-                            />
+                            <RichTextViewer content={user.bio} className="prose-sm" />
                           ) : (
                             <span className="text-muted-foreground italic">
                               Aucune biographie renseignée
@@ -320,9 +281,7 @@ export default function ProfilePage() {
                               type="url"
                             />
                             {errors.cv && (
-                              <p className="text-sm text-destructive mt-1">
-                                {errors.cv.message}
-                              </p>
+                              <p className="text-sm text-destructive mt-1">{errors.cv.message}</p>
                             )}
                           </div>
                         </div>

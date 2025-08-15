@@ -12,7 +12,6 @@ export const getSession = async () => {
 
 export const getUser = async () => {
   const session = await getSession();
-  
   return session ? UserSchema.parse(session.user) : null;
 };
 

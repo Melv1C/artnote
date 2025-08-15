@@ -21,10 +21,7 @@ export interface UsePermissionsReturn {
   /** Check if current user has specific permissions */
   hasPermission: (permissions: PermissionCheck) => Promise<boolean>;
   /** Check if a role has specific permissions (synchronous) */
-  checkRolePermission: (
-    role: User['role'],
-    permissions: PermissionCheck
-  ) => boolean;
+  checkRolePermission: (role: User['role'], permissions: PermissionCheck) => boolean;
   /** Check if current user can manage artworks */
   canManageArtworks: () => Promise<boolean>;
   /** Check if current user can manage artists */
@@ -60,7 +57,7 @@ export function usePermissions(): UsePermissionsReturn {
         return false;
       }
     },
-    [isAuthenticated]
+    [isAuthenticated],
   );
 
   const checkRolePermission = useCallback(
@@ -75,33 +72,30 @@ export function usePermissions(): UsePermissionsReturn {
         return false;
       }
     },
-    []
+    [],
   );
 
   // Convenient permission checkers for common operations
   const canManageArtworks = useCallback(
     () => hasPermission({ artwork: ['manage'] }),
-    [hasPermission]
+    [hasPermission],
   );
   const canManageArtists = useCallback(
     () => hasPermission({ artist: ['manage'] }),
-    [hasPermission]
+    [hasPermission],
   );
-  const canManagePlaces = useCallback(
-    () => hasPermission({ place: ['manage'] }),
-    [hasPermission]
-  );
+  const canManagePlaces = useCallback(() => hasPermission({ place: ['manage'] }), [hasPermission]);
   const canManageConcepts = useCallback(
     () => hasPermission({ concept: ['manage'] }),
-    [hasPermission]
+    [hasPermission],
   );
   const canManageKeywords = useCallback(
     () => hasPermission({ keyword: ['manage'] }),
-    [hasPermission]
+    [hasPermission],
   );
   const canManageUsers = useCallback(
     () => hasPermission({ user: ['list', 'ban', 'set-role'] }),
-    [hasPermission]
+    [hasPermission],
   );
 
   return {

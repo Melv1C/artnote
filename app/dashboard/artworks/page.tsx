@@ -1,13 +1,5 @@
-import {
-  ArtworkHeader,
-  ArtworkList,
-  ArtworkListSkeleton,
-  ArtworkStats,
-} from '@/features/artworks';
-import {
-  changeArtworkStatus,
-  deleteArtwork,
-} from '@/features/artworks/actions';
+import { ArtworkHeader, ArtworkList, ArtworkListSkeleton, ArtworkStats } from '@/features/artworks';
+import { changeArtworkStatus, deleteArtwork } from '@/features/artworks/actions';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema } from '@/schemas';
@@ -57,7 +49,7 @@ async function ArtworkListWrapper() {
         },
       },
       orderBy: { updatedAt: 'desc' },
-    })
+    }),
   );
 
   return (

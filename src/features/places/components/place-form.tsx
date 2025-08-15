@@ -60,11 +60,7 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="address">Adresse</Label>
-          <Input
-            id="address"
-            name="address"
-            defaultValue={place?.address || ''}
-          />
+          <Input id="address" name="address" defaultValue={place?.address || ''} />
         </div>
 
         <div className="space-y-2">
@@ -74,11 +70,7 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="country">Pays</Label>
-          <Input
-            id="country"
-            name="country"
-            defaultValue={place?.country || ''}
-          />
+          <Input id="country" name="country" defaultValue={place?.country || ''} />
         </div>
 
         <div className="space-y-2">
@@ -128,19 +120,11 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.push('/dashboard/places')}
-        >
+        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/places')}>
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending
-            ? 'Enregistrement...'
-            : mode === 'create'
-            ? 'Créer'
-            : 'Modifier'}
+          {isPending ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Modifier'}
         </Button>
       </div>
     </form>

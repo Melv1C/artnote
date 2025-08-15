@@ -14,10 +14,7 @@ export async function GET(request: NextRequest) {
     if (status) {
       const result = ArtworkStatusSchema.safeParse(status);
       if (!result.success) {
-        return NextResponse.json(
-          { error: 'Invalid status parameter' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid status parameter' }, { status: 400 });
       }
       validatedStatus = result.data;
     }
@@ -53,9 +50,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(artworks);
   } catch (error) {
     console.error('Error fetching artworks:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch artworks' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch artworks' }, { status: 500 });
   }
 }

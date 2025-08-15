@@ -38,17 +38,16 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={value => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -58,10 +57,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Nom
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -70,10 +66,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
       const artist = row.original;
       const fullName = `${artist.firstName} ${artist.lastName}`;
       return (
-        <Link
-          href={`/dashboard/artists/${artist.id}`}
-          className="font-medium hover:underline"
-        >
+        <Link href={`/dashboard/artists/${artist.id}`} className="font-medium hover:underline">
           {fullName}
         </Link>
       );
@@ -82,10 +75,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
   {
     accessorKey: 'birthDate',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Date de naissance
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -123,7 +113,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
           </span>
           {artworks.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {artworks.slice(0, 3).map((artwork) => (
+              {artworks.slice(0, 3).map(artwork => (
                 <Badge key={artwork.id} variant="outline" className="text-xs">
                   {artwork.artwork.title}
                 </Badge>
@@ -142,10 +132,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Créé le
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -191,10 +178,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleDelete}
-              className="text-red-600 hover:text-red-700"
-            >
+            <DropdownMenuItem onClick={handleDelete} className="text-red-600 hover:text-red-700">
               <Trash2 className="mr-2 h-4 w-4" />
               Supprimer
             </DropdownMenuItem>

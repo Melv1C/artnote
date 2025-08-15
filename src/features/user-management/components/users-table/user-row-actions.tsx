@@ -100,9 +100,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   };
 
   const handleImpersonateUser = async () => {
-    if (
-      confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)
-    ) {
+    if (confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)) {
       try {
         await impersonateUser(user.id);
         toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
@@ -118,9 +116,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   };
 
   const handleDeleteUser = async () => {
-    if (
-      confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)
-    ) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)) {
       try {
         await deleteUser(user.id);
         toast.success('Utilisateur supprimé avec succès');
@@ -146,18 +142,14 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCopyId}>
-          Copier l'ID utilisateur
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleViewProfile}>
-          Voir le profil
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleCopyId}>Copier l'ID utilisateur</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleViewProfile}>Voir le profil</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              {UserRoleSchema.options.map((role) => (
+              {UserRoleSchema.options.map(role => (
                 <DropdownMenuItem
                   key={role}
                   onClick={() => handleEditRole(role)}
@@ -188,10 +180,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive"
-          onClick={handleDeleteUser}
-        >
+        <DropdownMenuItem className="text-destructive" onClick={handleDeleteUser}>
           Supprimer l'utilisateur
         </DropdownMenuItem>
       </DropdownMenuContent>

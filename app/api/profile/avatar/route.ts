@@ -11,16 +11,13 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'Aucun fichier fourni' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Aucun fichier fourni' }, { status: 400 });
     }
 
     if (!file.type.startsWith('image/')) {
       return NextResponse.json(
         { success: false, error: 'Le fichier doit être une image' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (file.size > maxSize) {
       return NextResponse.json(
         { success: false, error: 'Le fichier est trop volumineux (max 10MB)' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,7 +46,7 @@ export async function POST(request: NextRequest) {
     console.error('Avatar upload error:', error);
     return NextResponse.json(
       { success: false, error: "Erreur lors du téléchargement de l'avatar" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

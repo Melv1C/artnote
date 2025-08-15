@@ -19,7 +19,7 @@ export type PermissionCheck = {
  */
 export async function checkUserPermission(
   userId: string,
-  permissions: PermissionCheck
+  permissions: PermissionCheck,
 ): Promise<boolean> {
   try {
     const result = await auth.api.userHasPermission({
@@ -41,7 +41,7 @@ export async function checkUserPermission(
  */
 export async function checkRolePermission(
   role: User['role'],
-  permissions: PermissionCheck
+  permissions: PermissionCheck,
 ): Promise<boolean> {
   try {
     const result = await auth.api.userHasPermission({
@@ -63,7 +63,7 @@ export async function checkRolePermission(
  */
 export async function requireUserPermission(
   userId: string,
-  permissions: PermissionCheck
+  permissions: PermissionCheck,
 ): Promise<void> {
   const hasPermission = await checkUserPermission(userId, permissions);
   if (!hasPermission) {
@@ -77,7 +77,7 @@ export async function requireUserPermission(
  */
 export async function requireRolePermission(
   role: User['role'],
-  permissions: PermissionCheck
+  permissions: PermissionCheck,
 ): Promise<void> {
   const hasPermission = await checkRolePermission(role, permissions);
   if (!hasPermission) {

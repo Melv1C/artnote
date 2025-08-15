@@ -6,7 +6,7 @@ import { NextRequest } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ placeId: string }> }
+  { params }: { params: Promise<{ placeId: string }> },
 ) {
   try {
     // Check authentication

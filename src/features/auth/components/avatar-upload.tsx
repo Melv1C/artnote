@@ -54,7 +54,7 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
         <AvatarFallback className="text-lg">
           {user.name
             .split(' ')
-            .map((n) => n[0])
+            .map(n => n[0])
             .join('')
             .toUpperCase() || 'U'}
         </AvatarFallback>

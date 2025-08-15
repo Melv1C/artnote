@@ -50,21 +50,19 @@ export function ArtworkFiltersDropdown({
 }: ArtworkFiltersDropdownProps) {
   const updateFilter = (
     key: keyof ArtworkFilter,
-    value: string | Date | number | undefined | string[]
+    value: string | Date | number | undefined | string[],
   ) => {
     onFiltersChange({
       ...filters,
       [key]:
-        value === 'all' ||
-        value === '' ||
-        (Array.isArray(value) && value.length === 0)
+        value === 'all' || value === '' || (Array.isArray(value) && value.length === 0)
           ? undefined
           : value,
     });
   };
 
   const handleStatusChange = (options: Option[]) => {
-    const statusValues = options.map((option) => option.value);
+    const statusValues = options.map(option => option.value);
     updateFilter('status', statusValues);
   };
 
@@ -72,9 +70,7 @@ export function ArtworkFiltersDropdown({
     if (!filters.status || filters.status.length === 0) {
       return [];
     }
-    return statusOptions.filter((option) =>
-      filters.status!.includes(option.value as ArtworkStatus)
-    );
+    return statusOptions.filter(option => filters.status!.includes(option.value as ArtworkStatus));
   };
 
   return (
@@ -84,10 +80,7 @@ export function ArtworkFiltersDropdown({
           <Filter className="h-4 w-4" />
           Filtres & Tri
           {activeFiltersCount > 0 && (
-            <Badge
-              variant="secondary"
-              className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
-            >
+            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
               {activeFiltersCount}
             </Badge>
           )}
@@ -128,13 +121,13 @@ export function ArtworkFiltersDropdown({
           <div className="grid grid-cols-1 gap-2">
             <Select
               value={filters.sortBy || 'updatedAt'}
-              onValueChange={(value) => updateFilter('sortBy', value)}
+              onValueChange={value => updateFilter('sortBy', value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choisir un critère" />
               </SelectTrigger>
               <SelectContent>
-                {sortOptions.map((option) => (
+                {sortOptions.map(option => (
                   <SelectItem key={option.value} value={option.value!}>
                     {option.label}
                   </SelectItem>
@@ -143,7 +136,7 @@ export function ArtworkFiltersDropdown({
             </Select>
             <Select
               value={filters.sortOrder || 'desc'}
-              onValueChange={(value) => updateFilter('sortOrder', value)}
+              onValueChange={value => updateFilter('sortOrder', value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -170,7 +163,7 @@ export function ArtworkFiltersDropdown({
                 type="date"
                 placeholder="Du"
                 value={filters.createdAfter || ''}
-                onChange={(e) => updateFilter('createdAfter', e.target.value)}
+                onChange={e => updateFilter('createdAfter', e.target.value)}
                 className="text-xs"
               />
             </div>
@@ -179,7 +172,7 @@ export function ArtworkFiltersDropdown({
                 type="date"
                 placeholder="Au"
                 value={filters.createdBefore || ''}
-                onChange={(e) => updateFilter('createdBefore', e.target.value)}
+                onChange={e => updateFilter('createdBefore', e.target.value)}
                 className="text-xs"
               />
             </div>

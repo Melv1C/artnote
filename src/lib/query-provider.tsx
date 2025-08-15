@@ -20,7 +20,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
             gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
           },
         },
-      })
+      }),
   );
 
   return (

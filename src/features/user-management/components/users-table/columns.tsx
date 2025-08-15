@@ -16,17 +16,16 @@ export const columns: ColumnDef<User>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={value => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -55,7 +54,7 @@ export const columns: ColumnDef<User>[] = [
             <AvatarFallback>
               {user.name
                 .split(' ')
-                .map((n) => n[0])
+                .map(n => n[0])
                 .join('')
                 .toUpperCase()}
             </AvatarFallback>
@@ -125,11 +124,7 @@ export const columns: ColumnDef<User>[] = [
 
       if (isBanned) {
         const isExpired = banExpires && new Date(banExpires) < new Date();
-        return (
-          <Badge variant="destructive">
-            {isExpired ? 'Suspendu (expiré)' : 'Suspendu'}
-          </Badge>
-        );
+        return <Badge variant="destructive">{isExpired ? 'Suspendu (expiré)' : 'Suspendu'}</Badge>;
       }
 
       return <Badge variant="default">Actif</Badge>;

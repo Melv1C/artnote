@@ -7,9 +7,7 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
   },
   images: {
-    remotePatterns: env.REMOTE_IMAGE_DOMAIN
-      ? [new URL(`${env.REMOTE_IMAGE_DOMAIN}/**`)]
-      : [],
+    remotePatterns: env.REMOTE_IMAGE_DOMAIN ? [new URL(`${env.REMOTE_IMAGE_DOMAIN}/**`)] : [],
   },
 };
 

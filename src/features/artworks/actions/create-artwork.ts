@@ -10,9 +10,7 @@ export type CreateArtworkResponse = {
   error?: string;
 };
 
-export async function createArtwork(
-  data: ArtworkForm
-): Promise<CreateArtworkResponse> {
+export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkResponse> {
   try {
     // Get the current user session
     const user = await getRequiredUser();
@@ -21,7 +19,7 @@ export async function createArtwork(
     const validatedData = ArtworkFormSchema.parse(data);
 
     // Create the artwork in the database with transaction
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async tx => {
       // Create the artwork
       const artwork = await tx.artwork.create({
         data: {
@@ -42,7 +40,7 @@ export async function createArtwork(
 
       // Create image associations if images are provided
       if (validatedData.images && validatedData.images.length > 0) {
-        const imageAssociations = validatedData.images.map((imgData) => ({
+        const imageAssociations = validatedData.images.map(imgData => ({
           artworkId: artwork.id,
           imageId: imgData.imageId,
           sortOrder: imgData.sortOrder,
@@ -59,13 +57,11 @@ export async function createArtwork(
 
       // Create artist associations if artistIds provided
       if (validatedData.artistIds && validatedData.artistIds.length > 0) {
-        const artistAssociations = validatedData.artistIds.map(
-          (artistId) => ({
-            artworkId: artwork.id,
-            artistId,
-            role: null, // TODO: role selection not implemented yet
-          })
-        );
+        const artistAssociations = validatedData.artistIds.map(artistId => ({
+          artworkId: artwork.id,
+          artistId,
+          role: null, // TODO: role selection not implemented yet
+        }));
         await tx.artworkArtist.createMany({ data: artistAssociations });
       }
 

@@ -7,8 +7,8 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '9'
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
 
 jobs:
   lint-and-type-check:
@@ -34,8 +34,11 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm prisma generate
+        env:
+          # Provide a dummy DATABASE_URL for schema generation in CI
+          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'
 
-      - name: Run ESLint
+      - name: Run Lint
         run: pnpm lint
 
       - name: Run TypeScript check
@@ -89,9 +92,11 @@ jobs:
       - name: Validate Prisma schema
         run: pnpm prisma validate
         env:
-          DATABASE_URL: 'postgresql://user:password@localhost:5432/artnote'
+          # Provide a dummy DATABASE_URL for validation in CI
+          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'
 
       - name: Check Prisma format
         run: pnpm prisma format --check
         env:
-          DATABASE_URL: 'postgresql://user:password@localhost:5432/artnote'
+          # Provide a dummy DATABASE_URL for format check in CI
+          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'

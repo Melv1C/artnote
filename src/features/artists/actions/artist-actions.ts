@@ -31,8 +31,6 @@ export async function createArtist(formData: FormData) {
         updatedById: user.id,
       },
     });
-
-    
   } catch (error) {
     console.error('Error creating artist:', error);
     throw error;

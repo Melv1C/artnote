@@ -47,10 +47,7 @@ export function FiltersDropdown({
           <Filter className="h-4 w-4" />
           Filtres
           {activeFiltersCount > 0 && (
-            <Badge
-              variant="secondary"
-              className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
-            >
+            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
               {activeFiltersCount}
             </Badge>
           )}
@@ -76,13 +73,8 @@ export function FiltersDropdown({
         </div>
 
         <div className="p-2">
-          <label className="text-sm font-medium mb-2 block">
-            Email vérifié
-          </label>
-          <Select
-            value={emailVerifiedFilter}
-            onValueChange={onEmailVerifiedFilterChange}
-          >
+          <label className="text-sm font-medium mb-2 block">Email vérifié</label>
+          <Select value={emailVerifiedFilter} onValueChange={onEmailVerifiedFilterChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Tous" />
             </SelectTrigger>
@@ -95,13 +87,8 @@ export function FiltersDropdown({
         </div>
 
         <div className="p-2">
-          <label className="text-sm font-medium mb-2 block">
-            Statut du compte
-          </label>
-          <Select
-            value={banStatusFilter}
-            onValueChange={onBanStatusFilterChange}
-          >
+          <label className="text-sm font-medium mb-2 block">Statut du compte</label>
+          <Select value={banStatusFilter} onValueChange={onBanStatusFilterChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Tous" />
             </SelectTrigger>
@@ -117,12 +104,7 @@ export function FiltersDropdown({
           <>
             <DropdownMenuSeparator />
             <div className="p-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClearFilters}
-                className="w-full gap-2"
-              >
+              <Button variant="ghost" size="sm" onClick={onClearFilters} className="w-full gap-2">
                 <X className="h-4 w-4" />
                 Effacer les filtres
               </Button>

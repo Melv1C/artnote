@@ -6,12 +6,7 @@ import { z } from 'zod';
 
 export const UserRoleSchema = z.enum(['admin', 'writer', 'user']);
 export const ArtworkStatusSchema = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']);
-export const PlaceTypeSchema = z.enum([
-  'MUSEUM',
-  'CHURCH',
-  'PUBLIC_SPACE',
-  'OTHER',
-]);
+export const PlaceTypeSchema = z.enum(['MUSEUM', 'CHURCH', 'PUBLIC_SPACE', 'OTHER']);
 
 // =============================================================================
 // COMMON QUERY/FILTER SCHEMAS
@@ -49,9 +44,7 @@ export const ErrorResponseSchema = z.object({
 });
 
 // Paginated response wrapper
-export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(
-  itemSchema: T
-) =>
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
   z.object({
     success: z.literal(true),
     data: z.object({

@@ -54,7 +54,7 @@ export function useAuth(): UseAuthReturn {
 
   const isAdmin = hasRole(UserRoleSchema.enum.admin);
   const isWriter = hasRole(UserRoleSchema.enum.writer);
-  
+
   return {
     user,
     isAuthenticated: !!user,
@@ -63,6 +63,6 @@ export function useAuth(): UseAuthReturn {
     hasRole,
     isAdmin,
     isWriter,
-    refetch
+    refetch,
   };
 }

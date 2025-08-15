@@ -71,28 +71,28 @@ export function ArtistsTable() {
           <Input
             placeholder="Rechercher un artiste..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
         <Input
           placeholder="Nom"
           value={nameFilter}
-          onChange={(e) => setNameFilter(e.target.value)}
+          onChange={e => setNameFilter(e.target.value)}
           className="w-48"
         />
         <Input
           placeholder="Né après"
           type="date"
           value={bornAfter}
-          onChange={(e) => setBornAfter(e.target.value)}
+          onChange={e => setBornAfter(e.target.value)}
           className="w-48"
         />
         <Input
           placeholder="Né avant"
           type="date"
           value={bornBefore}
-          onChange={(e) => setBornBefore(e.target.value)}
+          onChange={e => setBornBefore(e.target.value)}
           className="w-48"
         />
       </div>
@@ -101,17 +101,14 @@ export function ArtistsTable() {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -120,27 +117,18 @@ export function ArtistsTable() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
+              table.getRowModel().rows.map(row => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Aucun artiste trouvé.
                 </TableCell>
               </TableRow>

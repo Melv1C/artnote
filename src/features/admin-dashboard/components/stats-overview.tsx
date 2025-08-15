@@ -31,9 +31,7 @@ async function WriterCountCard() {
       role: UserRoleSchema.Values.writer,
     },
   });
-  return (
-    <StatCard title="Rédacteurs Actifs" value={writerCount} icon={UserCheck} />
-  );
+  return <StatCard title="Rédacteurs Actifs" value={writerCount} icon={UserCheck} />;
 }
 
 async function NoticeCountCard() {
@@ -42,9 +40,7 @@ async function NoticeCountCard() {
       status: ArtworkStatusSchema.Values.PUBLISHED,
     },
   });
-  return (
-    <StatCard title="Notices Publiées" value={noticeCount} icon={NotebookPen} />
-  );
+  return <StatCard title="Notices Publiées" value={noticeCount} icon={NotebookPen} />;
 }
 
 async function ViewsCountCard() {
@@ -71,33 +67,19 @@ async function ViewsCountCard() {
 export function StatsOverview() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <Suspense
-        fallback={<StatCardSkeleton title="Utilisateurs Total" icon={Users} />}
-      >
+      <Suspense fallback={<StatCardSkeleton title="Utilisateurs Total" icon={Users} />}>
         <UserCountCard />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <StatCardSkeleton title="Rédacteurs Actifs" icon={UserCheck} />
-        }
-      >
+      <Suspense fallback={<StatCardSkeleton title="Rédacteurs Actifs" icon={UserCheck} />}>
         <WriterCountCard />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <StatCardSkeleton title="Notices Publiées" icon={NotebookPen} />
-        }
-      >
+      <Suspense fallback={<StatCardSkeleton title="Notices Publiées" icon={NotebookPen} />}>
         <NoticeCountCard />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <StatCardSkeleton title="Vues Mensuelles" icon={TrendingUp} />
-        }
-      >
+      <Suspense fallback={<StatCardSkeleton title="Vues Mensuelles" icon={TrendingUp} />}>
         <ViewsCountCard />
       </Suspense>
     </div>

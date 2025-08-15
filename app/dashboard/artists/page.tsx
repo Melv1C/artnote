@@ -1,11 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtistsTable } from '@/features/artists';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -31,9 +25,7 @@ export default function ArtistsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Tous les artistes</CardTitle>
-          <CardDescription>
-            Liste des artistes enregistrés dans la base de données
-          </CardDescription>
+          <CardDescription>Liste des artistes enregistrés dans la base de données</CardDescription>
         </CardHeader>
         <CardContent>
           <ArtistsTable />

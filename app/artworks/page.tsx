@@ -5,8 +5,7 @@ import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Toutes les œuvres - ArtNote',
-  description:
-    "Explorez toutes les notices d'œuvres d'art publiées sur ArtNote.",
+  description: "Explorez toutes les notices d'œuvres d'art publiées sur ArtNote.",
 };
 
 interface ArtworksPageProps {
@@ -26,12 +25,10 @@ export default function ArtworksPage({ searchParams }: ArtworksPageProps) {
     <div className="container py-8">
       {/* Page Header */}
       <div className="max-w-2xl mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
-          Toutes les œuvres
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Toutes les œuvres</h1>
         <p className="text-lg text-muted-foreground">
-          Explorez notre collection complète de notices d'œuvres d'art. Utilisez
-          les filtres pour trouver exactement ce que vous cherchez.
+          Explorez notre collection complète de notices d'œuvres d'art. Utilisez les filtres pour
+          trouver exactement ce que vous cherchez.
         </p>
       </div>
 

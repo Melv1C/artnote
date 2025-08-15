@@ -1,10 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -21,8 +16,7 @@ export default function Unauthorized() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground text-center">
-              Cette page nécessite une authentification. Veuillez vous connecter
-              pour continuer.
+              Cette page nécessite une authentification. Veuillez vous connecter pour continuer.
             </p>
             <div className="flex flex-col gap-3">
               <Button asChild className="w-full">

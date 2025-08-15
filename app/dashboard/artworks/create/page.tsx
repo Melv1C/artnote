@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtworkForm, createArtwork } from '@/features/artworks';
 
 export default function CreateArtworkPage() {
@@ -20,9 +14,7 @@ export default function CreateArtworkPage() {
       <Card>
         <CardHeader>
           <CardTitle>Informations de l'œuvre</CardTitle>
-          <CardDescription>
-            Remplissez les détails de l'œuvre d'art
-          </CardDescription>
+          <CardDescription>Remplissez les détails de l'œuvre d'art</CardDescription>
         </CardHeader>
         <CardContent>
           <ArtworkForm

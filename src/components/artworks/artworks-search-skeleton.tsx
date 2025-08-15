@@ -10,10 +10,7 @@ export function ArtworksSearchSkeleton() {
       {/* Artworks list skeleton */}
       <div className="flex flex-col gap-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card
-            key={i}
-            className="overflow-hidden border-0 shadow-md bg-card flex flex-row"
-          >
+          <Card key={i} className="overflow-hidden border-0 shadow-md bg-card flex flex-row">
             {/* Image skeleton */}
             <div className="relative w-1/3 min-w-[180px]">
               <Skeleton className="h-48 w-full" />

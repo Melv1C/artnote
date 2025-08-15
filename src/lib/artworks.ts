@@ -55,15 +55,7 @@ export interface ArtworkFilters {
 
 export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
   try {
-    const {
-      search,
-      artist,
-      place,
-      medium,
-      year,
-      sort = 'title',
-      order = 'asc',
-    } = filters;
+    const { search, artist, place, medium, year, sort = 'title', order = 'asc' } = filters;
 
     // Build where clause
     const where: Prisma.ArtworkWhereInput = {
@@ -171,9 +163,8 @@ export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
     }
 
     // Build orderBy clause
-    let orderBy:
-      | Prisma.ArtworkOrderByWithRelationInput
-      | Prisma.ArtworkOrderByWithRelationInput[] = {};
+    let orderBy: Prisma.ArtworkOrderByWithRelationInput | Prisma.ArtworkOrderByWithRelationInput[] =
+      {};
     switch (sort) {
       case 'title':
         orderBy = { title: order };

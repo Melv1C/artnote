@@ -59,8 +59,7 @@ const getEditorExtensions = (isViewer = false) => [
     },
     blockquote: {
       HTMLAttributes: {
-        class:
-          'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
+        class: 'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
       },
     },
     heading: {
@@ -150,12 +149,7 @@ export function RichTextEditor({
 
   if (!editor) {
     return (
-      <div
-        className={cn(
-          'border rounded-lg min-h-[200px] animate-pulse',
-          className
-        )}
-      >
+      <div className={cn('border rounded-lg min-h-[200px] animate-pulse', className)}>
         <div className="border-b p-3">
           <div className="h-8 bg-muted rounded w-full"></div>
         </div>
@@ -171,12 +165,7 @@ export function RichTextEditor({
   const addLink = () => {
     const url = window.prompt('URL du lien:');
     if (url) {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange('link')
-        .setLink({ href: url })
-        .run();
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }
   };
 
@@ -224,14 +213,14 @@ export function RichTextEditor({
               editor.isActive('heading', { level: 1 })
                 ? 'h1'
                 : editor.isActive('heading', { level: 2 })
-                ? 'h2'
-                : editor.isActive('heading', { level: 3 })
-                ? 'h3'
-                : editor.isActive('paragraph')
-                ? 'p'
-                : 'p'
+                  ? 'h2'
+                  : editor.isActive('heading', { level: 3 })
+                    ? 'h3'
+                    : editor.isActive('paragraph')
+                      ? 'p'
+                      : 'p'
             }
-            onValueChange={(value) => {
+            onValueChange={value => {
               if (value === 'h1') {
                 editor.chain().focus().setHeading({ level: 1 }).run();
               } else if (value === 'h2') {
@@ -248,25 +237,13 @@ export function RichTextEditor({
             <ToggleGroupItem value="p" className="h-8 px-3" title="Paragraphe">
               <Type className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="h1"
-              className="h-8 px-3 font-bold text-base"
-              title="Titre 1"
-            >
+            <ToggleGroupItem value="h1" className="h-8 px-3 font-bold text-base" title="Titre 1">
               <Heading1 className="h-5 w-5" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="h2"
-              className="h-8 px-3 font-bold"
-              title="Titre 2"
-            >
+            <ToggleGroupItem value="h2" className="h-8 px-3 font-bold" title="Titre 2">
               <Heading2 className="h-[18px] w-[18px]" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="h3"
-              className="h-8 px-3 font-semibold"
-              title="Titre 3"
-            >
+            <ToggleGroupItem value="h3" className="h-8 px-3 font-semibold" title="Titre 3">
               <Heading3 className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
@@ -283,7 +260,7 @@ export function RichTextEditor({
               ...(editor.isActive('strike') ? ['strike'] : []),
               ...(editor.isActive('superscript') ? ['superscript'] : []),
             ]}
-            onValueChange={(values) => {
+            onValueChange={values => {
               // Handle bold
               const shouldBeBold = values.includes('bold');
               const isBold = editor.isActive('bold');
@@ -325,28 +302,16 @@ export function RichTextEditor({
             <ToggleGroupItem value="bold" className="h-8 px-3" title="Gras">
               <Bold className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="italic"
-              className="h-8 px-3"
-              title="Italique"
-            >
+            <ToggleGroupItem value="italic" className="h-8 px-3" title="Italique">
               <Italic className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="underline"
-              className="h-8 px-3"
-              title="Souligné"
-            >
+            <ToggleGroupItem value="underline" className="h-8 px-3" title="Souligné">
               <UnderlineIcon className="h-4 w-4" />
             </ToggleGroupItem>
             <ToggleGroupItem value="strike" className="h-8 px-3" title="Barré">
               <Strikethrough className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="superscript"
-              className="h-8 px-3"
-              title="Exposant"
-            >
+            <ToggleGroupItem value="superscript" className="h-8 px-3" title="Exposant">
               <SuperscriptIcon className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
@@ -358,9 +323,7 @@ export function RichTextEditor({
             type="button"
             variant={editor.isActive('highlight') ? 'secondary' : 'ghost'}
             size="sm"
-            onClick={() =>
-              editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()
-            }
+            onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()}
             className="h-8 px-3"
             title="Surligner"
           >
@@ -376,14 +339,14 @@ export function RichTextEditor({
               editor.isActive({ textAlign: 'left' })
                 ? 'left'
                 : editor.isActive({ textAlign: 'center' })
-                ? 'center'
-                : editor.isActive({ textAlign: 'right' })
-                ? 'right'
-                : editor.isActive({ textAlign: 'justify' })
-                ? 'justify'
-                : 'left'
+                  ? 'center'
+                  : editor.isActive({ textAlign: 'right' })
+                    ? 'right'
+                    : editor.isActive({ textAlign: 'justify' })
+                      ? 'justify'
+                      : 'left'
             }
-            onValueChange={(value) => {
+            onValueChange={value => {
               if (value) {
                 editor.chain().focus().setTextAlign(value).run();
               }
@@ -391,32 +354,16 @@ export function RichTextEditor({
             size="sm"
             className="border rounded-md"
           >
-            <ToggleGroupItem
-              value="left"
-              className="h-8 px-3"
-              title="Aligner à gauche"
-            >
+            <ToggleGroupItem value="left" className="h-8 px-3" title="Aligner à gauche">
               <AlignLeft className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="center"
-              className="h-8 px-3"
-              title="Centrer"
-            >
+            <ToggleGroupItem value="center" className="h-8 px-3" title="Centrer">
               <AlignCenter className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="right"
-              className="h-8 px-3"
-              title="Aligner à droite"
-            >
+            <ToggleGroupItem value="right" className="h-8 px-3" title="Aligner à droite">
               <AlignRight className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="justify"
-              className="h-8 px-3"
-              title="Justifier"
-            >
+            <ToggleGroupItem value="justify" className="h-8 px-3" title="Justifier">
               <AlignJustify className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
@@ -431,7 +378,7 @@ export function RichTextEditor({
               ...(editor.isActive('orderedList') ? ['orderedList'] : []),
               ...(editor.isActive('blockquote') ? ['blockquote'] : []),
             ]}
-            onValueChange={(values) => {
+            onValueChange={values => {
               // Handle bullet list
               const shouldBeBulletList = values.includes('bulletList');
               const isBulletList = editor.isActive('bulletList');
@@ -456,25 +403,13 @@ export function RichTextEditor({
             size="sm"
             className="border rounded-md"
           >
-            <ToggleGroupItem
-              value="bulletList"
-              className="h-8 px-3"
-              title="Liste à puces"
-            >
+            <ToggleGroupItem value="bulletList" className="h-8 px-3" title="Liste à puces">
               <List className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="orderedList"
-              className="h-8 px-3"
-              title="Liste numérotée"
-            >
+            <ToggleGroupItem value="orderedList" className="h-8 px-3" title="Liste numérotée">
               <ListOrdered className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem
-              value="blockquote"
-              className="h-8 px-3"
-              title="Citation"
-            >
+            <ToggleGroupItem value="blockquote" className="h-8 px-3" title="Citation">
               <Quote className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
@@ -490,7 +425,7 @@ export function RichTextEditor({
               onClick={addLink}
               className={cn(
                 'h-8 px-3 rounded-r-none border-r',
-                editor.isActive('link') && 'bg-accent text-accent-foreground'
+                editor.isActive('link') && 'bg-accent text-accent-foreground',
               )}
               title="Ajouter/Modifier un lien"
             >

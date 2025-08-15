@@ -15,17 +15,10 @@ import { ArtworkFilters } from './artwork-filters';
 interface ArtworkListProps {
   initialArtworks: Artwork[];
   onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
-  onStatusChange?: (
-    artworkId: string,
-    status: string
-  ) => Promise<ArtworkActionResponse>;
+  onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
 }
 
-export function ArtworkList({
-  initialArtworks,
-  onDelete,
-  onStatusChange,
-}: ArtworkListProps) {
+export function ArtworkList({ initialArtworks, onDelete, onStatusChange }: ArtworkListProps) {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   // Default filters: exclude archived artworks by default
   const [filters, setFilters] = useState<ArtworkFilter>({
@@ -42,22 +35,18 @@ export function ArtworkList({
 
       // Filter by status
       if (currentFilters.status && currentFilters.status.length > 0) {
-        filteredArtworks = filteredArtworks.filter((artwork) =>
-          currentFilters.status!.includes(artwork.status)
+        filteredArtworks = filteredArtworks.filter(artwork =>
+          currentFilters.status!.includes(artwork.status),
         );
       }
 
       // Filter by search term (use debounced value)
       if (searchTerm && searchTerm.trim() !== '') {
         const searchLower = searchTerm.toLowerCase();
-        filteredArtworks = filteredArtworks.filter((artwork) => {
-          const titleMatches = artwork.title
-            .toLowerCase()
-            .includes(searchLower);
-          const mediumMatches =
-            artwork.medium?.toLowerCase().includes(searchLower) || false;
-          const yearMatches =
-            artwork.creationYear?.toLowerCase().includes(searchLower) || false;
+        filteredArtworks = filteredArtworks.filter(artwork => {
+          const titleMatches = artwork.title.toLowerCase().includes(searchLower);
+          const mediumMatches = artwork.medium?.toLowerCase().includes(searchLower) || false;
+          const yearMatches = artwork.creationYear?.toLowerCase().includes(searchLower) || false;
 
           return titleMatches || mediumMatches || yearMatches;
         });
@@ -67,7 +56,7 @@ export function ArtworkList({
       if (currentFilters.createdAfter) {
         const afterDate = new Date(currentFilters.createdAfter);
         filteredArtworks = filteredArtworks.filter(
-          (artwork) => new Date(artwork.createdAt) >= afterDate
+          artwork => new Date(artwork.createdAt) >= afterDate,
         );
       }
 
@@ -75,7 +64,7 @@ export function ArtworkList({
         const beforeDate = new Date(currentFilters.createdBefore);
         beforeDate.setHours(23, 59, 59, 999); // End of day
         filteredArtworks = filteredArtworks.filter(
-          (artwork) => new Date(artwork.createdAt) <= beforeDate
+          artwork => new Date(artwork.createdAt) <= beforeDate,
         );
       }
 
@@ -116,7 +105,7 @@ export function ArtworkList({
 
       setArtworks(filteredArtworks);
     },
-    [initialArtworks]
+    [initialArtworks],
   );
 
   // Apply filters when debounced search changes
@@ -179,9 +168,7 @@ export function ArtworkList({
             <FileText className="h-6 w-6 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium mb-2">
-            {activeFiltersCount > 0
-              ? 'Aucune notice trouvée'
-              : 'Aucune notice créée'}
+            {activeFiltersCount > 0 ? 'Aucune notice trouvée' : 'Aucune notice créée'}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             {activeFiltersCount > 0
@@ -191,9 +178,7 @@ export function ArtworkList({
           {activeFiltersCount > 0 ? (
             <Button
               variant="outline"
-              onClick={() =>
-                handleFilterChange({ status: ['DRAFT', 'PUBLISHED'] })
-              }
+              onClick={() => handleFilterChange({ status: ['DRAFT', 'PUBLISHED'] })}
             >
               Effacer les filtres
             </Button>
@@ -208,7 +193,7 @@ export function ArtworkList({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {artworks.map((artwork) => (
+          {artworks.map(artwork => (
             <ArtworkCardWrapper
               key={artwork.id}
               artwork={artwork}

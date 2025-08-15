@@ -12,7 +12,7 @@ export type UpdateArtworkResponse = {
 
 export async function updateArtwork(
   artworkId: string,
-  data: ArtworkForm
+  data: ArtworkForm,
 ): Promise<UpdateArtworkResponse> {
   try {
     const user = await getRequiredUser();
@@ -32,7 +32,7 @@ export async function updateArtwork(
     }
 
     // Update artwork with transaction to handle image & artist associations
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async tx => {
       // Update the artwork
       const updatedArtwork = await tx.artwork.update({
         where: { id: artworkId },
@@ -52,7 +52,7 @@ export async function updateArtwork(
       if (validatedData.images !== undefined) {
         await tx.artworkImage.deleteMany({ where: { artworkId } });
         if (validatedData.images.length > 0) {
-          const imageAssociations = validatedData.images.map((imgData) => ({
+          const imageAssociations = validatedData.images.map(imgData => ({
             artworkId,
             imageId: imgData.imageId,
             sortOrder: imgData.sortOrder,
@@ -70,7 +70,7 @@ export async function updateArtwork(
         await tx.artworkArtist.deleteMany({ where: { artworkId } });
         if (validatedData.artistIds.length > 0) {
           await tx.artworkArtist.createMany({
-            data: validatedData.artistIds.map((artistId) => ({
+            data: validatedData.artistIds.map(artistId => ({
               artworkId,
               artistId,
               role: null, // TODO: role selection not implemented yet

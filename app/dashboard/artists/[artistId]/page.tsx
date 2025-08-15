@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtistForm } from '@/features/artists';
 import { useArtist } from '@/features/artists/hooks/use-artists';
 import { useParams } from 'next/navigation';
@@ -41,9 +35,7 @@ export default function EditArtistPage() {
       <Card>
         <CardHeader>
           <CardTitle>Informations de l'artiste</CardTitle>
-          <CardDescription>
-            Modifiez les informations principales de l'artiste
-          </CardDescription>
+          <CardDescription>Modifiez les informations principales de l'artiste</CardDescription>
         </CardHeader>
         <CardContent>
           <ArtistForm mode="edit" artist={artist} />

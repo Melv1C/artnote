@@ -53,14 +53,8 @@ export const ArtistFiltersSchema = z
 // =============================================================================
 
 export const ArtistFormSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, 'Le prénom est requis')
-    .max(100, 'Le prénom est trop long'),
-  lastName: z
-    .string()
-    .min(1, 'Le nom est requis')
-    .max(100, 'Le nom est trop long'),
+  firstName: z.string().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
+  lastName: z.string().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
   birthDate: z.string().optional(),
   deathDate: z.string().optional(),
   biography: z.string().optional(),
@@ -80,7 +74,7 @@ export const ArtistWithArtworksSchema = ArtistSchema.extend({
         status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
       }),
       role: z.string().nullable(),
-    })
+    }),
   ),
 });
 

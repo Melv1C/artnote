@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceForm } from '@/features/places';
 
 export default function CreatePlacePage() {
@@ -20,9 +14,7 @@ export default function CreatePlacePage() {
       <Card>
         <CardHeader>
           <CardTitle>Informations du lieu</CardTitle>
-          <CardDescription>
-            Renseignez les informations principales du lieu
-          </CardDescription>
+          <CardDescription>Renseignez les informations principales du lieu</CardDescription>
         </CardHeader>
         <CardContent>
           <PlaceForm mode="create" />
