@@ -69,7 +69,7 @@
     "react-hook-form": "^7.59.0",
     "sonner": "^2.0.4",
     "tailwind-merge": "^3.3.0",
-    "zod": "^3.25.48"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
