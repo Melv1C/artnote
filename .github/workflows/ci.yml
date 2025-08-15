@@ -34,9 +34,6 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm prisma generate
-        env:
-          # Provide a dummy DATABASE_URL for schema generation in CI
-          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'
 
       - name: Run Lint
         run: pnpm lint
@@ -91,12 +88,6 @@ jobs:
 
       - name: Validate Prisma schema
         run: pnpm prisma validate
-        env:
-          # Provide a dummy DATABASE_URL for validation in CI
-          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'
 
       - name: Check Prisma format
         run: pnpm prisma format --check
-        env:
-          # Provide a dummy DATABASE_URL for format check in CI
-          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'

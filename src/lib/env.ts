@@ -8,12 +8,14 @@ const envSchema = z.object({
   BASE_URL: z.url().default('http://localhost:3000'),
 
   // Database
-  PRISMA_DATABASE_URL: z.url(),
+  PRISMA_DATABASE_URL: z
+    .url()
+    .default('prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'),
 
   // Better Auth configuration
-  BETTER_AUTH_SECRET: z.string().min(10),
+  BETTER_AUTH_SECRET: z.string().min(10).default('default_secret'),
 
-  BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_'),
+  BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').default('vercel_blob_rw_default'),
 
   // Remote image domain for Next.js image optimization
   REMOTE_IMAGE_DOMAIN: z.url().optional(),
