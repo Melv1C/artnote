@@ -1,8 +1,4 @@
-import {
-  ArtworksFilter,
-  ArtworksList,
-  ArtworksSearchSkeleton,
-} from '@/features/artworks/components';
+import { ArtworksFilter, ArtworksList, ArtworksListSkeleton } from '@/features/artworks/components';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -40,7 +36,7 @@ export default function ArtworksPage({ searchParams }: ArtworksPageProps) {
       </div>
 
       {/* Artworks List */}
-      <Suspense fallback={<ArtworksSearchSkeleton />}>
+      <Suspense fallback={<ArtworksListSkeleton />}>
         <ArtworksList searchParams={searchParams} />
       </Suspense>
     </div>
