@@ -25,7 +25,7 @@ export default async function WhatsNewPage() {
 }
 
 async function ArtworksList() {
-  const latestArtworks = await getLatestPublishedArtworks(12);
+  const latestArtworks = await getLatestPublishedArtworks(3);
 
   if (latestArtworks.length === 0) {
     return (
