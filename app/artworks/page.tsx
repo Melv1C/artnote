@@ -1,6 +1,8 @@
-import { ArtworksFilter } from '@/components/artworks/artworks-filter';
-import { ArtworksList } from '@/components/artworks/artworks-list';
-import { ArtworksSearchSkeleton } from '@/components/artworks/artworks-search-skeleton';
+import {
+  ArtworksFilter,
+  ArtworksList,
+  ArtworksSearchSkeleton,
+} from '@/features/artworks/components';
 import { Suspense } from 'react';
 
 export const metadata = {

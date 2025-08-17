@@ -1,5 +1,5 @@
-import { LatestArtworkCard } from '@/components/artworks';
-import { getLatestPublishedArtworks } from '@/lib/artworks';
+import { ArtworkCard } from '@/features/artworks';
+import { getLatestPublishedArtworks } from '@/features/artworks/actions';
 
 export const metadata = {
   title: 'Nouveautés - ArtNote',
@@ -26,7 +26,7 @@ export default async function WhatsNewPage() {
       ) : (
         <div className="flex flex-col gap-6">
           {latestArtworks.map(artwork => (
-            <LatestArtworkCard key={artwork.id} artwork={artwork} />
+            <ArtworkCard key={artwork.id} artwork={artwork} />
           ))}
         </div>
       )}
