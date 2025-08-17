@@ -1,12 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function ArtworksSearchSkeleton() {
+export function ArtworksListSkeleton() {
   return (
     <div className="space-y-4">
-      {/* Results count skeleton */}
-      <Skeleton className="h-4 w-32" />
-
       {/* Artworks list skeleton */}
       <div className="flex flex-col gap-6">
         {Array.from({ length: 6 }).map((_, i) => (

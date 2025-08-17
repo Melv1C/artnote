@@ -1,13 +1,12 @@
-import { LatestArtworkCard } from '@/components/artworks';
-import { getLatestPublishedArtworks } from '@/lib/artworks';
+import { ArtworkCard, ArtworksListSkeleton } from '@/features/artworks';
+import { getLatestPublishedArtworks } from '@/features/artworks/actions';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Nouveautés - ArtNote',
 };
 
 export default async function WhatsNewPage() {
-  const latestArtworks = await getLatestPublishedArtworks(12);
-
   return (
     <div className="container py-8">
       {/* Page Header */}
@@ -18,18 +17,29 @@ export default async function WhatsNewPage() {
         </p>
       </div>
 
-      {/* Artworks List */}
-      {latestArtworks.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-lg text-muted-foreground">Aucune notice publiée récemment.</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {latestArtworks.map(artwork => (
-            <LatestArtworkCard key={artwork.id} artwork={artwork} />
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<ArtworksListSkeleton />}>
+        <ArtworksList />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ArtworksList() {
+  const latestArtworks = await getLatestPublishedArtworks(3);
+
+  if (latestArtworks.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">Aucune notice publiée récemment.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {latestArtworks.map(artwork => (
+        <ArtworkCard key={artwork.id} artwork={artwork} />
+      ))}
     </div>
   );
 }

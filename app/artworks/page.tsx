@@ -1,6 +1,4 @@
-import { ArtworksFilter } from '@/components/artworks/artworks-filter';
-import { ArtworksList } from '@/components/artworks/artworks-list';
-import { ArtworksSearchSkeleton } from '@/components/artworks/artworks-search-skeleton';
+import { ArtworksFilter, ArtworksList, ArtworksListSkeleton } from '@/features/artworks/components';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -38,7 +36,7 @@ export default function ArtworksPage({ searchParams }: ArtworksPageProps) {
       </div>
 
       {/* Artworks List */}
-      <Suspense fallback={<ArtworksSearchSkeleton />}>
+      <Suspense fallback={<ArtworksListSkeleton />}>
         <ArtworksList searchParams={searchParams} />
       </Suspense>
     </div>

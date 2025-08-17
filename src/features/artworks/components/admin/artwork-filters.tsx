@@ -1,6 +1,6 @@
 'use client';
 
-import { ArtworkFilter } from '../types';
+import { ArtworkFilter } from '../../types';
 import { ArtworkFiltersDropdown, ArtworkSearchInput } from './filters';
 
 interface ArtworkFiltersProps {

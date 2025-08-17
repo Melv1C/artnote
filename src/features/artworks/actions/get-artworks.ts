@@ -1,12 +1,12 @@
-import type { Prisma } from '@/generated/prisma';
+import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
-import { ArtworkSchema, UserSchema } from '@/schemas';
+import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';
 
 export async function getLatestPublishedArtworks(limit: number = 6) {
   try {
     const artworks = await prisma.artwork.findMany({
       where: {
-        status: 'PUBLISHED',
+        status: ArtworkStatusSchema.Values.PUBLISHED,
         publishedAt: {
           not: null,
         },
@@ -31,6 +31,8 @@ export async function getLatestPublishedArtworks(limit: number = 6) {
       },
       take: limit,
     });
+
+    console.log('Latest published artworks:', artworks);
 
     return ArtworkSchema.extend({
       writer: UserSchema,

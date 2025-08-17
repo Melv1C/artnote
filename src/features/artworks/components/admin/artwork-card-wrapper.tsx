@@ -3,8 +3,8 @@
 import { Artwork } from '@/schemas';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
-import type { ArtworkActionResponse } from '../actions/artwork-actions';
-import { ArtworkCard } from './artwork-card';
+import type { ArtworkActionResponse } from '../../actions/artwork-actions';
+import { ArtworkCardAdmin } from './artwork-card-admin';
 
 interface ArtworkCardWrapperProps {
   artwork: Artwork;
@@ -59,7 +59,7 @@ export function ArtworkCardWrapper({ artwork, onDelete, onStatusChange }: Artwor
   };
 
   return (
-    <ArtworkCard
+    <ArtworkCardAdmin
       artwork={artwork}
       onDelete={handleDelete}
       onStatusChange={handleStatusChange}

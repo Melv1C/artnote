@@ -1,41 +1,18 @@
-## Description
+## What has been done?
 
-Brief description of the changes made in this PR.
+Brief description of what this PR does.
 
-## Type of Change
+## Related issues
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Refactoring (no functional changes)
-- [ ] Performance improvement
-- [ ] Dependency update
+Fixes #<issue-number>
 
-## Checklist
+## Type of change
 
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] My changes generate no new warnings
-- [ ] Any dependent changes have been merged and published
+- Bug fix
+- New feature
+- Breaking change
+- Documentation
 
-## Database Changes
+## Screenshots
 
-- [ ] No database changes
-- [ ] Database migration included
-- [ ] Database changes documented
-
-## Testing
-
-- [ ] I have tested these changes locally
-- [ ] The build passes without errors
-- [ ] All linting checks pass
-
-## Screenshots (if applicable)
-
-Add screenshots or GIFs to showcase visual changes.
-
-## Additional Notes
-
-Any additional information or context about the changes.
+Add screenshots if there are visual changes.
