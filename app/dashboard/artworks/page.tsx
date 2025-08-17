@@ -1,4 +1,9 @@
-import { ArtworkHeader, ArtworkList, ArtworkListSkeleton, ArtworkStats } from '@/features/artworks';
+import {
+  ArtworkHeader,
+  ArtworkListAdmin,
+  ArtworkListSkeleton,
+  ArtworkStats,
+} from '@/features/artworks';
 import { changeArtworkStatus, deleteArtwork } from '@/features/artworks/actions';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
@@ -53,7 +58,7 @@ async function ArtworkListWrapper() {
   );
 
   return (
-    <ArtworkList
+    <ArtworkListAdmin
       initialArtworks={initialArtworks}
       onDelete={deleteArtwork}
       onStatusChange={changeArtworkStatus}
