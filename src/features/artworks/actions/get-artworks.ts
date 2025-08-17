@@ -32,8 +32,6 @@ export async function getLatestPublishedArtworks(limit: number = 6) {
       take: limit,
     });
 
-    console.log('Latest published artworks:', artworks);
-
     return ArtworkSchema.extend({
       writer: UserSchema,
     })
