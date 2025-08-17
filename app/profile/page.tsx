@@ -125,7 +125,9 @@ export default function ProfilePage() {
         >
           {/* Profile Picture & Quick Info */}
           <div
-            className={isAdmin ? 'lg:col-span-1' : 'flex items-center justify-center min-h-[60vh] w-full'}
+            className={
+              isAdmin ? 'lg:col-span-1' : 'flex items-center justify-center min-h-[60vh] w-full'
+            }
           >
             <Card className="w-full max-w-sm">
               <CardHeader>

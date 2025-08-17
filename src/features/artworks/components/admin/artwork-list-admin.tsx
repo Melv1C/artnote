@@ -18,7 +18,11 @@ interface ArtworkListAdminProps {
   onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
 }
 
-export function ArtworkListAdmin({ initialArtworks, onDelete, onStatusChange }: ArtworkListAdminProps) {
+export function ArtworkListAdmin({
+  initialArtworks,
+  onDelete,
+  onStatusChange,
+}: ArtworkListAdminProps) {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   // Default filters: exclude archived artworks by default
   const [filters, setFilters] = useState<ArtworkFilter>({
