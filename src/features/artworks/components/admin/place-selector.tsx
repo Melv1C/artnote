@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { Place } from '@/schemas/place';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
-import { usePlaces } from '../hooks/use-artwork-selectors';
+import { usePlaces } from '../../hooks/use-artwork-selectors';
 
 interface PlaceSelectorProps {
   selectedPlace: Place | null;

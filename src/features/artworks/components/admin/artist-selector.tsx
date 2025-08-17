@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { Artist } from '@/schemas/artist';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
-import { useArtists } from '../hooks/use-artwork-selectors';
+import { useArtists } from '../../hooks/use-artwork-selectors';
 
 interface ArtistSelectorProps {
   selectedArtists: Artist[];

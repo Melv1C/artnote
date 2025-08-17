@@ -4,3 +4,4 @@ export { createArtwork } from './create-artwork';
 export type { CreateArtworkResponse } from './create-artwork';
 export { updateArtwork } from './update-artwork';
 export type { UpdateArtworkResponse } from './update-artwork';
+export { getLatestPublishedArtworks, getFilteredArtworks } from './get-artworks';

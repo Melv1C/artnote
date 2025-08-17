@@ -2,6 +2,7 @@
 
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
+import { ArtworkStatusSchema } from '@/schemas';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 
 export type CreateArtworkResponse = {
@@ -30,6 +31,8 @@ export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkRes
           notice: validatedData.notice,
           sources: validatedData.sources,
           status: validatedData.status,
+          publishedAt:
+            validatedData.status === ArtworkStatusSchema.Values.PUBLISHED ? new Date() : null,
           writerId: user.id,
           placeId: validatedData.placeId || null,
           // Initialize analytics fields

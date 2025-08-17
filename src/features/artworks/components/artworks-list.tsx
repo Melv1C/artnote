@@ -1,5 +1,5 @@
-import { LatestArtworkCard } from '@/components/artworks/latest-artwork-card';
-import { getFilteredArtworks } from '@/lib/artworks';
+import { getFilteredArtworks } from '@/features/artworks/actions';
+import { ArtworkCard } from './artwork-card';
 
 interface ArtworksListProps {
   searchParams: Promise<{
@@ -41,7 +41,7 @@ export async function ArtworksList({ searchParams }: ArtworksListProps) {
       {/* Artworks Grid */}
       <div className="flex flex-col gap-6">
         {artworks.map(artwork => (
-          <LatestArtworkCard key={artwork.id} artwork={artwork} />
+          <ArtworkCard key={artwork.id} artwork={artwork} />
         ))}
       </div>
     </div>

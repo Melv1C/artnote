@@ -2,6 +2,7 @@
 
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
+import { ArtworkStatusSchema } from '@/schemas';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 
 export type UpdateArtworkResponse = {
@@ -20,7 +21,7 @@ export async function updateArtwork(
 
     const existingArtwork = await prisma.artwork.findUnique({
       where: { id: artworkId },
-      select: { writerId: true },
+      select: { writerId: true, publishedAt: true },
     });
 
     if (!existingArtwork) {
@@ -44,6 +45,11 @@ export async function updateArtwork(
           notice: validatedData.notice || null,
           sources: validatedData.sources || null,
           status: validatedData.status,
+          publishedAt:
+            existingArtwork.publishedAt ||
+            validatedData.status === ArtworkStatusSchema.Values.PUBLISHED
+              ? new Date()
+              : null,
           placeId: validatedData.placeId || null,
         },
       });

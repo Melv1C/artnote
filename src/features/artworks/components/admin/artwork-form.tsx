@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import type { CreateArtworkResponse, UpdateArtworkResponse } from '../actions';
+import type { CreateArtworkResponse, UpdateArtworkResponse } from '../../actions';
 import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
 import { PlaceSelector } from './place-selector';

@@ -7,18 +7,18 @@ import { Artwork } from '@/schemas';
 import { FileText, PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import type { ArtworkActionResponse } from '../actions/artwork-actions';
-import { ArtworkFilter } from '../types';
+import type { ArtworkActionResponse } from '../../actions/artwork-actions';
+import { ArtworkFilter } from '../../types';
 import { ArtworkCardWrapper } from './artwork-card-wrapper';
 import { ArtworkFilters } from './artwork-filters';
 
-interface ArtworkListProps {
+interface ArtworkListAdminProps {
   initialArtworks: Artwork[];
   onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
   onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
 }
 
-export function ArtworkList({ initialArtworks, onDelete, onStatusChange }: ArtworkListProps) {
+export function ArtworkListAdmin({ initialArtworks, onDelete, onStatusChange }: ArtworkListAdminProps) {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   // Default filters: exclude archived artworks by default
   const [filters, setFilters] = useState<ArtworkFilter>({
