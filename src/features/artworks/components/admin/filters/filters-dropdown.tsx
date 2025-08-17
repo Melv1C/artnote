@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { ArtworkStatus } from '@/schemas';
 import { Calendar, Filter, SortAsc, X } from 'lucide-react';
-import { ArtworkFilter, ArtworkSortOption } from '../../types';
+import { ArtworkFilter, ArtworkSortOption } from '../../../types';
 
 interface ArtworkFiltersDropdownProps {
   filters: ArtworkFilter;
