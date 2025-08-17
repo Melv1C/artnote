@@ -116,10 +116,18 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div
+          className={
+            isAdmin
+              ? 'grid grid-cols-1 lg:grid-cols-3 gap-8'
+              : 'flex items-center justify-center min-h-[60vh]'
+          }
+        >
           {/* Profile Picture & Quick Info */}
-          <div className="lg:col-span-1">
-            <Card>
+          <div
+            className={isAdmin ? 'lg:col-span-1' : 'flex items-center justify-center min-h-[60vh] w-full'}
+          >
+            <Card className="w-full max-w-sm">
               <CardHeader>
                 <CardTitle>Photo de profil</CardTitle>
                 <CardDescription>Votre photo apparaîtra sur vos notices publiées</CardDescription>
