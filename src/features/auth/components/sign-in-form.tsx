@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const signInSchema = z.object({
-  email: z.string().email('Adresse email invalide'),
+  email: z.email('Adresse email invalide'),
   password: z.string().min(1, 'Le mot de passe est requis'),
 });
 

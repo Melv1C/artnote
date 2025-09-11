@@ -32,7 +32,7 @@ export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkRes
           sources: validatedData.sources,
           status: validatedData.status,
           publishedAt:
-            validatedData.status === ArtworkStatusSchema.Values.PUBLISHED ? new Date() : null,
+            validatedData.status === ArtworkStatusSchema.enum.PUBLISHED ? new Date() : null,
           writerId: user.id,
           placeId: validatedData.placeId || null,
           // Initialize analytics fields

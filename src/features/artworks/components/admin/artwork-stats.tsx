@@ -18,7 +18,7 @@ async function TotalArtworksCard() {
 async function PublishedArtworksCard() {
   const publishedCount = await prisma.artwork.count({
     where: {
-      status: ArtworkStatusSchema.Values.PUBLISHED,
+      status: ArtworkStatusSchema.enum.PUBLISHED,
       writerId: (await getRequiredUser()).id,
     },
   });
@@ -28,7 +28,7 @@ async function PublishedArtworksCard() {
 async function DraftArtworksCard() {
   const draftCount = await prisma.artwork.count({
     where: {
-      status: ArtworkStatusSchema.Values.DRAFT,
+      status: ArtworkStatusSchema.enum.DRAFT,
       writerId: (await getRequiredUser()).id,
     },
   });

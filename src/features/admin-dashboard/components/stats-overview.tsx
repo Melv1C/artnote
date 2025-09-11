@@ -28,7 +28,7 @@ async function UserCountCard() {
 async function WriterCountCard() {
   const writerCount = await prisma.user.count({
     where: {
-      role: UserRoleSchema.Values.writer,
+      role: UserRoleSchema.enum.writer,
     },
   });
   return <StatCard title="Rédacteurs Actifs" value={writerCount} icon={UserCheck} />;
@@ -37,7 +37,7 @@ async function WriterCountCard() {
 async function NoticeCountCard() {
   const noticeCount = await prisma.artwork.count({
     where: {
-      status: ArtworkStatusSchema.Values.PUBLISHED,
+      status: ArtworkStatusSchema.enum.PUBLISHED,
     },
   });
   return <StatCard title="Notices Publiées" value={noticeCount} icon={NotebookPen} />;

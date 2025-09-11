@@ -6,7 +6,7 @@ export async function getLatestPublishedArtworks(limit: number = 6) {
   try {
     const artworks = await prisma.artwork.findMany({
       where: {
-        status: ArtworkStatusSchema.Values.PUBLISHED,
+        status: ArtworkStatusSchema.enum.PUBLISHED,
         publishedAt: {
           not: null,
         },
