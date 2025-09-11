@@ -12,9 +12,6 @@ export default async function WhatsNewPage() {
       {/* Page Header */}
       <div className="max-w-2xl mb-12">
         <h1 className="text-4xl font-bold tracking-tight mb-4">Nouveautés</h1>
-        <p className="text-lg text-muted-foreground">
-          Découvrez les dernières notices d'œuvres d'art publiées par nos rédacteurs experts.
-        </p>
       </div>
 
       <Suspense fallback={<ArtworksListSkeleton />}>
