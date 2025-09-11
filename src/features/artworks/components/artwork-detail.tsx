@@ -37,7 +37,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
             <div className="flex flex-wrap gap-2">
               {artists.map((artworkArtist, index) => (
                 <div key={artworkArtist.artist.id} className="flex items-center">
-                  <div className="text-lg md:text-xl text-muted-foreground hover:text-primary transition-colors">
+                  <div className="text-lg md:text-xl text-muted-foreground">
                     {artworkArtist.artist.firstName} {artworkArtist.artist.lastName}
                     {artworkArtist.role && (
                       <span className="text-sm font-normal ml-1">({artworkArtist.role})</span>
@@ -107,7 +107,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                     <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                     <div>
                       <div className="font-medium">Lieu</div>
-                      <div className="text-muted-foreground hover:text-primary transition-colors">
+                      <div className="text-muted-foreground">
                         {place.name}
                         {place.city && place.country && (
                           <span className="block text-sm">
