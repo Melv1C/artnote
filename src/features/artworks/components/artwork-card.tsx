@@ -59,17 +59,6 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
 
           {/* Overlay gradient - responsive direction */}
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-          {/* View count badge */}
-          <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-            <Badge
-              variant="secondary"
-              className="bg-black/50 text-white border-0 backdrop-blur-sm text-xs sm:text-sm"
-            >
-              <Eye className="h-3 w-3 mr-1" />
-              {viewCount || 0}
-            </Badge>
-          </div>
         </div>
 
         {/* Content Section - Responsive padding and spacing */}
