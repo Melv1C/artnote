@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Artwork, User } from '@/schemas';
 import { Calendar, MapPin, Palette, Ruler } from 'lucide-react';
-import Link from 'next/link';
 import { ArtworkImagesCarousel } from './artwork-images-carousel';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
 
@@ -38,15 +37,12 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
             <div className="flex flex-wrap gap-2">
               {artists.map((artworkArtist, index) => (
                 <div key={artworkArtist.artist.id} className="flex items-center">
-                  <Link
-                    href={`/artists/${artworkArtist.artist.id}`}
-                    className="text-lg md:text-xl text-muted-foreground hover:text-primary transition-colors"
-                  >
+                  <div className="text-lg md:text-xl text-muted-foreground hover:text-primary transition-colors">
                     {artworkArtist.artist.firstName} {artworkArtist.artist.lastName}
                     {artworkArtist.role && (
                       <span className="text-sm font-normal ml-1">({artworkArtist.role})</span>
                     )}
-                  </Link>
+                  </div>
                   {index < artists.length - 1 && (
                     <span className="text-muted-foreground mx-2">•</span>
                   )}
@@ -111,17 +107,14 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                     <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                     <div>
                       <div className="font-medium">Lieu</div>
-                      <Link
-                        href={`/places/${place.id}`}
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                      >
+                      <div className="text-muted-foreground hover:text-primary transition-colors">
                         {place.name}
                         {place.city && place.country && (
                           <span className="block text-sm">
                             {place.city}, {place.country}
                           </span>
                         )}
-                      </Link>
+                      </div>
                     </div>
                   </div>
                 )}
