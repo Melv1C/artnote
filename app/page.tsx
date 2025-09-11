@@ -18,7 +18,7 @@ export default function HomePage() {
               <Link href="/artworks">Voir toutes les notices</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/artworks/latest">Dernière notice publiée</Link>
+              <Link href="/whats-new">Dernière notice publiée</Link>
             </Button>
           </div>
         </div>
