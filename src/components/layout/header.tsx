@@ -15,7 +15,7 @@ export function Header() {
   const navigation = [
     { name: 'Notices', href: '/artworks' },
     { name: 'Nouveautés', href: '/whats-new' },
-    { name: 'À propos', href: '/about' },
+    // { name: 'À propos', href: '/about' }, //TODO: About page
   ];
 
   return (
