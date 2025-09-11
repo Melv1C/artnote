@@ -34,7 +34,7 @@ jobs:
           echo "✅ Branch strategy is correct"
 
       - name: Add PR Labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { owner, repo, number } = context.issue;
