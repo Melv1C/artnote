@@ -8,7 +8,7 @@ import { UserRoleSchema } from './common';
 export const UserSchema = z.object({
   id: z.string(),
   name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   emailVerified: z.boolean(),
   image: z.string().nullish(),
   role: UserRoleSchema,

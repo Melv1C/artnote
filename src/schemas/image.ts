@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const ImageSchema = z.object({
   id: z.string(),
-  url: z.string().url(),
+  url: z.url(),
   alt: z.string().nullable(),
   caption: z.string().nullable(),
   width: z.number().positive().nullable(),

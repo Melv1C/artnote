@@ -47,7 +47,7 @@ export async function updateArtwork(
           status: validatedData.status,
           publishedAt:
             existingArtwork.publishedAt ||
-            validatedData.status === ArtworkStatusSchema.Values.PUBLISHED
+            validatedData.status === ArtworkStatusSchema.enum.PUBLISHED
               ? new Date()
               : null,
           placeId: validatedData.placeId || null,

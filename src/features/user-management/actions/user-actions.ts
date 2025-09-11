@@ -32,7 +32,7 @@ export async function updateUserRole(userId: string, role: UserRole) {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can update user roles');
     }
 
@@ -68,7 +68,7 @@ export async function deleteUser(userId: string) {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can delete users');
     }
 
@@ -103,7 +103,7 @@ export async function banUser({ userId, banReason, banExpiresIn }: BanUser) {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can ban users');
     }
 
@@ -137,7 +137,7 @@ export async function unbanUser({ userId }: UnbanUser) {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can unban users');
     }
 
@@ -169,7 +169,7 @@ export async function createUser(userData: {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can create users');
     }
 
@@ -178,7 +178,7 @@ export async function createUser(userData: {
       name: userData.name,
       email: userData.email,
       password: userData.password,
-      role: userData.role || UserRoleSchema.Values.user,
+      role: userData.role || UserRoleSchema.enum.user,
     });
 
     // Revalidate the users page to update the UI
@@ -199,7 +199,7 @@ export async function impersonateUser(userId: string) {
   try {
     // Validate user is authenticated and is admin
     const currentUser = await getRequiredUser();
-    if (currentUser.role !== UserRoleSchema.Values.admin) {
+    if (currentUser.role !== UserRoleSchema.enum.admin) {
       throw new Error('Unauthorized: Only admins can impersonate users');
     }
 

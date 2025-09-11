@@ -37,8 +37,8 @@ export const auth = betterAuth({
         user,
       },
       // Admin configuration
-      adminRoles: [UserRoleSchema.Values.admin], // Only 'admin' role has full admin privileges
-      defaultRole: UserRoleSchema.Values.user,
+      adminRoles: [UserRoleSchema.enum.admin], // Only 'admin' role has full admin privileges
+      defaultRole: UserRoleSchema.enum.user,
       defaultBanReason: "Violation des conditions d'utilisation",
       bannedUserMessage:
         "Votre compte a été suspendu. Veuillez contacter le support si vous pensez qu'il s'agit d'une erreur.",
