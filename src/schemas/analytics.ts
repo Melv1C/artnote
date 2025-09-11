@@ -53,8 +53,8 @@ export const PlatformAnalyticsSchema = z.object({
 
 // Query schemas for analytics endpoints
 export const AnalyticsFiltersSchema = z.object({
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.iso.datetime().optional(),
+  endDate: z.iso.datetime().optional(),
   userId: z.string().optional(),
   artworkId: z.string().optional(),
   limit: z.number().int().min(1).max(100).default(10),

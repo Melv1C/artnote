@@ -2,11 +2,11 @@
 
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
-import { UserProfileFormSchema, UserSchema, type UserProfileForm } from '@/schemas/user';
+import { type User, UserProfileFormSchema, UserSchema, type UserProfileForm } from '@/schemas/user';
 
 export type UpdateProfileResponse = {
   success: boolean;
-  data?: typeof UserSchema._type;
+  data?: User;
   error?: string;
 };
 

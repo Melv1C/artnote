@@ -63,7 +63,7 @@ export function ArtworkForm({
       dimensions: null,
       notice: null,
       sources: null,
-      status: ArtworkStatusSchema.Values.DRAFT,
+      status: ArtworkStatusSchema.enum.DRAFT,
       images: [],
       placeId: null,
       artistIds: initialValues?.artists?.map(a => a.artist.id) || [],

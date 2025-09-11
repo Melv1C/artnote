@@ -141,7 +141,7 @@ export function AdminGate({
   fallback?: ReactNode;
 }) {
   return (
-    <RoleGate roles={[UserRoleSchema.Values.admin]} fallback={fallback}>
+    <RoleGate roles={[UserRoleSchema.enum.admin]} fallback={fallback}>
       {children}
     </RoleGate>
   );
@@ -158,7 +158,7 @@ export function WriterGate({
   fallback?: ReactNode;
 }) {
   return (
-    <RoleGate roles={[UserRoleSchema.Values.writer]} fallback={fallback}>
+    <RoleGate roles={[UserRoleSchema.enum.writer]} fallback={fallback}>
       {children}
     </RoleGate>
   );
@@ -175,10 +175,7 @@ export function ContentManagerGate({
   fallback?: ReactNode;
 }) {
   return (
-    <RoleGate
-      roles={[UserRoleSchema.Values.admin, UserRoleSchema.Values.writer]}
-      fallback={fallback}
-    >
+    <RoleGate roles={[UserRoleSchema.enum.admin, UserRoleSchema.enum.writer]} fallback={fallback}>
       {children}
     </RoleGate>
   );

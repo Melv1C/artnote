@@ -19,7 +19,7 @@ export const ArtworkSchema = z.object({
   dimensions: z.string().nullable(),
   notice: z.string().nullable(),
   sources: z.string().nullable(),
-  status: ArtworkStatusSchema.default(ArtworkStatusSchema.Values.DRAFT),
+  status: ArtworkStatusSchema.default(ArtworkStatusSchema.enum.DRAFT),
   publishedAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

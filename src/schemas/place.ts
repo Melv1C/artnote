@@ -14,7 +14,7 @@ export const PlaceSchema = z.object({
   country: z.string().nullable(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
-  website: z.string().url().nullable().or(z.literal('')),
+  website: z.url().nullable().or(z.literal('')),
   description: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

@@ -33,7 +33,7 @@ export async function getArtworkById(id: string) {
     }
 
     // If artwork is not published, only allow access for the writer
-    if (artwork.status !== ArtworkStatusSchema.Values.PUBLISHED) {
+    if (artwork.status !== ArtworkStatusSchema.enum.PUBLISHED) {
       // This check should be done in the page component with session
       // For now, we'll return the artwork and let the page handle access control
     }
