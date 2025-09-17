@@ -86,7 +86,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                   <div className="flex items-start gap-3">
                     <Palette className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                     <div>
-                      <div className="font-medium">Technique</div>
+                      <div className="font-medium">Matériaux et Techniques</div>
                       <div className="text-muted-foreground">{medium}</div>
                     </div>
                   </div>
