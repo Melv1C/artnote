@@ -160,7 +160,7 @@ export function ArtworkForm({
             name="medium"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Technique</FormLabel>
+                <FormLabel>Matériaux et Techniques</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Huile sur toile, Bronze..."
