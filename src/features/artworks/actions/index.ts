@@ -5,4 +5,4 @@ export type { CreateArtworkResponse } from './create-artwork';
 export { updateArtwork } from './update-artwork';
 export type { UpdateArtworkResponse } from './update-artwork';
 export { getLatestPublishedArtworks, getFilteredArtworks } from './get-artworks';
-export { getArtworkById, incrementArtworkViewCount } from './get-artwork';
+export { getArtworkById, getArtworkByIdForPreview, incrementArtworkViewCount } from './get-artwork';
