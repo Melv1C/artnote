@@ -1,10 +1,13 @@
 'use client';
 
+import './rich-text-editor.css';
+
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 import { Color } from '@tiptap/extension-color';
+import Document from '@tiptap/extension-document';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Link } from '@tiptap/extension-link';
 import { Superscript } from '@tiptap/extension-superscript';
@@ -37,6 +40,7 @@ import {
   Unlink,
 } from 'lucide-react';
 import { useEffect } from 'react';
+import { Footnote, FootnoteReference, Footnotes } from 'tiptap-footnotes';
 
 // Shared configuration for both editor and viewer
 const getEditorExtensions = (isViewer = false) => [
@@ -103,6 +107,12 @@ const getEditorExtensions = (isViewer = false) => [
       }`,
     },
   }),
+  Document.extend({
+    content: 'block+ footnotes?',
+  }),
+  Footnotes,
+  Footnote,
+  FootnoteReference,
 ];
 
 const getEditorProps = (isViewer = false) => ({
@@ -443,6 +453,21 @@ export function RichTextEditor({
               <Unlink className="h-4 w-4" />
             </Button>
           </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Footnote */}
+          <Button
+            type="button"
+            variant={editor.isActive('footnote') ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => editor.commands.addFootnote()}
+            className="h-8 px-3"
+            title="Ajouter une note de bas de page"
+          >
+            <sup className="text-xs font-bold">1</sup>
+            <span className="ml-1">Note</span>
+          </Button>
         </div>
       </div>
 
