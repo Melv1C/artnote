@@ -62,7 +62,7 @@ export function ArtworkImagesCarousel({ artwork }: ArtworkImagesCarouselProps) {
                       <p className="mb-1">{artworkImage.image.caption}</p>
                     )}
                     {artworkImage.source && (
-                      <p className="italic flex items-center gap-1">
+                      <p className="flex items-center gap-1">
                         Source:
                         <RichTextViewer content={artworkImage.source} />
                       </p>
