@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
 import {
   Select,
   SelectContent,
@@ -263,6 +263,7 @@ export function ArtworkForm({
                 <RichTextEditor
                   value={field.value || ''}
                   onChange={val => field.onChange(val)}
+                  config={editorPresets.minimal}
                   placeholder="Ajoutez des liens ou des références"
                 />
               </FormControl>
