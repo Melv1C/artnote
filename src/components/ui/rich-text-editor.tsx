@@ -15,6 +15,7 @@ import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
+import { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import {
   AlignCenter,
@@ -161,7 +162,10 @@ const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = de
   const extensions = [];
 
   // StarterKit - always needed but configure based on config
-  const starterKitConfig: any = {
+  const starterKitConfig: Record<
+    string,
+    false | { HTMLAttributes?: { class?: string }; levels?: number[] } | boolean
+  > = {
     // Configure extensions with Tailwind classes
     bulletList:
       config.toolbar?.blocks?.bulletList !== false
@@ -318,7 +322,7 @@ const getEditorProps = (isViewer = false, config: RichTextEditorConfig = default
     },
     ...(config.singleLine
       ? {
-          handleKeyDown: (view: any, event: KeyboardEvent) => {
+          handleKeyDown: (view: EditorView, event: KeyboardEvent) => {
             // Prevent Enter key in single line mode
             if (event.key === 'Enter') {
               event.preventDefault();
