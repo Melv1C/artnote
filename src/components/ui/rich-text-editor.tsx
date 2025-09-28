@@ -465,8 +465,8 @@ export function RichTextEditor({
             className="h-8 px-3"
             title="Ajouter une note de bas de page"
           >
-            <sup className="text-xs font-bold">1</sup>
-            <span className="ml-1">Note</span>
+            <span className="text-sm font-medium">A</span>
+            <sup className="text-xs font-bold ml-0.5">1</sup>
           </Button>
         </div>
       </div>
