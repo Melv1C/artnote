@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Carousel,
   CarouselContent,
@@ -8,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { RichTextViewer } from '@/components/ui/rich-text-editor';
 import { Artwork, User } from '@/schemas';
 import Image from 'next/image';
 
@@ -61,7 +61,12 @@ export function ArtworkImagesCarousel({ artwork }: ArtworkImagesCarouselProps) {
                     {artworkImage.image.caption && (
                       <p className="mb-1">{artworkImage.image.caption}</p>
                     )}
-                    {artworkImage.source && <p className="italic">Source: {artworkImage.source}</p>}
+                    {artworkImage.source && (
+                      <p className="italic flex items-center gap-1">
+                        Source:
+                        <RichTextViewer content={artworkImage.source} />
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
