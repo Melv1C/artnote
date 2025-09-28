@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
 import { ArtworkImageSimplified } from '@/schemas/artwork-image';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Star, StarOff, Upload, X } from 'lucide-react';
@@ -223,12 +224,12 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                                 <Label htmlFor={`source-${index}`} className="text-xs">
                                   Source:
                                 </Label>
-                                <Input
-                                  id={`source-${index}`}
-                                  placeholder="Crédit / source de l'image"
+                                <RichTextEditor
                                   value={imageData.source || ''}
-                                  onChange={e => updateSource(index, e.target.value)}
-                                  className="h-8 text-xs"
+                                  onChange={value => updateSource(index, value || '')}
+                                  config={editorPresets.singleLine}
+                                  placeholder="Ajouter une source (optionnel)"
+                                  className="flex-1"
                                 />
                               </div>
                             </div>
