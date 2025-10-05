@@ -145,7 +145,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
           <section>
             <Card>
               <CardHeader>
-                <CardTitle>Sources et références</CardTitle>
+                <CardTitle>Bibliographie</CardTitle>
               </CardHeader>
               <CardContent>
                 <RichTextViewer content={sources} />
