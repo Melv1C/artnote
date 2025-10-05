@@ -86,6 +86,6 @@ export async function getArtworkByIdForPreview(id: string) {
     }).parse(artwork);
   } catch (error) {
     console.error('Error fetching artwork for preview:', error);
-    notFound();
+    return null;
   }
 }
