@@ -258,7 +258,7 @@ export function ArtworkForm({
           name="sources"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sources</FormLabel>
+              <FormLabel>Bibliographie</FormLabel>
               <FormControl>
                 <RichTextEditor
                   value={field.value || ''}
