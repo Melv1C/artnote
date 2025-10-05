@@ -335,30 +335,6 @@ const getEditorProps = (isViewer = false, config: RichTextEditorConfig = default
   };
 };
 
-// Helper function to merge configurations
-const mergeConfig = (
-  baseConfig: RichTextEditorConfig,
-  userConfig?: Partial<RichTextEditorConfig>,
-): RichTextEditorConfig => {
-  if (!userConfig) return baseConfig;
-
-  return {
-    ...baseConfig,
-    ...userConfig,
-    toolbar: {
-      ...baseConfig.toolbar,
-      ...userConfig.toolbar,
-      history: { ...baseConfig.toolbar?.history, ...userConfig.toolbar?.history },
-      headings: { ...baseConfig.toolbar?.headings, ...userConfig.toolbar?.headings },
-      formatting: { ...baseConfig.toolbar?.formatting, ...userConfig.toolbar?.formatting },
-      alignment: { ...baseConfig.toolbar?.alignment, ...userConfig.toolbar?.alignment },
-      blocks: { ...baseConfig.toolbar?.blocks, ...userConfig.toolbar?.blocks },
-      links: { ...baseConfig.toolbar?.links, ...userConfig.toolbar?.links },
-      footnotes: { ...baseConfig.toolbar?.footnotes, ...userConfig.toolbar?.footnotes },
-    },
-  };
-};
-
 // Rich Text Editor Component
 interface RichTextEditorProps {
   value: string | null;
@@ -375,7 +351,7 @@ export function RichTextEditor({
   placeholder = 'Commencez à écrire...',
   config,
 }: RichTextEditorProps) {
-  const finalConfig = config || defaultConfig; // mergeConfig(defaultConfig, config);
+  const finalConfig = config || defaultConfig;
 
   const editor = useEditor({
     extensions: getEditorExtensions(false, finalConfig),
@@ -871,7 +847,7 @@ interface RichTextViewerProps {
 }
 
 export function RichTextViewer({ content, className, config }: RichTextViewerProps) {
-  const finalConfig = mergeConfig(defaultConfig, config);
+  const finalConfig = config || defaultConfig;
 
   const editor = useEditor({
     extensions: getEditorExtensions(true, finalConfig),
