@@ -57,7 +57,7 @@ export function ArtworkImagesCarousel({ artwork }: ArtworkImagesCarouselProps) {
                 </div>
 
                 {/* Caption and source */}
-                {(artworkImage.source) && (
+                {artworkImage.source && (
                   <div className="space-y-2 text-sm">
                     {artworkImage.source && (
                       <div className="space-y-1">
