@@ -42,29 +42,31 @@ export function ArtworkImagesCarousel({ artwork }: ArtworkImagesCarouselProps) {
       >
         <CarouselContent>
           {images.map((artworkImage, index) => (
-            <CarouselItem key={artworkImage.id}>
-              <div className="relative group cursor-pointer">
-                <div className="relative w-full h-64 md:h-96 lg:h-[500px] overflow-hidden rounded-lg bg-muted">
+            <CarouselItem key={artworkImage.id} className="flex items-center">
+              <div className="w-full space-y-3 bg-muted p-4 rounded-lg">
+                {/* Image */}
+                <div className="relative w-full h-64 md:h-96 lg:h-[500px] overflow-hidden rounded-lg">
                   <Image
                     src={artworkImage.image.url}
                     alt={artworkImage.image.alt || artwork.title}
                     fill
-                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="object-contain"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     priority={index === 0}
                   />
                 </div>
 
-                {/* Image source/caption */}
-                {(artworkImage.source || artworkImage.image.caption) && (
-                  <div className="mt-2 text-sm text-muted-foreground">
-                    {artworkImage.image.caption && (
-                      <p className="mb-1">{artworkImage.image.caption}</p>
-                    )}
+                {/* Caption and source */}
+                {(artworkImage.source) && (
+                  <div className="space-y-2 text-sm">
                     {artworkImage.source && (
-                      <div className="flex items-center gap-1">
-                        Source:
-                        <RichTextViewer content={artworkImage.source} />
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Source
+                        </span>
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <RichTextViewer content={artworkImage.source} />
+                        </div>
                       </div>
                     )}
                   </div>
