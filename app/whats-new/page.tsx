@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ArtworkCard, ArtworksListSkeleton } from '@/features/artworks';
 import { getLatestPublishedArtworks } from '@/features/artworks/actions';
 import { Suspense } from 'react';
