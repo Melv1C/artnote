@@ -140,7 +140,6 @@ export const editorPresets = {
       links: { enabled: true },
     },
     singleLine: true,
-    minHeight: '40px',
   } as RichTextEditorConfig,
 
   // Full featured editor
@@ -153,7 +152,6 @@ export const editorPresets = {
       blocks: { bulletList: true, orderedList: true },
       links: { enabled: true },
     },
-    minHeight: '100px',
   } as RichTextEditorConfig,
 };
 
@@ -309,7 +307,7 @@ const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = de
 };
 
 const getEditorProps = (isViewer = false, config: RichTextEditorConfig = defaultConfig) => {
-  const minHeight = config.singleLine ? '40px' : config.minHeight || '150px';
+  const minHeight = config.minHeight || '150px';
   const maxHeight = config.maxHeight;
 
   return {
@@ -822,7 +820,7 @@ export function RichTextEditor({
           editor={editor}
           className={cn(
             finalConfig.singleLine
-              ? '[&_.ProseMirror]:min-h-[40px] [&_.ProseMirror]:max-h-[40px] [&_.ProseMirror]:overflow-hidden'
+              ? '[&_.ProseMirror]:min-h-[40px]'
               : '[&_.ProseMirror]:min-h-[150px]',
             headingsClass,
           )}
