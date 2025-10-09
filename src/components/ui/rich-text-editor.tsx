@@ -359,7 +359,7 @@ export function RichTextEditor({
       const html = editor.getHTML();
       // Only call onChange if content actually changed
       if (html !== value) {
-        onChange(html === '<p></p>' ? null : html);
+        onChange(editor.isEmpty ? null : html);
       }
     },
     editorProps: getEditorProps(false, finalConfig),
