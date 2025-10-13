@@ -13,7 +13,7 @@ importers:
         version: 18.0.1(@types/react@19.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@hookform/resolvers':
         specifier: ^5.2.2
-        version: 5.2.2(react-hook-form@7.64.0(react@19.2.0))
+        version: 5.2.2(react-hook-form@7.65.0(react@19.2.0))
       '@prisma/client':
         specifier: ^6.17.0
         version: 6.17.0(prisma@6.17.0(typescript@5.8.3))(typescript@5.8.3)
@@ -156,8 +156,8 @@ importers:
         specifier: ^14.3.8
         version: 14.3.8(react@19.2.0)
       react-hook-form:
-        specifier: ^7.64.0
-        version: 7.64.0(react@19.2.0)
+        specifier: ^7.65.0
+        version: 7.65.0(react@19.2.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2856,8 +2856,8 @@ packages:
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
 
-  react-hook-form@7.64.0:
-    resolution: {integrity: sha512-fnN+vvTiMLnRqKNTVhDysdrUay0kUUAymQnFIznmgDvapjveUWOOPqMNzPg+A+0yf9DuE2h6xzBjN1s+Qx8wcg==}
+  react-hook-form@7.65.0:
+    resolution: {integrity: sha512-xtOzDz063WcXvGWaHgLNrNzlsdFgtUWcb32E6WFaGTd7kPZG3EeDusjdZfUsPwKCKVXy1ZlntifaHZ4l8pAsmw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -3384,10 +3384,10 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.64.0(react@19.2.0))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.65.0(react@19.2.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.64.0(react@19.2.0)
+      react-hook-form: 7.65.0(react@19.2.0)
 
   '@humanfs/core@0.19.1': {}
 
@@ -6081,7 +6081,7 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.0
 
-  react-hook-form@7.64.0(react@19.2.0):
+  react-hook-form@7.65.0(react@19.2.0):
     dependencies:
       react: 19.2.0
 
