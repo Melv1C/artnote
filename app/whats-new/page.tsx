@@ -5,7 +5,8 @@ import { getLatestPublishedArtworks } from '@/features/artworks/actions';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Nouveautés - ArtNote',
+  title: 'ArtNote - Nouveautés',
+  description: 'Découvrez les dernières notices publiées sur ArtNote.',
 };
 
 export default async function WhatsNewPage() {

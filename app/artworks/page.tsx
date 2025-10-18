@@ -2,7 +2,8 @@ import { ArtworksFilter, ArtworksList, ArtworksListSkeleton } from '@/features/a
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Notices - ArtNote',
+  title: 'ArtNote - Toutes les notices',
+  description: "Explorez toutes les notices sur l'histoire de la peinture disponibles sur ArtNote.",
 };
 
 interface ArtworksPageProps {

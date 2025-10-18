@@ -22,6 +22,24 @@ export const metadata: Metadata = {
   title: 'ArtNote - La peinture dans tout son art',
   description:
     "(Re)découvrez l'histoire de la peinture à travers des notices scientifiques. Visitez les musées belges autrement grâce à cette plateforme accessible et didactique.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  openGraph: {
+    locale: 'fr_BE',
+    title: 'ArtNote - La peinture dans tout son art',
+    description:
+      "(Re)découvrez l'histoire de la peinture à travers des notices scientifiques. Visitez les musées belges autrement grâce à cette plateforme accessible et didactique.",
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+    siteName: 'ArtNote',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'ArtNote - La peinture dans tout son art',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
