@@ -22,7 +22,12 @@ export const metadata: Metadata = {
   title: 'ArtNote - La peinture dans tout son art',
   description:
     "(Re)découvrez l'histoire de la peinture à travers des notices scientifiques. Visitez les musées belges autrement grâce à cette plateforme accessible et didactique.",
-  metadataBase: new URL(process.env.BASE_URL || process.env.VERCEL_URL || process.env.VERCEL_BRANCH_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.BASE_URL ||
+      process.env.VERCEL_URL ||
+      process.env.VERCEL_BRANCH_URL ||
+      'https://artnote.vercel.app',
+  ),
   openGraph: {
     locale: 'fr_BE',
     siteName: 'ArtNote',
