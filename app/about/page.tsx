@@ -2,7 +2,9 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const metadata = {
-  title: 'À propos',
+  title: 'ArtNote - À propos',
+  description:
+    "Découvrez l'équipe derrière ArtNote, notre mission et nos valeurs.",
 };
 
 export default function AboutPage() {
