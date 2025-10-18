@@ -6,9 +6,7 @@ export default function HomePage() {
     <section className="relative py-20 lg:py-32 bg-gradient-to-b from-background to-muted/20">
       <div className="container">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="mb-6 text-6xl font-extrabold tracking-tight text-primary">
-            ArtNote
-          </h1>
+          <h1 className="mb-6 text-6xl font-extrabold tracking-tight text-primary">ArtNote</h1>
           <h2 className="mb-6 text-3xl sm:text-4xl font-bold tracking-tight text-primary">
             La peinture dans tout son art
           </h2>
