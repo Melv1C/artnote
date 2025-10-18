@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: ArtworkPageProps): Promise<Me
   }
   return {
     title: `ArtNote - ${artwork.title}`,
-    description: `Découvrez la notice scientifique de "${artwork.title}" par ${artwork.artists.map(artist => `${artist.artist.firstName} ${artist.artist.lastName}`).join(', ')}.`,
+    description: `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(artist => `${artist.artist.firstName} ${artist.artist.lastName}`).join(', ')}.`,
     openGraph: {
       images: artwork.images.filter(image => image.isMain).length
         ? artwork.images
