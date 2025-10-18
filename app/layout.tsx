@@ -19,16 +19,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ArtNote - Découvrez l'art à travers des notices enrichies",
+  title: 'ArtNote - La peinture dans tout son art',
   description:
-    "Explorez les œuvres d'art avec des notices détaillées et découvrez le patrimoine culturel français.",
+    "(Re)découvrez l'histoire de la peinture à travers des notices scientifiques. Visitez les musées belges autrement grâce à cette plateforme accessible et didactique.",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html suppressHydrationWarning lang="en" className="h-full">
       <body className={cn(geistSans.variable, geistMono.variable, 'antialiased', 'h-full')}>
-        {' '}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
