@@ -47,10 +47,8 @@ export async function updateArtwork(
           sources: validatedData.sources || null,
           status: validatedData.status,
           publishedAt:
-            existingArtwork.publishedAt ||
-            validatedData.status === ArtworkStatusSchema.enum.PUBLISHED
-              ? new Date()
-              : null,
+            existingArtwork.publishedAt ??
+            (validatedData.status === ArtworkStatusSchema.enum.PUBLISHED ? new Date() : null),
           placeId: validatedData.placeId || null,
         },
       });

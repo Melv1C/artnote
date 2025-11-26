@@ -65,7 +65,7 @@ export async function changeArtworkStatus(artworkId: string, newStatus: string) 
     // Get the artwork to check ownership
     const artwork = await prisma.artwork.findUnique({
       where: { id: artworkId },
-      select: { id: true, writerId: true, title: true, status: true },
+      select: { id: true, writerId: true, title: true, status: true, publishedAt: true },
     });
 
     if (!artwork) {
@@ -82,7 +82,7 @@ export async function changeArtworkStatus(artworkId: string, newStatus: string) 
       where: { id: artworkId },
       data: {
         status: newStatus,
-        publishedAt: newStatus === 'PUBLISHED' ? new Date() : null,
+        publishedAt: newStatus === 'PUBLISHED' ? (artwork.publishedAt ?? new Date()) : null,
         updatedAt: new Date(),
       },
     });
