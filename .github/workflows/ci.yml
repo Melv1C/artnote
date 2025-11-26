@@ -34,6 +34,9 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm prisma generate
+        env:
+          # Provide a dummy DATABASE_URL for generation in CI
+          PRISMA_DATABASE_URL: 'prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'
 
       - name: Run Lint
         run: pnpm lint
