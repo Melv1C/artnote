@@ -2,6 +2,13 @@
   "name": "artnote",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "hono": ">=4.10.3",
+      "valibot": ">=1.2.0",
+      "js-yaml": ">=4.1.1"
+    }
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
