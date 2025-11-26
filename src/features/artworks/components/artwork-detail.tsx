@@ -1,10 +1,14 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RichTextViewer } from '@/components/ui/rich-text-editor';
 import { Separator } from '@/components/ui/separator';
 import { Artwork, User } from '@/schemas';
 import { Calendar, MapPin, Palette, Ruler } from 'lucide-react';
+import { useRef } from 'react';
 import { ArtworkImagesCarousel } from './artwork-images-carousel';
-import { RichTextViewer } from '@/components/ui/rich-text-editor';
+import { ArtworkImagesPreviewButton } from './artwork-images-preview-button';
 
 interface ArtworkDetailProps {
   artwork: Artwork & {
@@ -15,6 +19,8 @@ interface ArtworkDetailProps {
 export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
   const { title, creationYear, medium, dimensions, notice, sources, writer, place, artists } =
     artwork;
+
+  const carouselRef = useRef<HTMLElement>(null);
 
   // Get writer initials for avatar fallback
   const writerInitials = writer.name
@@ -55,9 +61,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
         <Separator />
 
         {/* 2. Images */}
-        <section>
-          <ArtworkImagesCarousel artwork={artwork} />
-        </section>
+        <ArtworkImagesCarousel ref={carouselRef} artwork={artwork} />
 
         <Separator />
 
@@ -171,6 +175,9 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
           </div>
         </section>
       </div>
+
+      {/* Floating preview button */}
+      <ArtworkImagesPreviewButton artwork={artwork} carouselRef={carouselRef} />
     </div>
   );
 }
