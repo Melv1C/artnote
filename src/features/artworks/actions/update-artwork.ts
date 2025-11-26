@@ -1,5 +1,6 @@
 'use server';
 
+import { Prisma } from '@/generated/prisma/client';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkStatusSchema } from '@/schemas';
@@ -33,7 +34,7 @@ export async function updateArtwork(
     }
 
     // Update artwork with transaction to handle image & artist associations
-    await prisma.$transaction(async tx => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Update the artwork
       const updatedArtwork = await tx.artwork.update({
         where: { id: artworkId },

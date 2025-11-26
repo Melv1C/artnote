@@ -1,6 +1,6 @@
 'use server';
 
-import { Prisma } from '@/generated/prisma';
+import { Prisma } from '@/generated/prisma/client';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtistFiltersSchema, CreateArtistSchema } from '@/schemas/artist';

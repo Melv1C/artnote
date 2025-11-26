@@ -1,5 +1,6 @@
 'use server';
 
+import { Prisma } from '@/generated/prisma/client';
 import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkStatusSchema } from '@/schemas';
@@ -20,7 +21,7 @@ export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkRes
     const validatedData = ArtworkFormSchema.parse(data);
 
     // Create the artwork in the database with transaction
-    await prisma.$transaction(async tx => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create the artwork
       const artwork = await tx.artwork.create({
         data: {

@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma';
+import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';
 
@@ -217,7 +217,7 @@ export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
 
     // For artist sorting, we need to sort manually since Prisma doesn't handle it well
     if (sort === 'artist') {
-      artworks.sort((a, b) => {
+      artworks.sort((a: (typeof artworks)[number], b: (typeof artworks)[number]) => {
         const artistA = a.artists[0]?.artist
           ? `${a.artists[0].artist.firstName} ${a.artists[0].artist.lastName}`
           : '';
