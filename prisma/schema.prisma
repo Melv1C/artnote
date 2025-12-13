@@ -259,9 +259,10 @@ model ArtworkImage {
 }
 
 // =============================================================================
-// ANALYTICS MODELS (Hybrid Approach)
+// ANALYTICS MODELS (Enhanced Analytics System)
 // =============================================================================
 
+// Legacy PageView model - kept for backward compatibility during migration
 model PageView {
   id        String   @id @default(cuid())
   artworkId String
@@ -277,4 +278,117 @@ model PageView {
   @@index([artworkId])
   @@index([createdAt])
   @@map("page_view")
+}
+
+// New comprehensive analytics event model
+model AnalyticsEvent {
+  id           String   @id @default(cuid())
+  eventType    String // page_view_start, page_view_end, notice_view_start, notice_view_end, cookie_accept, cookie_reject, interaction
+  timestamp    DateTime @default(now())
+  visitorId    String? // Set when user accepted cookies (persistent UUID)
+  sessionId    String? // Ephemeral in-memory session id for a visit
+  noticeId     String? // Artwork/notice ID (optional)
+  path         String? // Truncated path (max 200 chars)
+  pageCategory String? // home, notice, about, dashboard, other
+  referrer     String? // Domain only (max 200 chars)
+  browser      String? // Browser family (e.g. Chrome)
+  browserVer   String? // Browser version
+  os           String? // OS family (Windows, iOS, Android...)
+  deviceType   String? // mobile / tablet / desktop / bot
+  durationMs   Int? // For page_view_end and notice_view_end events
+  meta         Json? // Small extras (avoid high-cardinality fields)
+
+  @@index([eventType, timestamp])
+  @@index([noticeId, timestamp])
+  @@index([visitorId])
+  @@index([timestamp])
+  @@index([path])
+  @@index([pageCategory, timestamp])
+  @@map("analytics_event")
+}
+
+// Daily aggregated stats per notice (artwork)
+model NoticeDailySummary {
+  id               String   @id @default(cuid())
+  noticeId         String
+  day              DateTime // UTC date at 00:00
+  views            Int      @default(0)
+  uniqueVisitors   Int      @default(0)
+  medianDurationMs Int?
+  avgDurationMs    Int?
+  topReferrer      String? // Most common referrer for that day
+
+  @@unique([noticeId, day])
+  @@index([day])
+  @@map("notice_daily_summary")
+}
+
+// Weekly aggregated stats per notice (artwork)
+model NoticeWeeklySummary {
+  id             String   @id @default(cuid())
+  noticeId       String
+  weekStart      DateTime // UTC date (Monday start)
+  views          Int      @default(0)
+  uniqueVisitors Int      @default(0)
+  avgDurationMs  Int?
+
+  @@unique([noticeId, weekStart])
+  @@index([weekStart])
+  @@map("notice_weekly_summary")
+}
+
+// Site-wide daily summary (all pages combined)
+model SiteDailySummary {
+  id                  String   @id @default(cuid())
+  day                 DateTime // UTC date at 00:00
+  totalPageViews      Int      @default(0)
+  uniqueVisitors      Int      @default(0)
+  uniqueSessions      Int      @default(0)
+  avgSessionDurationMs Int?
+  // Page breakdown
+  homeViews           Int      @default(0)
+  noticeViews         Int      @default(0)
+  aboutViews          Int      @default(0)
+  dashboardViews      Int      @default(0)
+  otherViews          Int      @default(0)
+  // Funnel stats
+  cookieAccepts       Int      @default(0)
+  cookieRejects       Int      @default(0)
+  // Device breakdown
+  desktopVisitors     Int      @default(0)
+  mobileVisitors      Int      @default(0)
+  tabletVisitors      Int      @default(0)
+  // Top referrers (JSON array)
+  topReferrers        Json?
+  // Browser breakdown (JSON object)
+  browserStats        Json?
+
+  @@unique([day])
+  @@map("site_daily_summary")
+}
+
+// Site-wide weekly summary
+model SiteWeeklySummary {
+  id                   String   @id @default(cuid())
+  weekStart            DateTime // UTC date (Monday start)
+  totalPageViews       Int      @default(0)
+  uniqueVisitors       Int      @default(0)
+  uniqueSessions       Int      @default(0)
+  avgSessionDurationMs Int?
+  // Page breakdown
+  homeViews            Int      @default(0)
+  noticeViews          Int      @default(0)
+  aboutViews           Int      @default(0)
+  dashboardViews       Int      @default(0)
+  otherViews           Int      @default(0)
+  // Funnel stats
+  cookieAccepts        Int      @default(0)
+  cookieRejects        Int      @default(0)
+  // Device breakdown
+  desktopVisitors      Int      @default(0)
+  mobileVisitors       Int      @default(0)
+  tabletVisitors       Int      @default(0)
+
+  @@unique([weekStart])
+  @@map("site_weekly_summary")
 }
