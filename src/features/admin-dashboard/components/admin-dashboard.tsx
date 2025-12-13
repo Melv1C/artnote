@@ -1,3 +1,4 @@
+import { AnalyticsSection } from './analytics';
 import { DashboardHeader } from './dashboard-header';
 import { StatsOverview } from './stats-overview';
 
@@ -9,6 +10,9 @@ export function AdminDashboard() {
 
       {/* Overview Stats */}
       <StatsOverview />
+
+      {/* Analytics Section */}
+      <AnalyticsSection />
     </div>
   );
 }
