@@ -19,6 +19,9 @@ const envSchema = z.object({
 
   // Remote image domain for Next.js image optimization
   REMOTE_IMAGE_DOMAIN: z.url().optional(),
+
+  // Cron job secret for securing aggregation endpoints
+  CRON_SECRET: z.string().min(16).optional(),
 });
 
 // Parse and validate environment variables

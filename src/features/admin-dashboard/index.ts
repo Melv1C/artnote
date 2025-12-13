@@ -2,4 +2,4 @@
 export { AdminDashboard } from './components';
 
 // Individual components
-export { DashboardHeader, StatsOverview } from './components';
+export { AnalyticsSection, DashboardHeader, StatsOverview } from './components';

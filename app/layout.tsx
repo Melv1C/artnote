@@ -1,12 +1,14 @@
+import { AnalyticsProvider } from '@/components/analytics-provider';
+import { CookieBanner } from '@/components/cookie-banner';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { QueryProvider } from '@/lib/query-provider';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { PropsWithChildren } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
-import { PropsWithChildren } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -54,8 +56,11 @@ export default function RootLayout({ children }: PropsWithChildren) {
           disableTransitionOnChange
         >
           <QueryProvider>
-            <ConditionalLayout>{children}</ConditionalLayout>
+            <AnalyticsProvider>
+              <ConditionalLayout>{children}</ConditionalLayout>
+            </AnalyticsProvider>
             <Toaster />
+            <CookieBanner />
           </QueryProvider>
         </ThemeProvider>
       </body>
