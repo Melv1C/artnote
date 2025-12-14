@@ -1,7 +1,6 @@
 import { getUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';
-import { notFound } from 'next/navigation';
 
 export async function getArtworkById(id: string) {
   try {
@@ -74,10 +73,9 @@ export async function getArtworkByIdForPreview(id: string) {
       return null;
     }
 
-    const isWriter = artwork.writerId === user.id;
     const isAdmin = user.role === 'admin';
 
-    if (!isWriter && !isAdmin) {
+    if (!isAdmin) {
       return null;
     }
 

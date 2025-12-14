@@ -80,27 +80,6 @@ export const admin = ac.newRole({
 });
 
 /**
- * Writer Role - Content creation and management
- * Can manage artworks and related content but not users
- */
-export const writer = ac.newRole({
-  // Full artwork management for their own content
-  artwork: ['read', 'manage'],
-
-  // Artist management - can create and edit
-  artist: ['read', 'manage'],
-
-  // Place management - can create and edit
-  place: ['read', 'manage'],
-
-  // Concept management - can create and edit
-  concept: ['read', 'manage'],
-
-  // Keyword management - can create and edit
-  keyword: ['read', 'manage'],
-});
-
-/**
  * Regular User Role - Limited read access
  * Can only read published content
  */
@@ -121,6 +100,5 @@ export const user = ac.newRole({
 
 export const roles = {
   admin,
-  writer,
   user,
 } as const;
