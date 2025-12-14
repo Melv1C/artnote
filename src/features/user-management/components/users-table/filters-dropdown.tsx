@@ -66,7 +66,6 @@ export function FiltersDropdown({
             <SelectContent>
               <SelectItem value="all">Tous les rôles</SelectItem>
               <SelectItem value={UserRoleSchema.enum.admin}>Administrateur</SelectItem>
-              <SelectItem value={UserRoleSchema.enum.writer}>Rédacteur</SelectItem>
               <SelectItem value={UserRoleSchema.enum.user}>Utilisateur</SelectItem>
             </SelectContent>
           </Select>
