@@ -86,12 +86,10 @@ export const columns: ColumnDef<User>[] = [
       const role = row.getValue('role') as string;
       const roleLabels = {
         [UserRoleSchema.enum.admin]: 'Administrateur',
-        [UserRoleSchema.enum.writer]: 'Rédacteur',
         [UserRoleSchema.enum.user]: 'Utilisateur',
       };
       const roleColors = {
         [UserRoleSchema.enum.admin]: 'destructive',
-        [UserRoleSchema.enum.writer]: 'default',
         [UserRoleSchema.enum.user]: 'secondary',
       } as const;
 

@@ -15,23 +15,14 @@
 
 import { StatCard, StatCardSkeleton } from '@/components/stats';
 import { prisma } from '@/lib/prisma';
-import { ArtworkStatusSchema, UserRoleSchema } from '@/schemas';
-import { NotebookPen, TrendingUp, UserCheck, Users } from 'lucide-react';
+import { ArtworkStatusSchema } from '@/schemas';
+import { NotebookPen, Users } from 'lucide-react';
 import { Suspense } from 'react';
 
 // Individual async components for each stat
 async function UserCountCard() {
   const userCount = await prisma.user.count();
   return <StatCard title="Utilisateurs Total" value={userCount} icon={Users} />;
-}
-
-async function WriterCountCard() {
-  const writerCount = await prisma.user.count({
-    where: {
-      role: UserRoleSchema.enum.writer,
-    },
-  });
-  return <StatCard title="Rédacteurs Actifs" value={writerCount} icon={UserCheck} />;
 }
 
 async function NoticeCountCard() {
@@ -43,27 +34,6 @@ async function NoticeCountCard() {
   return <StatCard title="Notices Publiées" value={noticeCount} icon={NotebookPen} />;
 }
 
-async function ViewsCountCard() {
-  // Get views from the last 30 days for "monthly" count
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const viewsCount = await prisma.pageView.count({
-    where: {
-      createdAt: {
-        gte: thirtyDaysAgo,
-      },
-    },
-  });
-  return (
-    <StatCard
-      title="Vues Mensuelles"
-      value={`${(viewsCount / 1000).toFixed(1)}K`}
-      icon={TrendingUp}
-    />
-  );
-}
-
 export function StatsOverview() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -71,16 +41,8 @@ export function StatsOverview() {
         <UserCountCard />
       </Suspense>
 
-      <Suspense fallback={<StatCardSkeleton title="Rédacteurs Actifs" icon={UserCheck} />}>
-        <WriterCountCard />
-      </Suspense>
-
       <Suspense fallback={<StatCardSkeleton title="Notices Publiées" icon={NotebookPen} />}>
         <NoticeCountCard />
-      </Suspense>
-
-      <Suspense fallback={<StatCardSkeleton title="Vues Mensuelles" icon={TrendingUp} />}>
-        <ViewsCountCard />
       </Suspense>
     </div>
   );
