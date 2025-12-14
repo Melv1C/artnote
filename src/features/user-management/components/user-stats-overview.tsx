@@ -26,15 +26,6 @@ async function AdminUsersCard() {
   return <StatCard title="Administrateurs" value={adminCount} icon={Shield} />;
 }
 
-async function WriterUsersCard() {
-  const writerCount = await prisma.user.count({
-    where: {
-      role: UserRoleSchema.enum.writer,
-    },
-  });
-  return <StatCard title="Rédacteurs" value={writerCount} icon={UserCheck} />;
-}
-
 async function NewUsersThisWeekCard() {
   // Calculate date ranges
   const now = new Date();
@@ -94,10 +85,6 @@ export function UserStatsOverview() {
 
       <Suspense fallback={<StatCardSkeleton title="Administrateurs" icon={Shield} />}>
         <AdminUsersCard />
-      </Suspense>
-
-      <Suspense fallback={<StatCardSkeleton title="Rédacteurs" icon={UserCheck} />}>
-        <WriterUsersCard />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Nouveaux Utilisateurs" icon={Activity} />}>

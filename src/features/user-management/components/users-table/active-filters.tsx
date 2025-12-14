@@ -28,8 +28,6 @@ export function ActiveFilters({
     switch (role) {
       case UserRoleSchema.enum.admin:
         return 'Administrateur';
-      case UserRoleSchema.enum.writer:
-        return 'Rédacteur';
       case UserRoleSchema.enum.user:
         return 'Utilisateur';
       default:
