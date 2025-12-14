@@ -4,7 +4,7 @@ import { z } from 'zod';
 // ENUMS
 // =============================================================================
 
-export const UserRoleSchema = z.enum(['admin', 'writer', 'user']);
+export const UserRoleSchema = z.enum(['admin', 'user']);
 export const ArtworkStatusSchema = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']);
 export const PlaceTypeSchema = z.enum(['MUSEUM', 'CHURCH', 'PUBLIC_SPACE', 'OTHER']);
 

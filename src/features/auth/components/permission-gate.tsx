@@ -1,9 +1,9 @@
 'use client';
 
+import { UserRoleSchema } from '@/schemas';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { usePermissions, type PermissionCheck } from '../hooks/use-permissions';
-import { UserRoleSchema } from '@/schemas';
 
 // =============================================================================
 // PERMISSION-BASED COMPONENTS
@@ -148,24 +148,7 @@ export function AdminGate({
 }
 
 /**
- * Component that renders children only for writer users
- */
-export function WriterGate({
-  children,
-  fallback = null,
-}: {
-  children: ReactNode;
-  fallback?: ReactNode;
-}) {
-  return (
-    <RoleGate roles={[UserRoleSchema.enum.writer]} fallback={fallback}>
-      {children}
-    </RoleGate>
-  );
-}
-
-/**
- * Component that renders children for admin or writer users
+ * Component that renders children for content managers (admins)
  */
 export function ContentManagerGate({
   children,
@@ -175,7 +158,7 @@ export function ContentManagerGate({
   fallback?: ReactNode;
 }) {
   return (
-    <RoleGate roles={[UserRoleSchema.enum.admin, UserRoleSchema.enum.writer]} fallback={fallback}>
+    <RoleGate roles={[UserRoleSchema.enum.admin]} fallback={fallback}>
       {children}
     </RoleGate>
   );

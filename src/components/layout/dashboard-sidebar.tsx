@@ -36,21 +36,21 @@ const navigationItems = [
     url: '/dashboard/artworks',
     icon: FileText,
     description: 'Gestion des notices',
-    requiresPermission: 'contentManager', // Writers and admins
+    requiresPermission: 'contentManager', // Admins only
   },
   {
     title: 'Artistes',
     url: '/dashboard/artists',
     icon: Palette,
     description: 'Gestion des artistes',
-    requiresPermission: 'contentManager', // Writers and admins
+    requiresPermission: 'contentManager', // Admins only
   },
   {
     title: 'Lieux',
     url: '/dashboard/places',
     icon: MapPin,
     description: 'Gestion des lieux',
-    requiresPermission: 'contentManager', // Writers and admins
+    requiresPermission: 'contentManager', // Admins only
   },
   {
     title: 'Utilisateurs',

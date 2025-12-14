@@ -1,7 +1,7 @@
 import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import type { auth } from './auth';
-import { ac, admin as adminRole, user, writer } from './permissions';
+import { ac, admin as adminRole, user } from './permissions';
 
 export const authClient = createAuthClient({
   plugins: [
@@ -10,7 +10,6 @@ export const authClient = createAuthClient({
       ac,
       roles: {
         admin: adminRole,
-        writer,
         user,
       },
     }),
