@@ -16,10 +16,8 @@ export interface UseAuthReturn {
   error: Error | null;
   /** Check if user has a specific role */
   hasRole: (role: User['role'] | User['role'][]) => boolean;
-  /** Check if user is admin (ADMIN) */
+  /** Check if user is admin */
   isAdmin: boolean;
-  /** Check if user is writer */
-  isWriter: boolean;
   /** Refetch the session */
   refetch: () => void;
 }
@@ -53,7 +51,6 @@ export function useAuth(): UseAuthReturn {
   };
 
   const isAdmin = hasRole(UserRoleSchema.enum.admin);
-  const isWriter = hasRole(UserRoleSchema.enum.writer);
 
   return {
     user,
@@ -62,7 +59,6 @@ export function useAuth(): UseAuthReturn {
     error,
     hasRole,
     isAdmin,
-    isWriter,
     refetch,
   };
 }
