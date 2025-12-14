@@ -339,29 +339,29 @@ model NoticeWeeklySummary {
 
 // Site-wide daily summary (all pages combined)
 model SiteDailySummary {
-  id                  String   @id @default(cuid())
-  day                 DateTime // UTC date at 00:00
-  totalPageViews      Int      @default(0)
-  uniqueVisitors      Int      @default(0)
-  uniqueSessions      Int      @default(0)
+  id                   String   @id @default(cuid())
+  day                  DateTime // UTC date at 00:00
+  totalPageViews       Int      @default(0)
+  uniqueVisitors       Int      @default(0)
+  uniqueSessions       Int      @default(0)
   avgSessionDurationMs Int?
   // Page breakdown
-  homeViews           Int      @default(0)
-  noticeViews         Int      @default(0)
-  aboutViews          Int      @default(0)
-  dashboardViews      Int      @default(0)
-  otherViews          Int      @default(0)
+  homeViews            Int      @default(0)
+  noticeViews          Int      @default(0)
+  aboutViews           Int      @default(0)
+  dashboardViews       Int      @default(0)
+  otherViews           Int      @default(0)
   // Funnel stats
-  cookieAccepts       Int      @default(0)
-  cookieRejects       Int      @default(0)
+  cookieAccepts        Int      @default(0)
+  cookieRejects        Int      @default(0)
   // Device breakdown
-  desktopVisitors     Int      @default(0)
-  mobileVisitors      Int      @default(0)
-  tabletVisitors      Int      @default(0)
+  desktopVisitors      Int      @default(0)
+  mobileVisitors       Int      @default(0)
+  tabletVisitors       Int      @default(0)
   // Top referrers (JSON array)
-  topReferrers        Json?
+  topReferrers         Json?
   // Browser breakdown (JSON object)
-  browserStats        Json?
+  browserStats         Json?
 
   @@unique([day])
   @@map("site_daily_summary")
