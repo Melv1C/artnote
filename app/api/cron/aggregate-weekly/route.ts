@@ -2,18 +2,16 @@ import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Vercel Cron User-Agent pattern
-const VERCEL_CRON_USER_AGENT = 'vercel-cron';
-
 /**
  * Verify that the request is from Vercel Cron or has valid secret
  */
 function isAuthorizedRequest(request: NextRequest): boolean {
-  const cronSecret = request.headers.get('x-cron-secret');
-  if (cronSecret && cronSecret === env.CRON_SECRET) return true;
-  const userAgent = request.headers.get('user-agent') ?? '';
-  if (userAgent.includes(VERCEL_CRON_USER_AGENT)) return true;
-  return false;
+  // Check for cron secret header
+  if (request.headers.get('Authorization') !== `Bearer ${env.CRON_SECRET}`) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
