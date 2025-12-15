@@ -83,7 +83,7 @@
     "tailwind-merge": "^3.4.0",
     "tiptap-footnotes": "^3.0.1",
     "ua-parser-js": "^2.0.7",
-    "zod": "^4.1.13"
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
