@@ -58,7 +58,7 @@
     "@tiptap/extension-underline": "^3.13.0",
     "@tiptap/pm": "^3.13.0",
     "@tiptap/react": "^3.13.0",
-    "@tiptap/starter-kit": "^3.13.0",
+    "@tiptap/starter-kit": "^3.14.0",
     "@vercel/blob": "^2.0.0",
     "axios": "^1.13.2",
     "better-auth": "^1.4.6",
