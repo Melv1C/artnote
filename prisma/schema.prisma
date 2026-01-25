@@ -241,6 +241,7 @@ model ArtworkImage {
   imageId   String
   sortOrder Int     @default(0) // For image sorting
   isMain    Boolean @default(false)
+  legend    String? // Rich text legend/caption for the image
   source    String? // Source/credit for the image
 
   createdAt   DateTime @default(now())

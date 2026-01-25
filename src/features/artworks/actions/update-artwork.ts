@@ -62,6 +62,7 @@ export async function updateArtwork(
             imageId: imgData.imageId,
             sortOrder: imgData.sortOrder,
             isMain: imgData.isMain,
+            legend: imgData.legend,
             source: imgData.source,
             createdById: user.id,
             updatedById: user.id,
