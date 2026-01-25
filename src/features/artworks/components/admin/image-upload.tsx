@@ -234,7 +234,18 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                                 <RichTextEditor
                                   value={imageData.legend || ''}
                                   onChange={value => updateLegend(index, value || '')}
-                                  config={editorPresets.singleLine}
+                                  config={{
+                                    ...editorPresets.singleLine,
+                                    toolbar: {
+                                      ...editorPresets.singleLine.toolbar,
+                                      alignment: {
+                                        left: true,
+                                        center: true,
+                                        right: true,
+                                        justify: true,
+                                      },
+                                    },
+                                  }}
                                   placeholder="Ajouter une légende (optionnel)"
                                   className="flex-1"
                                 />
