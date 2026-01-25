@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
 import { ArtworkImageSimplified } from '@/schemas/artwork-image';
@@ -61,6 +60,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         imageId: result.imageId!,
         sortOrder: images.length + index,
         isMain: images.length === 0 && index === 0, // First image is main by default
+        legend: null,
         source: null,
         image: result.imageData!,
       }));
@@ -131,6 +131,13 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
   const updateSource = (index: number, source: string) => {
     const updatedImages = images.map((img, i) =>
       i === index ? { ...img, source: source || null } : img,
+    );
+    onChange(updatedImages);
+  };
+
+  const updateLegend = (index: number, legend: string) => {
+    const updatedImages = images.map((img, i) =>
+      i === index ? { ...img, legend: legend || null } : img,
     );
     onChange(updatedImages);
   };
@@ -221,7 +228,20 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Label htmlFor={`source-${index}`} className="text-xs">
+                                <Label htmlFor={`legend-${index}`} className="text-xs min-w-14">
+                                  Légende:
+                                </Label>
+                                <RichTextEditor
+                                  value={imageData.legend || ''}
+                                  onChange={value => updateLegend(index, value || '')}
+                                  config={editorPresets.singleLine}
+                                  placeholder="Ajouter une légende (optionnel)"
+                                  className="flex-1"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor={`source-${index}`} className="text-xs min-w-14">
                                   Source:
                                 </Label>
                                 <RichTextEditor

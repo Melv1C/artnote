@@ -7,6 +7,7 @@ export const ArtworkImageSchema = z.object({
   imageId: z.string(),
   sortOrder: z.number().int().min(0),
   isMain: z.boolean(),
+  legend: z.string().nullable(),
   source: z.string().nullable(),
 
   createdAt: z.date(),
@@ -23,6 +24,7 @@ export const ArtworkImageSchemaSimplified = ArtworkImageSchema.pick({
   imageId: true,
   sortOrder: true,
   isMain: true,
+  legend: true,
   source: true,
   image: true,
 }).extend({

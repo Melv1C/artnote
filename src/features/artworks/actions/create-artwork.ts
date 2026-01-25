@@ -49,6 +49,7 @@ export async function createArtwork(data: ArtworkForm): Promise<CreateArtworkRes
           imageId: imgData.imageId,
           sortOrder: imgData.sortOrder,
           isMain: imgData.isMain,
+          legend: imgData.legend,
           source: imgData.source,
           createdById: user.id,
           updatedById: user.id,

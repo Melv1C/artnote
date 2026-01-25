@@ -60,17 +60,20 @@ export const ArtworkImagesCarousel = forwardRef<HTMLElement, ArtworkImagesCarous
                     />
                   </div>
 
-                  {/* Caption and source */}
-                  {artworkImage.source && (
-                    <div className="space-y-2 text-sm">
+                  {/* Legend and source */}
+                  {(artworkImage.legend || artworkImage.source) && (
+                    <div className="space-y-2">
+                      {artworkImage.legend && (
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <RichTextViewer content={artworkImage.legend} />
+                        </div>
+                      )}
                       {artworkImage.source && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Source
-                          </span>
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <div className="text-xs text-muted-foreground">
+                          <span className="font-medium">Source: </span>
+                          <span className="prose prose-xs dark:prose-invert inline">
                             <RichTextViewer content={artworkImage.source} />
-                          </div>
+                          </span>
                         </div>
                       )}
                     </div>
