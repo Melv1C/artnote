@@ -350,7 +350,6 @@ export function RichTextEditor({
   config,
 }: RichTextEditorProps) {
   const finalConfig = config || defaultConfig;
-  console.log('finalConfig', finalConfig);
 
   const editor = useEditor({
     extensions: getEditorExtensions(false, finalConfig),
