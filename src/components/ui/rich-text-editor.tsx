@@ -14,8 +14,8 @@ import { Superscript } from '@tiptap/extension-superscript';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
-import { EditorContent, useEditor } from '@tiptap/react';
 import { EditorView } from '@tiptap/pm/view';
+import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import {
   AlignCenter,
@@ -271,7 +271,7 @@ const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = de
     );
   }
 
-  if (config.toolbar?.alignment && !config.singleLine) {
+  if (config.toolbar?.alignment) {
     extensions.push(
       TextAlign.configure({
         types: ['heading', 'paragraph'],
@@ -350,6 +350,7 @@ export function RichTextEditor({
   config,
 }: RichTextEditorProps) {
   const finalConfig = config || defaultConfig;
+  console.log('finalConfig', finalConfig);
 
   const editor = useEditor({
     extensions: getEditorExtensions(false, finalConfig),
@@ -405,11 +406,10 @@ export function RichTextEditor({
     finalConfig.toolbar?.formatting?.superscript;
   const showHighlight = finalConfig.toolbar?.formatting?.highlight;
   const showAlignment =
-    !finalConfig.singleLine &&
-    (finalConfig.toolbar?.alignment?.left ||
-      finalConfig.toolbar?.alignment?.center ||
-      finalConfig.toolbar?.alignment?.right ||
-      finalConfig.toolbar?.alignment?.justify);
+    finalConfig.toolbar?.alignment?.left ||
+    finalConfig.toolbar?.alignment?.center ||
+    finalConfig.toolbar?.alignment?.right ||
+    finalConfig.toolbar?.alignment?.justify;
   const showBlocks =
     !finalConfig.singleLine &&
     (finalConfig.toolbar?.blocks?.bulletList ||
