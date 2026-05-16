@@ -1,0 +1,1 @@
+ALTER TABLE "artist" ALTER COLUMN "firstName" DROP NOT NULL;
