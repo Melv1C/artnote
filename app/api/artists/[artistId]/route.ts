@@ -68,7 +68,7 @@ export async function PUT(
     const artist = await prisma.artist.update({
       where: { id: artistId },
       data: {
-        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.firstName !== undefined && { firstName: data.firstName }),
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.birthDate !== undefined && {
           birthDate: data.birthDate ? new Date(data.birthDate) : null,
