@@ -7,7 +7,7 @@ import { PaginationSchema, SearchSchema } from './common';
 
 export const ArtistSchema = z.object({
   id: z.string(),
-  firstName: z.string(),
+  firstName: z.string().nullable(),
   lastName: z.string(),
   birthDate: z.date().nullable(),
   deathDate: z.date().nullable(),
@@ -29,6 +29,10 @@ export const CreateArtistSchema = ArtistSchema.omit({
   createdById: true,
   updatedById: true,
 }).extend({
+  firstName: z.preprocess(
+    value => (typeof value === 'string' && value.trim() === '' ? null : value),
+    z.string().max(100, 'Le prénom est trop long').nullable().optional(),
+  ),
   birthDate: z.string().optional().nullable(),
   deathDate: z.string().optional().nullable(),
 });
@@ -53,7 +57,10 @@ export const ArtistFiltersSchema = z
 // =============================================================================
 
 export const ArtistFormSchema = z.object({
-  firstName: z.string().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
+  firstName: z.preprocess(
+    value => (typeof value === 'string' && value.trim() === '' ? null : value),
+    z.string().max(100, 'Le prénom est trop long').nullable().optional(),
+  ),
   lastName: z.string().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
   birthDate: z.string().optional(),
   deathDate: z.string().optional(),

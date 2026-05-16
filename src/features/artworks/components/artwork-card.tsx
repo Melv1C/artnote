@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatArtistName } from '@/lib/artist-name';
 import { Artwork, User } from '@/schemas';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -73,7 +74,7 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
               {/* Artists */}
               {artists && artists.length > 0 && (
                 <p className="text-sm text-muted-foreground line-clamp-1 sm:line-clamp-none">
-                  Par {artists.map(a => a.artist.firstName + ' ' + a.artist.lastName).join(', ')}
+                  Par {artists.map(a => formatArtistName(a.artist)).join(', ')}
                 </p>
               )}
             </div>

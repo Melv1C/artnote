@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     // Create artist
     const artist = await prisma.artist.create({
       data: {
-        firstName: data.firstName,
+        firstName: data.firstName ?? null,
         lastName: data.lastName,
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
         deathDate: data.deathDate ? new Date(data.deathDate) : null,

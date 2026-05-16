@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
 import { Separator } from '@/components/ui/separator';
 import { useNoticeAnalytics } from '@/hooks/use-notice-analytics';
+import { formatArtistName } from '@/lib/artist-name';
 import { Artwork, User } from '@/schemas';
 import { Calendar, MapPin, Palette, Ruler } from 'lucide-react';
 import { useRef } from 'react';
@@ -48,7 +49,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
               {artists.map((artworkArtist, index) => (
                 <div key={artworkArtist.artist.id} className="flex items-center">
                   <div className="text-lg md:text-xl text-muted-foreground">
-                    {artworkArtist.artist.firstName} {artworkArtist.artist.lastName}
+                    {formatArtistName(artworkArtist.artist)}
                     {artworkArtist.role && (
                       <span className="text-sm font-normal ml-1">({artworkArtist.role})</span>
                     )}

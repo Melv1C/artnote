@@ -1,4 +1,5 @@
 import { Prisma } from '@/generated/prisma/client';
+import { formatArtistName } from '@/lib/artist-name';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';
 
@@ -218,12 +219,8 @@ export async function getFilteredArtworks(filters: ArtworkFilters = {}) {
     // For artist sorting, we need to sort manually since Prisma doesn't handle it well
     if (sort === 'artist') {
       artworks.sort((a: (typeof artworks)[number], b: (typeof artworks)[number]) => {
-        const artistA = a.artists[0]?.artist
-          ? `${a.artists[0].artist.firstName} ${a.artists[0].artist.lastName}`
-          : '';
-        const artistB = b.artists[0]?.artist
-          ? `${b.artists[0].artist.firstName} ${b.artists[0].artist.lastName}`
-          : '';
+        const artistA = a.artists[0]?.artist ? formatArtistName(a.artists[0].artist) : '';
+        const artistB = b.artists[0]?.artist ? formatArtistName(b.artists[0].artist) : '';
 
         const comparison = artistA.localeCompare(artistB, 'fr', {
           sensitivity: 'base',

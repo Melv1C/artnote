@@ -1,5 +1,6 @@
 import { getArtworkById, incrementArtworkViewCount } from '@/features/artworks/actions';
 import { ArtworkDetail } from '@/features/artworks/components';
+import { formatArtistName } from '@/lib/artist-name';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: ArtworkPageProps): Promise<Me
   }
   return {
     title: `ArtNote - ${artwork.title}`,
-    description: `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(artist => `${artist.artist.firstName} ${artist.artist.lastName}`).join(', ')}.`,
+    description: `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(artist => formatArtistName(artist.artist)).join(', ')}.`,
     openGraph: {
       images: artwork.images.filter(image => image.isMain).length
         ? artwork.images

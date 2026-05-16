@@ -22,7 +22,7 @@ export async function createArtist(formData: FormData) {
     // Create artist
     await prisma.artist.create({
       data: {
-        firstName: data.firstName,
+        firstName: data.firstName ?? null,
         lastName: data.lastName,
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
         deathDate: data.deathDate ? new Date(data.deathDate) : null,
@@ -56,7 +56,7 @@ export async function updateArtist(artistId: string, formData: FormData) {
     await prisma.artist.update({
       where: { id: artistId },
       data: {
-        firstName: data.firstName,
+        firstName: data.firstName ?? null,
         lastName: data.lastName,
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
         deathDate: data.deathDate ? new Date(data.deathDate) : null,

@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Artist } from '@/schemas/artist';
+import { formatArtistName } from '@/lib/artist-name';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -64,7 +65,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
     ),
     cell: ({ row }) => {
       const artist = row.original;
-      const fullName = `${artist.firstName} ${artist.lastName}`;
+      const fullName = formatArtistName(artist);
       return (
         <Link href={`/dashboard/artists/${artist.id}`} className="font-medium hover:underline">
           {fullName}
@@ -147,7 +148,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const artist = row.original;
-      const fullName = `${artist.firstName} ${artist.lastName}`;
+      const fullName = formatArtistName(artist);
 
       const handleDelete = async () => {
         if (confirm(`Êtes-vous sûr de vouloir supprimer "${fullName}" ?`)) {
