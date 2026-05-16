@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
+import { formatArtistName } from '@/lib/artist-name';
 import { cn } from '@/lib/utils';
 import { Artist } from '@/schemas/artist';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
@@ -53,10 +54,6 @@ export function ArtistSelector({
     onSelectionChange(selectedArtists.filter(a => a.id !== artistId));
   };
 
-  const formatArtistName = (artist: Artist) => {
-    return `${artist.firstName} ${artist.lastName}`;
-  };
-
   return (
     <div className={cn('space-y-2', className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -89,7 +86,7 @@ export function ArtistSelector({
                   return (
                     <CommandItem
                       key={artist.id}
-                      value={`${artist.firstName} ${artist.lastName}`}
+                      value={formatArtistName(artist)}
                       onSelect={() => handleSelect(artist)}
                     >
                       <Check

@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtistForm } from '@/features/artists';
 import { useArtist } from '@/features/artists/hooks/use-artists';
+import { formatArtistName } from '@/lib/artist-name';
 import { useParams } from 'next/navigation';
 
 export default function EditArtistPage() {
@@ -28,7 +29,7 @@ export default function EditArtistPage() {
       <div>
         <h1 className="text-3xl font-bold">Modifier l'artiste</h1>
         <p className="text-muted-foreground mt-2">
-          Modifiez les informations de "{artist.firstName} {artist.lastName}"
+          Modifiez les informations de "{formatArtistName(artist)}"
         </p>
       </div>
 
