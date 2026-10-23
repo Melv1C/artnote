@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserRoleSchema } from '@/schemas';
 import { User } from '@/schemas/user';
+import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { UserRowActions } from './user-row-actions';
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<DataTableFeatures, User>[] = [
   {
     id: 'select',
     header: ({ table }) => (
