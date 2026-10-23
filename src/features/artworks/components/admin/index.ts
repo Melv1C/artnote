@@ -4,5 +4,6 @@ export { ArtworkFilters } from './artwork-filters';
 export { ArtworkForm } from './artwork-form';
 export { ArtworkHeader } from './artwork-header';
 export { ArtworkListAdmin, ArtworkListSkeleton } from './artwork-list-admin';
-export { ArtworkStats } from './artwork-stats';
+export { ArtworkStats, loadArtworkStats } from './artwork-stats';
+export type { ArtworkStatsData } from './artwork-stats';
 export { ImageUpload } from './image-upload';

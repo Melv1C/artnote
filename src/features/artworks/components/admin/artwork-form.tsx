@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -23,7 +21,7 @@ import { Artist } from '@/schemas/artist';
 import { Artwork, ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
 import { Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -47,7 +45,7 @@ export function ArtworkForm({
   submitLabel = 'Enregistrer',
   successMessage = 'Notice enregistrée avec succès !',
 }: ArtworkFormProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
     initialValues?.artists.map(a => a.artist) || [],
@@ -79,7 +77,7 @@ export function ArtworkForm({
 
       if (result.success) {
         toast.success(successMessage);
-        router.push('/dashboard/artworks');
+        navigate({ to: '/dashboard/artworks' });
       } else {
         setIsSubmitting(false);
         toast.error(result.error || "Erreur lors de l'enregistrement de la notice");
@@ -291,7 +289,7 @@ export function ArtworkForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onCancel?.() || router.push('/dashboard/artworks')}
+            onClick={() => onCancel?.() || navigate({ to: '/dashboard/artworks' })}
             disabled={isSubmitting}
           >
             Annuler

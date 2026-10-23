@@ -1,5 +1,3 @@
-'use client';
-
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -10,8 +8,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
+import type { ArtworksSearch } from '../types';
 import { Search } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
 const SORT_OPTIONS = [
@@ -26,37 +25,37 @@ const SORT_OPTIONS = [
 ] as const;
 
 export function ArtworksFilter() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: '/artworks/' });
 
-  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [search, setSearch] = useState(searchParams.search?.toString() || '');
   const [sortBy, setSortBy] = useState(() => {
-    const sort = searchParams.get('sort') || 'title';
-    const order = searchParams.get('order') || 'asc';
+    const sort = searchParams.sort || 'title';
+    const order = searchParams.order || 'asc';
     return `${sort}-${order}`;
   });
 
   const debouncedSearch = useDebounce(search, 300);
 
   const updateURL = useCallback(
-    (newParams: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(newParams).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
+    (newParams: { search?: string; sortBy?: string }) => {
+      navigate({
+        to: '/artworks',
+        search: prev => {
+          const params: ArtworksSearch = { ...prev };
+          if ('search' in newParams) {
+            params.search = newParams.search || undefined;
+          }
+          if (newParams.sortBy) {
+            const [sort, order] = newParams.sortBy.split('-');
+            params.sort = sort as ArtworksSearch['sort'];
+            params.order = order as ArtworksSearch['order'];
+          }
+          return params;
+        },
       });
-      if (newParams.sortBy) {
-        const [sort, order] = newParams.sortBy.split('-');
-        params.set('sort', sort);
-        params.set('order', order);
-        params.delete('sortBy');
-      }
-      router.push(`/artworks?${params.toString()}`);
     },
-    [router, searchParams],
+    [navigate],
   );
 
   useEffect(() => {

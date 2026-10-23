@@ -1,5 +1,3 @@
-'use client';
-
 import { FiltersDropdown } from './filters-dropdown';
 import { SearchInput } from './search-input';
 

@@ -1,23 +1,28 @@
-import nextPlugin from '@next/eslint-plugin-next';
+import pluginRouter from '@tanstack/eslint-plugin-router';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const eslintConfig = [
   {
-    ignores: ['src/generated/**/*', '.next/**/*', 'node_modules/**/*', 'dist/**/*', 'build/**/*'],
+    ignores: [
+      'src/generated/**/*',
+      'src/routeTree.gen.ts',
+      '.output/**/*',
+      '.nitro/**/*',
+      '.tanstack/**/*',
+      '.vercel/**/*',
+      'node_modules/**/*',
+      'dist/**/*',
+      'build/**/*',
+    ],
   },
+  ...pluginRouter.configs['flat/recommended'],
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
-      '@next/next': nextPlugin,
       react: reactPlugin,
       'react-hooks': hooksPlugin,
       '@typescript-eslint': tsPlugin,
@@ -34,12 +39,11 @@ const eslintConfig = [
     },
     settings: {
       react: {
+        // Explicit version: eslint-plugin-react's 'detect' relies on an API removed in ESLint 10
         version: '19.3',
       },
     },
     rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs['core-web-vitals'].rules,
       ...reactPlugin.configs.recommended.rules,
       ...hooksPlugin.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',

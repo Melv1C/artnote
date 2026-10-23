@@ -11,5 +11,9 @@ tmp/
 dep-graph.json
 CHANGELOG.md
 stats.html
-.next/
+.output/
+.nitro/
+.tanstack/
+.vercel/
+src/routeTree.gen.ts
 pnpm-lock.yaml

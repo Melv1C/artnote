@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only';
 import { auth } from '@/lib/auth';
 import { statement } from '@/lib/permissions';
 import { type User } from '@/schemas/user';

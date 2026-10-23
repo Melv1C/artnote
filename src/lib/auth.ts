@@ -1,7 +1,9 @@
+import '@tanstack/react-start/server-only';
 import { UserRoleSchema } from '@/schemas';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
+import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import { env } from './env';
 import { ac, admin as adminRole, user } from './permissions';
 import { prisma } from './prisma';
@@ -44,5 +46,7 @@ export const auth = betterAuth({
       impersonationSessionDuration: 60 * 60, // 1 hour
       defaultBanExpiresIn: 60 * 60 * 24 * 7, // 1 week default ban
     }),
+    // Must stay last so auth cookies are set through TanStack Start's cookie helpers
+    tanstackStartCookies(),
   ],
 });
