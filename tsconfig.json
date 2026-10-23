@@ -1,34 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES2024",
+    "lib": ["DOM", "DOM.Iterable", "ES2024"],
+    "types": ["vite/client"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@app/*": ["./app/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".output", ".vercel", ".nitro", ".tanstack"]
 }

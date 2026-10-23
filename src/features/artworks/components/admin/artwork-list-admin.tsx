@@ -1,11 +1,9 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Artwork } from '@/schemas';
 import { FileText, PlusIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 import type { ArtworkActionResponse } from '../../actions/artwork-actions';
 import { ArtworkFilter } from '../../types';
@@ -188,7 +186,7 @@ export function ArtworkListAdmin({
             </Button>
           ) : (
             <Button asChild>
-              <Link href="/dashboard/artworks/create">
+              <Link to="/dashboard/artworks/create">
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Créer ma première notice
               </Link>

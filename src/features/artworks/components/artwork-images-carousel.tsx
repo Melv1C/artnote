@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +7,6 @@ import {
 } from '@/components/ui/carousel';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
 import { Artwork, User } from '@/schemas';
-import Image from 'next/image';
 import { forwardRef } from 'react';
 
 interface ArtworkImagesCarouselProps {
@@ -50,13 +47,13 @@ export const ArtworkImagesCarousel = forwardRef<HTMLElement, ArtworkImagesCarous
                 <div className="w-full space-y-3 bg-muted p-4 rounded-lg">
                   {/* Image */}
                   <div className="relative w-full h-64 md:h-96 lg:h-[500px] overflow-hidden rounded-lg">
-                    <Image
+                    <img
                       src={artworkImage.image.url}
                       alt={artworkImage.image.alt || artwork.title}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                      priority={index === 0}
+                      className="absolute inset-0 h-full w-full object-contain"
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
                     />
                   </div>
 

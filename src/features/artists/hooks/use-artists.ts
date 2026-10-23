@@ -1,5 +1,3 @@
-'use client';
-
 import { Artist } from '@/schemas/artist';
 import { useQuery } from '@tanstack/react-query';
 

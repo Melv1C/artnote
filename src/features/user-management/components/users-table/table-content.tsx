@@ -1,5 +1,3 @@
-'use client';
-
 import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef, flexRender, RowData, Table as TanStackTable } from '@tanstack/react-table';
 

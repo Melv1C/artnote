@@ -1,5 +1,3 @@
-'use client';
-
 import './rich-text-editor.css';
 
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only';
 import { PrismaClient } from '@/generated/prisma/client';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { env, isProduction } from './env';

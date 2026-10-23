@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -7,7 +5,6 @@ import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor'
 import { ArtworkImageSimplified } from '@/schemas/artwork-image';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Star, StarOff, Upload, X } from 'lucide-react';
-import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
@@ -198,11 +195,12 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
 
                             {/* Image Preview */}
                             <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
-                              <Image
+                              <img
                                 src={imageData.image.url}
                                 alt={imageData.image.alt || 'Image'}
-                                fill
-                                className="object-cover"
+                                className="absolute inset-0 h-full w-full object-cover"
+                                loading="lazy"
+                                decoding="async"
                               />
                             </div>
 

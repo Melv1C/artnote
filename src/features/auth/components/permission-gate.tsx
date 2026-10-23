@@ -1,5 +1,3 @@
-'use client';
-
 import { UserRoleSchema } from '@/schemas';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/use-auth';

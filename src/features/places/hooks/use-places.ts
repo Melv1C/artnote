@@ -1,5 +1,3 @@
-'use client';
-
 import { Place } from '@/schemas/place';
 import { useQuery } from '@tanstack/react-query';
 

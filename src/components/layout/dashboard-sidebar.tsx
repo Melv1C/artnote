@@ -1,8 +1,6 @@
-'use client';
-
 import { ArrowLeft, Database, FileText, Home, MapPin, Palette, Users } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from '@tanstack/react-router';
+import { useLocation } from '@tanstack/react-router';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -62,7 +60,7 @@ const navigationItems = [
 ] as const;
 
 export function DashboardSidebar({ user }: { user: User }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: location => location.pathname });
   const { state } = useSidebar();
 
   const getInitials = (name: string) => {
@@ -92,7 +90,7 @@ export function DashboardSidebar({ user }: { user: User }) {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Retour au site">
-                  <Link href="/">
+                  <Link to="/">
                     <ArrowLeft className="h-4 w-4" />
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">Retour au site</span>
@@ -118,7 +116,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                 const renderItem = () => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-                      <Link href={item.url}>
+                      <Link to={item.url}>
                         <item.icon className="h-4 w-4" />
                         <div className="grid flex-1 text-left text-sm leading-tight">
                           <span className="truncate font-medium">{item.title}</span>
