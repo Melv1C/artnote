@@ -1,5 +1,3 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,7 +13,7 @@ import { Place } from '@/schemas/place';
 import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { deletePlace } from '../actions/place-actions';
 
@@ -56,7 +54,11 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <Link href={`/dashboard/places/${row.original.id}`} className="font-medium hover:underline">
+      <Link
+        to="/dashboard/places/$placeId"
+        params={{ placeId: row.original.id }}
+        className="font-medium hover:underline"
+      >
         {row.getValue('name')}
       </Link>
     ),
@@ -122,7 +124,7 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
       const handleDelete = async () => {
         if (confirm(`Êtes-vous sûr de vouloir supprimer "${place.name}" ?`)) {
           try {
-            await deletePlace(place.id);
+            await deletePlace({ data: place.id });
             toast.success('Lieu supprimé avec succès');
           } catch (error) {
             console.error('Erreur lors de la suppression du lieu:', error);
@@ -142,7 +144,7 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/dashboard/places/${place.id}`}>
+              <Link to="/dashboard/places/$placeId" params={{ placeId: place.id }}>
                 <Edit className="mr-2 h-4 w-4" />
                 Modifier
               </Link>

@@ -1,21 +1,13 @@
-import { getFilteredArtworks } from '@/features/artworks/actions';
+import type { fetchFilteredArtworks } from '@/features/artworks/actions';
+import { use } from 'react';
 import { ArtworkCard } from './artwork-card';
 
 interface ArtworksListProps {
-  searchParams: Promise<{
-    search?: string;
-    artist?: string;
-    place?: string;
-    medium?: string;
-    year?: string;
-    sort?: 'title' | 'artist' | 'year' | 'published';
-    order?: 'asc' | 'desc';
-  }>;
+  artworksPromise: ReturnType<typeof fetchFilteredArtworks>;
 }
 
-export async function ArtworksList({ searchParams }: ArtworksListProps) {
-  const resolvedSearchParams = await searchParams;
-  const artworks = await getFilteredArtworks(resolvedSearchParams);
+export function ArtworksList({ artworksPromise }: ArtworksListProps) {
+  const artworks = use(artworksPromise);
 
   if (artworks.length === 0) {
     return (

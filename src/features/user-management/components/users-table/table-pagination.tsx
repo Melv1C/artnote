@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { DataTableFeatures } from '@/lib/data-table';
 import { RowData, Table as TanStackTable } from '@tanstack/react-table';

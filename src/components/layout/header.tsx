@@ -1,11 +1,8 @@
-'use client';
-
 import { ModeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { AuthButton, AuthDialog } from '@/features/auth/components';
 import { Menu, X } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 export function Header() {
@@ -24,13 +21,15 @@ export function Header() {
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
           {/* Left - Logo */}
           <div className="flex items-center flex-shrink-0">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
+            <Link to="/" className="flex items-center space-x-2">
+              <img
                 src="/icon.png"
                 alt="ArtNote Logo"
                 width={48}
                 height={48}
                 className="h-12 w-12"
+                loading="lazy"
+                decoding="async"
               />
               <span className="font-bold text-xl">ArtNote</span>
             </Link>
@@ -41,7 +40,7 @@ export function Header() {
             {navigation.map(item => (
               <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
                 {item.name}
@@ -75,7 +74,7 @@ export function Header() {
                 {navigation.map(item => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className="block px-3 py-2 text-base font-medium text-foreground/60 hover:text-foreground/80"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

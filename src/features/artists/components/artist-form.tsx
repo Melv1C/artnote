@@ -1,12 +1,10 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Artist } from '@/schemas/artist';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { useTransition } from 'react';
 import { createArtist, updateArtist } from '../actions/artist-actions';
 
@@ -16,18 +14,20 @@ interface ArtistFormProps {
 }
 
 export function ArtistForm({ artist, mode }: ArtistFormProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
   const handleSubmit = (formData: FormData) => {
     startTransition(async () => {
       if (mode === 'create') {
-        await createArtist(formData);
+        await createArtist({ data: formData });
       } else if (artist) {
-        await updateArtist(artist.id, formData);
+        formData.append('artistId', artist.id);
+        await updateArtist({ data: formData });
       }
       queryClient.invalidateQueries({ queryKey: ['artists'] });
+      await navigate({ to: '/dashboard/artists' });
     });
   };
 
@@ -81,7 +81,11 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/artists')}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate({ to: '/dashboard/artists' })}
+        >
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>

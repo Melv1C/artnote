@@ -1,5 +1,3 @@
-'use client';
-
 import { DataTableFeatures, dataTableFeatures } from '@/lib/data-table';
 import {
   ColumnDef,
