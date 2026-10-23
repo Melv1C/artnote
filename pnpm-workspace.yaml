@@ -1,10 +1,15 @@
 packages:
   - '.'
 
-ignoredBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@tailwindcss/oxide'
-  - prisma
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  '@prisma/engines': false
+  esbuild: true
+  prisma: false
+  sharp: false
+  unrs-resolver: false
+  workerd: false
+
+overrides:
+  hono: '>=4.11.4'
+  valibot: '>=1.2.0'
+  js-yaml: '>=4.1.1'

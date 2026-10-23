@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Artist } from '@/schemas/artist';
+import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ type ArtistWithRelations = Artist & {
   }[];
 };
 
-export const columns: ColumnDef<ArtistWithRelations>[] = [
+export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   {
     id: 'select',
     header: ({ table }) => (
