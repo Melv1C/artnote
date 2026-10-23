@@ -1,6 +1,7 @@
 'use client';
 
-import { ColumnDef, flexRender, Table as TanStackTable } from '@tanstack/react-table';
+import { DataTableFeatures } from '@/lib/data-table';
+import { ColumnDef, flexRender, RowData, Table as TanStackTable } from '@tanstack/react-table';
 
 import {
   Table,
@@ -11,12 +12,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-interface TableContentProps<TData, TValue> {
-  table: TanStackTable<TData>;
-  columns: ColumnDef<TData, TValue>[];
+interface TableContentProps<TData extends RowData> {
+  table: TanStackTable<DataTableFeatures, TData>;
+  columns: ColumnDef<DataTableFeatures, TData>[];
 }
 
-export function TableContent<TData, TValue>({ table, columns }: TableContentProps<TData, TValue>) {
+export function TableContent<TData extends RowData>({ table, columns }: TableContentProps<TData>) {
   return (
     <div className="rounded-md border">
       <Table>

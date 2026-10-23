@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Place } from '@/schemas/place';
+import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -24,7 +25,7 @@ type PlaceWithRelations = Place & {
   artworks: { id: string; title: string }[];
 };
 
-export const columns: ColumnDef<PlaceWithRelations>[] = [
+export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
   {
     id: 'select',
     header: ({ table }) => (

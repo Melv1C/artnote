@@ -1,15 +1,13 @@
 'use client';
 
+import { DataTableFeatures, dataTableFeatures } from '@/lib/data-table';
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnVisibilityState,
+  RowData,
   SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  useTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
 
@@ -17,8 +15,8 @@ import { TableContent } from './table-content';
 import { TableControls } from './table-controls';
 import { TablePagination } from './table-pagination';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TData>[];
   data: TData[];
   onSelectionChange?: (count: number) => void;
   searchValue: string;
@@ -32,7 +30,7 @@ interface DataTableProps<TData, TValue> {
   onClearFilters: () => void;
 }
 
-export function UsersDataTable<TData, TValue>({
+export function UsersDataTable<TData extends RowData>({
   columns,
   data,
   onSelectionChange,
@@ -45,21 +43,18 @@ export function UsersDataTable<TData, TValue>({
   banStatusFilter,
   onBanStatusFilterChange,
   onClearFilters,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
