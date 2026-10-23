@@ -7,8 +7,7 @@ on:
     branches: [main, staging]
 
 env:
-  NODE_VERSION: '22'
-  PNPM_VERSION: '10'
+  NODE_VERSION: '24'
 
 jobs:
   lint-and-type-check:
@@ -16,15 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v6 # version comes from package.json packageManager
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -42,22 +39,20 @@ jobs:
         run: pnpm lint
 
       - name: Run TypeScript check
-        run: pnpm tsc --noEmit
+        run: pnpm type-check
 
   # security-audit:
   #   name: Security Audit
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v5
+  #       uses: actions/checkout@v7
 
   #     - name: Setup pnpm
-  #       uses: pnpm/action-setup@v4
-  #       with:
-  #         version: ${{ env.PNPM_VERSION }}
+  #       uses: pnpm/action-setup@v6 # version comes from package.json packageManager
 
   #     - name: Setup Node.js
-  #       uses: actions/setup-node@v5
+  #       uses: actions/setup-node@v7
   #       with:
   #         node-version: ${{ env.NODE_VERSION }}
   #         cache: 'pnpm'
@@ -73,15 +68,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v6 # version comes from package.json packageManager
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
