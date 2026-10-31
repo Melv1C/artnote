@@ -16,4 +16,4 @@ stats.html
 .tanstack/
 .vercel/
 src/routeTree.gen.ts
-pnpm-lock.yaml
+bun.lock
