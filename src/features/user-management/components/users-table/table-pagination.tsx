@@ -1,13 +1,12 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
-import { Table as TanStackTable } from '@tanstack/react-table';
+import { DataTableFeatures } from '@/lib/data-table';
+import { RowData, Table as TanStackTable } from '@tanstack/react-table';
 
-interface TablePaginationProps<TData> {
-  table: TanStackTable<TData>;
+interface TablePaginationProps<TData extends RowData> {
+  table: TanStackTable<DataTableFeatures, TData>;
 }
 
-export function TablePagination<TData>({ table }: TablePaginationProps<TData>) {
+export function TablePagination<TData extends RowData>({ table }: TablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-end space-x-2 py-4">
       <div className="flex-1 text-sm text-muted-foreground">

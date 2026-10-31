@@ -1,5 +1,3 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
 import { UserRoleSchema } from '@/schemas';
 import { X } from 'lucide-react';

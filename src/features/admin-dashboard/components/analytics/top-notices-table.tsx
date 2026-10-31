@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ExternalLink } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { type TopNoticeData } from './analytics-data';
 
 type TopNoticesTableProps = {
@@ -53,7 +53,8 @@ export function TopNoticesTable({ data }: TopNoticesTableProps) {
                   <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
                   <TableCell>
                     <Link
-                      href={`/artworks/${notice.id}`}
+                      to="/artworks/$artworkId"
+                      params={{ artworkId: notice.id }}
                       className="flex items-center gap-2 hover:underline"
                       target="_blank"
                     >

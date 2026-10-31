@@ -1,6 +1,4 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
+import { useLocation } from '@tanstack/react-router';
 import { MainLayout } from './main-layout';
 
 interface ConditionalLayoutProps {
@@ -8,7 +6,7 @@ interface ConditionalLayoutProps {
 }
 
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: location => location.pathname });
 
   // Skip MainLayout for admin routes
   if (pathname.startsWith('/dashboard')) {

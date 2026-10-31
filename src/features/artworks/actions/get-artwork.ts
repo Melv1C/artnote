@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only';
 import { getUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';

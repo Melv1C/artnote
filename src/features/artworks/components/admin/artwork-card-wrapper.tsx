@@ -1,5 +1,3 @@
-'use client';
-
 import { Artwork } from '@/schemas';
 import { useTransition } from 'react';
 import { toast } from 'sonner';

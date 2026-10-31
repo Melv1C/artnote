@@ -1,58 +1,53 @@
 import { StatCard, StatCardSkeleton } from '@/components/stats';
-import { getRequiredUser } from '@/lib/auth-server';
-import { prisma } from '@/lib/prisma';
-import { ArtworkStatusSchema } from '@/schemas';
+import { fetchMyArtworkCount } from '../../actions/artwork-queries';
 import { Archive, FileText, NotebookPen, TrendingUp } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 
-// Individual async components for each artwork stat
-async function TotalArtworksCard() {
-  const totalArtworks = await prisma.artwork.count({
-    where: {
-      writerId: (await getRequiredUser()).id,
-    },
-  });
+/**
+ * Start every artwork stat query without awaiting, so each card streams in independently.
+ */
+export const loadArtworkStats = () => ({
+  total: fetchMyArtworkCount({ data: undefined }),
+  published: fetchMyArtworkCount({ data: 'PUBLISHED' }),
+  drafts: fetchMyArtworkCount({ data: 'DRAFT' }),
+});
+
+export type ArtworkStatsData = ReturnType<typeof loadArtworkStats>;
+
+// Individual components for each artwork stat
+function TotalArtworksCard({ count }: { count: Promise<number> }) {
+  const totalArtworks = use(count);
   return <StatCard title="Total Notices" value={totalArtworks} icon={FileText} />;
 }
 
-async function PublishedArtworksCard() {
-  const publishedCount = await prisma.artwork.count({
-    where: {
-      status: ArtworkStatusSchema.enum.PUBLISHED,
-      writerId: (await getRequiredUser()).id,
-    },
-  });
+function PublishedArtworksCard({ count }: { count: Promise<number> }) {
+  const publishedCount = use(count);
   return <StatCard title="Publiées" value={publishedCount} icon={NotebookPen} />;
 }
 
-async function DraftArtworksCard() {
-  const draftCount = await prisma.artwork.count({
-    where: {
-      status: ArtworkStatusSchema.enum.DRAFT,
-      writerId: (await getRequiredUser()).id,
-    },
-  });
+function DraftArtworksCard({ count }: { count: Promise<number> }) {
+  const draftCount = use(count);
   return <StatCard title="Brouillons" value={draftCount} icon={Archive} />;
 }
 
-async function TotalViewsCard() {
+function TotalViewsCard() {
   const totalViews = 0; // Placeholder for total views logic
   return <StatCard title="Vues Totales" value={totalViews} icon={TrendingUp} />;
 }
 
-export function ArtworkStats() {
+export function ArtworkStats({ data }: { data: ArtworkStatsData }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Suspense fallback={<StatCardSkeleton title="Total Notices" icon={FileText} />}>
-        <TotalArtworksCard />
+        <TotalArtworksCard count={data.total} />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Publiées" icon={NotebookPen} />}>
-        <PublishedArtworksCard />
+        <PublishedArtworksCard count={data.published} />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Brouillons" icon={Archive} />}>
-        <DraftArtworksCard />
+        <DraftArtworksCard count={data.drafts} />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Vues Totales" icon={TrendingUp} />}>

@@ -1,15 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Suspense } from 'react';
-import {
-  getAnalyticsSummary,
-  getBrowserStats,
-  getDailyTrends,
-  getDeviceBreakdown,
-  getPageCategoryBreakdown,
-  getRealtimeStats,
-  getTopNotices,
-} from './analytics-data';
+import { Suspense, use } from 'react';
+import type { AdminDashboardData } from '../../dashboard-queries';
 import { AnalyticsOverviewCards } from './analytics-overview-cards';
 import { BrowserStatsChart } from './browser-stats-chart';
 import { DeviceBreakdownChart } from './device-breakdown-chart';
@@ -62,38 +54,35 @@ function TableSkeleton() {
   );
 }
 
-// Async data-fetching components
-async function OverviewCardsLoader() {
-  const [summary, realtimeStats] = await Promise.all([getAnalyticsSummary(), getRealtimeStats()]);
+type AnalyticsData = AdminDashboardData['analytics'];
+
+// Data components resolving deferred loader promises
+function OverviewCardsLoader({ data }: { data: AnalyticsData['overview'] }) {
+  const { summary, realtimeStats } = use(data);
   return <AnalyticsOverviewCards summary={summary} realtimeStats={realtimeStats} />;
 }
 
-async function TrafficTrendsLoader() {
-  const data = await getDailyTrends(30);
-  return <TrafficTrendsChart data={data} />;
+function TrafficTrendsLoader({ data }: { data: AnalyticsData['dailyTrends'] }) {
+  return <TrafficTrendsChart data={use(data)} />;
 }
 
-async function DeviceBreakdownLoader() {
-  const data = await getDeviceBreakdown(30);
-  return <DeviceBreakdownChart data={data} />;
+function DeviceBreakdownLoader({ data }: { data: AnalyticsData['deviceBreakdown'] }) {
+  return <DeviceBreakdownChart data={use(data)} />;
 }
 
-async function PageCategoryLoader() {
-  const data = await getPageCategoryBreakdown(30);
-  return <PageCategoryChart data={data} />;
+function PageCategoryLoader({ data }: { data: AnalyticsData['pageCategories'] }) {
+  return <PageCategoryChart data={use(data)} />;
 }
 
-async function BrowserStatsLoader() {
-  const data = await getBrowserStats(30);
-  return <BrowserStatsChart data={data} />;
+function BrowserStatsLoader({ data }: { data: AnalyticsData['browserStats'] }) {
+  return <BrowserStatsChart data={use(data)} />;
 }
 
-async function TopNoticesLoader() {
-  const data = await getTopNotices(10, 30);
-  return <TopNoticesTable data={data} />;
+function TopNoticesLoader({ data }: { data: AnalyticsData['topNotices'] }) {
+  return <TopNoticesTable data={use(data)} />;
 }
 
-export function AnalyticsSection() {
+export function AnalyticsSection({ data }: { data: AnalyticsData }) {
   return (
     <div className="space-y-6">
       <div>
@@ -105,32 +94,32 @@ export function AnalyticsSection() {
 
       {/* Overview Cards */}
       <Suspense fallback={<OverviewCardsSkeleton />}>
-        <OverviewCardsLoader />
+        <OverviewCardsLoader data={data.overview} />
       </Suspense>
 
       {/* Traffic Trends Chart - Full Width */}
       <Suspense fallback={<ChartSkeleton title="Tendances du trafic" />}>
-        <TrafficTrendsLoader />
+        <TrafficTrendsLoader data={data.dailyTrends} />
       </Suspense>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Suspense fallback={<ChartSkeleton title="Appareils" />}>
-          <DeviceBreakdownLoader />
+          <DeviceBreakdownLoader data={data.deviceBreakdown} />
         </Suspense>
 
         <Suspense fallback={<ChartSkeleton title="Pages visitées" />}>
-          <PageCategoryLoader />
+          <PageCategoryLoader data={data.pageCategories} />
         </Suspense>
 
         <Suspense fallback={<ChartSkeleton title="Navigateurs" />}>
-          <BrowserStatsLoader />
+          <BrowserStatsLoader data={data.browserStats} />
         </Suspense>
       </div>
 
       {/* Top Notices Table */}
       <Suspense fallback={<TableSkeleton />}>
-        <TopNoticesLoader />
+        <TopNoticesLoader data={data.topNotices} />
       </Suspense>
     </div>
   );

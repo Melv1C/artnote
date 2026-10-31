@@ -1,5 +1,3 @@
-'use client';
-
 import {
   categorizePagePath,
   extractDomain,
@@ -9,7 +7,7 @@ import {
   sendEvent,
   truncatePath,
 } from '@/lib/analytics';
-import { usePathname } from 'next/navigation';
+import { useLocation } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef } from 'react';
 
 // Session ID stored in memory - persists across SPA route changes, resets on browser close
@@ -27,7 +25,7 @@ function getSessionId(): string {
  * Place this in your root layout to automatically track all page navigations
  */
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: location => location.pathname });
   const startTimeRef = useRef<number | null>(null);
   const lastPathRef = useRef<string | null>(null);
   const hasEndedRef = useRef(false);

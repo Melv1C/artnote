@@ -1,5 +1,3 @@
-'use client';
-
 import { authClient } from '@/lib/auth-client';
 import { statement } from '@/lib/permissions';
 import { type User } from '@/schemas/user';

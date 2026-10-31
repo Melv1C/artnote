@@ -1,5 +1,3 @@
-'use client';
-
 import { authClient } from '@/lib/auth-client';
 import { User, UserSchema } from '@/schemas/user';
 import { useQuery } from '@tanstack/react-query';

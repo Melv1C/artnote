@@ -23,8 +23,7 @@ import {
   Ruler,
   Trash2,
 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 
 interface ArtworkCardAdminProps {
   artwork: Artwork;
@@ -96,12 +95,12 @@ export function ArtworkCardAdmin({
       {/* Image Section */}
       <div className="relative h-48 bg-muted/50 overflow-hidden">
         {mainImage?.image ? (
-          <Image
+          <img
             src={mainImage.image.url}
             alt={mainImage.image.alt || title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">
@@ -181,7 +180,7 @@ export function ArtworkCardAdmin({
         <div className="flex items-center gap-2">
           {/* Main Edit Button */}
           <Button size="sm" variant="default" asChild className="flex-1" disabled={isPending}>
-            <Link href={`/dashboard/artworks/${id}/edit`}>
+            <Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }}>
               <Edit className="h-3.5 w-3.5 mr-1.5" />
               Modifier
             </Link>
@@ -189,7 +188,7 @@ export function ArtworkCardAdmin({
 
           {/* Preview Button */}
           <Button size="sm" variant="outline" asChild disabled={isPending}>
-            <Link href={`/artworks/${id}/preview`} target="_blank">
+            <Link to="/artworks/$artworkId/preview" params={{ artworkId: id }} target="_blank">
               <ExternalLink className="h-3.5 w-3.5" />
               <span className="sr-only">Aperçu</span>
             </Link>

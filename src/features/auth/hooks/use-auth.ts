@@ -1,5 +1,3 @@
-'use client';
-
 import { useSession } from '@/lib/auth-client';
 import { UserRoleSchema } from '@/schemas';
 import { UserSchema, type User } from '@/schemas/user';
