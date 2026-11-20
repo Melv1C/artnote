@@ -6,4 +6,5 @@ export type { CreateArtworkResponse } from './actions/create-artwork';
 export type { UpdateArtworkResponse } from './actions/update-artwork';
 
 // Types
-export type { ArtworkFilter } from './types';
+export type { ArtworkFilter, ArtworksSearch } from './types';
+export { ArtworksSearchSchema, toArtworkFilters } from './types';

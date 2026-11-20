@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -60,7 +58,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
 
   const handleEditRole = async (newRole: UserRole) => {
     try {
-      await updateUserRole(user.id, newRole);
+      await updateUserRole({ data: { userId: user.id, role: newRole } });
       toast.success(`Rôle mis à jour vers ${getRoleDisplayName(newRole)}`);
       queryClient.invalidateQueries({ queryKey: ['users'] });
     } catch (error) {
@@ -75,8 +73,10 @@ export function UserRowActions({ user }: UserRowActionsProps) {
 
     try {
       await banUser({
-        userId: user.id,
-        banReason: reason || undefined,
+        data: {
+          userId: user.id,
+          banReason: reason || undefined,
+        },
       });
       toast.success('Utilisateur suspendu avec succès');
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -88,7 +88,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
 
   const handleUnbanUser = async () => {
     try {
-      await unbanUser({ userId: user.id });
+      await unbanUser({ data: { userId: user.id } });
       toast.success('Suspension levée avec succès');
       queryClient.invalidateQueries({ queryKey: ['users'] });
     } catch (error) {
@@ -100,7 +100,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   const handleImpersonateUser = async () => {
     if (confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)) {
       try {
-        await impersonateUser(user.id);
+        await impersonateUser({ data: user.id });
         toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
           description: 'Cette session durera 1 heure maximum',
         });
@@ -116,7 +116,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   const handleDeleteUser = async () => {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)) {
       try {
-        await deleteUser(user.id);
+        await deleteUser({ data: user.id });
         toast.success('Utilisateur supprimé avec succès');
         queryClient.invalidateQueries({ queryKey: ['users'] });
       } catch (error) {

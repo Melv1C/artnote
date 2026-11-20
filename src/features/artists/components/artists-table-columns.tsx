@@ -1,5 +1,3 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Artist } from '@/schemas/artist';
+import { DataTableFeatures } from '@/lib/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { deleteArtist } from '../actions/artist-actions';
 
@@ -32,7 +31,7 @@ type ArtistWithRelations = Artist & {
   }[];
 };
 
-export const columns: ColumnDef<ArtistWithRelations>[] = [
+export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -66,7 +65,11 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
       const artist = row.original;
       const fullName = `${artist.firstName} ${artist.lastName}`;
       return (
-        <Link href={`/dashboard/artists/${artist.id}`} className="font-medium hover:underline">
+        <Link
+          to="/dashboard/artists/$artistId"
+          params={{ artistId: artist.id }}
+          className="font-medium hover:underline"
+        >
           {fullName}
         </Link>
       );
@@ -152,7 +155,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
       const handleDelete = async () => {
         if (confirm(`Êtes-vous sûr de vouloir supprimer "${fullName}" ?`)) {
           try {
-            await deleteArtist(artist.id);
+            await deleteArtist({ data: artist.id });
             toast.success('Artiste supprimé avec succès');
           } catch (error) {
             console.error("Erreur lors de la suppression de l'artiste:", error);
@@ -172,7 +175,7 @@ export const columns: ColumnDef<ArtistWithRelations>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/dashboard/artists/${artist.id}`}>
+              <Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }}>
                 <Edit className="mr-2 h-4 w-4" />
                 Modifier
               </Link>

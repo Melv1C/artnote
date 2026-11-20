@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Place } from '@/schemas/place';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { useTransition } from 'react';
 import { createPlace, updatePlace } from '../actions/place-actions';
 
@@ -22,16 +20,18 @@ interface PlaceFormProps {
 }
 
 export function PlaceForm({ place, mode }: PlaceFormProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (formData: FormData) => {
     startTransition(async () => {
       if (mode === 'create') {
-        await createPlace(formData);
+        await createPlace({ data: formData });
       } else if (place) {
-        await updatePlace(place.id, formData);
+        formData.append('placeId', place.id);
+        await updatePlace({ data: formData });
       }
+      await navigate({ to: '/dashboard/places' });
     });
   };
 
@@ -120,7 +120,11 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/places')}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate({ to: '/dashboard/places' })}
+        >
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>

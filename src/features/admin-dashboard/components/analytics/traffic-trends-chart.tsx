@@ -1,5 +1,3 @@
-'use client';
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartConfig,
@@ -54,7 +52,11 @@ export function TrafficTrendsChart({ data }: TrafficTrendsChartProps) {
                 tickFormatter={formatDate}
               />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={40} />
-              <ChartTooltip content={<ChartTooltipContent labelFormatter={formatDate} />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent labelFormatter={label => formatDate(String(label))} />
+                }
+              />
               <Area
                 type="monotone"
                 dataKey="pageViews"

@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only';
 import { z } from 'zod/v4';
 
 // Zod schema for environment validation
@@ -16,9 +17,6 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(10).default('default_secret'),
 
   BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').default('vercel_blob_rw_default'),
-
-  // Remote image domain for Next.js image optimization
-  REMOTE_IMAGE_DOMAIN: z.url().optional(),
 
   // Cron job secret for securing aggregation endpoints
   CRON_SECRET: z.string().min(16).optional(),

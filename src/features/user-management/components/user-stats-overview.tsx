@@ -2,58 +2,27 @@
  * UserStatsOverview Component with Suspense Loading
  *
  * Similar to the admin dashboard stats, this component displays user-specific
- * statistics with individual loading states for better UX.
+ * statistics with individual loading states for better UX. Data comes from deferred loader promises.
  */
 
 import { StatCard, StatCardSkeleton } from '@/components/stats';
-import { prisma } from '@/lib/prisma';
-import { UserRoleSchema } from '@/schemas';
 import { Activity, Shield, UserCheck, Users } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
+import type { UserStatsData } from '../user-stats-queries';
 
-// Individual async components for each user stat
-async function TotalUsersCard() {
-  const totalUsers = await prisma.user.count();
+// Individual components for each user stat
+function TotalUsersCard({ count }: { count: Promise<number> }) {
+  const totalUsers = use(count);
   return <StatCard title="Total Utilisateurs" value={totalUsers} icon={Users} />;
 }
 
-async function AdminUsersCard() {
-  const adminCount = await prisma.user.count({
-    where: {
-      role: UserRoleSchema.enum.admin,
-    },
-  });
+function AdminUsersCard({ count }: { count: Promise<number> }) {
+  const adminCount = use(count);
   return <StatCard title="Administrateurs" value={adminCount} icon={Shield} />;
 }
 
-async function NewUsersThisWeekCard() {
-  // Calculate date ranges
-  const now = new Date();
-  const startOfThisWeek = new Date(now);
-  startOfThisWeek.setDate(now.getDate() - now.getDay()); // Start of current week (Sunday)
-  startOfThisWeek.setHours(0, 0, 0, 0);
-
-  const startOfLastWeek = new Date(startOfThisWeek);
-  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
-
-  // Get new users this week
-  const newUsersThisWeek = await prisma.user.count({
-    where: {
-      createdAt: {
-        gte: startOfThisWeek,
-      },
-    },
-  });
-
-  // Get new users last week for comparison
-  const newUsersLastWeek = await prisma.user.count({
-    where: {
-      createdAt: {
-        gte: startOfLastWeek,
-        lt: startOfThisWeek,
-      },
-    },
-  });
+function NewUsersThisWeekCard({ counts }: { counts: UserStatsData['newUsers'] }) {
+  const { newUsersThisWeek, newUsersLastWeek } = use(counts);
 
   // Calculate percentage change
   const percentageChange =
@@ -76,19 +45,19 @@ async function NewUsersThisWeekCard() {
   );
 }
 
-export function UserStatsOverview() {
+export function UserStatsOverview({ data }: { data: UserStatsData }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
       <Suspense fallback={<StatCardSkeleton title="Total Utilisateurs" icon={Users} />}>
-        <TotalUsersCard />
+        <TotalUsersCard count={data.totalUsers} />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Administrateurs" icon={Shield} />}>
-        <AdminUsersCard />
+        <AdminUsersCard count={data.adminCount} />
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Nouveaux Utilisateurs" icon={Activity} />}>
-        <NewUsersThisWeekCard />
+        <NewUsersThisWeekCard counts={data.newUsers} />
       </Suspense>
     </div>
   );

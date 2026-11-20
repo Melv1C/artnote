@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   Carousel,
@@ -11,7 +9,6 @@ import {
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Artwork, User } from '@/schemas';
 import { ImageIcon, Minus, Plus, RotateCcw, X } from 'lucide-react';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
@@ -177,14 +174,14 @@ export function ArtworkImagesPreviewButton({
                             }}
                           >
                             <div className="relative w-full h-full">
-                              <Image
+                              <img
                                 src={artworkImage.image.url}
                                 alt={artworkImage.image.alt || artwork.title}
-                                fill
-                                className="object-contain"
-                                sizes="95vw"
-                                priority={index === 0}
+                                className="absolute inset-0 h-full w-full object-contain"
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchPriority={index === 0 ? 'high' : 'auto'}
                                 draggable={false}
+                                decoding="async"
                               />
                             </div>
                           </TransformComponent>

@@ -1,5 +1,3 @@
-'use client';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, LogOut, User } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { ContentManagerGate } from './permission-gate';
 
 interface UserButtonProps {
@@ -56,7 +54,7 @@ export function UserButton({ user }: UserButtonProps) {
         <DropdownMenuSeparator />
         {/* Profile */}
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link to="/profile">
             <User className="mr-2 h-4 w-4" />
             <span>Mon Profil</span>
           </Link>
@@ -64,7 +62,7 @@ export function UserButton({ user }: UserButtonProps) {
         {/* Admin Panel */}
         <ContentManagerGate>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard">
+            <Link to="/dashboard">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Tableau de Bord</span>
             </Link>

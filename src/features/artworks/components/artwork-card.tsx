@@ -5,8 +5,7 @@ import { Artwork, User } from '@/schemas';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Eye, ImageIcon, MapPin } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 
 interface ArtworkCardProps {
   artwork: Artwork & {
@@ -39,17 +38,17 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
     .toUpperCase();
 
   return (
-    <Link href={`/artworks/${id}`} className="block no-underline">
+    <Link to="/artworks/$artworkId" params={{ artworkId: id }} className="block no-underline">
       <Card className="group overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-card flex flex-col sm:flex-row cursor-pointer">
         {/* Image Section - Responsive layout */}
         <div className="relative w-full h-48 sm:w-1/3 sm:h-auto sm:min-w-[180px] md:min-w-[220px] overflow-hidden">
           {mainImage?.image ? (
-            <Image
+            <img
               src={mainImage.image.url}
               alt={mainImage.image.alt || title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="h-full flex items-center justify-center bg-muted">
