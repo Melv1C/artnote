@@ -1,228 +1,100 @@
 import { createServerFn } from '@tanstack/react-start';
-import { authClient } from '@/lib/auth-client';
-import { getRequiredUser } from '@/lib/auth-server';
-import { UserRole, UserRoleSchema } from '@/schemas';
+import { getRequestHeaders } from '@tanstack/react-start/server';
+import { auth } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth-functions';
+import { UserRole, UserRoleSchema, UserSchema } from '@/schemas';
 import { BanUser, UnbanUser } from '@/schemas/user';
 import { z } from 'zod';
 
-// =============================================================================
-// ACTION SCHEMAS
-// =============================================================================
+const USER_LIST_LIMIT = 100;
 
-const UpdateUserRoleSchema = z.object({
-  userId: z.string(),
-  role: UserRoleSchema,
-});
+function assertNotSelf(currentUserId: string, targetUserId: string, message: string) {
+  if (currentUserId === targetUserId) {
+    throw new Error(message);
+  }
+}
 
-const DeleteUserSchema = z.object({
-  userId: z.string(),
-});
+export const fetchUsers = createServerFn({ method: 'GET' })
+  .middleware([requirePermission({ user: ['list'] })])
+  .handler(async () => {
+    const result = await auth.api.listUsers({
+      query: { limit: USER_LIST_LIMIT, offset: 0 },
+      headers: getRequestHeaders(),
+    });
 
-// =============================================================================
-// SERVER ACTIONS
-// =============================================================================
+    return { users: z.array(UserSchema).parse(result.users), total: result.total };
+  });
 
-/**
- * Update a user's role using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const updateUserRole = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; role: UserRole }) => data)
-  .handler(async ({ data: { userId, role } }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can update user roles');
-      }
-
-      // Validate input data
-      const validatedData = UpdateUserRoleSchema.parse({ userId, role });
-
-      // Prevent admin from changing their own role
-      if (currentUser.id === validatedData.userId) {
-        throw new Error('Cannot change your own role');
-      }
-
-      // Use Better Auth admin plugin to update user role
-      await authClient.admin.setRole({
-        userId: validatedData.userId,
-        role: validatedData.role,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      throw error;
-    }
+  .middleware([requirePermission({ user: ['set-role'] })])
+  .validator((data: { userId: string; role: UserRole }) =>
+    z.object({ userId: z.string(), role: UserRoleSchema }).parse(data),
+  )
+  .handler(async ({ data: { userId, role }, context: { user } }) => {
+    assertNotSelf(user.id, userId, 'Cannot change your own role');
+    await auth.api.setRole({ body: { userId, role }, headers: getRequestHeaders() });
+    return { success: true };
   });
 
-/**
- * Delete a user using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const deleteUser = createServerFn({ method: 'POST' })
-  .validator((userId: string) => userId)
-  .handler(async ({ data: userId }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can delete users');
-      }
-
-      // Validate input data
-      const validatedData = DeleteUserSchema.parse({ userId });
-
-      // Prevent admin from deleting themselves
-      if (currentUser.id === validatedData.userId) {
-        throw new Error('Cannot delete your own account');
-      }
-
-      // Use Better Auth admin plugin to remove user
-      await authClient.admin.removeUser({
-        userId: validatedData.userId,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      throw error;
-    }
+  .middleware([requirePermission({ user: ['delete'] })])
+  .validator((userId: string) => z.string().parse(userId))
+  .handler(async ({ data: userId, context: { user } }) => {
+    assertNotSelf(user.id, userId, 'Cannot delete your own account');
+    await auth.api.removeUser({ body: { userId }, headers: getRequestHeaders() });
+    return { success: true };
   });
 
-/**
- * Ban a user using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const banUser = createServerFn({ method: 'POST' })
+  .middleware([requirePermission({ user: ['ban'] })])
   .validator((data: BanUser) => data)
-  .handler(async ({ data: { userId, banReason, banExpiresIn } }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can ban users');
-      }
-
-      // Prevent admin from banning themselves
-      if (currentUser.id === userId) {
-        throw new Error('Cannot ban your own account');
-      }
-
-      // Use Better Auth admin plugin to ban user
-      await authClient.admin.banUser({
-        userId,
-        banReason,
-        banExpiresIn,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error banning user:', error);
-      throw error;
-    }
+  .handler(async ({ data: { userId, banReason, banExpiresIn }, context: { user } }) => {
+    assertNotSelf(user.id, userId, 'Cannot ban your own account');
+    await auth.api.banUser({
+      body: { userId, banReason, banExpiresIn },
+      headers: getRequestHeaders(),
+    });
+    return { success: true };
   });
 
-/**
- * Unban a user using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const unbanUser = createServerFn({ method: 'POST' })
+  .middleware([requirePermission({ user: ['ban'] })])
   .validator((data: UnbanUser) => data)
   .handler(async ({ data: { userId } }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can unban users');
-      }
-
-      // Use Better Auth admin plugin to unban user
-      await authClient.admin.unbanUser({
-        userId,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error unbanning user:', error);
-      throw error;
-    }
+    await auth.api.unbanUser({ body: { userId }, headers: getRequestHeaders() });
+    return { success: true };
   });
 
-/**
- * Create a new user using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const createUser = createServerFn({ method: 'POST' })
+  .middleware([requirePermission({ user: ['create'] })])
   .validator(
     (userData: { name: string; email: string; password: string; role?: UserRole }) => userData,
   )
   .handler(async ({ data: userData }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can create users');
-      }
-
-      // Use Better Auth admin plugin to create user
-      const newUser = await authClient.admin.createUser({
+    const newUser = await auth.api.createUser({
+      body: {
         name: userData.name,
         email: userData.email,
         password: userData.password,
         role: userData.role || UserRoleSchema.enum.user,
-      });
-
-      return { success: true, user: newUser };
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
-    }
+      },
+      headers: getRequestHeaders(),
+    });
+    return { success: true, user: newUser };
   });
 
-/**
- * Impersonate a user using Better Auth admin plugin
- * Only admins can perform this action
- */
 export const impersonateUser = createServerFn({ method: 'POST' })
-  .validator((userId: string) => userId)
-  .handler(async ({ data: userId }) => {
-    try {
-      // Validate user is authenticated and is admin
-      const currentUser = await getRequiredUser();
-      if (currentUser.role !== UserRoleSchema.enum.admin) {
-        throw new Error('Unauthorized: Only admins can impersonate users');
-      }
-
-      // Prevent admin from impersonating themselves
-      if (currentUser.id === userId) {
-        throw new Error('Cannot impersonate your own account');
-      }
-
-      // Use Better Auth admin plugin to impersonate user
-      await authClient.admin.impersonateUser({
-        userId,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error impersonating user:', error);
-      throw error;
-    }
+  .middleware([requirePermission({ user: ['impersonate'] })])
+  .validator((userId: string) => z.string().parse(userId))
+  .handler(async ({ data: userId, context: { user } }) => {
+    assertNotSelf(user.id, userId, 'Cannot impersonate your own account');
+    await auth.api.impersonateUser({ body: { userId }, headers: getRequestHeaders() });
+    return { success: true };
   });
 
-/**
- * Stop impersonating a user using Better Auth admin plugin
- */
-export const stopImpersonating = createServerFn({ method: 'POST' }).handler(async () => {
-  try {
-    // Use Better Auth admin plugin to stop impersonating
-    await authClient.admin.stopImpersonating();
-
+export const stopImpersonating = createServerFn({ method: 'POST' })
+  .middleware([requireAuth])
+  .handler(async () => {
+    await auth.api.stopImpersonating({ headers: getRequestHeaders() });
     return { success: true };
-  } catch (error) {
-    console.error('Error stopping impersonation:', error);
-    throw error;
-  }
-});
+  });
