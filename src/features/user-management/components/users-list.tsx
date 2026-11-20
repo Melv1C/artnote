@@ -77,7 +77,7 @@ export function UsersList() {
   };
 
   const handleRefresh = () => {
-    refetch();
+    void refetch();
   };
 
   return (

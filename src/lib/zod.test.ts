@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 // Loaded alone on purpose: a schema module must get French messages without other imports
 import { ImageSchema } from '@/schemas/image';
 

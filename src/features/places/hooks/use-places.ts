@@ -1,8 +1,8 @@
 import type { PlaceFilters } from '@/schemas/place';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchPlaces } from '../actions/place-queries';
 
-const TABLE_PAGE_SIZE = 50;
+const TABLE_PAGE_SIZE = 25;
 
 /** React Query keys for place reads. Invalidate `placeKeys.all` after any place mutation. */
 export const placeKeys = {
@@ -16,6 +16,8 @@ export function usePlaces(filters: PlaceFilters = {}) {
     queryKey: placeKeys.list(filters),
     queryFn: () => fetchPlaces({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
+    // Keep the current page on screen while the next one loads
+    placeholderData: keepPreviousData,
   });
 }
 

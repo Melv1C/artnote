@@ -264,7 +264,7 @@ model ArtworkImage {
 // =============================================================================
 
 // Server-side notice view, kept only to deduplicate `Artwork.viewCount` increments
-// (see src/features/artworks/actions/artwork-views.ts). The nightly cron prunes old rows.
+// (see src/features/artworks/actions/view-count.ts). The nightly cron prunes old rows.
 model PageView {
   id        String   @id @default(cuid())
   artworkId String

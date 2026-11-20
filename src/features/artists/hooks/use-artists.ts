@@ -1,8 +1,8 @@
 import type { ArtistFilters } from '@/schemas/artist';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchArtists } from '../actions/artist-queries';
 
-const TABLE_PAGE_SIZE = 50;
+const TABLE_PAGE_SIZE = 25;
 
 /** React Query keys for artist reads. Invalidate `artistKeys.all` after any artist mutation. */
 export const artistKeys = {
@@ -16,6 +16,8 @@ export function useArtists(filters: ArtistFilters = {}) {
     queryKey: artistKeys.list(filters),
     queryFn: () => fetchArtists({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
+    // Keep the current page on screen while the next one loads
+    placeholderData: keepPreviousData,
   });
 }
 

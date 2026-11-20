@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { PagedTable } from '@/components/data-table/paged-table';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -7,72 +7,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
-import { dataTableFeatures } from '@/lib/data-table';
-import { flexRender, type SortingState, useTable } from '@tanstack/react-table';
+import { PlaceTypeSchema } from '@/schemas/common';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
-import { PlaceTypeSchema } from '@/schemas/common';
 import { usePlaces } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 import { columns } from './places-table-columns';
 
 export function PlacesTable() {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [cityFilter, setCityFilter] = useState('');
-  const [countryFilter, setCountryFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({ search: '', type: 'all', city: '', country: '' });
+  const debouncedSearch = useDebounce(filters.search, 300);
 
-  const debouncedSearch = useDebounce(search, 300);
-
-  const { data, isLoading, error } = usePlaces({
-    search: debouncedSearch,
-    type: PlaceTypeSchema.safeParse(typeFilter).data,
-    city: cityFilter || undefined,
-    country: countryFilter || undefined,
+  const { data, isLoading, isError } = usePlaces({
+    page,
+    search: debouncedSearch || undefined,
+    type: PlaceTypeSchema.safeParse(filters.type).data,
+    city: filters.city || undefined,
+    country: filters.country || undefined,
   });
 
-  const table = useTable({
-    features: dataTableFeatures,
-    data: data?.places || [],
-    columns,
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
-  });
-
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (error) {
-    return <div>Erreur lors du chargement des lieux</div>;
-  }
+  // A new filter starts again from the first page
+  const setFilter = (key: keyof typeof filters, value: string) => {
+    setFilters(current => ({ ...current, [key]: value }));
+    setPage(1);
+  };
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher un lieu..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={filters.search}
+            onChange={event => setFilter('search', event.target.value)}
             className="pl-10"
           />
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <Select value={filters.type} onValueChange={value => setFilter('type', value)}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
@@ -87,81 +61,27 @@ export function PlacesTable() {
         </Select>
         <Input
           placeholder="Ville"
-          value={cityFilter}
-          onChange={e => setCityFilter(e.target.value)}
+          value={filters.city}
+          onChange={event => setFilter('city', event.target.value)}
           className="w-32"
         />
         <Input
           placeholder="Pays"
-          value={countryFilter}
-          onChange={e => setCountryFilter(e.target.value)}
+          value={filters.country}
+          onChange={event => setFilter('country', event.target.value)}
           className="w-32"
         />
       </div>
 
-      {/* Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Aucun lieu trouvé
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} sur{' '}
-          {table.getFilteredRowModel().rows.length} ligne(s) sélectionnée(s).
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Précédent
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Suivant
-          </Button>
-        </div>
-      </div>
+      <PagedTable
+        columns={columns}
+        rows={data?.places ?? []}
+        page={data?.pagination}
+        onPageChange={setPage}
+        isLoading={isLoading}
+        isError={isError}
+        messages={{ empty: 'Aucun lieu trouvé.', error: 'Erreur lors du chargement des lieux' }}
+      />
     </div>
   );
 }

@@ -54,7 +54,9 @@ export function TrafficTrendsChart({ data }: TrafficTrendsChartProps) {
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={40} />
               <ChartTooltip
                 content={
-                  <ChartTooltipContent labelFormatter={label => formatDate(String(label))} />
+                  <ChartTooltipContent
+                    labelFormatter={label => (typeof label === 'string' ? formatDate(label) : '')}
+                  />
                 }
               />
               <Area

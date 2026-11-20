@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { nextPublishedAt, ownedBy, publishedWhere } from './artwork-status';
 
 const now = new Date('2026-11-20T12:00:00Z');

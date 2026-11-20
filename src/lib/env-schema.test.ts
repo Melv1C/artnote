@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { parseEnv } from './env-schema';
 
 const DATABASE = { PRISMA_DATABASE_URL: 'postgresql://artnote:artnote@localhost:5432/artnote' };

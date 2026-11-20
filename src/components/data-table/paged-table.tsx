@@ -1,0 +1,132 @@
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { dataTableFeatures, type DataTableFeatures } from '@/lib/data-table';
+import type { PageInfo } from '@/lib/pagination';
+import {
+  flexRender,
+  useTable,
+  type ColumnDef,
+  type RowData,
+  type SortingState,
+} from '@tanstack/react-table';
+import { useState } from 'react';
+
+interface PagedTableProps<TRow extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TRow>[];
+  /** The rows of the current page, as the server returned them. */
+  rows: TRow[];
+  /** The server's page metadata; undefined while the first page loads. */
+  page: PageInfo | undefined;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
+  isError: boolean;
+  /** French messages for the empty and error states. */
+  messages: { empty: string; error: string };
+}
+
+/**
+ * A dashboard table over a server-paginated query: the server filters and pages, the table
+ * renders one page and moves between pages. Sorting reorders the current page only.
+ */
+export function PagedTable<TRow extends RowData>({
+  columns,
+  rows,
+  page,
+  onPageChange,
+  isLoading,
+  isError,
+  messages,
+}: PagedTableProps<TRow>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const pageIndex = (page?.page ?? 1) - 1;
+
+  const table = useTable({
+    features: dataTableFeatures,
+    data: rows,
+    columns,
+    manualPagination: true,
+    rowCount: page?.totalCount ?? 0,
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+      pagination: { pageIndex, pageSize: page?.limit ?? (rows.length || 1) },
+    },
+  });
+
+  if (isLoading) return <div>Chargement...</div>;
+  if (isError) return <div>{messages.error}</div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map(row => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  {messages.empty}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-end space-x-2">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {page && page.totalCount > 0
+            ? `Page ${page.page} sur ${page.totalPages} · ${page.totalCount} au total`
+            : null}
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(pageIndex)}
+            disabled={!page || page.page <= 1}
+          >
+            Précédent
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(pageIndex + 2)}
+            disabled={!page?.hasMore}
+          >
+            Suivant
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

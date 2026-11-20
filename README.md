@@ -44,8 +44,8 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
 - `bun run build` – production build (client assets and the Nitro server output in `.output/`; on Vercel, Nitro emits `.vercel/output`).
 - `bun run start` – serve the production build locally (`node .output/server/index.mjs`).
 - `bun run vercel-build` – used by Vercel: `prisma generate`, `prisma migrate deploy`, then `vite build`.
-- `bun run check` – everything CI runs: lint, Prisma generate and validate, knip, build (regenerates `src/routeTree.gen.ts`), type-check and unit tests.
-- `bun run lint` / `bun run type-check` / `bun run test` / `bun run knip` – ESLint + Prettier, TypeScript, Vitest, unused code.
+- `bun run check` – everything CI runs: Prisma generate and validate, `vp check` (Oxfmt, Oxlint and the TypeScript type check), `vp test` (Vitest), knip and the build (regenerates `src/routeTree.gen.ts`).
+- `bun run fix` – format and apply lint fixes.
 - `bun run db:setup` / `db:seed` / `db:reset` / `db:down` – local database: set up, re-seed, recreate this checkout's database, stop the shared container.
 
 ## Working with AI agents
@@ -73,8 +73,8 @@ git push origin v1.2.0
 
 ## Code structure
 
-`AGENTS.md` describes the folder layout, how to write a server function (guard, Zod validator, errors), how the UI reads and mutates data, and the analytics pipeline. `GLOSSARY.md` defines the domain terms.
+`AGENTS.md` describes the folder layout, how to write a server function (guard, Zod validator, errors), how the UI reads and mutates data, and the analytics pipeline. `GLOSSARY.md` defines the domain terms, and `docs/adr/` records the decisions behind the architecture.
 
-## TypeScript
+## Toolchain
 
-TypeScript 7 (the native compiler) runs `bun run type-check` through the `@typescript/native` alias. `typescript` is aliased to `@typescript/typescript6`, so tools that need the TypeScript JS API (typescript-eslint) keep working.
+[Vite+](https://viteplus.dev) (`vp`) is the toolchain: Vite for dev and build, Vitest for tests, Oxlint for linting and Oxfmt for formatting, all configured in `vite.config.ts`. `vp check` formats, lints and type-checks in one pass. knip covers unused code. See `docs/adr/0008-vite-plus-toolchain.md`.

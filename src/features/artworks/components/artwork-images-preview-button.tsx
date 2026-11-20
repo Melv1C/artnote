@@ -118,7 +118,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                zoomOut();
+                                void zoomOut();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Dézoomer"
@@ -132,7 +132,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                resetTransform();
+                                void resetTransform();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Réinitialiser le zoom"
@@ -146,7 +146,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                zoomIn();
+                                void zoomIn();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Zoomer"

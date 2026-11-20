@@ -10,7 +10,7 @@ import { getRequestHeader } from '@tanstack/react-start/server';
 import { z } from '@/lib/zod';
 import { nextPublishedAt, ownedBy } from '../lib/artwork-status';
 import { clientIpFrom } from '../lib/view-count';
-import { recordArtworkView } from './artwork-views';
+import { recordView } from './view-count';
 
 /**
  * Load a notice for a mutation. Writers only change their own notices: another writer's notice
@@ -132,7 +132,7 @@ export const uploadArtworkImage = createServerFn({ method: 'POST' })
 export const recordNoticeView = createServerFn({ method: 'POST' })
   .validator(IdSchema)
   .handler(async ({ data: artworkId }) => {
-    await recordArtworkView({
+    await recordView({
       artworkId,
       clientIp: clientIpFrom(getRequestHeader('x-vercel-forwarded-for')),
     });

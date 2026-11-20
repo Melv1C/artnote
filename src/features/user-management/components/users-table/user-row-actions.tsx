@@ -34,11 +34,16 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   // Get query client for invalidation
   const queryClient = useQueryClient();
 
-  const handleCopyId = () => {
-    navigator.clipboard.writeText(user.id);
-    toast.success('ID utilisateur copié dans le presse-papiers', {
-      description: `ID: ${user.id}`,
-    });
+  const handleCopyId = async () => {
+    try {
+      await navigator.clipboard.writeText(user.id);
+      toast.success('ID utilisateur copié dans le presse-papiers', {
+        description: `ID: ${user.id}`,
+      });
+    } catch (error) {
+      console.error('Copying user id failed:', error);
+      toast.error("Impossible de copier l'ID");
+    }
   };
 
   const handleEditRole = async (newRole: UserRole) => {

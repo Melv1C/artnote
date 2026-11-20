@@ -1,5 +1,6 @@
 import '@tanstack/react-start/server-only';
 import type { Prisma } from '@/generated/prisma/client';
+import { pruneViewRecords } from '@/features/artworks/actions/view-count';
 import { prisma } from '@/lib/prisma';
 import {
   previousUtcDay,
@@ -11,8 +12,6 @@ import {
 
 /** Raw events are deleted after this many days; the daily and weekly summaries stay. */
 const EVENT_RETENTION_DAYS = 90;
-/** Server-side view rows only serve view-count deduplication. */
-const PAGE_VIEW_RETENTION_DAYS = 1;
 
 const loadEvents = (start: Date, end: Date) =>
   prisma.analyticsEvent.findMany({
@@ -59,20 +58,18 @@ export async function runNightlyAggregation(now = new Date()) {
     create: { day, ...siteData },
   });
 
-  const [deletedEvents, deletedPageViews] = await Promise.all([
+  const [deletedEvents, deletedViewRecords] = await Promise.all([
     prisma.analyticsEvent.deleteMany({
       where: { timestamp: { lt: utcDaysAgo(now, EVENT_RETENTION_DAYS) } },
     }),
-    prisma.pageView.deleteMany({
-      where: { createdAt: { lt: utcDaysAgo(now, PAGE_VIEW_RETENTION_DAYS) } },
-    }),
+    pruneViewRecords(now),
   ]);
 
   return {
     day: day.toISOString(),
     aggregatedNotices: notices.length,
     deletedEvents: deletedEvents.count,
-    deletedPageViews: deletedPageViews.count,
+    deletedViewRecords,
   };
 }
 

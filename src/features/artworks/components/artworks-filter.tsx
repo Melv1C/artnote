@@ -39,7 +39,7 @@ export function ArtworksFilter() {
 
   const updateURL = useCallback(
     (newParams: { search?: string; sortBy?: string }) => {
-      navigate({
+      void navigate({
         to: '/artworks',
         search: prev => {
           const params: ArtworksSearch = { ...prev };

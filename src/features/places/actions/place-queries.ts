@@ -1,12 +1,12 @@
 import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
-import { containsInsensitive as insensitive } from '@/lib/prisma-filters';
 import { prisma } from '@/lib/prisma';
 import { IdSchema } from '@/schemas/common';
 import { PlaceFiltersSchema, PlaceWithRelationsSchema } from '@/schemas/place';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import { buildPlaceWhere } from '../lib/place-filters';
 
 const placeInclude = {
   createdBy: { select: { id: true, name: true } },
@@ -18,18 +18,7 @@ export const fetchPlaces = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(PlaceFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const where: Prisma.PlaceWhereInput = {
-      ...(filters.search && {
-        OR: [
-          { name: insensitive(filters.search) },
-          { address: insensitive(filters.search) },
-          { city: insensitive(filters.search) },
-        ],
-      }),
-      ...(filters.type && { type: filters.type }),
-      ...(filters.city && { city: insensitive(filters.city) }),
-      ...(filters.country && { country: insensitive(filters.country) }),
-    };
+    const where = buildPlaceWhere(filters);
 
     const [totalCount, places] = await Promise.all([
       prisma.place.count({ where }),

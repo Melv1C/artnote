@@ -1,0 +1,3 @@
+# App data goes through server functions, not a REST API
+
+Every read and write of app data is a TanStack Start server function (`createServerFn`) called from route loaders, React Query hooks or event handlers; `src/routes/api/` holds only the Better Auth handler, the Vercel crons and the analytics beacon, which external callers (the browser's `sendBeacon`, Vercel Cron, Better Auth's client) need as plain HTTP routes. One mechanism gives end-to-end types without a client SDK, and one place (guard middleware plus a Zod validator) to secure each endpoint; the trade-off is that server functions are still public HTTP endpoints, so a test (`src/lib/server-functions.test.ts`) enforces that each one has a guard or is explicitly listed as public.

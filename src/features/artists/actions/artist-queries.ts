@@ -1,12 +1,12 @@
 import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
-import { containsInsensitive as insensitive } from '@/lib/prisma-filters';
 import { prisma } from '@/lib/prisma';
 import { ArtistFiltersSchema, ArtistWithRelationsSchema } from '@/schemas/artist';
 import { IdSchema } from '@/schemas/common';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import { buildArtistWhere } from '../lib/artist-filters';
 
 const artistInclude = {
   createdBy: { select: { id: true, name: true } },
@@ -24,29 +24,7 @@ export const fetchArtists = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(ArtistFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const where: Prisma.ArtistWhereInput = {
-      AND: [
-        filters.search
-          ? {
-              OR: [
-                { firstName: insensitive(filters.search) },
-                { lastName: insensitive(filters.search) },
-                { biography: insensitive(filters.search) },
-              ],
-            }
-          : {},
-        filters.name
-          ? {
-              OR: [
-                { firstName: insensitive(filters.name) },
-                { lastName: insensitive(filters.name) },
-              ],
-            }
-          : {},
-        filters.bornAfter ? { birthDate: { gte: new Date(filters.bornAfter) } } : {},
-        filters.bornBefore ? { birthDate: { lte: new Date(filters.bornBefore) } } : {},
-      ],
-    };
+    const where = buildArtistWhere(filters);
 
     const [totalCount, artists] = await Promise.all([
       prisma.artist.count({ where }),

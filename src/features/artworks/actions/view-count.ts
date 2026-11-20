@@ -3,7 +3,10 @@ import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { createHash } from 'node:crypto';
 import { publishedWhere } from '../lib/artwork-status';
-import { VIEW_DEDUPLICATION_WINDOW_MS } from '../lib/view-count';
+import { VIEW_DEDUPLICATION_WINDOW_MS, viewRecordsExpireBefore } from '../lib/view-count';
+
+// The view count module: records views of published notices once per client IP per window, and
+// prunes the records it keeps for deduplication. Only salted IP hashes are stored.
 
 /** Keep the client IP only as a salted hash, so stored rows can't be traced back to an address. */
 const hashIp = (ip: string) =>
@@ -14,7 +17,7 @@ const hashIp = (ip: string) =>
  * `VIEW_DEDUPLICATION_WINDOW_MS`. Requests without a client IP (the local dev server) are not
  * counted. Never throws: a failed count must not break the page.
  */
-export async function recordArtworkView({
+export async function recordView({
   artworkId,
   clientIp,
 }: {
@@ -49,4 +52,12 @@ export async function recordArtworkView({
   } catch (error) {
     console.error('Recording artwork view failed:', error);
   }
+}
+
+/** Delete the deduplication records that can no longer affect a count. Run by the nightly cron. */
+export async function pruneViewRecords(now: Date = new Date()): Promise<number> {
+  const { count } = await prisma.pageView.deleteMany({
+    where: { createdAt: { lt: viewRecordsExpireBefore(now) } },
+  });
+  return count;
 }
