@@ -1,6 +1,6 @@
 import { UserManagementHeader } from './user-management-header';
 import { UserStatsOverview } from './user-stats-overview';
-import type { UserStatsData } from '../user-stats-queries';
+import type { UserStatsData } from '../actions/user-queries';
 import { UsersList } from './users-list';
 
 export function UserManagement({ stats }: { stats: UserStatsData }) {

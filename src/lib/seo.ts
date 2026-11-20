@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
+import { env } from './env';
 
 export const SITE_NAME = 'ArtNote';
 export const SITE_TITLE = 'ArtNote - La peinture dans tout son art';
@@ -12,21 +13,10 @@ export const DEFAULT_OG_IMAGE = {
   alt: SITE_TITLE,
 };
 
-/**
- * Base URL used to resolve absolute Open Graph URLs (Next's `metadataBase`).
- */
-export const getSiteUrl = createServerFn({ method: 'GET' }).handler(() => {
-  const url =
-    process.env.BASE_URL ||
-    process.env.VERCEL_URL ||
-    process.env.VERCEL_BRANCH_URL ||
-    'https://artnote.vercel.app';
+/** Origin used to resolve absolute Open Graph URLs. Loaded once by the root route. */
+export const getSiteUrl = createServerFn({ method: 'GET' }).handler(() => env.SITE_URL);
 
-  // VERCEL_URL / VERCEL_BRANCH_URL are provided without a protocol
-  return /^https?:\/\//.test(url) ? url : `https://${url}`;
-});
-
-export const absoluteUrl = (siteUrl: string, path: string) => new URL(path, siteUrl).toString();
+const absoluteUrl = (siteUrl: string, path: string) => new URL(path, siteUrl).toString();
 
 type OgImage = { url: string; width?: number; height?: number; alt?: string };
 

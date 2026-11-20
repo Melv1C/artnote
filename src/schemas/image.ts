@@ -1,8 +1,4 @@
-import { z } from 'zod';
-
-// =============================================================================
-// BASE SCHEMA
-// =============================================================================
+import { z } from '@/lib/zod';
 
 export const ImageSchema = z.object({
   id: z.string(),
@@ -14,9 +10,3 @@ export const ImageSchema = z.object({
   size: z.number().positive().nullable(),
   mimeType: z.string().nullable(),
 });
-
-// =============================================================================
-// TYPE EXPORTS
-// =============================================================================
-
-export type Image = z.infer<typeof ImageSchema>;

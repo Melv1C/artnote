@@ -11,10 +11,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Artist } from '@/schemas/artist';
+import { type Artist } from '@/schemas/artist';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
-import { useArtists } from '../../hooks/use-artwork-selectors';
+import { useArtistOptions } from '@/features/artists/hooks/use-artists';
 
 interface ArtistSelectorProps {
   selectedArtists: Artist[];
@@ -35,7 +35,7 @@ export function ArtistSelector({
   const [searchValue, setSearchValue] = useState('');
   const debouncedSearch = useDebounce(searchValue, 300);
 
-  const { data: artists = [], isLoading } = useArtists(debouncedSearch);
+  const { data: artists = [], isLoading } = useArtistOptions(debouncedSearch);
 
   const handleSelect = (artist: Artist) => {
     const isSelected = selectedArtists.some(a => a.id === artist.id);

@@ -1,51 +1,14 @@
-# Domain Docs
+# Domain docs
 
-How the mstack skills should consume this repo's domain documentation when exploring the codebase.
+How agents and skills use this repo's domain documentation.
 
-## Before exploring, read these
+ArtNote is a single context:
 
-- **`GLOSSARY.md`** at the repo root, or
-- **`GLOSSARY-MAP.md`** at the repo root if it exists: it points at one `GLOSSARY.md` per context. Read each one relevant to the topic.
-- **`docs/adr/`**: read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
+- `GLOSSARY.md` at the root defines the domain language (notice, writer, author, view count…). Use its terms in code, issues, PRs and tests, and avoid the words it lists under _Avoid_. AGENTS.md maps the terms that carry other names in code.
+- `docs/adr/` records the architecture decisions (`0001-notices-are-stored-as-artwork-records.md` onwards). Read the ones that touch the area you change.
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached via `/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
+When an output contradicts an ADR, say so explicitly instead of silently overriding it:
 
-## File structure
+> _Contradicts ADR 0003 (writers own their notices), but worth reopening because…_
 
-Single-context repo (most repos):
-
-```
-/
-├── GLOSSARY.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
-```
-
-Multi-context repo (presence of `GLOSSARY-MAP.md` at the root):
-
-```
-/
-├── GLOSSARY-MAP.md
-├── docs/adr/                          ← system-wide decisions
-└── src/
-    ├── ordering/
-    │   ├── GLOSSARY.md
-    │   └── docs/adr/                  ← context-specific decisions
-    └── billing/
-        ├── GLOSSARY.md
-        └── docs/adr/
-```
-
-## Use the glossary's vocabulary
-
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
-
-If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
-
-## Flag ADR conflicts
-
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
-
-> _Contradicts ADR-0007 (event-sourced orders), but worth reopening because…_
+When a concept you need is missing from the glossary, either you are inventing language the project does not use, or there is a real gap: add the term with the `domain-modeling` skill. Record a new ADR only for a decision that is hard to reverse, surprising without context, and the result of a real trade-off.

@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, LogOut, User } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { ContentManagerGate } from './permission-gate';
+import { signOut } from '@/lib/auth-client';
+import { DASHBOARD_PERMISSIONS } from '@/lib/permissions';
+import { PermissionGate } from './permission-gate';
 
 interface UserButtonProps {
   user: {
@@ -24,7 +26,6 @@ interface UserButtonProps {
 
 export function UserButton({ user }: UserButtonProps) {
   const handleSignOut = async () => {
-    const { signOut } = await import('@/lib/auth-client');
     await signOut();
   };
 
@@ -60,14 +61,14 @@ export function UserButton({ user }: UserButtonProps) {
           </Link>
         </DropdownMenuItem>{' '}
         {/* Admin Panel */}
-        <ContentManagerGate>
+        <PermissionGate permissions={DASHBOARD_PERMISSIONS}>
           <DropdownMenuItem asChild>
             <Link to="/dashboard">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Tableau de Bord</span>
             </Link>
           </DropdownMenuItem>
-        </ContentManagerGate>
+        </PermissionGate>
         <DropdownMenuSeparator />
         {/* Sign Out */}
         <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={handleSignOut}>

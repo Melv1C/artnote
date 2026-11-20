@@ -1,9 +1,14 @@
-import { ArtworkFilter } from '../../types';
-import { ArtworkFiltersDropdown, ArtworkSearchInput } from './filters';
+import {
+  countActiveFilters,
+  DEFAULT_ADMIN_ARTWORK_FILTER,
+  type AdminArtworkFilter,
+} from '../../lib/admin-artwork-filter';
+import { ArtworkFiltersDropdown } from '@/features/artworks/components/admin/filters/filters-dropdown';
+import { ArtworkSearchInput } from '@/features/artworks/components/admin/filters/search-input';
 
 interface ArtworkFiltersProps {
-  filters: ArtworkFilter;
-  onFilterChange: (filters: ArtworkFilter) => void;
+  filters: AdminArtworkFilter;
+  onFilterChange: (filters: AdminArtworkFilter) => void;
 }
 
 export function ArtworkFilters({ filters, onFilterChange }: ArtworkFiltersProps) {
@@ -16,34 +21,17 @@ export function ArtworkFilters({ filters, onFilterChange }: ArtworkFiltersProps)
   };
 
   // Handle filter changes from dropdown
-  const handleFiltersChange = (newFilters: ArtworkFilter) => {
+  const handleFiltersChange = (newFilters: AdminArtworkFilter) => {
     onFilterChange(newFilters);
   };
 
   // Clear all filters
   const handleClearFilters = () => {
-    onFilterChange({
-      status: ['DRAFT', 'PUBLISHED'], // Reset to default (exclude archived)
-    });
+    onFilterChange(DEFAULT_ADMIN_ARTWORK_FILTER);
   };
 
-  // Count active filters (excluding search and defaults)
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'search') return false;
-    if (key === 'sortBy' && value === 'updatedAt') return false;
-    if (key === 'sortOrder' && value === 'desc') return false;
-    if (key === 'status') {
-      // Status filter is active if it's not the default (DRAFT + PUBLISHED)
-      const statusArray = value as string[];
-      if (!statusArray || statusArray.length === 0) return false;
-      return !(
-        statusArray.length === 2 &&
-        statusArray.includes('DRAFT') &&
-        statusArray.includes('PUBLISHED')
-      );
-    }
-    return value !== undefined && value !== null && value !== '';
-  }).length;
+  const activeFiltersCount = countActiveFilters(filters);
+
   return (
     <div className="space-y-4">
       {/* Main filter controls */}

@@ -13,8 +13,9 @@
  * - Non-blocking loading allows for better UX
  */
 
-import { StatCard, StatCardSkeleton } from '@/components/stats';
-import type { AdminDashboardData } from '../dashboard-queries';
+import { StatCard } from '@/components/stats/stat-card';
+import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
+import type { AdminDashboardData } from '../actions/dashboard-queries';
 import { NotebookPen, Users } from 'lucide-react';
 import { Suspense, use } from 'react';
 

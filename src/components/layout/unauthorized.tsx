@@ -2,9 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, Shield } from 'lucide-react';
 import { UNAUTHORIZED_ERROR } from '@/lib/auth-functions';
-import { ErrorComponent, type ErrorComponentProps, Link } from '@tanstack/react-router';
+import { type ErrorComponentProps, Link } from '@tanstack/react-router';
+import { RouteError } from './route-error';
 
-export function Unauthorized() {
+function Unauthorized() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center px-4">
       <div className="max-w-md mx-auto">
@@ -34,10 +35,10 @@ export function Unauthorized() {
   );
 }
 
-export function UnauthorizedOrError({ error }: ErrorComponentProps) {
+export function UnauthorizedOrError({ error, reset }: ErrorComponentProps) {
   return error instanceof Error && error.message === UNAUTHORIZED_ERROR ? (
     <Unauthorized />
   ) : (
-    <ErrorComponent error={error} />
+    <RouteError error={error} reset={reset} />
   );
 }

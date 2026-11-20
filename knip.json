@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/routes/**/*.{ts,tsx}", "scripts/*.ts", "prisma/seed.ts"],
+  "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts", "prisma/**/*.ts"],
+  "ignore": ["src/components/ui/**"],
+  "prisma": false
+}

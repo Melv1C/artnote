@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { UserButton } from './user-button';
 
 interface AuthButtonProps {

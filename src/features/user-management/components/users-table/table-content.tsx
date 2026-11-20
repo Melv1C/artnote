@@ -1,5 +1,10 @@
-import { DataTableFeatures } from '@/lib/data-table';
-import { ColumnDef, flexRender, RowData, Table as TanStackTable } from '@tanstack/react-table';
+import { type DataTableFeatures } from '@/lib/data-table';
+import {
+  type ColumnDef,
+  flexRender,
+  type RowData,
+  type Table as TanStackTable,
+} from '@tanstack/react-table';
 
 import {
   Table,

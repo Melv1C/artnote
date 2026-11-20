@@ -7,15 +7,13 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Artwork, User } from '@/schemas';
+import type { Artwork } from '@/schemas/artwork';
 import { ImageIcon, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
 interface ArtworkImagesPreviewButtonProps {
-  artwork: Artwork & {
-    writer: User;
-  };
+  artwork: Pick<Artwork, 'title' | 'images'>;
   carouselRef: React.RefObject<HTMLElement | null>;
 }
 
@@ -120,7 +118,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                zoomOut();
+                                void zoomOut();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Dézoomer"
@@ -134,7 +132,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                resetTransform();
+                                void resetTransform();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Réinitialiser le zoom"
@@ -148,7 +146,7 @@ export function ArtworkImagesPreviewButton({
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                zoomIn();
+                                void zoomIn();
                               }}
                               className="size-9 text-white hover:bg-white/20 rounded-full"
                               aria-label="Zoomer"

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArtworkForm, createArtwork } from '@/features/artworks';
+import { ArtworkForm } from '@/features/artworks/components/admin/artwork-form';
+import { createArtwork } from '@/features/artworks/actions/artwork-mutations';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artworks/create')({

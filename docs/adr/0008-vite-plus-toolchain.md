@@ -1,0 +1,3 @@
+# Vite+ is the single toolchain
+
+Vite+ (`vp`) runs the dev server and build (Vite), tests (Vitest), linting (Oxlint, type-aware) and formatting (Oxfmt), configured in one `vite.config.ts`; `vp check` formats, lints and type-checks in one pass. It replaced ESLint, Prettier, a separate Vitest config and `tsc`: one config and fast native tools give agents quicker, more uniform feedback. Oxlint has no `no-restricted-syntax`, so restrictions that ESLint expressed as AST selectors are written with `no-restricted-properties` and `no-restricted-imports`, and the TanStack Router lint rules run as an Oxlint JS plugin. knip stays alongside it for dead code, which Vite+ does not cover.

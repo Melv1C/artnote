@@ -1,28 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArtistForm } from '@/features/artists';
-import { useArtist } from '@/features/artists/hooks/use-artists';
+import { ArtistForm } from '@/features/artists/components/artist-form';
+import { fetchArtist } from '@/features/artists/actions/artist-queries';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/$artistId')({
+  loader: ({ params }) => fetchArtist({ data: params.artistId }),
   component: EditArtistPage,
 });
 
 function EditArtistPage() {
-  const { artistId } = Route.useParams();
-
-  const { data: artist, isLoading, error } = useArtist(artistId);
-
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (error) {
-    return <div>Erreur lors du chargement de l'artiste</div>;
-  }
-
-  if (!artist) {
-    return <div>Artiste non trouvé</div>;
-  }
+  const artist = Route.useLoaderData();
 
   return (
     <div className="space-y-6">
@@ -39,7 +26,7 @@ function EditArtistPage() {
           <CardDescription>Modifiez les informations principales de l'artiste</CardDescription>
         </CardHeader>
         <CardContent>
-          <ArtistForm mode="edit" artist={artist} />
+          <ArtistForm artist={artist} />
         </CardContent>
       </Card>
     </div>

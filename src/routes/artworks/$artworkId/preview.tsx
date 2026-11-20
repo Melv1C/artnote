@@ -1,13 +1,16 @@
+import { NotFound } from '@/components/layout/not-found';
 import { UnauthorizedOrError } from '@/components/layout/unauthorized';
 import { Badge } from '@/components/ui/badge';
-import { fetchArtworkPreview } from '@/features/artworks/actions';
-import { ArtworkDetail } from '@/features/artworks/components';
+import { fetchArtworkPreview } from '@/features/artworks/actions/artwork-queries';
+import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
+import { ARTWORK_STATUS_LABELS } from '@/features/artworks/lib/artwork-status';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/artworks/$artworkId/preview')({
   loader: ({ params }) => fetchArtworkPreview({ data: params.artworkId }),
   component: ArtworkPreviewPage,
   errorComponent: UnauthorizedOrError,
+  notFoundComponent: NotFound,
 });
 
 function ArtworkPreviewPage() {
@@ -30,14 +33,7 @@ function ArtworkPreviewPage() {
           </div>
         </div>
         <div className="mt-2 text-xs text-amber-700 dark:text-amber-300">
-          Statut actuel :{' '}
-          <strong>
-            {artwork.status === 'DRAFT'
-              ? 'Brouillon'
-              : artwork.status === 'ARCHIVED'
-                ? 'Archivé'
-                : artwork.status}
-          </strong>
+          Statut actuel : <strong>{ARTWORK_STATUS_LABELS[artwork.status]}</strong>
         </div>
       </div>
 

@@ -14,8 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserRoleSchema } from '@/schemas';
+import { UserRoleSchema } from '@/schemas/common';
 import { Filter, X } from 'lucide-react';
+import { USER_ROLE_LABELS } from '../../lib/user-roles';
 
 interface FiltersDropdownProps {
   roleFilter: string;
@@ -63,8 +64,11 @@ export function FiltersDropdown({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les rôles</SelectItem>
-              <SelectItem value={UserRoleSchema.enum.admin}>Administrateur</SelectItem>
-              <SelectItem value={UserRoleSchema.enum.user}>Utilisateur</SelectItem>
+              {UserRoleSchema.options.map(role => (
+                <SelectItem key={role} value={role}>
+                  {USER_ROLE_LABELS[role]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

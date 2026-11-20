@@ -1,19 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
-import { Artwork } from '@/schemas';
-import { FileText, PlusIcon } from 'lucide-react';
+import type { Artwork } from '@/schemas/artwork';
+import type { ArtworkStatus } from '@/schemas/common';
 import { Link } from '@tanstack/react-router';
-import { useCallback, useEffect, useState } from 'react';
-import type { ArtworkActionResponse } from '../../actions/artwork-actions';
-import { ArtworkFilter } from '../../types';
+import { FileText, PlusIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+  countActiveFilters,
+  DEFAULT_ADMIN_ARTWORK_FILTER,
+  filterAdminArtworks,
+  type AdminArtworkFilter,
+} from '../../lib/admin-artwork-filter';
 import { ArtworkCardWrapper } from './artwork-card-wrapper';
 import { ArtworkFilters } from './artwork-filters';
 
 interface ArtworkListAdminProps {
   initialArtworks: Artwork[];
-  onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
-  onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
+  onDelete: (artworkId: string) => Promise<void>;
+  onStatusChange: (artworkId: string, status: ArtworkStatus) => Promise<void>;
 }
 
 export function ArtworkListAdmin({
@@ -21,129 +26,19 @@ export function ArtworkListAdmin({
   onDelete,
   onStatusChange,
 }: ArtworkListAdminProps) {
-  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
-  // Default filters: exclude archived artworks by default
-  const [filters, setFilters] = useState<ArtworkFilter>({
-    status: ['DRAFT', 'PUBLISHED'], // Default to show only DRAFT and PUBLISHED
-  });
-
-  // Debounce search to avoid too many filter operations
-  const debouncedSearchTerm = useDebounce(filters.search || '', 300);
-
-  // Apply filters whenever filters change or debounced search changes
-  const applyFilters = useCallback(
-    (currentFilters: ArtworkFilter, searchTerm: string) => {
-      let filteredArtworks = [...initialArtworks];
-
-      // Filter by status
-      if (currentFilters.status && currentFilters.status.length > 0) {
-        filteredArtworks = filteredArtworks.filter(artwork =>
-          currentFilters.status!.includes(artwork.status),
-        );
-      }
-
-      // Filter by search term (use debounced value)
-      if (searchTerm && searchTerm.trim() !== '') {
-        const searchLower = searchTerm.toLowerCase();
-        filteredArtworks = filteredArtworks.filter(artwork => {
-          const titleMatches = artwork.title.toLowerCase().includes(searchLower);
-          const mediumMatches = artwork.medium?.toLowerCase().includes(searchLower) || false;
-          const yearMatches = artwork.creationYear?.toLowerCase().includes(searchLower) || false;
-
-          return titleMatches || mediumMatches || yearMatches;
-        });
-      }
-
-      // Filter by date range
-      if (currentFilters.createdAfter) {
-        const afterDate = new Date(currentFilters.createdAfter);
-        filteredArtworks = filteredArtworks.filter(
-          artwork => new Date(artwork.createdAt) >= afterDate,
-        );
-      }
-
-      if (currentFilters.createdBefore) {
-        const beforeDate = new Date(currentFilters.createdBefore);
-        beforeDate.setHours(23, 59, 59, 999); // End of day
-        filteredArtworks = filteredArtworks.filter(
-          artwork => new Date(artwork.createdAt) <= beforeDate,
-        );
-      }
-
-      // Apply sorting
-      const sortBy = currentFilters.sortBy || 'updatedAt';
-      const sortOrder = currentFilters.sortOrder || 'desc';
-
-      filteredArtworks.sort((a, b) => {
-        let aValue: string | Date | number;
-        let bValue: string | Date | number;
-
-        switch (sortBy) {
-          case 'title':
-            aValue = a.title.toLowerCase();
-            bValue = b.title.toLowerCase();
-            break;
-          case 'createdAt':
-            aValue = new Date(a.createdAt);
-            bValue = new Date(b.createdAt);
-            break;
-          case 'updatedAt':
-            aValue = new Date(a.updatedAt);
-            bValue = new Date(b.updatedAt);
-            break;
-          case 'viewCount':
-            aValue = a.viewCount || 0;
-            bValue = b.viewCount || 0;
-            break;
-          default:
-            aValue = new Date(a.updatedAt);
-            bValue = new Date(b.updatedAt);
-        }
-
-        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      });
-
-      setArtworks(filteredArtworks);
-    },
-    [initialArtworks],
+  const [filters, setFilters] = useState<AdminArtworkFilter>(DEFAULT_ADMIN_ARTWORK_FILTER);
+  const debouncedSearch = useDebounce(filters.search ?? '', 300);
+  const artworks = useMemo(
+    () => filterAdminArtworks(initialArtworks, { ...filters, search: debouncedSearch }),
+    [initialArtworks, filters, debouncedSearch],
   );
-
-  // Apply filters when debounced search changes
-  useEffect(() => {
-    applyFilters(filters, debouncedSearchTerm);
-  }, [filters, debouncedSearchTerm, applyFilters]);
-
-  // Handle filter changes
-  const handleFilterChange = useCallback((newFilters: ArtworkFilter) => {
-    setFilters(newFilters);
-  }, []);
-
-  // Calculate active filters count
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'search') return false;
-    if (key === 'sortBy' && value === 'updatedAt') return false;
-    if (key === 'sortOrder' && value === 'desc') return false;
-    if (key === 'status') {
-      // Status filter is active if it's not the default (DRAFT + PUBLISHED)
-      const statusArray = value as string[];
-      if (!statusArray || statusArray.length === 0) return false;
-      return !(
-        statusArray.length === 2 &&
-        statusArray.includes('DRAFT') &&
-        statusArray.includes('PUBLISHED')
-      );
-    }
-    return value !== undefined && value !== null && value !== '';
-  }).length;
+  const activeFiltersCount = countActiveFilters(filters);
 
   return (
     <div>
-      {' '}
       {/* Filter controls */}
       <div className="mb-6">
-        <ArtworkFilters filters={filters} onFilterChange={handleFilterChange} />
+        <ArtworkFilters filters={filters} onFilterChange={setFilters} />
       </div>
       {/* Results summary */}
       {initialArtworks.length > 0 && (
@@ -178,10 +73,7 @@ export function ArtworkListAdmin({
               : 'Commencez par créer votre première notice artistique.'}
           </p>
           {activeFiltersCount > 0 ? (
-            <Button
-              variant="outline"
-              onClick={() => handleFilterChange({ status: ['DRAFT', 'PUBLISHED'] })}
-            >
+            <Button variant="outline" onClick={() => setFilters(DEFAULT_ADMIN_ARTWORK_FILTER)}>
               Effacer les filtres
             </Button>
           ) : (

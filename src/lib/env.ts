@@ -1,47 +1,10 @@
 import '@tanstack/react-start/server-only';
-import { z } from 'zod/v4';
+import { parseEnv } from './env-schema';
 
-// Zod schema for environment validation
-const envSchema = z.object({
-  // Vercel environment
-  VERCEL_ENV: z.enum(['development', 'preview', 'production']).default('development'),
+/**
+ * Validated server environment. Import `env` instead of reading `process.env`.
+ * Outside development, missing secrets fail at startup instead of falling back to defaults.
+ */
+export const env = parseEnv(process.env);
 
-  BASE_URL: z.url().default('http://localhost:3000'),
-
-  // Database
-  PRISMA_DATABASE_URL: z
-    .url()
-    .default('prisma+postgres://accelerate.prisma-data.net/?api_key=some_api_key'),
-
-  // Better Auth configuration
-  BETTER_AUTH_SECRET: z.string().min(10).default('default_secret'),
-
-  BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').default('vercel_blob_rw_default'),
-
-  // Cron job secret for securing aggregation endpoints
-  CRON_SECRET: z.string().min(16).optional(),
-});
-
-// Parse and validate environment variables
-const parseEnv = () => {
-  try {
-    return envSchema.parse(process.env);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errorMessages = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
-      throw new Error(`Invalid environment variables:\n${errorMessages.join('\n')}`);
-    }
-    throw error;
-  }
-};
-
-// Export validated environment variables
-export const env = parseEnv();
-
-// Type for the environment variables
-export type Env = z.infer<typeof envSchema>;
-
-// Helper function to check if we're in a specific environment
-export const isDevelopment = env.VERCEL_ENV === 'development';
-export const isPreview = env.VERCEL_ENV === 'preview';
 export const isProduction = env.VERCEL_ENV === 'production';

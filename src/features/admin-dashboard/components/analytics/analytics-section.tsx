@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense, use } from 'react';
-import type { AdminDashboardData } from '../../dashboard-queries';
+import type { AdminDashboardData } from '../../actions/dashboard-queries';
 import { AnalyticsOverviewCards } from './analytics-overview-cards';
 import { BrowserStatsChart } from './browser-stats-chart';
 import { DeviceBreakdownChart } from './device-breakdown-chart';
@@ -26,7 +26,7 @@ function OverviewCardsSkeleton() {
   );
 }
 
-function ChartSkeleton({ title }: { title: string }) {
+function ChartSkeleton() {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -98,21 +98,21 @@ export function AnalyticsSection({ data }: { data: AnalyticsData }) {
       </Suspense>
 
       {/* Traffic Trends Chart - Full Width */}
-      <Suspense fallback={<ChartSkeleton title="Tendances du trafic" />}>
+      <Suspense fallback={<ChartSkeleton />}>
         <TrafficTrendsLoader data={data.dailyTrends} />
       </Suspense>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Suspense fallback={<ChartSkeleton title="Appareils" />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <DeviceBreakdownLoader data={data.deviceBreakdown} />
         </Suspense>
 
-        <Suspense fallback={<ChartSkeleton title="Pages visitées" />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <PageCategoryLoader data={data.pageCategories} />
         </Suspense>
 
-        <Suspense fallback={<ChartSkeleton title="Navigateurs" />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <BrowserStatsLoader data={data.browserStats} />
         </Suspense>
       </div>

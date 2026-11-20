@@ -1,33 +1,29 @@
-import z from 'zod';
+import { z } from '@/lib/zod';
+import { IdSchema } from './common';
 import { ImageSchema } from './image';
 
-export const ArtworkImageSchema = z.object({
-  id: z.string(),
-  artworkId: z.string(),
-  imageId: z.string(),
-  sortOrder: z.number().int().min(0),
+const ImageAttachmentFields = {
+  sortOrder: z.number().int().min(0).max(1000),
   isMain: z.boolean(),
-  legend: z.string().nullable(),
-  source: z.string().nullable(),
+  legend: z.string().max(2_000).nullable(),
+  source: z.string().max(2_000).nullable(),
+};
 
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  createdById: z.string(),
-  updatedById: z.string(),
-
+/** An image attached to a notice, with its position and legend, as read from the database. */
+export const ArtworkImageSchema = z.object({
+  id: z.string().optional(),
+  imageId: z.string(),
+  ...ImageAttachmentFields,
   image: ImageSchema,
 });
-export type ArtworkImage = z.infer<typeof ArtworkImageSchema>;
 
-export const ArtworkImageSchemaSimplified = ArtworkImageSchema.pick({
-  id: true,
-  imageId: true,
-  sortOrder: true,
-  isMain: true,
-  legend: true,
-  source: true,
-  image: true,
-}).extend({
-  id: z.string().optional(),
+/**
+ * An image attachment as the notice editor submits it: the uploaded image's id plus its
+ * position and legend. The nested `image` the editor shows is dropped on parse.
+ */
+export const ArtworkImageInputSchema = z.object({
+  imageId: IdSchema,
+  ...ImageAttachmentFields,
 });
-export type ArtworkImageSimplified = z.infer<typeof ArtworkImageSchemaSimplified>;
+
+export type ArtworkImage = z.infer<typeof ArtworkImageSchema>;

@@ -35,7 +35,11 @@ function isPortFree(port: number) {
 }
 
 async function pickDevPort(slug: string) {
-  const offset = [...slug].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0);
+  // The slug is ASCII ([a-z0-9_]), so code units are characters
+  const offset = Array.from(slug, char => char.charCodeAt(0)).reduce(
+    (hash, code) => (hash * 31 + code) >>> 0,
+    0,
+  );
   for (let i = 0; i < DEV_PORT_RANGE; i++) {
     const port = FIRST_DEV_PORT + ((offset + i) % DEV_PORT_RANGE);
     if (await isPortFree(port)) return port;

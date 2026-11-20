@@ -1,28 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlaceForm } from '@/features/places';
-import { usePlace } from '@/features/places/hooks/use-places';
+import { PlaceForm } from '@/features/places/components/place-form';
+import { fetchPlace } from '@/features/places/actions/place-queries';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/$placeId')({
+  loader: ({ params }) => fetchPlace({ data: params.placeId }),
   component: EditPlacePage,
 });
 
 function EditPlacePage() {
-  const { placeId } = Route.useParams();
-
-  const { data: place, isLoading, error } = usePlace(placeId);
-
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (error) {
-    return <div>Erreur lors du chargement du lieu</div>;
-  }
-
-  if (!place) {
-    return <div>Lieu non trouvé</div>;
-  }
+  const place = Route.useLoaderData();
 
   return (
     <div className="space-y-6">
@@ -39,7 +26,7 @@ function EditPlacePage() {
           <CardDescription>Modifiez les informations principales du lieu</CardDescription>
         </CardHeader>
         <CardContent>
-          <PlaceForm mode="edit" place={place} />
+          <PlaceForm place={place} />
         </CardContent>
       </Card>
     </div>

@@ -1,25 +1,25 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { type DailyTrendData } from './analytics-data';
+import type { DailyTrend } from '@/features/analytics/actions/analytics-queries';
 
 type TrafficTrendsChartProps = {
-  data: DailyTrendData[];
+  data: DailyTrend[];
 };
 
 const chartConfig = {
   pageViews: {
     label: 'Pages vues',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
   uniqueVisitors: {
     label: 'Visiteurs uniques',
-    color: 'hsl(var(--chart-2))',
+    color: 'var(--chart-2)',
   },
 } satisfies ChartConfig;
 
@@ -54,7 +54,9 @@ export function TrafficTrendsChart({ data }: TrafficTrendsChartProps) {
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={40} />
               <ChartTooltip
                 content={
-                  <ChartTooltipContent labelFormatter={label => formatDate(String(label))} />
+                  <ChartTooltipContent
+                    labelFormatter={label => (typeof label === 'string' ? formatDate(label) : '')}
+                  />
                 }
               />
               <Area

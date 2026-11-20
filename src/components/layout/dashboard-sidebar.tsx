@@ -18,7 +18,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { AdminGate, ContentManagerGate } from '@/features/auth/components/permission-gate';
+import { DASHBOARD_PERMISSIONS, hasRolePermission, type PermissionCheck } from '@/lib/permissions';
 import type { User } from '@/schemas/user';
 
 const navigationItems = [
@@ -27,37 +27,43 @@ const navigationItems = [
     url: '/dashboard',
     icon: Home,
     description: "Vue d'ensemble",
-    requiresPermission: null, // Always visible for authenticated users
+    permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Mes Notices',
     url: '/dashboard/artworks',
     icon: FileText,
     description: 'Gestion des notices',
-    requiresPermission: 'contentManager', // Admins only
+    permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Artistes',
     url: '/dashboard/artists',
     icon: Palette,
     description: 'Gestion des artistes',
-    requiresPermission: 'contentManager', // Admins only
+    permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Lieux',
     url: '/dashboard/places',
     icon: MapPin,
     description: 'Gestion des lieux',
-    requiresPermission: 'contentManager', // Admins only
+    permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Utilisateurs',
     url: '/dashboard/users',
     icon: Users,
     description: 'Gestion des utilisateurs',
-    requiresPermission: 'admin', // Admin only
+    permissions: { user: ['list'] },
   },
-] as const;
+] satisfies {
+  title: string;
+  url: string;
+  icon: unknown;
+  description: string;
+  permissions: PermissionCheck;
+}[];
 
 export function DashboardSidebar({ user }: { user: User }) {
   const pathname = useLocation({ select: location => location.pathname });
@@ -109,13 +115,15 @@ export function DashboardSidebar({ user }: { user: User }) {
           <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map(item => {
-                const isActive = pathname === item.url;
-
-                // Render item based on permission requirements
-                const renderItem = () => (
+              {navigationItems
+                .filter(item => hasRolePermission(user.role, item.permissions))
+                .map(item => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.url}
+                      tooltip={item.title}
+                    >
                       <Link to={item.url}>
                         <item.icon className="h-4 w-4" />
                         <div className="grid flex-1 text-left text-sm leading-tight">
@@ -127,18 +135,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                );
-
-                // Apply conditional rendering based on permission requirements
-                if (item.requiresPermission === 'admin') {
-                  return <AdminGate key={item.title}>{renderItem()}</AdminGate>;
-                } else if (item.requiresPermission === 'contentManager') {
-                  return <ContentManagerGate key={item.title}>{renderItem()}</ContentManagerGate>;
-                } else {
-                  // Always visible for authenticated users
-                  return renderItem();
-                }
-              })}
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

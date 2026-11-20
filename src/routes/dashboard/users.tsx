@@ -1,4 +1,5 @@
-import { UserManagement, loadUserStats } from '@/features/user-management';
+import { UserManagement } from '@/features/user-management/components/user-management';
+import { loadUserStats } from '@/features/user-management/actions/user-queries';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/users')({

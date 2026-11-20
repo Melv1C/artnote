@@ -1,5 +1,5 @@
 import { useSession } from '@/lib/auth-client';
-import { UserRoleSchema } from '@/schemas';
+import { UserRoleSchema } from '@/schemas/common';
 import { UserSchema, type User } from '@/schemas/user';
 import { useMemo } from 'react';
 

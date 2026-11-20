@@ -1,6 +1,8 @@
-import { ArtworksFilter, ArtworksList, ArtworksListSkeleton } from '@/features/artworks/components';
-import { ArtworksSearchSchema, toArtworkFilters } from '@/features/artworks';
-import { fetchFilteredArtworks } from '@/features/artworks/actions';
+import { ArtworksFilter } from '@/features/artworks/components/artworks-filter';
+import { ArtworksList } from '@/features/artworks/components/artworks-list';
+import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
+import { ArtworksSearchSchema, toArtworkFilters } from '@/features/artworks/lib/artwork-search';
+import { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
 import { pageMeta } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense } from 'react';

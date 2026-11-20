@@ -4,9 +4,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { useUsers } from '../hooks';
-import { UsersDataTable, columns } from './users-table';
-import { UserActions } from './users-table/user-actions';
+import { useUsers } from '@/features/user-management/hooks/use-users';
+import { UsersDataTable } from '@/features/user-management/components/users-table/data-table';
+import { columns } from '@/features/user-management/components/users-table/columns';
+import { UserBulkActions } from './users-table/user-bulk-actions';
 import { UsersTableSkeleton } from './users-table/users-table-skeleton';
 
 export function UsersList() {
@@ -16,22 +17,17 @@ export function UsersList() {
   const [banStatusFilter, setBanStatusFilter] = useState('all');
   const [selectedRowCount, setSelectedRowCount] = useState(0);
 
-  // TODO: When we have more users (>1000), consider implementing:
-  // - Server-side search and filtering
-  // - Virtual scrolling for table performance
-  // - Pagination with proper API endpoints
-  // For now, client-side filtering provides better UX for smaller datasets.
-  // Debounce search to reduce re-filtering
+  // fetchUsers returns at most USER_LIST_LIMIT (100) users, filtered here in the browser. Past that,
+  // move search and paging to the server, as PagedTable does for artists and places.
   const debouncedSearch = useDebounce(searchValue, 300);
 
   const { data, isLoading, error, refetch } = useUsers();
 
-  const users = data?.users || [];
   const totalCount = data?.total || 0;
 
   // Client-side filtering for better UX
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+    return (data?.users ?? []).filter(user => {
       // Search filter using debounced search
       const matchesSearch =
         !debouncedSearch.trim() ||
@@ -55,7 +51,7 @@ export function UsersList() {
 
       return matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus;
     });
-  }, [users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
+  }, [data?.users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
 
   const handleClearFilters = () => {
     setSearchValue('');
@@ -77,7 +73,7 @@ export function UsersList() {
   };
 
   const handleRefresh = () => {
-    refetch();
+    void refetch();
   };
 
   return (
@@ -98,7 +94,7 @@ export function UsersList() {
               {error && 'Erreur lors du chargement'}
             </CardDescription>
           </div>
-          <UserActions
+          <UserBulkActions
             selectedCount={selectedRowCount}
             onExportAllUsers={handleExportAllUsers}
             onExportSelectedUsers={handleExportSelectedUsers}
@@ -110,7 +106,7 @@ export function UsersList() {
         {error ? (
           <div className="flex flex-col items-center justify-center h-32 gap-4">
             <div className="text-destructive text-center">
-              {error instanceof Error ? error.message : 'Une erreur est survenue'}
+              Erreur lors du chargement des utilisateurs
             </div>
             <Button onClick={handleRefresh} variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />

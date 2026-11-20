@@ -10,10 +10,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Place } from '@/schemas/place';
+import { type Place } from '@/schemas/place';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
-import { usePlaces } from '../../hooks/use-artwork-selectors';
+import { usePlaceOptions } from '@/features/places/hooks/use-places';
 
 interface PlaceSelectorProps {
   selectedPlace: Place | null;
@@ -34,7 +34,7 @@ export function PlaceSelector({
   const [searchValue, setSearchValue] = useState('');
   const debouncedSearch = useDebounce(searchValue, 300);
 
-  const { data: places = [], isLoading } = usePlaces(debouncedSearch);
+  const { data: places = [], isLoading } = usePlaceOptions(debouncedSearch);
 
   const handleSelect = (place: Place) => {
     if (selectedPlace?.id === place.id) {

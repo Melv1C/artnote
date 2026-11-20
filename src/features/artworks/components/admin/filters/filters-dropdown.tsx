@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import MultipleSelector, { Option } from '@/components/ui/multiselect';
+import MultipleSelector, { type Option } from '@/components/ui/multiselect';
 import {
   Select,
   SelectContent,
@@ -16,29 +16,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArtworkStatus } from '@/schemas';
+import { ArtworkStatusSchema } from '@/schemas/common';
 import { Calendar, Filter, SortAsc, X } from 'lucide-react';
-import { ArtworkFilter, ArtworkSortOption } from '../../../types';
+import type { AdminArtworkFilter, AdminArtworkSort } from '../../../lib/admin-artwork-filter';
+import { ARTWORK_STATUS_LABELS } from '../../../lib/artwork-status';
 
 interface ArtworkFiltersDropdownProps {
-  filters: ArtworkFilter;
-  onFiltersChange: (filters: ArtworkFilter) => void;
+  filters: AdminArtworkFilter;
+  onFiltersChange: (filters: AdminArtworkFilter) => void;
   onClearFilters: () => void;
   activeFiltersCount: number;
 }
 
-const sortOptions: ArtworkSortOption[] = [
+const sortOptions: { value: AdminArtworkSort; label: string }[] = [
   { value: 'updatedAt', label: 'Dernière modification' },
   { value: 'createdAt', label: 'Date de création' },
   { value: 'title', label: 'Titre' },
   { value: 'viewCount', label: 'Nombre de vues' },
 ];
 
-const statusOptions: Option[] = [
-  { value: 'DRAFT', label: 'Brouillon' },
-  { value: 'PUBLISHED', label: 'Publié' },
-  { value: 'ARCHIVED', label: 'Archivé' },
-];
+const statusOptions: Option[] = ArtworkStatusSchema.options.map(status => ({
+  value: status,
+  label: ARTWORK_STATUS_LABELS[status],
+}));
 
 export function ArtworkFiltersDropdown({
   filters,
@@ -47,7 +47,7 @@ export function ArtworkFiltersDropdown({
   activeFiltersCount,
 }: ArtworkFiltersDropdownProps) {
   const updateFilter = (
-    key: keyof ArtworkFilter,
+    key: keyof AdminArtworkFilter,
     value: string | Date | number | undefined | string[],
   ) => {
     onFiltersChange({
@@ -60,16 +60,14 @@ export function ArtworkFiltersDropdown({
   };
 
   const handleStatusChange = (options: Option[]) => {
-    const statusValues = options.map(option => option.value);
-    updateFilter('status', statusValues);
+    const statuses = options.flatMap(
+      option => ArtworkStatusSchema.safeParse(option.value).data ?? [],
+    );
+    onFiltersChange({ ...filters, status: statuses.length ? statuses : undefined });
   };
 
-  const getSelectedStatusOptions = (): Option[] => {
-    if (!filters.status || filters.status.length === 0) {
-      return [];
-    }
-    return statusOptions.filter(option => filters.status!.includes(option.value as ArtworkStatus));
-  };
+  const getSelectedStatusOptions = (): Option[] =>
+    statusOptions.filter(option => filters.status?.some(status => status === option.value));
 
   return (
     <DropdownMenu>

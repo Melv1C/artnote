@@ -1,5 +1,5 @@
-import type { AdminDashboardData } from '../dashboard-queries';
-import { AnalyticsSection } from './analytics';
+import type { AdminDashboardData } from '../actions/dashboard-queries';
+import { AnalyticsSection } from '@/features/admin-dashboard/components/analytics/analytics-section';
 import { DashboardHeader } from './dashboard-header';
 import { StatsOverview } from './stats-overview';
 

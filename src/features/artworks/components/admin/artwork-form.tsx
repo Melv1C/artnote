@@ -16,23 +16,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArtworkStatusSchema } from '@/schemas';
-import { Artist } from '@/schemas/artist';
-import { Artwork, ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
-import { Place } from '@/schemas/place';
+import { ArtworkStatusSchema } from '@/schemas/common';
+import type { Artist } from '@/schemas/artist';
+import {
+  type Artwork,
+  ArtworkEditorSchema,
+  type ArtworkEditorValues,
+  type ArtworkForm,
+} from '@/schemas/artwork';
+import { type Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import type { CreateArtworkResponse, UpdateArtworkResponse } from '../../actions';
+import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
 import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
 import { PlaceSelector } from './place-selector';
 
 interface ArtworkFormProps {
   initialValues?: Artwork;
-  onSubmit: (data: ArtworkForm) => Promise<CreateArtworkResponse | UpdateArtworkResponse>;
+  onSubmit: (data: ArtworkForm) => Promise<void>;
   onCancel?: () => void;
   submitLabel?: string;
   successMessage?: string;
@@ -52,8 +57,8 @@ export function ArtworkForm({
   );
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(initialValues?.place || null);
 
-  const form = useForm<ArtworkForm>({
-    resolver: zodResolver(ArtworkFormSchema),
+  const form = useForm<ArtworkEditorValues>({
+    resolver: zodResolver(ArtworkEditorSchema),
     defaultValues: {
       title: '',
       creationYear: null,
@@ -69,23 +74,17 @@ export function ArtworkForm({
     },
   });
 
-  const handleSubmit = async (data: ArtworkForm) => {
+  const handleSubmit = async (data: ArtworkEditorValues) => {
     try {
       setIsSubmitting(true);
 
-      const result = await onSubmit(data);
-
-      if (result.success) {
-        toast.success(successMessage);
-        navigate({ to: '/dashboard/artworks' });
-      } else {
-        setIsSubmitting(false);
-        toast.error(result.error || "Erreur lors de l'enregistrement de la notice");
-      }
+      await onSubmit(data);
+      toast.success(successMessage);
+      await navigate({ to: '/dashboard/artworks' });
     } catch (error) {
-      console.error('Error saving artwork:', error);
+      console.error('Saving artwork failed:', error);
       setIsSubmitting(false);
-      toast.error('Une erreur inattendue est survenue. Vérifiez la console pour plus de détails.');
+      toast.error("Erreur lors de l'enregistrement de la notice");
     }
   };
 
@@ -142,9 +141,11 @@ export function ArtworkForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Brouillon</SelectItem>
-                    <SelectItem value="PUBLISHED">Publié</SelectItem>
-                    <SelectItem value="ARCHIVED">Archivé</SelectItem>
+                    {ArtworkStatusSchema.options.map(status => (
+                      <SelectItem key={status} value={status}>
+                        {ARTWORK_STATUS_LABELS[status]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

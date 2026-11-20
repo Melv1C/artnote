@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
-import type { ArtworksSearch } from '../types';
+import type { ArtworksSearch } from '../lib/artwork-search';
 import { Search } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ export function ArtworksFilter() {
 
   const updateURL = useCallback(
     (newParams: { search?: string; sortBy?: string }) => {
-      navigate({
+      void navigate({
         to: '/artworks',
         search: prev => {
           const params: ArtworksSearch = { ...prev };

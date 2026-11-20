@@ -1,125 +1,143 @@
+import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
-import { ArtworkSchema, ArtworkStatusSchema } from '@/schemas';
+import { ArtworkSchema, PublicArtworkSchema } from '@/schemas/artwork';
+import { ArtworkStatusSchema, IdSchema } from '@/schemas/common';
+import { authorSelect } from '@/schemas/user';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { getRequestHeader } from '@tanstack/react-start/server';
-import { getArtworkById, getArtworkByIdForPreview } from './get-artwork';
+import { z } from '@/lib/zod';
+import { ownedBy, publishedWhere } from '../lib/artwork-status';
 import {
-  type ArtworkFilters,
-  getFilteredArtworks,
-  getLatestPublishedArtworks,
-} from './get-artworks';
-import { incrementArtworkViewCount } from './track-view';
+  ArtworkFiltersSchema,
+  buildArtworkOrderBy,
+  buildArtworkWhere,
+  sortByFirstArtist,
+} from '../lib/artwork-search';
 
+const artworkInclude = {
+  place: true,
+  artists: { include: { artist: true }, orderBy: { artist: { lastName: 'asc' } } },
+  images: { include: { image: true }, orderBy: [{ isMain: 'desc' }, { sortOrder: 'asc' }] },
+} satisfies Prisma.ArtworkInclude;
+
+// Public reads expose only the writer's public profile, never the full user row
+const publicArtworkInclude = {
+  ...artworkInclude,
+  writer: { select: authorSelect },
+} satisfies Prisma.ArtworkInclude;
+
+/** Published notices matching the public list's filters. */
 export const fetchFilteredArtworks = createServerFn({ method: 'GET' })
-  .validator((filters: ArtworkFilters) => filters)
-  .handler(({ data }) => getFilteredArtworks(data));
+  .validator(ArtworkFiltersSchema)
+  .handler(async ({ data: filters }) => {
+    const artworks = await prisma.artwork.findMany({
+      where: buildArtworkWhere(filters),
+      include: publicArtworkInclude,
+      orderBy: buildArtworkOrderBy(filters),
+    });
+    const parsed = PublicArtworkSchema.array().parse(artworks);
+    return filters.sort === 'artist' ? sortByFirstArtist(parsed, filters.order) : parsed;
+  });
 
+/** The most recently published notices. */
 export const fetchLatestPublishedArtworks = createServerFn({ method: 'GET' })
-  .validator((limit: number) => limit)
-  .handler(({ data }) => getLatestPublishedArtworks(data));
+  .validator(z.number().int().min(1).max(24))
+  .handler(async ({ data: limit }) =>
+    PublicArtworkSchema.array().parse(
+      await prisma.artwork.findMany({
+        where: publishedWhere,
+        include: publicArtworkInclude,
+        orderBy: { publishedAt: 'desc' },
+        take: limit,
+      }),
+    ),
+  );
 
 /**
- * Load a published artwork for its public page and record the view.
+ * A published notice for its public page. Has no side effects: the router preloads it on hover;
+ * the page records the view itself (`recordNoticeView`).
  */
 export const fetchPublishedArtwork = createServerFn({ method: 'GET' })
-  .validator((artworkId: string) => artworkId)
+  .validator(IdSchema)
   .handler(async ({ data: artworkId }) => {
-    const artwork = await getArtworkById(artworkId);
-
-    if (!artwork) {
-      throw notFound();
-    }
-
-    // Increment view count asynchronously (don't await to avoid blocking page render)
-    incrementArtworkViewCount(
-      artworkId,
-      undefined, // sessionId - could be implemented with cookies
-      getRequestHeader('x-forwarded-for') || getRequestHeader('x-real-ip') || undefined,
-      getRequestHeader('user-agent') || undefined,
-      getRequestHeader('referer') || undefined,
-    ).catch(viewError => {
-      console.error('Failed to increment view count:', viewError);
+    const artwork = await prisma.artwork.findFirst({
+      where: { id: artworkId, ...publishedWhere },
+      include: publicArtworkInclude,
     });
-
-    return artwork;
+    if (!artwork) throw notFound();
+    return PublicArtworkSchema.parse(artwork);
   });
 
+/** Any notice, whatever its status, for the preview page. Admins only. */
 export const fetchArtworkPreview = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
-  .validator((artworkId: string) => artworkId)
+  .validator(IdSchema)
   .handler(async ({ data: artworkId }) => {
-    const artwork = await getArtworkByIdForPreview(artworkId);
-
-    if (!artwork) {
-      throw notFound();
-    }
-
-    return artwork;
-  });
-
-const adminArtworkInclude = {
-  images: {
-    include: {
-      image: true,
-    },
-    orderBy: {
-      sortOrder: 'asc',
-    },
-  },
-  place: true,
-  artists: {
-    include: {
-      artist: true,
-    },
-  },
-} as const;
-
-/**
- * Artworks written by the current user, for the dashboard list.
- */
-export const fetchMyArtworks = createServerFn({ method: 'GET' })
-  .middleware([dashboardAccessMiddleware])
-  .handler(async ({ context: { user } }) => {
-    return ArtworkSchema.array().parse(
-      await prisma.artwork.findMany({
-        where: {
-          writerId: user.id,
-        },
-        include: adminArtworkInclude,
-        orderBy: { updatedAt: 'desc' },
-      }),
-    );
-  });
-
-export const fetchMyArtworkForEdit = createServerFn({ method: 'GET' })
-  .middleware([dashboardAccessMiddleware])
-  .validator((artworkId: string) => artworkId)
-  .handler(async ({ data: artworkId, context: { user } }) => {
     const artwork = await prisma.artwork.findUnique({
       where: { id: artworkId },
-      include: adminArtworkInclude,
+      include: publicArtworkInclude,
     });
+    if (!artwork) throw notFound();
+    return PublicArtworkSchema.parse(artwork);
+  });
 
-    if (!artwork || artwork.writerId !== user.id) {
-      throw notFound();
-    }
+/** Notices written by the current user, for the dashboard list. */
+export const fetchMyArtworks = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
+  .handler(async ({ context: { user } }) =>
+    ArtworkSchema.array().parse(
+      await prisma.artwork.findMany({
+        where: ownedBy(user.id),
+        include: artworkInclude,
+        orderBy: { updatedAt: 'desc' },
+      }),
+    ),
+  );
 
+/** One of the current user's notices, for the editor. Other writers' notices are not found. */
+export const fetchMyArtworkForEdit = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
+  .validator(IdSchema)
+  .handler(async ({ data: artworkId, context: { user } }) => {
+    const artwork = await prisma.artwork.findFirst({
+      where: ownedBy(user.id, artworkId),
+      include: artworkInclude,
+    });
+    if (!artwork) throw notFound();
     return ArtworkSchema.parse(artwork);
   });
 
-/**
- * Count the current user's artworks, optionally filtered by status.
- */
+/** Count the current user's notices, optionally with one status. */
 export const fetchMyArtworkCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
-  .validator((status: 'PUBLISHED' | 'DRAFT' | undefined) => status)
-  .handler(async ({ data: status, context: { user } }) =>
-    prisma.artwork.count({
-      where: {
-        ...(status && { status: ArtworkStatusSchema.enum[status] }),
-        writerId: user.id,
-      },
-    }),
+  .validator(ArtworkStatusSchema.optional())
+  .handler(({ data: status, context: { user } }) =>
+    prisma.artwork.count({ where: { ...ownedBy(user.id), ...(status && { status }) } }),
   );
+
+/** Total public views of the current user's notices. */
+export const fetchMyArtworkViewCount = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
+  .handler(async ({ context: { user } }) => {
+    const { _sum } = await prisma.artwork.aggregate({
+      where: ownedBy(user.id),
+      _sum: { viewCount: true },
+    });
+    return _sum.viewCount ?? 0;
+  });
+
+/** Start every notice stat query without awaiting, so each card streams in independently. */
+export const loadArtworkStats = () => ({
+  total: fetchMyArtworkCount({ data: undefined }),
+  published: fetchMyArtworkCount({ data: 'PUBLISHED' }),
+  drafts: fetchMyArtworkCount({ data: 'DRAFT' }),
+  views: fetchMyArtworkViewCount(),
+});
+
+export type ArtworkStatsData = ReturnType<typeof loadArtworkStats>;
+
+/** Published notices, all writers. */
+export const fetchPublishedArtworkCount = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
+  .handler(() => prisma.artwork.count({ where: publishedWhere }));

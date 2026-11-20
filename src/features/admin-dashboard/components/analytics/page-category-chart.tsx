@@ -1,15 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
-import { type PageCategoryData } from './analytics-data';
+import type { PageCategoryRow } from '@/features/analytics/actions/analytics-queries';
 
 type PageCategoryChartProps = {
-  data: PageCategoryData[];
+  data: PageCategoryRow[];
 };
 
 const chartConfig = {
@@ -18,23 +18,23 @@ const chartConfig = {
   },
   Accueil: {
     label: 'Accueil',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
   Notices: {
     label: 'Notices',
-    color: 'hsl(var(--chart-2))',
+    color: 'var(--chart-2)',
   },
   'À propos': {
     label: 'À propos',
-    color: 'hsl(var(--chart-3))',
+    color: 'var(--chart-3)',
   },
   Dashboard: {
     label: 'Dashboard',
-    color: 'hsl(var(--chart-4))',
+    color: 'var(--chart-4)',
   },
   Autres: {
     label: 'Autres',
-    color: 'hsl(var(--chart-5))',
+    color: 'var(--chart-5)',
   },
 } satisfies ChartConfig;
 

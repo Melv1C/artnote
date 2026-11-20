@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArtistForm } from '@/features/artists';
+import { ArtistForm } from '@/features/artists/components/artist-form';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/create')({
@@ -20,7 +20,7 @@ function CreateArtistPage() {
           <CardDescription>Renseignez les informations principales de l'artiste</CardDescription>
         </CardHeader>
         <CardContent>
-          <ArtistForm mode="create" />
+          <ArtistForm />
         </CardContent>
       </Card>
     </div>

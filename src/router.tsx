@@ -1,5 +1,6 @@
 import { NotFound } from '@/components/layout/not-found';
 import { PageLoading } from '@/components/layout/page-loading';
+import { RouteError } from '@/components/layout/route-error';
 import { createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 
@@ -10,6 +11,7 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultPendingComponent: PageLoading,
     defaultNotFoundComponent: NotFound,
+    defaultErrorComponent: RouteError,
   });
 
   return router;

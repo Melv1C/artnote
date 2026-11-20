@@ -2,32 +2,45 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Artist } from '@/schemas/artist';
+import { ArtistFormSchema, type Artist } from '@/schemas/artist';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useTransition } from 'react';
-import { createArtist, updateArtist } from '../actions/artist-actions';
+import { toast } from 'sonner';
+import { createArtist, updateArtist } from '../actions/artist-mutations';
+import { artistKeys } from '../hooks/use-artists';
 
 interface ArtistFormProps {
+  /** The artist to edit; omit to create one. */
   artist?: Artist;
-  mode: 'create' | 'edit';
 }
 
-export function ArtistForm({ artist, mode }: ArtistFormProps) {
+export function ArtistForm({ artist }: ArtistFormProps) {
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
   const handleSubmit = (formData: FormData) => {
+    const parsed = ArtistFormSchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Formulaire invalide');
+      return;
+    }
+
     startTransition(async () => {
-      if (mode === 'create') {
-        await createArtist({ data: formData });
-      } else if (artist) {
-        formData.append('artistId', artist.id);
-        await updateArtist({ data: formData });
+      try {
+        if (artist) {
+          await updateArtist({ data: { ...parsed.data, id: artist.id } });
+        } else {
+          await createArtist({ data: parsed.data });
+        }
+        await queryClient.invalidateQueries({ queryKey: artistKeys.all });
+        toast.success(artist ? 'Artiste modifié' : 'Artiste créé');
+        await navigate({ to: '/dashboard/artists' });
+      } catch (error) {
+        console.error('Saving artist failed:', error);
+        toast.error("Erreur lors de l'enregistrement de l'artiste");
       }
-      queryClient.invalidateQueries({ queryKey: ['artists'] });
-      await navigate({ to: '/dashboard/artists' });
     });
   };
 
@@ -89,7 +102,7 @@ export function ArtistForm({ artist, mode }: ArtistFormProps) {
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Modifier'}
+          {isPending ? 'Enregistrement...' : artist ? 'Modifier' : 'Créer'}
         </Button>
       </div>
     </form>

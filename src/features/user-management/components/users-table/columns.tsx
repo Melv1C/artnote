@@ -2,11 +2,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { UserRoleSchema } from '@/schemas';
-import { User } from '@/schemas/user';
-import { DataTableFeatures } from '@/lib/data-table';
-import { ColumnDef } from '@tanstack/react-table';
+import { UserRoleSchema } from '@/schemas/common';
+import { type User } from '@/schemas/user';
+import { type DataTableFeatures } from '@/lib/data-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
+import { USER_ROLE_LABELS } from '../../lib/user-roles';
 import { UserRowActions } from './user-row-actions';
 
 export const columns: ColumnDef<DataTableFeatures, User>[] = [
@@ -82,21 +83,13 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
     accessorKey: 'role',
     header: 'Rôle',
     cell: ({ row }) => {
-      const role = row.getValue('role') as string;
-      const roleLabels = {
-        [UserRoleSchema.enum.admin]: 'Administrateur',
-        [UserRoleSchema.enum.user]: 'Utilisateur',
-      };
+      const role = row.original.role;
       const roleColors = {
         [UserRoleSchema.enum.admin]: 'destructive',
         [UserRoleSchema.enum.user]: 'secondary',
       } as const;
 
-      return (
-        <Badge variant={roleColors[role as keyof typeof roleColors]}>
-          {roleLabels[role as keyof typeof roleLabels] || role}
-        </Badge>
-      );
+      return <Badge variant={roleColors[role]}>{USER_ROLE_LABELS[role]}</Badge>;
     },
   },
   {

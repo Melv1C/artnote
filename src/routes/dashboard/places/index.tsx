@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlacesTable } from '@/features/places';
+import { PlacesTable } from '@/features/places/components/places-table';
 import { Plus } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { createFileRoute } from '@tanstack/react-router';

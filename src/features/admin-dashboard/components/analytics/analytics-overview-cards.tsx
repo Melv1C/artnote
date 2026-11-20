@@ -1,15 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Clock, Cookie, Eye, Home, NotebookPen, Users, Zap } from 'lucide-react';
-import { type AnalyticsSummary } from './analytics-data';
+import type { AnalyticsOverview } from '@/features/analytics/actions/analytics-queries';
 
-type AnalyticsOverviewCardsProps = {
-  summary: AnalyticsSummary;
-  realtimeStats: {
-    last24hViews: number;
-    last1hViews: number;
-    totalNotices: number;
-  };
-};
+type AnalyticsOverviewCardsProps = AnalyticsOverview;
 
 function formatDuration(ms: number | null): string {
   if (ms === null) return '-';
@@ -39,10 +32,10 @@ export function AnalyticsOverviewCards({ summary, realtimeStats }: AnalyticsOver
       description: 'Total des pages consultées',
     },
     {
-      title: 'Visiteurs uniques (30j)',
+      title: 'Visiteurs (30j)',
       value: formatNumber(summary.uniqueVisitors),
       icon: Users,
-      description: 'Visiteurs distincts',
+      description: 'Somme des visiteurs uniques de chaque jour',
     },
     {
       title: 'Durée moyenne',

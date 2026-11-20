@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
-import { AnalyticsProvider } from '@/components/analytics-provider';
-import { CookieBanner } from '@/components/cookie-banner';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
+import { AnalyticsProvider } from '@/features/analytics/components/analytics-provider';
+import { CookieBanner } from '@/features/analytics/components/cookie-banner';
 import { NotFound } from '@/components/layout/not-found';
 import { QueryProvider } from '@/lib/query-provider';
 import {
@@ -16,8 +16,8 @@ import {
 import { cn } from '@/lib/utils';
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
-import { PropsWithChildren } from 'react';
-import { Toaster } from 'sonner';
+import { type PropsWithChildren } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
@@ -45,7 +45,7 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: PropsWithChildren) {
   return (
-    <html suppressHydrationWarning lang="en" className="h-full">
+    <html suppressHydrationWarning lang="fr" className="h-full">
       <head>
         <HeadContent />
       </head>
