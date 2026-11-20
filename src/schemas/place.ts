@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import { PaginationSchema, PlaceTypeSchema, SearchSchema } from './common';
-
-// =============================================================================
-// BASE SCHEMA
-// =============================================================================
+import { IdSchema, PaginationSchema, PlaceTypeSchema, SearchTextSchema } from './common';
 
 export const PlaceSchema = z.object({
   id: z.string(),
@@ -14,7 +10,7 @@ export const PlaceSchema = z.object({
   country: z.string().nullable(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
-  website: z.url().nullable().or(z.literal('')),
+  website: z.string().nullable(),
   description: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -22,39 +18,45 @@ export const PlaceSchema = z.object({
   updatedById: z.string(),
 });
 
-// =============================================================================
-// QUERY/FILTER SCHEMAS
-// =============================================================================
+const UserRefSchema = z.object({ id: z.string(), name: z.string() });
 
-export const PlaceFiltersSchema = z
-  .object({
-    type: PlaceTypeSchema.optional(),
-    city: z.string().optional(),
-    country: z.string().optional(),
-  })
-  .merge(SearchSchema)
-  .merge(PaginationSchema);
-
-// =============================================================================
-// FORM SCHEMAS
-// =============================================================================
-
-export const PlaceFormSchema = z.object({
-  name: z.string().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
-  type: PlaceTypeSchema,
-  address: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
-  latitude: z.coerce.number().min(-90).max(90).optional(),
-  longitude: z.coerce.number().min(-180).max(180).optional(),
-  website: z.string().url('URL invalide').optional().or(z.literal('')),
-  description: z.string().optional(),
+/** A place with who created and last edited it, and the notices located there (dashboard). */
+export const PlaceWithRelationsSchema = PlaceSchema.extend({
+  createdBy: UserRefSchema,
+  updatedBy: UserRefSchema,
+  artworks: z.array(z.object({ id: z.string(), title: z.string() })),
 });
 
-// =============================================================================
-// TYPE EXPORTS
-// =============================================================================
+export const PlaceFiltersSchema = PaginationSchema.extend({
+  search: SearchTextSchema.optional(),
+  type: PlaceTypeSchema.optional(),
+  city: SearchTextSchema.optional(),
+  country: SearchTextSchema.optional(),
+});
+
+// Form inputs send strings; empty means "not set"
+const optionalNumber = (min: number, max: number) =>
+  z.preprocess(
+    value => (value === '' || value === null ? undefined : value),
+    z.coerce.number().min(min).max(max).optional(),
+  );
+
+/** What the place form submits. */
+export const PlaceFormSchema = z.object({
+  name: z.string().trim().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
+  type: PlaceTypeSchema,
+  address: z.string().max(500).optional(),
+  city: z.string().max(255).optional(),
+  country: z.string().max(255).optional(),
+  latitude: optionalNumber(-90, 90),
+  longitude: optionalNumber(-180, 180),
+  website: z.union([z.literal(''), z.url('URL invalide')]).optional(),
+  description: z.string().max(100_000).optional(),
+});
+
+export const UpdatePlaceSchema = PlaceFormSchema.extend({ id: IdSchema });
 
 export type Place = z.infer<typeof PlaceSchema>;
-export type PlaceFilters = z.infer<typeof PlaceFiltersSchema>;
+export type PlaceWithRelations = z.infer<typeof PlaceWithRelationsSchema>;
+export type PlaceFilters = z.input<typeof PlaceFiltersSchema>;
 export type PlaceForm = z.infer<typeof PlaceFormSchema>;

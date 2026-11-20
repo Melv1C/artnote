@@ -2,17 +2,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
-import { ArtworkImageSimplified } from '@/schemas/artwork-image';
-import { uploadArtworkImage } from '../../actions/upload-artwork-image';
-import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { type ArtworkImage } from '@/schemas/artwork-image';
+import { uploadArtworkImage } from '../../actions/artwork-mutations';
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Star, StarOff, Upload, X } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 
 interface ImageUploadProps {
-  images: ArtworkImageSimplified[];
-  onChange: (images: ArtworkImageSimplified[]) => void;
+  images: ArtworkImage[];
+  onChange: (images: ArtworkImage[]) => void;
   maxImages?: number;
 }
 
@@ -36,7 +36,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         }),
       );
 
-      const newImages: ArtworkImageSimplified[] = uploadedImages.map((image, index) => ({
+      const newImages: ArtworkImage[] = uploadedImages.map((image, index) => ({
         imageId: image.id,
         sortOrder: images.length + index,
         isMain: images.length === 0 && index === 0, // First image is main by default
@@ -57,17 +57,10 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     }
   };
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      handleFileUpload(acceptedFiles);
-    },
-    [images.length, maxImages],
-  );
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: handleFileUpload,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif'],
+      'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.avif', '.gif'],
     },
     maxSize: 10 * 1024 * 1024, // 10MB (matching API route limit)
     disabled: isUploading,

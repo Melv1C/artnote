@@ -6,13 +6,11 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
-import { Artwork, User } from '@/schemas';
+import type { Artwork } from '@/schemas/artwork';
 import { forwardRef } from 'react';
 
 interface ArtworkImagesCarouselProps {
-  artwork: Artwork & {
-    writer: User;
-  };
+  artwork: Artwork;
 }
 
 export const ArtworkImagesCarousel = forwardRef<HTMLElement, ArtworkImagesCarouselProps>(

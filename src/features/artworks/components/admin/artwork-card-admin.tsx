@@ -8,7 +8,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Artwork, ArtworkStatusSchema } from '@/schemas';
+import { type Artwork } from '@/schemas/artwork';
+import { ArtworkStatusSchema, type ArtworkStatus } from '@/schemas/common';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -28,7 +29,7 @@ import { Link } from '@tanstack/react-router';
 interface ArtworkCardAdminProps {
   artwork: Artwork;
   onDelete?: (artworkId: string) => Promise<void>;
-  onStatusChange?: (artworkId: string, status: string) => Promise<void>;
+  onStatusChange?: (artworkId: string, status: ArtworkStatus) => Promise<void>;
   isPending?: boolean;
 }
 
@@ -84,7 +85,7 @@ export function ArtworkCardAdmin({
     }
   };
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: ArtworkStatus) => {
     if (onStatusChange && !isPending) {
       await onStatusChange(id, newStatus);
     }

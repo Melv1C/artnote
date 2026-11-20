@@ -6,7 +6,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { StatCardSkeletonProps } from './types';
+import { type StatCardSkeletonProps } from './types';
 
 export function StatCardSkeleton({ title, icon: Icon }: StatCardSkeletonProps) {
   return (

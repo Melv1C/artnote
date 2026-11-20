@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import { PaginationSchema, SearchSchema } from './common';
-
-// =============================================================================
-// BASE SCHEMA
-// =============================================================================
+import { ArtworkStatusSchema, IdSchema, PaginationSchema, SearchTextSchema } from './common';
 
 export const ArtistSchema = z.object({
   id: z.string(),
@@ -18,54 +14,42 @@ export const ArtistSchema = z.object({
   updatedById: z.string(),
 });
 
-// =============================================================================
-// QUERY/FILTER SCHEMAS
-// =============================================================================
+const UserRefSchema = z.object({ id: z.string(), name: z.string() });
 
-export const ArtistFiltersSchema = z
-  .object({
-    name: z.string().optional(),
-    bornAfter: z.string().optional(),
-    bornBefore: z.string().optional(),
-  })
-  .merge(SearchSchema)
-  .merge(PaginationSchema);
-
-// =============================================================================
-// FORM SCHEMAS
-// =============================================================================
-
-export const ArtistFormSchema = z.object({
-  firstName: z.string().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
-  lastName: z.string().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
-  birthDate: z.string().optional(),
-  deathDate: z.string().optional(),
-  biography: z.string().optional(),
-});
-
-// =============================================================================
-// EXTENDED SCHEMAS
-// =============================================================================
-
-export const ArtistWithArtworksSchema = ArtistSchema.extend({
+/** An artist with who created and last edited it, and the notices it appears in (dashboard). */
+export const ArtistWithRelationsSchema = ArtistSchema.extend({
+  createdBy: UserRefSchema,
+  updatedBy: UserRefSchema,
   artworks: z.array(
     z.object({
-      artwork: z.object({
-        id: z.string(),
-        title: z.string(),
-        creationYear: z.string().nullable(),
-        status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
-      }),
+      id: z.string(),
       role: z.string().nullable(),
+      artwork: z.object({ id: z.string(), title: z.string(), status: ArtworkStatusSchema }),
     }),
   ),
 });
 
-// =============================================================================
-// TYPE EXPORTS
-// =============================================================================
+const isoDate = z.iso.date('Date invalide');
+
+export const ArtistFiltersSchema = PaginationSchema.extend({
+  search: SearchTextSchema.optional(),
+  name: SearchTextSchema.optional(),
+  bornAfter: isoDate.optional(),
+  bornBefore: isoDate.optional(),
+});
+
+/** What the artist form submits. Dates are `YYYY-MM-DD`; empty strings mean "not set". */
+export const ArtistFormSchema = z.object({
+  firstName: z.string().trim().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
+  lastName: z.string().trim().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
+  birthDate: isoDate.or(z.literal('')).optional(),
+  deathDate: isoDate.or(z.literal('')).optional(),
+  biography: z.string().max(100_000).optional(),
+});
+
+export const UpdateArtistSchema = ArtistFormSchema.extend({ id: IdSchema });
 
 export type Artist = z.infer<typeof ArtistSchema>;
-export type ArtistFilters = z.infer<typeof ArtistFiltersSchema>;
+export type ArtistWithRelations = z.infer<typeof ArtistWithRelationsSchema>;
+export type ArtistFilters = z.input<typeof ArtistFiltersSchema>;
 export type ArtistForm = z.infer<typeof ArtistFormSchema>;
-export type ArtistWithArtworks = z.infer<typeof ArtistWithArtworksSchema>;

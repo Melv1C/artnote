@@ -1,11 +1,12 @@
+import { ArtworkHeader } from '@/features/artworks/components/admin/artwork-header';
 import {
-  ArtworkHeader,
   ArtworkListAdmin,
   ArtworkListSkeleton,
-  ArtworkStats,
-  loadArtworkStats,
-} from '@/features/artworks';
-import { changeArtworkStatus, deleteArtwork, fetchMyArtworks } from '@/features/artworks/actions';
+} from '@/features/artworks/components/admin/artwork-list-admin';
+import { ArtworkStats } from '@/features/artworks/components/admin/artwork-stats';
+import { changeArtworkStatus, deleteArtwork } from '@/features/artworks/actions/artwork-mutations';
+import { fetchMyArtworks, loadArtworkStats } from '@/features/artworks/actions/artwork-queries';
+import type { ArtworkStatus } from '@/schemas/common';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Suspense, use } from 'react';
 
@@ -47,17 +48,15 @@ function ArtworkListWrapper({
   const router = useRouter();
   const initialArtworks = use(artworksPromise);
 
-  // Reload the route data after a mutation (replaces Next's revalidatePath)
+  // Reload the route data after a mutation
   const handleDelete = async (artworkId: string) => {
-    const result = await deleteArtwork({ data: artworkId });
+    await deleteArtwork({ data: artworkId });
     await router.invalidate();
-    return result;
   };
 
-  const handleStatusChange = async (artworkId: string, newStatus: string) => {
-    const result = await changeArtworkStatus({ data: { artworkId, newStatus } });
+  const handleStatusChange = async (artworkId: string, status: ArtworkStatus) => {
+    await changeArtworkStatus({ data: { artworkId, status } });
     await router.invalidate();
-    return result;
   };
 
   return (

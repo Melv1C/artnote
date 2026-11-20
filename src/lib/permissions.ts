@@ -1,104 +1,48 @@
+import type { UserRole } from '@/schemas/common';
 import { createAccessControl } from 'better-auth/plugins/access';
 import { adminAc, defaultStatements } from 'better-auth/plugins/admin/access';
 
-// =============================================================================
-// CUSTOM PERMISSION STATEMENTS
-// =============================================================================
-
 /**
- * Define custom resources and their available actions for ArtNote
- * Make sure to use `as const` so TypeScript can infer the type correctly
+ * Resources and the actions a role can be granted on them. `user` and `session` come from
+ * Better Auth's admin plugin (list, ban, set-role, impersonate, …).
  */
 export const statement = {
-  // Merge default admin statements for user and session management
   ...defaultStatements,
-
-  // Artwork management permissions
-  artwork: [
-    'read', // View artworks (excluding drafts),
-    'readAll', // View all artworks including drafts
-    'manage', // Manage artworks (create, update, delete)
-  ],
-
-  // Artist management permissions
-  artist: [
-    'read', // View artist information
-    'manage', // Manage artists (create, update, delete)
-  ],
-
-  // Place management permissions
-  place: [
-    'read', // View places
-    'manage', // Manage places (create, update, delete)
-  ],
-
-  // Concept management permissions
-  concept: [
-    'read', // View concepts
-    'manage', // Manage concepts (create, update, delete)
-  ],
-
-  // Keyword management permissions
-  keyword: [
-    'read', // View keywords
-    'manage', // Manage keywords (create, update, delete)
-  ],
+  artwork: ['read', 'manage'],
+  artist: ['read', 'manage'],
+  place: ['read', 'manage'],
 } as const;
-
-// =============================================================================
-// ACCESS CONTROL INSTANCE
-// =============================================================================
 
 export const ac = createAccessControl(statement);
 
-// =============================================================================
-// CUSTOM ROLES DEFINITION
-// =============================================================================
-
-/**
- * Admin Role - Full system access
- * Inherits all default admin permissions plus full ArtNote permissions
- */
+/** Admins write notices, manage artists and places, and administer users. */
 export const admin = ac.newRole({
-  // All artwork management permissions
   artwork: ['read', 'manage'],
-
-  // All artist management permissions
   artist: ['read', 'manage'],
-
-  // All place management permissions
   place: ['read', 'manage'],
-
-  // All concept management permissions
-  concept: ['read', 'manage'],
-
-  // All keyword management permissions
-  keyword: ['read', 'manage'],
-
-  // Include all default admin permissions (user management, session management)
   ...adminAc.statements,
 });
 
-/**
- * Regular User Role - Limited read access
- * Can only read published content
- */
+/** Signed-in readers: published content only. */
 export const user = ac.newRole({
-  // Read-only access to published artworks
   artwork: ['read'],
-
-  // Read-only access to public information
   artist: ['read'],
   place: ['read'],
-  concept: ['read'],
-  keyword: ['read'],
 });
 
-// =============================================================================
-// ROLE EXPORTS
-// =============================================================================
+export const roles = { admin, user } satisfies Record<UserRole, unknown>;
 
-export const roles = {
-  admin,
-  user,
-} as const;
+type Resource = keyof typeof statement;
+
+/** A set of required permissions, e.g. `{ artwork: ['manage'] }`. Every listed action is required. */
+export type PermissionCheck = {
+  [R in Resource]?: (typeof statement)[R][number][];
+};
+
+/** Whether `role` grants every action in `permissions`. Pure: no session or database access. */
+export function hasRolePermission(role: UserRole, permissions: PermissionCheck): boolean {
+  return roles[role].authorize(permissions).success;
+}
+
+/** What the dashboard requires: managing notices. */
+export const DASHBOARD_PERMISSIONS = { artwork: ['manage'] } satisfies PermissionCheck;

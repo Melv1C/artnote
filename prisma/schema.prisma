@@ -263,14 +263,15 @@ model ArtworkImage {
 // ANALYTICS MODELS (Enhanced Analytics System)
 // =============================================================================
 
-// Legacy PageView model - kept for backward compatibility during migration
+// Server-side notice view, kept only to deduplicate `Artwork.viewCount` increments
+// (see src/features/artworks/actions/artwork-views.ts). The nightly cron prunes old rows.
 model PageView {
   id        String   @id @default(cuid())
   artworkId String
-  sessionId String? // Anonymous session tracking
-  ipAddress String?
-  userAgent String?
-  referrer  String?
+  sessionId String? // Unused
+  ipAddress String? // Salted SHA-256 of the client IP, never the raw address
+  userAgent String? // Unused (older rows only)
+  referrer  String? // Unused (older rows only)
   createdAt DateTime @default(now())
 
   // Relations

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArtworkForm, updateArtwork } from '@/features/artworks';
-import { fetchMyArtworkForEdit } from '@/features/artworks/actions';
+import { ArtworkForm } from '@/features/artworks/components/admin/artwork-form';
+import { updateArtwork } from '@/features/artworks/actions/artwork-mutations';
+import { fetchMyArtworkForEdit } from '@/features/artworks/actions/artwork-queries';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artworks/$artworkId/edit')({

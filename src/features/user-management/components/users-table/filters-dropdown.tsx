@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserRoleSchema } from '@/schemas';
+import { UserRoleSchema } from '@/schemas/common';
 import { Filter, X } from 'lucide-react';
 
 interface FiltersDropdownProps {

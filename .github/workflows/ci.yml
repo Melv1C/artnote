@@ -13,6 +13,7 @@ env:
 
 jobs:
   lint-and-type-check:
+    # Required status check: keep this name (branch protection on main)
     name: Lint & Type Check
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate, build, lint and type-check
+      - name: Lint, dead-code check, Prisma, build, type-check and unit tests
         run: bun run check
 
       - name: Fail if the build changed committed files
@@ -58,6 +59,7 @@ jobs:
         run: bun audit --audit-level=critical
 
   prisma-validate:
+    # Required status check: keep this name (branch protection on main)
     name: Validate Prisma Schema
     runs-on: ubuntu-latest
     steps:

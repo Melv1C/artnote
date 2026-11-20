@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/table';
 import { ExternalLink } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { type TopNoticeData } from './analytics-data';
+import type { TopNotice } from '@/features/analytics/actions/analytics-queries';
 
 type TopNoticesTableProps = {
-  data: TopNoticeData[];
+  data: TopNotice[];
 };
 
 function formatDuration(ms: number | null): string {

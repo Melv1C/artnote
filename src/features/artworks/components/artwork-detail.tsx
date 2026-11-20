@@ -2,17 +2,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
 import { Separator } from '@/components/ui/separator';
-import { useNoticeAnalytics } from '@/hooks/use-notice-analytics';
-import { Artwork, User } from '@/schemas';
+import type { PublicArtwork } from '@/schemas/artwork';
 import { Calendar, MapPin, Palette, Ruler } from 'lucide-react';
 import { useRef } from 'react';
 import { ArtworkImagesCarousel } from './artwork-images-carousel';
 import { ArtworkImagesPreviewButton } from './artwork-images-preview-button';
 
 interface ArtworkDetailProps {
-  artwork: Artwork & {
-    writer: User;
-  };
+  artwork: PublicArtwork;
 }
 
 export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
@@ -20,9 +17,6 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
     artwork;
 
   const carouselRef = useRef<HTMLElement>(null);
-
-  // Track notice view analytics (start/end events with duration)
-  useNoticeAnalytics({ noticeId: artwork.id });
 
   // Get writer initials for avatar fallback
   const writerInitials = writer.name

@@ -1,15 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
-import { type BrowserData } from './analytics-data';
+import type { BrowserRow } from '@/features/analytics/actions/analytics-queries';
 
 type BrowserStatsChartProps = {
-  data: BrowserData[];
+  data: BrowserRow[];
 };
 
 const chartConfig = {

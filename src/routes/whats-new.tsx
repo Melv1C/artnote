@@ -1,5 +1,6 @@
-import { ArtworkCard, ArtworksListSkeleton } from '@/features/artworks';
-import { fetchLatestPublishedArtworks } from '@/features/artworks/actions';
+import { ArtworkCard } from '@/features/artworks/components/artwork-card';
+import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
+import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
 import { pageMeta } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense, use } from 'react';

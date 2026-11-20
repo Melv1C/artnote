@@ -1,35 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Artist } from '@/schemas/artist';
-import { DataTableFeatures } from '@/lib/data-table';
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
+import type { ArtistWithRelations } from '@/schemas/artist';
+import type { DataTableFeatures } from '@/lib/data-table';
+import type { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { toast } from 'sonner';
-import { deleteArtist } from '../actions/artist-actions';
-
-type ArtistWithRelations = Artist & {
-  createdBy: { id: string; name: string };
-  updatedBy: { id: string; name: string };
-  artworks: {
-    id: string;
-    role: string | null;
-    artwork: {
-      id: string;
-      title: string;
-      status: string;
-    };
-  }[];
-};
+import { ArtistRowActions } from './artist-row-actions';
 
 export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   {
@@ -100,15 +77,7 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
     accessorKey: 'artworks',
     header: 'Œuvres',
     cell: ({ row }) => {
-      const artworks = row.getValue('artworks') as {
-        id: string;
-        role: string | null;
-        artwork: {
-          id: string;
-          title: string;
-          status: string;
-        };
-      }[];
+      const artworks = row.original.artworks;
       return (
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">
@@ -148,46 +117,6 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: ({ row }) => {
-      const artist = row.original;
-      const fullName = `${artist.firstName} ${artist.lastName}`;
-
-      const handleDelete = async () => {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer "${fullName}" ?`)) {
-          try {
-            await deleteArtist({ data: artist.id });
-            toast.success('Artiste supprimé avec succès');
-          } catch (error) {
-            console.error("Erreur lors de la suppression de l'artiste:", error);
-            toast.error('Erreur lors de la suppression');
-          }
-        }
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }}>
-                <Edit className="mr-2 h-4 w-4" />
-                Modifier
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDelete} className="text-red-600 hover:text-red-700">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Supprimer
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <ArtistRowActions artist={row.original} />,
   },
 ];

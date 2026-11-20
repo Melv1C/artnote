@@ -1,6 +1,7 @@
 import { ModeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
-import { AuthButton, AuthDialog } from '@/features/auth/components';
+import { AuthButton } from '@/features/auth/components/auth-button';
+import { AuthDialog } from '@/features/auth/components/auth-dialog';
 import { Menu, X } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';

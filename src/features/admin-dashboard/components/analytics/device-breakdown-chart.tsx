@@ -1,15 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Label, Pie, PieChart } from 'recharts';
-import { type DeviceBreakdown } from './analytics-data';
+import type { DeviceBreakdownRow } from '@/features/analytics/actions/analytics-queries';
 
 type DeviceBreakdownChartProps = {
-  data: DeviceBreakdown[];
+  data: DeviceBreakdownRow[];
 };
 
 const chartConfig = {
@@ -18,15 +18,15 @@ const chartConfig = {
   },
   Desktop: {
     label: 'Desktop',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
   Mobile: {
     label: 'Mobile',
-    color: 'hsl(var(--chart-2))',
+    color: 'var(--chart-2)',
   },
   Tablet: {
     label: 'Tablet',
-    color: 'hsl(var(--chart-3))',
+    color: 'var(--chart-3)',
   },
 } satisfies ChartConfig;
 

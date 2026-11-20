@@ -1,10 +1,7 @@
 import { z } from 'zod';
-import { UserRoleSchema } from './common';
+import { IdSchema, UserRoleSchema } from './common';
 
-// =============================================================================
-// BASE SCHEMA
-// =============================================================================
-
+/** A user as Better Auth returns it. Private: never send it from a public server function. */
 export const UserSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -22,74 +19,35 @@ export const UserSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-// =============================================================================
-// INPUT SCHEMAS
-// =============================================================================
-
-export const CreateUserSchema = UserSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  banned: true,
-  banReason: true,
-  banExpires: true,
+/** The public face of a user, e.g. a notice's writer. Safe for public server functions. */
+export const AuthorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
 });
 
-export const UpdateUserSchema = CreateUserSchema.partial().extend({
-  // Allow role updates in admin context
-  role: UserRoleSchema.optional(),
-});
-
-// Ban/Unban schemas
-export const BanUserSchema = z.object({
-  userId: z.string(),
-  banReason: z.string().optional(),
-  banExpiresIn: z.number().optional(), // seconds
-});
-
-export const UnbanUserSchema = z.object({
-  userId: z.string(),
-});
-
-// Role management schemas
-export const SetUserRoleSchema = z.object({
-  userId: z.string(),
-  role: UserRoleSchema,
-});
-
-export const CheckPermissionSchema = z.object({
-  resource: z.string(),
-  action: z.string(),
-  userId: z.string().optional(),
-});
-
-export const BulkUserActionSchema = z.object({
-  userIds: z.array(z.string()),
-  action: z.enum(['ban', 'unban', 'delete']),
-  banReason: z.string().optional(),
-  banExpiresIn: z.number().optional(),
-});
-
-// =============================================================================
-// FORM SCHEMAS
-// =============================================================================
+/** Prisma `select` that matches `AuthorSchema`. */
+export const authorSelect = { id: true, name: true, image: true } as const;
 
 export const UserProfileFormSchema = z.object({
-  name: z.string().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
-  bio: z.string().optional(),
-  cv: z.string().optional(),
+  name: z.string().trim().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
+  bio: z.string().max(20_000).optional(),
+  cv: z
+    .union([
+      z.literal(''),
+      z.url({ protocol: /^https$/, message: 'Le lien doit être une URL https' }),
+    ])
+    .optional(),
 });
 
-// =============================================================================
-// TYPE EXPORTS
-// =============================================================================
+export const UserIdSchema = z.object({ userId: IdSchema });
+
+export const SetUserRoleSchema = UserIdSchema.extend({ role: UserRoleSchema });
+
+export const BanUserSchema = UserIdSchema.extend({
+  banReason: z.string().max(500).optional(),
+  banExpiresIn: z.number().int().positive().optional(), // seconds
+});
 
 export type User = z.infer<typeof UserSchema>;
-export type CreateUser = z.infer<typeof CreateUserSchema>;
-export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 export type UserProfileForm = z.infer<typeof UserProfileFormSchema>;
-export type BanUser = z.infer<typeof BanUserSchema>;
-export type UnbanUser = z.infer<typeof UnbanUserSchema>;
-export type SetUserRole = z.infer<typeof SetUserRoleSchema>;
-export type CheckPermission = z.infer<typeof CheckPermissionSchema>;
-export type BulkUserAction = z.infer<typeof BulkUserActionSchema>;

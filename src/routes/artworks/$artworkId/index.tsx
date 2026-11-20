@@ -1,6 +1,7 @@
 import { NotFound } from '@/components/layout/not-found';
-import { fetchPublishedArtwork } from '@/features/artworks/actions';
-import { ArtworkDetail } from '@/features/artworks/components';
+import { fetchPublishedArtwork } from '@/features/artworks/actions/artwork-queries';
+import { useNoticeViewTracking } from '@/features/analytics/hooks/use-notice-view-tracking';
+import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
 import { DEFAULT_OG_IMAGE, ogImageMeta, pageMeta } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -40,6 +41,7 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
 
 function ArtworkPage() {
   const artwork = Route.useLoaderData();
+  useNoticeViewTracking(artwork.id);
 
   return <ArtworkDetail artwork={artwork} />;
 }

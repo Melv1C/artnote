@@ -5,7 +5,7 @@
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatCardProps } from './types';
+import { type StatCardProps } from './types';
 
 export function StatCard({ title, value, icon: Icon, subtitle }: StatCardProps) {
   return (

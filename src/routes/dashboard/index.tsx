@@ -1,4 +1,5 @@
-import { AdminDashboard, loadAdminDashboardData } from '@/features/admin-dashboard';
+import { AdminDashboard } from '@/features/admin-dashboard/components/admin-dashboard';
+import { loadAdminDashboardData } from '@/features/admin-dashboard/actions/dashboard-queries';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/')({

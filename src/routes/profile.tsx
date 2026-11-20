@@ -3,11 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RichTextEditor, RichTextViewer } from '@/components/ui/rich-text-editor';
-import { AvatarUpload } from '@/features/auth/components/avatar-upload';
-import { useAuth } from '@/features/auth/hooks';
-import { updateProfile } from '@/features/profile';
+import { AvatarUpload } from '@/features/profile/components/avatar-upload';
+import {
+  fetchMyArtworkCount,
+  fetchMyArtworkViewCount,
+} from '@/features/artworks/actions/artwork-queries';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { updateProfile } from '@/features/profile/actions/profile-mutations';
 import { UserProfileFormSchema, type UserProfileForm } from '@/schemas/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { Link as LinkIcon, Save, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -21,6 +26,14 @@ export const Route = createFileRoute('/profile')({
 function ProfilePage() {
   const { user, isLoading: isAuthLoading, refetch, isAdmin } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const stats = useQuery({
+    queryKey: ['profile-stats', user?.id],
+    queryFn: async () => ({
+      published: await fetchMyArtworkCount({ data: 'PUBLISHED' }),
+      views: await fetchMyArtworkViewCount(),
+    }),
+    enabled: isAdmin,
+  });
 
   // Initialize React Hook Form
   const {
@@ -55,19 +68,13 @@ function ProfilePage() {
 
   const onSubmit = async (data: UserProfileForm) => {
     try {
-      const result = await updateProfile({ data });
-
+      await updateProfile({ data });
       refetch();
-
-      if (result.success) {
-        toast.success('Profil mis à jour !');
-        setIsEditing(false);
-      } else {
-        toast.error(result.error || 'Erreur lors de la mise à jour');
-      }
+      toast.success('Profil mis à jour !');
+      setIsEditing(false);
     } catch (error) {
-      console.error('Failed to save profile:', error);
-      toast.error('Une erreur inattendue est survenue');
+      console.error('Saving profile failed:', error);
+      toast.error('Erreur lors de la mise à jour du profil');
     }
   };
 
@@ -171,11 +178,15 @@ function ProfilePage() {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">5</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {stats.data?.published ?? '—'}
+                      </div>
                       <p className="text-sm text-muted-foreground">Notices publiées</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">1,234</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {stats.data?.views.toLocaleString('fr-BE') ?? '—'}
+                      </div>
                       <p className="text-sm text-muted-foreground">Vues totales</p>
                     </div>
                   </div>
@@ -198,19 +209,16 @@ function ProfilePage() {
                         </CardDescription>
                       </div>
                       {!isEditing ? (
-                        <Button onClick={() => setIsEditing(true)}>
+                        <Button type="button" onClick={() => setIsEditing(true)}>
                           <User className="mr-2 h-4 w-4" />
                           Modifier le profil
                         </Button>
                       ) : (
                         <div className="flex space-x-2">
-                          <Button variant="outline" onClick={handleCancel}>
+                          <Button type="button" variant="outline" onClick={handleCancel}>
                             Annuler
                           </Button>
-                          <Button
-                            onClick={handleSubmit(onSubmit)}
-                            disabled={isSubmitting || !isDirty}
-                          >
+                          <Button type="submit" disabled={isSubmitting || !isDirty}>
                             <Save className="mr-2 h-4 w-4" />
                             {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
                           </Button>
@@ -300,7 +308,7 @@ function ProfilePage() {
                         </div>
                       ) : (
                         <div className="py-2 px-3 border rounded-md bg-muted/50">
-                          {user.cv ? (
+                          {user.cv && isHttpsUrl(user.cv) ? (
                             <a
                               href={user.cv}
                               target="_blank"
@@ -328,3 +336,12 @@ function ProfilePage() {
     </div>
   );
 }
+
+// The CV link is user input: only render https URLs as links (no `javascript:` hrefs)
+const isHttpsUrl = (value: string) => {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};

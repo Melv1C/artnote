@@ -2,7 +2,7 @@
  * Shared types for stat components
  */
 
-import { LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
 
 export interface StatCardProps {
   title: string;

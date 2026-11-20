@@ -4,9 +4,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { useUsers } from '../hooks';
-import { UsersDataTable, columns } from './users-table';
-import { UserActions } from './users-table/user-actions';
+import { useUsers } from '@/features/user-management/hooks/use-users';
+import { UsersDataTable } from '@/features/user-management/components/users-table/data-table';
+import { columns } from '@/features/user-management/components/users-table/columns';
+import { UserBulkActions } from './users-table/user-bulk-actions';
 import { UsersTableSkeleton } from './users-table/users-table-skeleton';
 
 export function UsersList() {
@@ -26,12 +27,11 @@ export function UsersList() {
 
   const { data, isLoading, error, refetch } = useUsers();
 
-  const users = data?.users || [];
   const totalCount = data?.total || 0;
 
   // Client-side filtering for better UX
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+    return (data?.users ?? []).filter(user => {
       // Search filter using debounced search
       const matchesSearch =
         !debouncedSearch.trim() ||
@@ -55,7 +55,7 @@ export function UsersList() {
 
       return matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus;
     });
-  }, [users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
+  }, [data?.users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
 
   const handleClearFilters = () => {
     setSearchValue('');
@@ -98,7 +98,7 @@ export function UsersList() {
               {error && 'Erreur lors du chargement'}
             </CardDescription>
           </div>
-          <UserActions
+          <UserBulkActions
             selectedCount={selectedRowCount}
             onExportAllUsers={handleExportAllUsers}
             onExportSelectedUsers={handleExportSelectedUsers}

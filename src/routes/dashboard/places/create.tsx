@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlaceForm } from '@/features/places';
+import { PlaceForm } from '@/features/places/components/place-form';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/create')({
@@ -22,7 +22,7 @@ function CreatePlacePage() {
           <CardDescription>Renseignez les informations principales du lieu</CardDescription>
         </CardHeader>
         <CardContent>
-          <PlaceForm mode="create" />
+          <PlaceForm />
         </CardContent>
       </Card>
     </div>

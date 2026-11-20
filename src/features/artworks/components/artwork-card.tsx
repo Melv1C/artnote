@@ -1,31 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Artwork, User } from '@/schemas';
+import type { PublicArtwork } from '@/schemas/artwork';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar, Eye, ImageIcon, MapPin } from 'lucide-react';
+import { Calendar, ImageIcon, MapPin } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
 interface ArtworkCardProps {
-  artwork: Artwork & {
-    writer: User;
-  };
+  artwork: PublicArtwork;
 }
 
 export function ArtworkCard({ artwork }: ArtworkCardProps) {
-  const {
-    id,
-    title,
-    creationYear,
-    medium,
-    publishedAt,
-    viewCount,
-    images,
-    writer,
-    place,
-    artists,
-  } = artwork;
+  const { id, title, creationYear, medium, publishedAt, images, writer, place, artists } = artwork;
 
   // Get main image
   const mainImage = images?.find(img => img.isMain) || images?.[0];

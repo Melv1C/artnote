@@ -7,15 +7,13 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Artwork, User } from '@/schemas';
+import type { Artwork } from '@/schemas/artwork';
 import { ImageIcon, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
 interface ArtworkImagesPreviewButtonProps {
-  artwork: Artwork & {
-    writer: User;
-  };
+  artwork: Artwork;
   carouselRef: React.RefObject<HTMLElement | null>;
 }
 

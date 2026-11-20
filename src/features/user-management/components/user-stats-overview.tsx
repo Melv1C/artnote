@@ -5,10 +5,11 @@
  * statistics with individual loading states for better UX. Data comes from deferred loader promises.
  */
 
-import { StatCard, StatCardSkeleton } from '@/components/stats';
-import { Activity, Shield, UserCheck, Users } from 'lucide-react';
+import { StatCard } from '@/components/stats/stat-card';
+import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
+import { Activity, Shield, Users } from 'lucide-react';
 import { Suspense, use } from 'react';
-import type { UserStatsData } from '../user-stats-queries';
+import type { UserStatsData } from '../actions/user-queries';
 
 // Individual components for each user stat
 function TotalUsersCard({ count }: { count: Promise<number> }) {

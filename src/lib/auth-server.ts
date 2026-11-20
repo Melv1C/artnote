@@ -1,19 +1,13 @@
 import '@tanstack/react-start/server-only';
+import { UserSchema } from '@/schemas/user';
 import { getRequestHeaders } from '@tanstack/react-start/server';
-import { UserSchema } from '../schemas';
 import { auth } from './auth';
 
-// Server-only helpers: call them from server functions or server route handlers.
-
-export const getSession = async () => {
-  const session = auth.api.getSession({
-    headers: getRequestHeaders(),
-  });
-
-  return session;
-};
-
-export const getUser = async () => {
-  const session = await getSession();
+/**
+ * The signed-in user of the current request, or null. Server functions read the user from the
+ * guard middleware's `context.user` instead of calling this again.
+ */
+export async function getUser() {
+  const session = await auth.api.getSession({ headers: getRequestHeaders() });
   return session ? UserSchema.parse(session.user) : null;
-};
+}

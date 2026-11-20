@@ -9,29 +9,47 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Place } from '@/schemas/place';
+import { PlaceTypeSchema } from '@/schemas/common';
+import { PlaceFormSchema, type Place } from '@/schemas/place';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useTransition } from 'react';
-import { createPlace, updatePlace } from '../actions/place-actions';
+import { toast } from 'sonner';
+import { createPlace, updatePlace } from '../actions/place-mutations';
+import { placeKeys } from '../hooks/use-places';
+import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
 interface PlaceFormProps {
+  /** The place to edit; omit to create one. */
   place?: Place;
-  mode: 'create' | 'edit';
 }
 
-export function PlaceForm({ place, mode }: PlaceFormProps) {
+export function PlaceForm({ place }: PlaceFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (formData: FormData) => {
+    const parsed = PlaceFormSchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Formulaire invalide');
+      return;
+    }
+
     startTransition(async () => {
-      if (mode === 'create') {
-        await createPlace({ data: formData });
-      } else if (place) {
-        formData.append('placeId', place.id);
-        await updatePlace({ data: formData });
+      try {
+        if (place) {
+          await updatePlace({ data: { ...parsed.data, id: place.id } });
+        } else {
+          await createPlace({ data: parsed.data });
+        }
+        await queryClient.invalidateQueries({ queryKey: placeKeys.all });
+        toast.success(place ? 'Lieu modifié' : 'Lieu créé');
+        await navigate({ to: '/dashboard/places' });
+      } catch (error) {
+        console.error('Saving place failed:', error);
+        toast.error("Erreur lors de l'enregistrement du lieu");
       }
-      await navigate({ to: '/dashboard/places' });
     });
   };
 
@@ -50,10 +68,11 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="MUSEUM">Musée</SelectItem>
-              <SelectItem value="CHURCH">Église</SelectItem>
-              <SelectItem value="PUBLIC_SPACE">Espace public</SelectItem>
-              <SelectItem value="OTHER">Autre</SelectItem>
+              {PlaceTypeSchema.options.map(type => (
+                <SelectItem key={type} value={type}>
+                  {PLACE_TYPE_LABELS[type]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -91,7 +110,7 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
             name="latitude"
             type="number"
             step="any"
-            defaultValue={place?.latitude || ''}
+            defaultValue={place?.latitude ?? ''}
             placeholder="48.8566"
           />
         </div>
@@ -103,7 +122,7 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
             name="longitude"
             type="number"
             step="any"
-            defaultValue={place?.longitude || ''}
+            defaultValue={place?.longitude ?? ''}
             placeholder="2.3522"
           />
         </div>
@@ -128,7 +147,7 @@ export function PlaceForm({ place, mode }: PlaceFormProps) {
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Modifier'}
+          {isPending ? 'Enregistrement...' : place ? 'Modifier' : 'Créer'}
         </Button>
       </div>
     </form>

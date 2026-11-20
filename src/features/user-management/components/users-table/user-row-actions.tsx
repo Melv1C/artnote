@@ -11,8 +11,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { UserRole, UserRoleSchema } from '@/schemas';
-import { User } from '@/schemas/user';
+import { type UserRole, UserRoleSchema } from '@/schemas/common';
+import { type User } from '@/schemas/user';
 import { useQueryClient } from '@tanstack/react-query';
 import { Ban, MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,7 +22,8 @@ import {
   impersonateUser,
   unbanUser,
   updateUserRole,
-} from '../../actions/user-actions';
+} from '../../actions/user-mutations';
+import { userKeys } from '../../hooks/use-users';
 
 interface UserRowActionsProps {
   user: User;
@@ -60,7 +61,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     try {
       await updateUserRole({ data: { userId: user.id, role: newRole } });
       toast.success(`Rôle mis à jour vers ${getRoleDisplayName(newRole)}`);
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      await queryClient.invalidateQueries({ queryKey: userKeys.all });
     } catch (error) {
       console.error('Error updating user role:', error);
       toast.error('Erreur lors de la mise à jour du rôle');
@@ -79,7 +80,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         },
       });
       toast.success('Utilisateur suspendu avec succès');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      await queryClient.invalidateQueries({ queryKey: userKeys.all });
     } catch (error) {
       console.error('Error banning user:', error);
       toast.error("Erreur lors de la suspension de l'utilisateur");
@@ -90,7 +91,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     try {
       await unbanUser({ data: { userId: user.id } });
       toast.success('Suspension levée avec succès');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      await queryClient.invalidateQueries({ queryKey: userKeys.all });
     } catch (error) {
       console.error('Error unbanning user:', error);
       toast.error('Erreur lors de la levée de suspension');
@@ -118,7 +119,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       try {
         await deleteUser({ data: user.id });
         toast.success('Utilisateur supprimé avec succès');
-        queryClient.invalidateQueries({ queryKey: ['users'] });
+        await queryClient.invalidateQueries({ queryKey: userKeys.all });
       } catch (error) {
         console.error('Error deleting user:', error);
         toast.error("Erreur lors de la suppression de l'utilisateur");

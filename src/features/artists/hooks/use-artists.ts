@@ -1,22 +1,31 @@
+import type { ArtistFilters } from '@/schemas/artist';
 import { useQuery } from '@tanstack/react-query';
-import { fetchArtist, fetchArtists } from '../actions/artist-queries';
+import { fetchArtists } from '../actions/artist-queries';
 
 const TABLE_PAGE_SIZE = 50;
 
-type ArtistFilters = Parameters<typeof fetchArtists>[0]['data'];
+/** React Query keys for artist reads. Invalidate `artistKeys.all` after any artist mutation. */
+export const artistKeys = {
+  all: ['artists'] as const,
+  options: (search: string | undefined) => [...artistKeys.all, 'options', search] as const,
+  list: (filters: ArtistFilters) => [...artistKeys.all, 'list', filters] as const,
+};
 
 export function useArtists(filters: ArtistFilters = {}) {
   return useQuery({
-    queryKey: ['artists', filters],
+    queryKey: artistKeys.list(filters),
     queryFn: () => fetchArtists({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
   });
 }
 
-export function useArtist(artistId: string) {
+const OPTIONS_LIMIT = 100;
+
+/** Artists matching `search`, for the notice editor's artist picker. */
+export function useArtistOptions(search?: string) {
   return useQuery({
-    queryKey: ['artist', artistId],
-    queryFn: () => fetchArtist({ data: artistId }),
-    enabled: !!artistId,
+    queryKey: artistKeys.options(search),
+    queryFn: async () => (await fetchArtists({ data: { search, limit: OPTIONS_LIMIT } })).artists,
+    staleTime: 5 * 60 * 1000,
   });
 }

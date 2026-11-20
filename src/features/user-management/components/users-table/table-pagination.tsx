@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { DataTableFeatures } from '@/lib/data-table';
-import { RowData, Table as TanStackTable } from '@tanstack/react-table';
+import { type DataTableFeatures } from '@/lib/data-table';
+import { type RowData, type Table as TanStackTable } from '@tanstack/react-table';
 
 interface TablePaginationProps<TData extends RowData> {
   table: TanStackTable<DataTableFeatures, TData>;

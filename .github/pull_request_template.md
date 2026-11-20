@@ -1,17 +1,16 @@
-## What has been done?
+## What changed
 
-Brief description of what this PR does.
+Brief description of what this PR does and why.
 
-## Related issues
+## Related ticket
 
-Fixes #<issue-number>
+`.scratch/<feature>/issues/<NN>-<slug>.md`, if any.
 
-## Type of change
+## Verification
 
-- Bug fix
-- New feature
-- Breaking change
-- Documentation
+- [ ] `bun run check` passes (lint, knip, Prisma, build, type-check, tests)
+- [ ] `src/routeTree.gen.ts` changes, if any, are committed
+- [ ] Checked in the running app (`bun run dev`), signed in with a seeded account when needed
 
 ## Screenshots
 

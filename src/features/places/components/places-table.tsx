@@ -17,11 +17,12 @@ import {
 } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { dataTableFeatures } from '@/lib/data-table';
-import { flexRender, SortingState, useTable } from '@tanstack/react-table';
+import { flexRender, type SortingState, useTable } from '@tanstack/react-table';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
-import { PlaceTypeSchema } from '@/schemas';
+import { PlaceTypeSchema } from '@/schemas/common';
 import { usePlaces } from '../hooks/use-places';
+import { PLACE_TYPE_LABELS } from '../lib/place-types';
 import { columns } from './places-table-columns';
 
 export function PlacesTable() {
@@ -77,10 +78,11 @@ export function PlacesTable() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous les types</SelectItem>
-            <SelectItem value="MUSEUM">Musée</SelectItem>
-            <SelectItem value="CHURCH">Église</SelectItem>
-            <SelectItem value="PUBLIC_SPACE">Espace public</SelectItem>
-            <SelectItem value="OTHER">Autre</SelectItem>
+            {PlaceTypeSchema.options.map(type => (
+              <SelectItem key={type} value={type}>
+                {PLACE_TYPE_LABELS[type]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Input

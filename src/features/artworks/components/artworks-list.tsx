@@ -1,4 +1,4 @@
-import type { fetchFilteredArtworks } from '@/features/artworks/actions';
+import type { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
 import { use } from 'react';
 import { ArtworkCard } from './artwork-card';
 

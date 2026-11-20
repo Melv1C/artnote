@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { dataTableFeatures } from '@/lib/data-table';
-import { flexRender, SortingState, useTable } from '@tanstack/react-table';
+import { flexRender, type SortingState, useTable } from '@tanstack/react-table';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useArtists } from '../hooks/use-artists';

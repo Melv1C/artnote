@@ -1,5 +1,5 @@
 import '@tanstack/react-start/server-only';
-import { UserRoleSchema } from '@/schemas';
+import { UserRoleSchema } from '@/schemas/common';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
@@ -25,20 +25,19 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
-      bio: { type: 'string', required: false, input: true },
-      cv: { type: 'string', required: false, input: true },
+      // Set only through `updateProfile`, which validates them; not through Better Auth's endpoints
+      bio: { type: 'string', required: false, input: false },
+      cv: { type: 'string', required: false, input: false },
     },
   },
   plugins: [
     admin({
-      // Access control configuration
       ac,
       roles: {
         admin: adminRole,
         user,
       },
-      // Admin configuration
-      adminRoles: [UserRoleSchema.enum.admin], // Only 'admin' role has full admin privileges
+      adminRoles: [UserRoleSchema.enum.admin],
       defaultRole: UserRoleSchema.enum.user,
       defaultBanReason: "Violation des conditions d'utilisation",
       bannedUserMessage:

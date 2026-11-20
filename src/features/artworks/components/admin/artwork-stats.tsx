@@ -1,18 +1,8 @@
-import { StatCard, StatCardSkeleton } from '@/components/stats';
-import { fetchMyArtworkCount } from '../../actions/artwork-queries';
+import { StatCard } from '@/components/stats/stat-card';
+import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
+import type { ArtworkStatsData } from '../../actions/artwork-queries';
 import { Archive, FileText, NotebookPen, TrendingUp } from 'lucide-react';
 import { Suspense, use } from 'react';
-
-/**
- * Start every artwork stat query without awaiting, so each card streams in independently.
- */
-export const loadArtworkStats = () => ({
-  total: fetchMyArtworkCount({ data: undefined }),
-  published: fetchMyArtworkCount({ data: 'PUBLISHED' }),
-  drafts: fetchMyArtworkCount({ data: 'DRAFT' }),
-});
-
-export type ArtworkStatsData = ReturnType<typeof loadArtworkStats>;
 
 // Individual components for each artwork stat
 function TotalArtworksCard({ count }: { count: Promise<number> }) {
@@ -30,8 +20,8 @@ function DraftArtworksCard({ count }: { count: Promise<number> }) {
   return <StatCard title="Brouillons" value={draftCount} icon={Archive} />;
 }
 
-function TotalViewsCard() {
-  const totalViews = 0; // Placeholder for total views logic
+function TotalViewsCard({ count }: { count: Promise<number> }) {
+  const totalViews = use(count);
   return <StatCard title="Vues Totales" value={totalViews} icon={TrendingUp} />;
 }
 
@@ -51,7 +41,7 @@ export function ArtworkStats({ data }: { data: ArtworkStatsData }) {
       </Suspense>
 
       <Suspense fallback={<StatCardSkeleton title="Vues Totales" icon={TrendingUp} />}>
-        <TotalViewsCard />
+        <TotalViewsCard count={data.views} />
       </Suspense>
     </div>
   );

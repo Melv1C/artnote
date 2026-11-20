@@ -1,10 +1,10 @@
-import { DataTableFeatures, dataTableFeatures } from '@/lib/data-table';
+import { type DataTableFeatures, dataTableFeatures } from '@/lib/data-table';
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  ColumnVisibilityState,
-  RowData,
-  SortingState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type ColumnVisibilityState,
+  type RowData,
+  type SortingState,
   useTable,
 } from '@tanstack/react-table';
 import * as React from 'react';

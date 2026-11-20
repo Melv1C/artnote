@@ -1,57 +1,45 @@
-import { Artwork } from '@/schemas';
+import type { Artwork } from '@/schemas/artwork';
+import type { ArtworkStatus } from '@/schemas/common';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
-import type { ArtworkActionResponse } from '../../actions/artwork-actions';
+import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
 import { ArtworkCardAdmin } from './artwork-card-admin';
 
 interface ArtworkCardWrapperProps {
   artwork: Artwork;
-  onDelete: (artworkId: string) => Promise<ArtworkActionResponse>;
-  onStatusChange?: (artworkId: string, status: string) => Promise<ArtworkActionResponse>;
+  onDelete: (artworkId: string) => Promise<void>;
+  onStatusChange: (artworkId: string, status: ArtworkStatus) => Promise<void>;
 }
 
+/** A dashboard notice card wired to delete and status changes, with feedback toasts. */
 export function ArtworkCardWrapper({ artwork, onDelete, onStatusChange }: ArtworkCardWrapperProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async (artworkId: string) => {
-    // Show confirmation dialog
     if (
-      !confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ? Cette action est irréversible.')
+      !confirm('Êtes-vous sûr de vouloir supprimer cette notice ? Cette action est irréversible.')
     ) {
       return;
     }
-
     startTransition(async () => {
       try {
-        const result = await onDelete(artworkId);
-
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.error || 'Une erreur est survenue');
-        }
+        await onDelete(artworkId);
+        toast.success(`"${artwork.title}" a été supprimée`);
       } catch (error) {
-        console.error('Error deleting artwork:', error);
-        toast.error('Une erreur inattendue est survenue');
+        console.error('Deleting artwork failed:', error);
+        toast.error('Erreur lors de la suppression de la notice');
       }
     });
   };
 
-  const handleStatusChange = async (artworkId: string, status: string) => {
-    if (!onStatusChange) return;
-
+  const handleStatusChange = async (artworkId: string, status: ArtworkStatus) => {
     startTransition(async () => {
       try {
-        const result = await onStatusChange(artworkId, status);
-
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.error || 'Une erreur est survenue');
-        }
+        await onStatusChange(artworkId, status);
+        toast.success(`Statut changé : ${ARTWORK_STATUS_LABELS[status].toLowerCase()}`);
       } catch (error) {
-        console.error('Error changing status:', error);
-        toast.error('Une erreur inattendue est survenue');
+        console.error('Changing artwork status failed:', error);
+        toast.error('Erreur lors du changement de statut');
       }
     });
   };

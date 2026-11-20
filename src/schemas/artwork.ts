@@ -1,90 +1,55 @@
 import { z } from 'zod';
 import { ArtistSchema } from './artist';
-import { ArtworkImageSchemaSimplified } from './artwork-image';
-import { ArtworkStatusSchema } from './common';
+import { ArtworkImageSchema } from './artwork-image';
+import { ArtworkStatusSchema, IdSchema } from './common';
 import { PlaceSchema } from './place';
+import { AuthorSchema } from './user';
 
-// =============================================================================
-// BASE SCHEMA
-// =============================================================================
-
+/** A notice as read from the database, with its place, artists and images. */
 export const ArtworkSchema = z.object({
   id: z.string(),
-  title: z
-    .string()
-    .min(2, 'Le titre doit comporter au moins 2 caractères')
-    .max(255, 'Le titre ne peut pas dépasser 255 caractères'),
+  title: z.string(),
   creationYear: z.string().nullable(),
   medium: z.string().nullable(),
   dimensions: z.string().nullable(),
   notice: z.string().nullable(),
   sources: z.string().nullable(),
-  status: ArtworkStatusSchema.default(ArtworkStatusSchema.enum.DRAFT),
+  status: ArtworkStatusSchema,
   publishedAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   writerId: z.string(),
-  place: PlaceSchema.nullable(),
   placeId: z.string().nullable(),
-  // Analytics fields
-  viewCount: z.number().int().min(0).default(0),
+  place: PlaceSchema.nullable(),
+  viewCount: z.number().int().min(0),
   lastViewedAt: z.date().nullable(),
-
-  images: ArtworkImageSchemaSimplified.array().default([]),
-  artists: z
-    .object({
-      artist: ArtistSchema,
-      role: z.string().nullable(),
-    })
-    .array(),
+  images: ArtworkImageSchema.array(),
+  artists: z.object({ artist: ArtistSchema, role: z.string().nullable() }).array(),
 });
 
-// =============================================================================
-// INPUT SCHEMAS
-// =============================================================================
+/** A notice with its writer's public profile, as public pages read it. */
+export const PublicArtworkSchema = ArtworkSchema.extend({ writer: AuthorSchema });
 
-export const CreateArtworkSchema = ArtworkSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  publishedAt: true,
-  artists: true,
-  place: true,
-}).extend({
-  status: ArtworkStatusSchema.optional(),
-});
+const optionalText = (max: number) => z.string().max(max).nullable();
 
-export const UpdateArtworkSchema = CreateArtworkSchema.partial().omit({
-  writerId: true,
-});
-
-// =============================================================================
-// FORM SCHEMAS
-// =============================================================================
-
-export const ArtworkFormSchema = ArtworkSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  publishedAt: true,
-  writerId: true,
-  viewCount: true,
-  lastViewedAt: true,
-  status: true,
-  images: true,
-  artists: true,
-  place: true,
-}).extend({
+/** What the notice editor submits for create and update. */
+export const ArtworkFormSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(2, 'Le titre doit comporter au moins 2 caractères')
+    .max(255, 'Le titre ne peut pas dépasser 255 caractères'),
+  creationYear: optionalText(100),
+  medium: optionalText(255),
+  dimensions: optionalText(255),
+  notice: optionalText(500_000),
+  sources: optionalText(100_000),
   status: ArtworkStatusSchema,
-  images: ArtworkImageSchemaSimplified.array(),
-  artistIds: z.array(z.string()),
+  placeId: IdSchema.nullable(),
+  images: ArtworkImageSchema.array().max(50),
+  artistIds: IdSchema.array().max(50),
 });
-
-// =============================================================================
-// TYPE EXPORTS
-// =============================================================================
 
 export type Artwork = z.infer<typeof ArtworkSchema>;
-export type CreateArtwork = z.infer<typeof CreateArtworkSchema>;
-export type UpdateArtwork = z.infer<typeof UpdateArtworkSchema>;
+export type PublicArtwork = z.infer<typeof PublicArtworkSchema>;
 export type ArtworkForm = z.infer<typeof ArtworkFormSchema>;

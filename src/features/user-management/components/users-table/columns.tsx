@@ -2,10 +2,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { UserRoleSchema } from '@/schemas';
-import { User } from '@/schemas/user';
-import { DataTableFeatures } from '@/lib/data-table';
-import { ColumnDef } from '@tanstack/react-table';
+import { UserRoleSchema } from '@/schemas/common';
+import { type User } from '@/schemas/user';
+import { type DataTableFeatures } from '@/lib/data-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { UserRowActions } from './user-row-actions';
 
