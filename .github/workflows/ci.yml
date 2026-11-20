@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main]
   pull_request:
-    branches: [main, staging]
+    branches: [main]
 
 env:
   NODE_VERSION: '24'
