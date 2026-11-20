@@ -3,7 +3,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
-import vercelJson from './vercel.json' with { type: 'json' };
 
 export default defineConfig({
   server: {
@@ -20,7 +19,7 @@ export default defineConfig({
     // React's Vite plugin must come after the Start plugin
     viteReact(),
     // Nitro builds the server output; on Vercel it auto-selects the Vercel preset.
-    // Crons are copied into the Build Output config, which is what Vercel reads for framework builds.
-    nitro({ vercel: { config: { version: 3, crons: vercelJson.crons } } }),
+    // Vercel merges vercel.json crons into the build output at deploy time, so they must not be duplicated here.
+    nitro(),
   ],
 });
