@@ -1,5 +1,6 @@
 import { requirePermission } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
+import { orNotFound } from '@/lib/prisma-errors';
 import { ArtistFormSchema, UpdateArtistSchema, type ArtistForm } from '@/schemas/artist';
 import { emptyToNull, IdSchema } from '@/schemas/common';
 import { createServerFn } from '@tanstack/react-start';
@@ -27,15 +28,17 @@ export const updateArtist = createServerFn({ method: 'POST' })
   .middleware([requireArtistManager])
   .validator(UpdateArtistSchema)
   .handler(async ({ data: { id, ...form }, context: { user } }) => {
-    await prisma.artist.update({
-      where: { id },
-      data: { ...toArtistData(form), updatedById: user.id },
-    });
+    await orNotFound(
+      prisma.artist.update({
+        where: { id },
+        data: { ...toArtistData(form), updatedById: user.id },
+      }),
+    );
   });
 
 export const deleteArtist = createServerFn({ method: 'POST' })
   .middleware([requireArtistManager])
   .validator(IdSchema)
   .handler(async ({ data: artistId }) => {
-    await prisma.artist.delete({ where: { id: artistId } });
+    await orNotFound(prisma.artist.delete({ where: { id: artistId } }));
   });

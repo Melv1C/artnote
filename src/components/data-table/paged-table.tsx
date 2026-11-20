@@ -9,14 +9,8 @@ import {
 } from '@/components/ui/table';
 import { dataTableFeatures, type DataTableFeatures } from '@/lib/data-table';
 import type { PageInfo } from '@/lib/pagination';
-import {
-  flexRender,
-  useTable,
-  type ColumnDef,
-  type RowData,
-  type SortingState,
-} from '@tanstack/react-table';
-import { useState } from 'react';
+import { flexRender, useTable, type ColumnDef, type RowData } from '@tanstack/react-table';
+import { useEffect } from 'react';
 
 interface PagedTableProps<TRow extends RowData> {
   columns: ColumnDef<DataTableFeatures, TRow>[];
@@ -32,8 +26,9 @@ interface PagedTableProps<TRow extends RowData> {
 }
 
 /**
- * A dashboard table over a server-paginated query: the server filters and pages, the table
- * renders one page and moves between pages. Sorting reorders the current page only.
+ * A dashboard table over a server-paginated query: the server filters, orders and pages; the
+ * table renders one page and moves between pages. It does not sort: a sort over one page would
+ * look like a sort over all rows.
  */
 export function PagedTable<TRow extends RowData>({
   columns,
@@ -44,8 +39,12 @@ export function PagedTable<TRow extends RowData>({
   isError,
   messages,
 }: PagedTableProps<TRow>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
   const pageIndex = (page?.page ?? 1) - 1;
+
+  // After deleting the last row of the last page, go back to the new last page
+  useEffect(() => {
+    if (page && page.totalPages > 0 && page.page > page.totalPages) onPageChange(page.totalPages);
+  }, [page, onPageChange]);
 
   const table = useTable({
     features: dataTableFeatures,
@@ -53,9 +52,8 @@ export function PagedTable<TRow extends RowData>({
     columns,
     manualPagination: true,
     rowCount: page?.totalCount ?? 0,
-    onSortingChange: setSorting,
+    enableSorting: false,
     state: {
-      sorting,
       pagination: { pageIndex, pageSize: page?.limit ?? (rows.length || 1) },
     },
   });

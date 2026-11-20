@@ -18,14 +18,14 @@ import { columns } from './places-table-columns';
 export function PlacesTable() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', type: 'all', city: '', country: '' });
-  const debouncedSearch = useDebounce(filters.search, 300);
+  const debounced = useDebounce(filters, 300);
 
   const { data, isLoading, isError } = usePlaces({
     page,
-    search: debouncedSearch || undefined,
-    type: PlaceTypeSchema.safeParse(filters.type).data,
-    city: filters.city || undefined,
-    country: filters.country || undefined,
+    search: debounced.search || undefined,
+    type: PlaceTypeSchema.safeParse(debounced.type).data,
+    city: debounced.city || undefined,
+    country: debounced.country || undefined,
   });
 
   // A new filter starts again from the first page

@@ -26,7 +26,7 @@ jobs:
           cache: true
 
       # Prisma, format, lint, type check, tests, knip and build
-      - run: vp run check
+      - run: bun run check
 
       - name: Fail if the build changed committed files (route tree)
         run: git diff --exit-code

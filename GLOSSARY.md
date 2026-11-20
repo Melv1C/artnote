@@ -76,8 +76,8 @@ One browser that accepted analytics cookies, recognised across visits. Without c
 _Avoid_: User, reader (in analytics)
 
 **Session**:
-One page load of the site and the navigation that follows, until the tab is closed or reloaded.
-_Avoid_: Visit
+One page load of the site and the navigation that follows, until the tab is closed or reloaded. Not a sign-in.
+_Avoid_: Visit, login session
 
 **Page view**:
 A reader seeing any page, timed from arrival to departure.
@@ -88,7 +88,7 @@ A reader spending time on a notice's page, measured per notice.
 _Avoid_: Notice page view
 
 **View count**:
-The running number of times a notice's page was opened, counted at most once per network address every 30 minutes. Separate from page views and notice views.
+The running number of times a notice's page was opened, counted at most once per network address every 30 minutes. Separate from page views and notice views; the records kept to deduplicate it are not page views either.
 _Avoid_: Views (unqualified), hits
 
 **Daily summary** / **weekly summary**:

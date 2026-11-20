@@ -9,14 +9,14 @@ import { columns } from './artists-table-columns';
 export function ArtistsTable() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', name: '', bornAfter: '', bornBefore: '' });
-  const debouncedSearch = useDebounce(filters.search, 300);
+  const debounced = useDebounce(filters, 300);
 
   const { data, isLoading, isError } = useArtists({
     page,
-    search: debouncedSearch || undefined,
-    name: filters.name || undefined,
-    bornAfter: filters.bornAfter || undefined,
-    bornBefore: filters.bornBefore || undefined,
+    search: debounced.search || undefined,
+    name: debounced.name || undefined,
+    bornAfter: debounced.bornAfter || undefined,
+    bornBefore: debounced.bornBefore || undefined,
   });
 
   // A new filter starts again from the first page

@@ -1,10 +1,12 @@
-import { useLocation } from '@tanstack/react-router';
 import { referrerDomain } from '../lib/events';
 import { useTrackedView } from './use-tracked-view';
 
-/** Track a timed view of a notice's public page, for per-notice stats. */
+/**
+ * Track a timed view of a notice's public page, for per-notice stats. Keyed on the notice only:
+ * the route location changes before the page unmounts, and must not start a new notice view.
+ */
 export function useNoticeViewTracking(noticeId: string) {
-  const path = useLocation({ select: location => location.pathname });
+  const path = `/artworks/${noticeId}`;
 
   useTrackedView(
     {

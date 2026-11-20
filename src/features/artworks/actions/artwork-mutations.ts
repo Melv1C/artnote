@@ -95,7 +95,8 @@ export const deleteArtwork = createServerFn({ method: 'POST' })
   .validator(IdSchema)
   .handler(async ({ data: artworkId, context: { user } }) => {
     await findOwnArtwork(artworkId, user.id);
-    // Images, artist links and analytics rows cascade
+    // Image attachments, artist links and view records cascade; audience summaries keep the
+    // notice id and show it as a deleted notice
     await prisma.artwork.delete({ where: { id: artworkId } });
   });
 

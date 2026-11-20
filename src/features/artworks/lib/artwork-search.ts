@@ -8,8 +8,11 @@ const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
 const SortOrderSchema = z.enum(['asc', 'desc']);
 
 // Default search parsing turns numeric values (e.g. `?year=1890`) into numbers, so accept both
-// and keep the parsed value to avoid rewriting the URL
-const searchValue = z.union([z.string(), z.number()]).optional().catch(undefined);
+// and keep the parsed value to avoid rewriting the URL. Over-long values are dropped, not errors.
+const searchValue = z
+  .union([z.string().max(200), z.number()])
+  .optional()
+  .catch(undefined);
 
 /** Search params of the public notices list (`/artworks`). Invalid values are dropped. */
 export const ArtworksSearchSchema = z.object({

@@ -18,6 +18,10 @@ describe('public notice search', () => {
     expect(toArtworkFilters(search)).toMatchObject({ year: '1890', sort: 'year' });
   });
 
+  it('drops an over-long URL value instead of failing the page', () => {
+    expect(ArtworksSearchSchema.parse({ search: 'x'.repeat(201) }).search).toBeUndefined();
+  });
+
   it('only ever matches published notices', () => {
     const where = buildArtworkWhere(filters({ search: 'Ensor', year: '1888' }));
     expect(where).toMatchObject({ status: 'PUBLISHED', publishedAt: { not: null } });

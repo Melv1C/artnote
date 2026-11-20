@@ -1,10 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { PlaceWithRelations } from '@/schemas/place';
 import type { DataTableFeatures } from '@/lib/data-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 import { PlaceRowActions } from './place-row-actions';
@@ -33,12 +31,7 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
   },
   {
     accessorKey: 'name',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Nom
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: 'Nom',
     cell: ({ row }) => (
       <Link
         to="/dashboard/places/$placeId"
@@ -83,12 +76,7 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Créé le
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: 'Créé le',
     cell: ({ row }) => {
       const date = new Date(row.getValue('createdAt'));
       return date.toLocaleDateString('fr-FR');

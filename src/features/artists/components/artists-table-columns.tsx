@@ -1,10 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { ArtistWithRelations } from '@/schemas/artist';
 import type { DataTableFeatures } from '@/lib/data-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { ArtistRowActions } from './artist-row-actions';
 
@@ -32,12 +30,7 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   },
   {
     accessorKey: 'name',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Nom
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: 'Nom',
     cell: ({ row }) => {
       const artist = row.original;
       const fullName = `${artist.firstName} ${artist.lastName}`;
@@ -54,12 +47,7 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   },
   {
     accessorKey: 'birthDate',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Date de naissance
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: 'Date de naissance',
     cell: ({ row }) => {
       const birthDate = row.getValue('birthDate') as Date | null;
       return birthDate ? new Date(birthDate).toLocaleDateString('fr-FR') : '—';
@@ -103,12 +91,7 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Créé le
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: 'Créé le',
     cell: ({ row }) => {
       const date = new Date(row.getValue('createdAt'));
       return date.toLocaleDateString('fr-FR');

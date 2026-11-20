@@ -9,5 +9,9 @@ import { auth } from './auth';
  */
 export async function getUser() {
   const session = await auth.api.getSession({ headers: getRequestHeaders() });
-  return session ? UserSchema.parse(session.user) : null;
+  if (!session) return null;
+  // A user whose row does not fit the schema (e.g. an unknown role) is treated as signed out
+  const user = UserSchema.safeParse(session.user);
+  if (!user.success) console.error('Session user does not match UserSchema:', user.error.issues);
+  return user.data ?? null;
 }

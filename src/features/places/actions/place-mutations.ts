@@ -1,5 +1,6 @@
 import { requirePermission } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
+import { orNotFound } from '@/lib/prisma-errors';
 import { emptyToNull, IdSchema } from '@/schemas/common';
 import { PlaceFormSchema, UpdatePlaceSchema, type PlaceForm } from '@/schemas/place';
 import { createServerFn } from '@tanstack/react-start';
@@ -31,15 +32,17 @@ export const updatePlace = createServerFn({ method: 'POST' })
   .middleware([requirePlaceManager])
   .validator(UpdatePlaceSchema)
   .handler(async ({ data: { id, ...form }, context: { user } }) => {
-    await prisma.place.update({
-      where: { id },
-      data: { ...toPlaceData(form), updatedById: user.id },
-    });
+    await orNotFound(
+      prisma.place.update({
+        where: { id },
+        data: { ...toPlaceData(form), updatedById: user.id },
+      }),
+    );
   });
 
 export const deletePlace = createServerFn({ method: 'POST' })
   .middleware([requirePlaceManager])
   .validator(IdSchema)
   .handler(async ({ data: placeId }) => {
-    await prisma.place.delete({ where: { id: placeId } });
+    await orNotFound(prisma.place.delete({ where: { id: placeId } }));
   });

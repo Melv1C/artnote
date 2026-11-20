@@ -69,9 +69,23 @@ src/
 
 Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (tracking, beacon ingestion, nightly and weekly summaries, report queries), `admin-dashboard` (the dashboard home and its charts), `user-management`, `profile`, `auth`.
 
-Dashboard tables over a paginated server function use `PagedTable` (`src/components/data-table/paged-table.tsx`): the server filters and pages (`paginate`, `pageWindow` in `src/lib/pagination.ts`), and each feature keeps its filter-to-`where` mapping as a tested pure builder in `lib/` (`buildArtistWhere`, `buildPlaceWhere`, `buildArtworkWhere`).
+Dashboard lists come in two kinds. Artists and places are server-paginated: `PagedTable` (`src/components/data-table/paged-table.tsx`) renders one page, the server filters, orders and pages (`paginate`, `pageWindow` in `src/lib/pagination.ts`), and each feature keeps its filter-to-`where` mapping as a tested pure builder in `lib/` (`buildArtistWhere`, `buildPlaceWhere`). The writer's notices and the users are small lists loaded whole and filtered in the browser (`filterAdminArtworks`; users are capped at 100 by `fetchUsers`). `buildArtworkWhere` belongs to the public notices list, not the dashboard.
 
 Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any. A feature may import another feature's `actions/`, `hooks/` and `lib/` (the dashboard composes `analytics`, `artworks` and `user-management` queries); UI shared by several features lives in `src/components/`.
+
+## Domain terms in code
+
+`GLOSSARY.md` names the concepts; some carry other names in the schema and code:
+
+| Term                   | In code                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| Notice                 | `Artwork` model, `artwork*` in code; `noticeId` in analytics (ADR 0001)                       |
+| Image attachment       | `ArtworkImage` model                                                                          |
+| Artist credit          | `ArtworkArtist` model (an artist and their role on one notice)                                |
+| Writer / Author        | `Artwork.writer` (a `User`) / `AuthorSchema`                                                  |
+| Page view, notice view | `AnalyticsEvent` rows (`page_view_*`, `notice_view_*`)                                        |
+| View count             | `Artwork.viewCount`; its deduplication records are the `PageView` model, not page views       |
+| Session (analytics)    | `sessionId` on analytics events; the `Session` model is a Better Auth sign-in, something else |
 
 ## Writing a server function
 
