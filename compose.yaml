@@ -1,0 +1,21 @@
+name: artnote
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: artnote
+      POSTGRES_PASSWORD: artnote
+      POSTGRES_DB: artnote
+    ports:
+      - '${ARTNOTE_DB_PORT:-5432}:5432'
+    volumes:
+      - artnote-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U artnote -d artnote']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  artnote-db:
