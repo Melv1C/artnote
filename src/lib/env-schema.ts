@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 
 const DEV_AUTH_SECRET = 'dev-only-better-auth-secret';
 const FALLBACK_SITE_URL = 'https://artnote.vercel.app';

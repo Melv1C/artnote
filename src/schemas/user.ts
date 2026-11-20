@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { IdSchema, UserRoleSchema } from './common';
 
 /** A user as Better Auth returns it. Private: never send it from a public server function. */

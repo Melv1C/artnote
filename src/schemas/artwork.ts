@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { ArtistSchema, PublicArtistSchema } from './artist';
 import { ArtworkImageInputSchema, ArtworkImageSchema } from './artwork-image';
 import { ImageSchema } from './image';

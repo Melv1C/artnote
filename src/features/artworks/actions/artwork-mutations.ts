@@ -7,8 +7,9 @@ import { ImageSchema } from '@/schemas/image';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequestHeader } from '@tanstack/react-start/server';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { nextPublishedAt, ownedBy } from '../lib/artwork-status';
+import { clientIpFrom } from '../lib/view-count';
 import { recordArtworkView } from './artwork-views';
 
 /**
@@ -133,10 +134,6 @@ export const recordNoticeView = createServerFn({ method: 'POST' })
   .handler(async ({ data: artworkId }) => {
     await recordArtworkView({
       artworkId,
-      // Vercel sets these from the connection; elsewhere they are client-controlled
-      forwardedFor:
-        getRequestHeader('x-vercel-forwarded-for') ??
-        getRequestHeader('x-real-ip') ??
-        getRequestHeader('x-forwarded-for'),
+      clientIp: clientIpFrom(getRequestHeader('x-vercel-forwarded-for')),
     });
   });

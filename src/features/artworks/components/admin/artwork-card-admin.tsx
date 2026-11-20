@@ -25,6 +25,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
 
 interface ArtworkCardAdminProps {
   artwork: Artwork;
@@ -33,27 +34,24 @@ interface ArtworkCardAdminProps {
   isPending?: boolean;
 }
 
-// Status configuration with better styling
-const statusConfig = {
+// Badge styling per status; labels come from ARTWORK_STATUS_LABELS
+const statusStyles = {
   DRAFT: {
-    label: 'Brouillon',
     className:
       'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-800',
     dotColor: 'bg-amber-500',
   },
   PUBLISHED: {
-    label: 'Publié',
     className:
       'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-800',
     dotColor: 'bg-emerald-500',
   },
   ARCHIVED: {
-    label: 'Archivé',
     className:
       'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/10 dark:text-gray-400 dark:border-gray-800',
     dotColor: 'bg-gray-500',
   },
-} as const;
+} as const satisfies Record<ArtworkStatus, { className: string; dotColor: string }>;
 
 export function ArtworkCardAdmin({
   artwork,
@@ -61,20 +59,10 @@ export function ArtworkCardAdmin({
   onStatusChange,
   isPending,
 }: ArtworkCardAdminProps) {
-  const {
-    id,
-    title,
-    creationYear,
-    medium,
-    dimensions,
-    status,
-    viewCount,
-    updatedAt,
-    images,
-    // Add other fields when available in the schema
-  } = artwork;
+  const { id, title, creationYear, medium, dimensions, status, viewCount, updatedAt, images } =
+    artwork;
 
-  const statusInfo = statusConfig[status];
+  const statusInfo = { ...statusStyles[status], label: ARTWORK_STATUS_LABELS[status] };
 
   // Get main image
   const mainImage = images?.find(img => img.isMain) || images?.[0];
@@ -157,8 +145,6 @@ export function ArtworkCardAdmin({
                 <span>{dimensions}</span>
               </div>
             )}
-
-            {/* TODO: Add place, artists when available in schema */}
           </div>
         </div>
       </CardHeader>
@@ -217,8 +203,8 @@ export function ArtworkCardAdmin({
                     onClick={() => handleStatusChange(newStatus)}
                     disabled={isPending}
                   >
-                    <div className={`w-2 h-2 rounded-full ${statusConfig[newStatus].dotColor}`} />
-                    {statusConfig[newStatus].label}
+                    <div className={`w-2 h-2 rounded-full ${statusStyles[newStatus].dotColor}`} />
+                    {ARTWORK_STATUS_LABELS[newStatus]}
                   </DropdownMenuItem>
                 ))}
 

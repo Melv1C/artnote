@@ -1,7 +1,7 @@
 import '@tanstack/react-start/server-only';
 import { put } from '@vercel/blob';
 import { randomUUID } from 'node:crypto';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 

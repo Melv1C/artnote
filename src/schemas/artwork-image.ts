@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { IdSchema } from './common';
 import { ImageSchema } from './image';
 

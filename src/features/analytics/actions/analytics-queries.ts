@@ -2,7 +2,7 @@ import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
 import { publishedWhere } from '@/features/artworks/lib/artwork-status';
 import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { utcDaysAgo } from '../lib/aggregate';
 
 /** Dashboard reports cover this many days of daily summaries. */

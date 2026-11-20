@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { emptyToNull } from '@/schemas/common';
 import { UserProfileFormSchema, UserSchema } from '@/schemas/user';
 import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 
 /** Update the signed-in user's name, bio and CV link. */
 export const updateProfile = createServerFn({ method: 'POST' })

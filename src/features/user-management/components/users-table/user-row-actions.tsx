@@ -24,6 +24,7 @@ import {
   updateUserRole,
 } from '../../actions/user-mutations';
 import { userKeys } from '../../hooks/use-users';
+import { USER_ROLE_LABELS } from '../../lib/user-roles';
 
 interface UserRowActionsProps {
   user: User;
@@ -33,18 +34,6 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   // Get query client for invalidation
   const queryClient = useQueryClient();
 
-  // Helper function to get user-friendly role names
-  const getRoleDisplayName = (role: UserRole) => {
-    switch (role) {
-      case UserRoleSchema.enum.admin:
-        return 'Administrateur';
-      case UserRoleSchema.enum.user:
-        return 'Utilisateur';
-      default:
-        return role;
-    }
-  };
-
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.id);
     toast.success('ID utilisateur copié dans le presse-papiers', {
@@ -52,15 +41,10 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     });
   };
 
-  const handleViewProfile = () => {
-    // TODO: Navigate to user profile view
-    toast.info('Fonctionnalité en cours de développement');
-  };
-
   const handleEditRole = async (newRole: UserRole) => {
     try {
       await updateUserRole({ data: { userId: user.id, role: newRole } });
-      toast.success(`Rôle mis à jour vers ${getRoleDisplayName(newRole)}`);
+      toast.success(`Rôle mis à jour vers ${USER_ROLE_LABELS[newRole]}`);
       await queryClient.invalidateQueries({ queryKey: userKeys.all });
     } catch (error) {
       console.error('Error updating user role:', error);
@@ -142,7 +126,6 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleCopyId}>Copier l'ID utilisateur</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleViewProfile}>Voir le profil</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
@@ -154,7 +137,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
                   onClick={() => handleEditRole(role)}
                   disabled={user.role === role}
                 >
-                  {getRoleDisplayName(role)}
+                  {USER_ROLE_LABELS[role]}
                   {user.role === role && ' (actuel)'}
                 </DropdownMenuItem>
               ))}

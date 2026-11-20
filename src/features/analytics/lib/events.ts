@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 
 const AnalyticsEventTypeSchema = z.enum([
   'page_view_start',

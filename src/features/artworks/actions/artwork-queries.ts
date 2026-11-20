@@ -6,7 +6,7 @@ import { ArtworkStatusSchema, IdSchema } from '@/schemas/common';
 import { authorSelect } from '@/schemas/user';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { ownedBy, publishedWhere } from '../lib/artwork-status';
 import {
   ArtworkFiltersSchema,

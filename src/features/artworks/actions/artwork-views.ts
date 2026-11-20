@@ -3,17 +3,11 @@ import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { createHash } from 'node:crypto';
 import { publishedWhere } from '../lib/artwork-status';
-
-/** One view per visitor per notice in this window. */
-const VIEW_DEDUPLICATION_WINDOW_MS = 30 * 60 * 1000;
+import { VIEW_DEDUPLICATION_WINDOW_MS } from '../lib/view-count';
 
 /** Keep the client IP only as a salted hash, so stored rows can't be traced back to an address. */
-function hashClientIp(forwardedFor: string | undefined): string | null {
-  // `x-forwarded-for` is "client, proxy1, proxy2"; the first entry is the client
-  const ip = forwardedFor?.split(',')[0]?.trim();
-  if (!ip) return null;
-  return createHash('sha256').update(`${env.BETTER_AUTH_SECRET}:${ip}`).digest('hex');
-}
+const hashIp = (ip: string) =>
+  createHash('sha256').update(`${env.BETTER_AUTH_SECRET}:${ip}`).digest('hex');
 
 /**
  * Count a public view of a notice in `Artwork.viewCount`, at most once per client IP in
@@ -22,15 +16,15 @@ function hashClientIp(forwardedFor: string | undefined): string | null {
  */
 export async function recordArtworkView({
   artworkId,
-  forwardedFor,
+  clientIp,
 }: {
   artworkId: string;
-  forwardedFor: string | undefined;
+  clientIp: string | null;
 }): Promise<void> {
+  // Without a client IP a view cannot be deduplicated: do not count it
+  if (!clientIp) return;
   try {
-    const ipHash = hashClientIp(forwardedFor);
-    // Without a client IP a view cannot be deduplicated: do not count it
-    if (!ipHash) return;
+    const ipHash = hashIp(clientIp);
 
     // Not atomic with the write below: two simultaneous requests may both count, which is
     // acceptable for a view counter

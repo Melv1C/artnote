@@ -2,7 +2,7 @@ import type { Prisma } from '@/generated/prisma/client';
 import { containsInsensitive as contains } from '@/lib/prisma-filters';
 import { SearchTextSchema } from '@/schemas/common';
 import { publishedWhere } from './artwork-status';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 
 const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
 const SortOrderSchema = z.enum(['asc', 'desc']);

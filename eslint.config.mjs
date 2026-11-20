@@ -5,6 +5,9 @@ import prettierConfig from 'eslint-config-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 
+// Zod with the French locale set; importing 'zod' directly would skip it
+const ZOD_IMPORT = { name: 'zod', message: "Import { z } from '@/lib/zod' (French messages)." };
+
 // Server-only modules: importing one from UI code would pull secrets or Prisma into the bundle
 const SERVER_ONLY_IMPORTS = [
   { name: '@/lib/prisma', message: 'Read data through a server function in actions/.' },
@@ -64,6 +67,7 @@ const eslintConfig = [
         'error',
         { fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
       ],
+      'no-restricted-imports': ['error', { paths: [ZOD_IMPORT] }],
       'no-restricted-syntax': [
         'error',
         {
@@ -94,13 +98,17 @@ const eslintConfig = [
     ],
     ignores: ['src/lib/**'],
     rules: {
-      'no-restricted-imports': ['error', { paths: SERVER_ONLY_IMPORTS }],
+      'no-restricted-imports': ['error', { paths: [ZOD_IMPORT, ...SERVER_ONLY_IMPORTS] }],
     },
   },
   {
     // Scripts and config run outside the app and read the environment directly
     files: ['scripts/**', 'prisma/**', '*.config.*', 'src/lib/env.ts'],
     rules: { 'no-restricted-syntax': 'off' },
+  },
+  {
+    files: ['src/lib/zod.ts'],
+    rules: { 'no-restricted-imports': 'off' },
   },
   prettierConfig,
 ];

@@ -17,8 +17,9 @@ const PUBLIC_SERVER_FUNCTIONS = new Set([
   'getSiteUrl', // Open Graph base URL
 ]);
 
-const GUARD =
-  /\.middleware\(\[\s*(requireAuth|dashboardAccessMiddleware|requirePermission\(|require\w+)/;
+// The guards of src/lib/auth-functions.ts; a local alias (`requireArtistManager`) also counts
+// when its own file defines it with requirePermission
+const GUARDS = ['requireAuth', 'dashboardAccessMiddleware', 'requirePermission('];
 
 const SRC = join(import.meta.dirname, '..');
 
@@ -53,11 +54,22 @@ describe('server functions', () => {
     expect(serverFunctions).toHaveLength(calls);
   });
 
-  // Middleware names declared with a guard in their own file (e.g. `requireArtistManager`) count
   it.each(serverFunctions.filter(fn => !PUBLIC_SERVER_FUNCTIONS.has(fn.name)))(
     '$name ($file) has a guard middleware',
-    ({ builder }) => {
-      expect(builder).toMatch(GUARD);
+    ({ builder, file }) => {
+      const first = builder.match(/\.middleware\(\[\s*([\w(]+)/)?.[1] ?? '';
+      const source = files.find(entry => relative(SRC, entry.file) === file)?.source ?? '';
+      // A local alias counts only when this file defines it with requirePermission
+      const isAlias = source.includes(`const ${first} = requirePermission(`);
+      expect(GUARDS.some(guard => first.startsWith(guard)) || isAlias, first).toBe(true);
+    },
+  );
+
+  it.each(serverFunctions)(
+    '$name ($file) reads input only by destructuring',
+    ({ handlerParams }) => {
+      // `({ data, context })` keeps the input visible to the schema check below
+      expect(handlerParams).toMatch(/^\.handler\(\s*(async\s*)?\(\s*(\{|\))/);
     },
   );
 
@@ -69,15 +81,6 @@ describe('server functions', () => {
       expect(builder).not.toMatch(/\.validator\(\s*\(/);
     },
   );
-
-  it('defines local guard aliases (e.g. `requireArtistManager`) with requirePermission', () => {
-    for (const { file, source } of files) {
-      if (file.endsWith('auth-functions.ts')) continue;
-      for (const [, name, value] of source.matchAll(/const (require\w+) = ([^;]+)/g)) {
-        expect(value, `${name} in ${relative(SRC, file)}`).toMatch(/^requirePermission\(/);
-      }
-    }
-  });
 
   it('lists only public functions that exist', () => {
     const names = new Set(serverFunctions.map(fn => fn.name));
