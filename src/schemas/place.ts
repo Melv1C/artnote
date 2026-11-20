@@ -23,20 +23,6 @@ export const PlaceSchema = z.object({
 });
 
 // =============================================================================
-// INPUT SCHEMAS
-// =============================================================================
-
-export const CreatePlaceSchema = PlaceSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  createdById: true,
-  updatedById: true,
-});
-
-export const UpdatePlaceSchema = CreatePlaceSchema.partial();
-
-// =============================================================================
 // QUERY/FILTER SCHEMAS
 // =============================================================================
 
@@ -70,7 +56,5 @@ export const PlaceFormSchema = z.object({
 // =============================================================================
 
 export type Place = z.infer<typeof PlaceSchema>;
-export type CreatePlace = z.infer<typeof CreatePlaceSchema>;
-export type UpdatePlace = z.infer<typeof UpdatePlaceSchema>;
 export type PlaceFilters = z.infer<typeof PlaceFiltersSchema>;
 export type PlaceForm = z.infer<typeof PlaceFormSchema>;

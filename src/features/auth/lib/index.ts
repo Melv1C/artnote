@@ -3,4 +3,5 @@ export {
   checkUserPermission,
   requireRolePermission,
   requireUserPermission,
+  type PermissionCheck,
 } from './access-control';

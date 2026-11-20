@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
 import { ArtworkImageSimplified } from '@/schemas/artwork-image';
+import { uploadArtworkImage } from '../../actions/upload-artwork-image';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Star, StarOff, Upload, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -27,39 +28,21 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     setIsUploading(true);
 
     try {
-      const uploadPromises = files.map(async file => {
-        const formData = new FormData();
-        formData.append('file', file);
+      const uploadedImages = await Promise.all(
+        files.map(file => {
+          const formData = new FormData();
+          formData.append('file', file);
+          return uploadArtworkImage({ data: formData });
+        }),
+      );
 
-        const response = await fetch('/api/artworks/images/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Erreur lors du téléchargement');
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error || 'Erreur lors du téléchargement');
-        }
-
-        return result;
-      });
-
-      const results = await Promise.all(uploadPromises);
-
-      // Create new ArtworkImageSimplified objects
-      const newImages: ArtworkImageSimplified[] = results.map((result, index) => ({
-        imageId: result.imageId!,
+      const newImages: ArtworkImageSimplified[] = uploadedImages.map((image, index) => ({
+        imageId: image.id,
         sortOrder: images.length + index,
         isMain: images.length === 0 && index === 0, // First image is main by default
         legend: null,
         source: null,
-        image: result.imageData!,
+        image,
       }));
 
       // We have the image ID from the database after upload

@@ -1,5 +1,5 @@
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
-import { Unauthorized } from '@/components/layout/unauthorized';
+import { UnauthorizedOrError } from '@/components/layout/unauthorized';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import {
@@ -7,7 +7,7 @@ import {
   getDashboardAccess,
   setUnauthorizedStatus,
 } from '@/lib/auth-functions';
-import { ErrorComponent, Outlet, createFileRoute } from '@tanstack/react-router';
+import { Outlet, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -21,12 +21,7 @@ export const Route = createFileRoute('/dashboard')({
 
     return { user };
   },
-  errorComponent: ({ error }) =>
-    error instanceof Error && error.message === UNAUTHORIZED_ERROR ? (
-      <Unauthorized />
-    ) : (
-      <ErrorComponent error={error} />
-    ),
+  errorComponent: UnauthorizedOrError,
   component: DashboardLayout,
 });
 

@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, Shield } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import { UNAUTHORIZED_ERROR } from '@/lib/auth-functions';
+import { ErrorComponent, type ErrorComponentProps, Link } from '@tanstack/react-router';
 
 export function Unauthorized() {
   return (
@@ -30,5 +31,13 @@ export function Unauthorized() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export function UnauthorizedOrError({ error }: ErrorComponentProps) {
+  return error instanceof Error && error.message === UNAUTHORIZED_ERROR ? (
+    <Unauthorized />
+  ) : (
+    <ErrorComponent error={error} />
   );
 }

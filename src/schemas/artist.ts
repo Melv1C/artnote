@@ -19,23 +19,6 @@ export const ArtistSchema = z.object({
 });
 
 // =============================================================================
-// INPUT SCHEMAS
-// =============================================================================
-
-export const CreateArtistSchema = ArtistSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  createdById: true,
-  updatedById: true,
-}).extend({
-  birthDate: z.string().optional().nullable(),
-  deathDate: z.string().optional().nullable(),
-});
-
-export const UpdateArtistSchema = CreateArtistSchema.partial();
-
-// =============================================================================
 // QUERY/FILTER SCHEMAS
 // =============================================================================
 
@@ -83,8 +66,6 @@ export const ArtistWithArtworksSchema = ArtistSchema.extend({
 // =============================================================================
 
 export type Artist = z.infer<typeof ArtistSchema>;
-export type CreateArtist = z.infer<typeof CreateArtistSchema>;
-export type UpdateArtist = z.infer<typeof UpdateArtistSchema>;
 export type ArtistFilters = z.infer<typeof ArtistFiltersSchema>;
 export type ArtistForm = z.infer<typeof ArtistFormSchema>;
 export type ArtistWithArtworks = z.infer<typeof ArtistWithArtworksSchema>;

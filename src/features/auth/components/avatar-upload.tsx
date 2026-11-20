@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { uploadAvatar } from '@/features/profile/actions';
 import { useSession } from '@/lib/auth-client';
 import { Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -25,15 +26,8 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
     setIsUploading(true);
 
     try {
-      const res = await fetch('/api/profile/avatar', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Erreur lors du téléchargement');
-      }
-      setPreview(data.url);
+      const { url } = await uploadAvatar({ data: formData });
+      setPreview(url);
       toast.success('Avatar mis à jour');
       await refetch();
     } catch (error) {
