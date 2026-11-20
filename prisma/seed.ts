@@ -1,7 +1,6 @@
 import { hashPassword } from 'better-auth/crypto';
+import { assertLocalDatabase } from '../scripts/assert-local-db';
 import { createPrismaClient } from '../src/lib/prisma-client';
-
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', 'db']);
 
 const SEED_PASSWORD = 'artnote-dev-password';
 
@@ -9,18 +8,6 @@ const seedUsers = [
   { id: 'seed-user-admin', email: 'admin@example.com', name: 'Admin ArtNote', role: 'admin' },
   { id: 'seed-user-reader', email: 'user@example.com', name: 'Lecteur ArtNote', role: 'user' },
 ] as const;
-
-function assertLocalDatabase(url: string | undefined): string {
-  if (!url) throw new Error('PRISMA_DATABASE_URL is not set. Copy .env.example to .env first.');
-  const { hostname } = new URL(url);
-  if (!LOCAL_HOSTS.has(hostname) && process.env.SEED_ALLOW_REMOTE !== '1') {
-    throw new Error(
-      `Refusing to seed ${hostname}: the seed creates accounts with a public password. ` +
-        'Point PRISMA_DATABASE_URL at the local Docker database, or set SEED_ALLOW_REMOTE=1.',
-    );
-  }
-  return url;
-}
 
 const prisma = createPrismaClient(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
 

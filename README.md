@@ -28,7 +28,7 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
    cp .env.example .env
    ```
 
-   The defaults point at the local Docker database. `.env` and `.env.local` are loaded into `process.env` for server code (`.env.local` wins). The variables are validated in `src/lib/env.ts`. Image uploads need a real `BLOB_READ_WRITE_TOKEN` (for example from `vercel env pull .env.local`).
+   The defaults point at the local Docker database. `.env` and `.env.local` are loaded into `process.env` for server code (`.env.local` wins). The variables are validated in `src/lib/env.ts`. Image uploads need a real `BLOB_READ_WRITE_TOKEN`: put only that variable in `.env.local`. Don't `vercel env pull` into `.env.local`, because its `PRISMA_DATABASE_URL` would point the app and the `db:*` scripts at the shared database.
 
 4. Start the local database (Docker), apply migrations, generate the Prisma client and seed sample data:
 
@@ -36,7 +36,7 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
    bun run db:setup
    ```
 
-   Sign in with `admin@example.com` or `user@example.com`, password `artnote-dev-password`. `PRISMA_DATABASE_URL` also accepts a `prisma+postgres://` Accelerate URL; the seed refuses to run against a non-local database.
+   Sign in with `admin@example.com` or `user@example.com`, password `artnote-dev-password`. `PRISMA_DATABASE_URL` also accepts a `prisma+postgres://` Accelerate URL; `db:setup`, `db:reset` and the seed refuse to run against a non-local database.
 
 5. Run the development server:
    ```bash

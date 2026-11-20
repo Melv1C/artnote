@@ -26,7 +26,7 @@ Seeded accounts (password `artnote-dev-password`):
 
 The seed also creates 2 places, 3 artists and 3 artworks (2 published, 1 draft).
 
-Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WRITE_TOKEN`.
+Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WRITE_TOKEN`. Put only that variable in `.env.local`, never a `vercel env pull`: `.env.local` wins over `.env`, and its `PRISMA_DATABASE_URL` would point everything at the shared database.
 
 ## Commands
 
@@ -49,7 +49,7 @@ There are no automated tests. To verify a change, run `lint` and `type-check`, t
 - Schema: `prisma/schema.prisma`. The client is generated into `src/generated/prisma` (gitignored) and imported from `@/generated/prisma/client`.
 - `status`, `role` and place `type` are plain strings; the allowed values live in Zod enums in `src/schemas/common.ts`.
 - Vercel runs `prisma migrate deploy` on every build, previews included, so a migration reaches the shared database as soon as a branch deploys.
-- Only run migrations, resets and seeds against the local Docker database. The seed refuses a non-local host.
+- Only run migrations, resets and seeds against the local Docker database. `db:setup`, `db:reset` and the seed refuse a non-local host (`scripts/assert-local-db.ts`).
 
 ## Code layout
 
@@ -70,5 +70,5 @@ There are no automated tests. To verify a change, run `lint` and `type-check`, t
 
 ## Branches and releases
 
-- Branch from `staging` as `feat/*` or `fix/*` and open the PR against `staging`. CI rejects feature PRs that target `main`.
+- Branch from `staging` as `feat/*` or `fix/*` and open the PR against `staging`. CI only lets `staging` target `main`.
 - Releases squash-merge `staging` into `main` as `release: DD MM YYYY — <title> (#PR)`.

@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: artnote
       POSTGRES_DB: artnote
     ports:
-      - '${ARTNOTE_DB_PORT:-5432}:5432'
+      - '5432:5432'
     volumes:
       - artnote-db:/var/lib/postgresql/data
     healthcheck:
