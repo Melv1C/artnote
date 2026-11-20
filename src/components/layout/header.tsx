@@ -23,7 +23,7 @@ export function Header() {
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
               <img
-                src="/icon.png"
+                src="/logo-96.png"
                 alt="ArtNote Logo"
                 width={48}
                 height={48}
