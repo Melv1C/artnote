@@ -1,14 +1,15 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getRequiredUser } from '@/lib/auth-server';
+import { requirePermission } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
 import { ArtistFormSchema } from '@/schemas/artist';
 
-export const createArtist = createServerFn({ method: 'POST' })
-  .validator((formData: FormData) => formData)
-  .handler(async ({ data: formData }) => {
-    try {
-      const user = await getRequiredUser();
+const requireArtistManager = requirePermission({ artist: ['manage'] });
 
+export const createArtist = createServerFn({ method: 'POST' })
+  .middleware([requireArtistManager])
+  .validator((formData: FormData) => formData)
+  .handler(async ({ data: formData, context: { user } }) => {
+    try {
       // Parse form data
       const data = ArtistFormSchema.parse({
         firstName: formData.get('firstName'),
@@ -37,12 +38,11 @@ export const createArtist = createServerFn({ method: 'POST' })
   });
 
 export const updateArtist = createServerFn({ method: 'POST' })
+  .middleware([requireArtistManager])
   .validator((formData: FormData) => formData)
-  .handler(async ({ data: formData }) => {
+  .handler(async ({ data: formData, context: { user } }) => {
     const artistId = String(formData.get('artistId'));
     try {
-      const user = await getRequiredUser();
-
       // Parse form data
       const data = ArtistFormSchema.parse({
         firstName: formData.get('firstName'),
@@ -71,11 +71,10 @@ export const updateArtist = createServerFn({ method: 'POST' })
   });
 
 export const deleteArtist = createServerFn({ method: 'POST' })
+  .middleware([requireArtistManager])
   .validator((artistId: string) => artistId)
   .handler(async ({ data: artistId }) => {
     try {
-      await getRequiredUser();
-
       await prisma.artist.delete({
         where: { id: artistId },
       });

@@ -1,17 +1,15 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getRequiredUser } from '@/lib/auth-server';
+import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
 
 /**
  * Delete an artwork permanently
  */
 export const deleteArtwork = createServerFn({ method: 'POST' })
+  .middleware([dashboardAccessMiddleware])
   .validator((artworkId: string) => artworkId)
-  .handler(async ({ data: artworkId }) => {
+  .handler(async ({ data: artworkId, context: { user } }) => {
     try {
-      // Verify user is authenticated
-      const user = await getRequiredUser();
-
       // Get the artwork to check ownership
       const artwork = await prisma.artwork.findUnique({
         where: { id: artworkId },
@@ -49,12 +47,10 @@ export const deleteArtwork = createServerFn({ method: 'POST' })
  * Change artwork status
  */
 export const changeArtworkStatus = createServerFn({ method: 'POST' })
+  .middleware([dashboardAccessMiddleware])
   .validator((data: { artworkId: string; newStatus: string }) => data)
-  .handler(async ({ data: { artworkId, newStatus } }) => {
+  .handler(async ({ data: { artworkId, newStatus }, context: { user } }) => {
     try {
-      // Verify user is authenticated
-      const user = await getRequiredUser();
-
       // Validate the status
       const validStatuses = ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
       if (!validStatuses.includes(newStatus)) {

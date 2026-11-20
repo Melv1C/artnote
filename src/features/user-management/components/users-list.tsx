@@ -4,7 +4,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { useUsersWithSearch } from '../hooks';
+import { useUsers } from '../hooks';
 import { UsersDataTable, columns } from './users-table';
 import { UserActions } from './users-table/user-actions';
 import { UsersTableSkeleton } from './users-table/users-table-skeleton';
@@ -24,11 +24,10 @@ export function UsersList() {
   // Debounce search to reduce re-filtering
   const debouncedSearch = useDebounce(searchValue, 300);
 
-  // Fetch users using Better Auth admin plugin
-  const { data, isLoading, error, refetch } = useUsersWithSearch();
+  const { data, isLoading, error, refetch } = useUsers();
 
   const users = data?.users || [];
-  const totalCount = data?.pagination.totalCount || 0;
+  const totalCount = data?.total || 0;
 
   // Client-side filtering for better UX
   const filteredUsers = useMemo(() => {

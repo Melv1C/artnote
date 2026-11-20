@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getRequiredUser } from '@/lib/auth-server';
+import { requireAuth } from '@/lib/auth-functions';
+import { readImageFile, uploadPublicImage } from '@/lib/image-upload';
 import { prisma } from '@/lib/prisma';
 import { type User, UserProfileFormSchema, UserSchema, type UserProfileForm } from '@/schemas/user';
 
@@ -10,11 +11,10 @@ export type UpdateProfileResponse = {
 };
 
 export const updateProfile = createServerFn({ method: 'POST' })
+  .middleware([requireAuth])
   .validator((data: UserProfileForm) => data)
-  .handler(async ({ data }): Promise<UpdateProfileResponse> => {
+  .handler(async ({ data, context: { user } }): Promise<UpdateProfileResponse> => {
     try {
-      const user = await getRequiredUser();
-      console.log(data);
       const validatedData = UserProfileFormSchema.parse(data);
 
       const updatedUser = await prisma.user.update({
@@ -34,4 +34,18 @@ export const updateProfile = createServerFn({ method: 'POST' })
       }
       return { success: false, error: "Une erreur inattendue s'est produite" };
     }
+  });
+
+export const uploadAvatar = createServerFn({ method: 'POST' })
+  .middleware([requireAuth])
+  .validator((formData: FormData) => formData)
+  .handler(async ({ data: formData, context: { user } }) => {
+    const blob = await uploadPublicImage(`avatars/${user.id}`, readImageFile(formData));
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { image: blob.url, updatedAt: new Date() },
+    });
+
+    return { url: blob.url };
   });

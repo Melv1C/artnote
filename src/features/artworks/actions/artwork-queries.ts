@@ -1,5 +1,4 @@
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
-import { getRequiredUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema } from '@/schemas';
 import { notFound } from '@tanstack/react-router';
@@ -48,6 +47,7 @@ export const fetchPublishedArtwork = createServerFn({ method: 'GET' })
   });
 
 export const fetchArtworkPreview = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
   .validator((artworkId: string) => artworkId)
   .handler(async ({ data: artworkId }) => {
     const artwork = await getArtworkByIdForPreview(artworkId);
@@ -81,9 +81,7 @@ const adminArtworkInclude = {
  */
 export const fetchMyArtworks = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
-  .handler(async () => {
-    const user = await getRequiredUser();
-
+  .handler(async ({ context: { user } }) => {
     return ArtworkSchema.array().parse(
       await prisma.artwork.findMany({
         where: {
@@ -98,9 +96,7 @@ export const fetchMyArtworks = createServerFn({ method: 'GET' })
 export const fetchMyArtworkForEdit = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator((artworkId: string) => artworkId)
-  .handler(async ({ data: artworkId }) => {
-    const user = await getRequiredUser();
-
+  .handler(async ({ data: artworkId, context: { user } }) => {
     const artwork = await prisma.artwork.findUnique({
       where: { id: artworkId },
       include: adminArtworkInclude,
@@ -119,11 +115,11 @@ export const fetchMyArtworkForEdit = createServerFn({ method: 'GET' })
 export const fetchMyArtworkCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator((status: 'PUBLISHED' | 'DRAFT' | undefined) => status)
-  .handler(async ({ data: status }) =>
+  .handler(async ({ data: status, context: { user } }) =>
     prisma.artwork.count({
       where: {
         ...(status && { status: ArtworkStatusSchema.enum[status] }),
-        writerId: (await getRequiredUser()).id,
+        writerId: user.id,
       },
     }),
   );

@@ -20,6 +20,7 @@ import { dataTableFeatures } from '@/lib/data-table';
 import { flexRender, SortingState, useTable } from '@tanstack/react-table';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { PlaceTypeSchema } from '@/schemas';
 import { usePlaces } from '../hooks/use-places';
 import { columns } from './places-table-columns';
 
@@ -34,7 +35,7 @@ export function PlacesTable() {
 
   const { data, isLoading, error } = usePlaces({
     search: debouncedSearch,
-    type: typeFilter === 'all' ? undefined : typeFilter,
+    type: PlaceTypeSchema.safeParse(typeFilter).data,
     city: cityFilter || undefined,
     country: countryFilter || undefined,
   });

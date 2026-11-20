@@ -18,15 +18,9 @@ import { Route as ApiAnalyticsRouteImport } from './routes/api/analytics'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
-import { Route as ApiArtistsIndexRouteImport } from './routes/api/artists/index'
-import { Route as ApiArtistsArtistIdRouteImport } from './routes/api/artists/$artistId'
-import { Route as ApiArtworksIndexRouteImport } from './routes/api/artworks/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronAggregateNightlyRouteImport } from './routes/api/cron/aggregate-nightly'
 import { Route as ApiCronAggregateWeeklyRouteImport } from './routes/api/cron/aggregate-weekly'
-import { Route as ApiPlacesIndexRouteImport } from './routes/api/places/index'
-import { Route as ApiPlacesPlaceIdRouteImport } from './routes/api/places/$placeId'
-import { Route as ApiProfileAvatarRouteImport } from './routes/api/profile/avatar'
 import { Route as ArtworksArtworkIdIndexRouteImport } from './routes/artworks/$artworkId/index'
 import { Route as ArtworksArtworkIdPreviewRouteImport } from './routes/artworks/$artworkId/preview'
 import { Route as DashboardArtistsIndexRouteImport } from './routes/dashboard/artists/index'
@@ -37,7 +31,6 @@ import { Route as DashboardArtworksCreateRouteImport } from './routes/dashboard/
 import { Route as DashboardPlacesIndexRouteImport } from './routes/dashboard/places/index'
 import { Route as DashboardPlacesPlaceIdRouteImport } from './routes/dashboard/places/$placeId'
 import { Route as DashboardPlacesCreateRouteImport } from './routes/dashboard/places/create'
-import { Route as ApiArtworksImagesUploadRouteImport } from './routes/api/artworks/images/upload'
 import { Route as DashboardArtworksArtworkIdEditRouteImport } from './routes/dashboard/artworks/$artworkId/edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -85,21 +78,6 @@ const DashboardUsersRoute = DashboardUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const ApiArtistsIndexRoute = ApiArtistsIndexRouteImport.update({
-  id: '/api/artists/',
-  path: '/api/artists/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiArtistsArtistIdRoute = ApiArtistsArtistIdRouteImport.update({
-  id: '/api/artists/$artistId',
-  path: '/api/artists/$artistId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiArtworksIndexRoute = ApiArtworksIndexRouteImport.update({
-  id: '/api/artworks/',
-  path: '/api/artworks/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -113,21 +91,6 @@ const ApiCronAggregateNightlyRoute = ApiCronAggregateNightlyRouteImport.update({
 const ApiCronAggregateWeeklyRoute = ApiCronAggregateWeeklyRouteImport.update({
   id: '/api/cron/aggregate-weekly',
   path: '/api/cron/aggregate-weekly',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPlacesIndexRoute = ApiPlacesIndexRouteImport.update({
-  id: '/api/places/',
-  path: '/api/places/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPlacesPlaceIdRoute = ApiPlacesPlaceIdRouteImport.update({
-  id: '/api/places/$placeId',
-  path: '/api/places/$placeId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProfileAvatarRoute = ApiProfileAvatarRouteImport.update({
-  id: '/api/profile/avatar',
-  path: '/api/profile/avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksArtworkIdIndexRoute = ArtworksArtworkIdIndexRouteImport.update({
@@ -182,11 +145,6 @@ const DashboardPlacesCreateRoute = DashboardPlacesCreateRouteImport.update({
   path: '/places/create',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const ApiArtworksImagesUploadRoute = ApiArtworksImagesUploadRouteImport.update({
-  id: '/api/artworks/images/upload',
-  path: '/api/artworks/images/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardArtworksArtworkIdEditRoute =
   DashboardArtworksArtworkIdEditRouteImport.update({
     id: '/artworks/$artworkId/edit',
@@ -204,26 +162,19 @@ export interface FileRoutesByFullPath {
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/artists/$artistId': typeof ApiArtistsArtistIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
   '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
-  '/api/places/$placeId': typeof ApiPlacesPlaceIdRoute
-  '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
   '/dashboard/artworks/create': typeof DashboardArtworksCreateRoute
   '/dashboard/places/$placeId': typeof DashboardPlacesPlaceIdRoute
   '/dashboard/places/create': typeof DashboardPlacesCreateRoute
-  '/api/artists/': typeof ApiArtistsIndexRoute
-  '/api/artworks/': typeof ApiArtworksIndexRoute
-  '/api/places/': typeof ApiPlacesIndexRoute
   '/artworks/$artworkId/': typeof ArtworksArtworkIdIndexRoute
   '/dashboard/artists/': typeof DashboardArtistsIndexRoute
   '/dashboard/artworks/': typeof DashboardArtworksIndexRoute
   '/dashboard/places/': typeof DashboardPlacesIndexRoute
-  '/api/artworks/images/upload': typeof ApiArtworksImagesUploadRoute
   '/dashboard/artworks/$artworkId/edit': typeof DashboardArtworksArtworkIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -235,26 +186,19 @@ export interface FileRoutesByTo {
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/api/artists/$artistId': typeof ApiArtistsArtistIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
   '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
-  '/api/places/$placeId': typeof ApiPlacesPlaceIdRoute
-  '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
   '/dashboard/artworks/create': typeof DashboardArtworksCreateRoute
   '/dashboard/places/$placeId': typeof DashboardPlacesPlaceIdRoute
   '/dashboard/places/create': typeof DashboardPlacesCreateRoute
-  '/api/artists': typeof ApiArtistsIndexRoute
-  '/api/artworks': typeof ApiArtworksIndexRoute
-  '/api/places': typeof ApiPlacesIndexRoute
   '/artworks/$artworkId': typeof ArtworksArtworkIdIndexRoute
   '/dashboard/artists': typeof DashboardArtistsIndexRoute
   '/dashboard/artworks': typeof DashboardArtworksIndexRoute
   '/dashboard/places': typeof DashboardPlacesIndexRoute
-  '/api/artworks/images/upload': typeof ApiArtworksImagesUploadRoute
   '/dashboard/artworks/$artworkId/edit': typeof DashboardArtworksArtworkIdEditRoute
 }
 export interface FileRoutesById {
@@ -268,26 +212,19 @@ export interface FileRoutesById {
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/artists/$artistId': typeof ApiArtistsArtistIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
   '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
-  '/api/places/$placeId': typeof ApiPlacesPlaceIdRoute
-  '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
   '/dashboard/artworks/create': typeof DashboardArtworksCreateRoute
   '/dashboard/places/$placeId': typeof DashboardPlacesPlaceIdRoute
   '/dashboard/places/create': typeof DashboardPlacesCreateRoute
-  '/api/artists/': typeof ApiArtistsIndexRoute
-  '/api/artworks/': typeof ApiArtworksIndexRoute
-  '/api/places/': typeof ApiPlacesIndexRoute
   '/artworks/$artworkId/': typeof ArtworksArtworkIdIndexRoute
   '/dashboard/artists/': typeof DashboardArtistsIndexRoute
   '/dashboard/artworks/': typeof DashboardArtworksIndexRoute
   '/dashboard/places/': typeof DashboardPlacesIndexRoute
-  '/api/artworks/images/upload': typeof ApiArtworksImagesUploadRoute
   '/dashboard/artworks/$artworkId/edit': typeof DashboardArtworksArtworkIdEditRoute
 }
 export interface FileRouteTypes {
@@ -302,26 +239,19 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
-    | '/api/artists/$artistId'
     | '/api/auth/$'
     | '/api/cron/aggregate-nightly'
     | '/api/cron/aggregate-weekly'
-    | '/api/places/$placeId'
-    | '/api/profile/avatar'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
     | '/dashboard/artworks/create'
     | '/dashboard/places/$placeId'
     | '/dashboard/places/create'
-    | '/api/artists/'
-    | '/api/artworks/'
-    | '/api/places/'
     | '/artworks/$artworkId/'
     | '/dashboard/artists/'
     | '/dashboard/artworks/'
     | '/dashboard/places/'
-    | '/api/artworks/images/upload'
     | '/dashboard/artworks/$artworkId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -333,26 +263,19 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
-    | '/api/artists/$artistId'
     | '/api/auth/$'
     | '/api/cron/aggregate-nightly'
     | '/api/cron/aggregate-weekly'
-    | '/api/places/$placeId'
-    | '/api/profile/avatar'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
     | '/dashboard/artworks/create'
     | '/dashboard/places/$placeId'
     | '/dashboard/places/create'
-    | '/api/artists'
-    | '/api/artworks'
-    | '/api/places'
     | '/artworks/$artworkId'
     | '/dashboard/artists'
     | '/dashboard/artworks'
     | '/dashboard/places'
-    | '/api/artworks/images/upload'
     | '/dashboard/artworks/$artworkId/edit'
   id:
     | '__root__'
@@ -365,26 +288,19 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
-    | '/api/artists/$artistId'
     | '/api/auth/$'
     | '/api/cron/aggregate-nightly'
     | '/api/cron/aggregate-weekly'
-    | '/api/places/$placeId'
-    | '/api/profile/avatar'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
     | '/dashboard/artworks/create'
     | '/dashboard/places/$placeId'
     | '/dashboard/places/create'
-    | '/api/artists/'
-    | '/api/artworks/'
-    | '/api/places/'
     | '/artworks/$artworkId/'
     | '/dashboard/artists/'
     | '/dashboard/artworks/'
     | '/dashboard/places/'
-    | '/api/artworks/images/upload'
     | '/dashboard/artworks/$artworkId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -396,18 +312,11 @@ export interface RootRouteChildren {
   WhatsNewRoute: typeof WhatsNewRoute
   ApiAnalyticsRoute: typeof ApiAnalyticsRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
-  ApiArtistsArtistIdRoute: typeof ApiArtistsArtistIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronAggregateNightlyRoute: typeof ApiCronAggregateNightlyRoute
   ApiCronAggregateWeeklyRoute: typeof ApiCronAggregateWeeklyRoute
-  ApiPlacesPlaceIdRoute: typeof ApiPlacesPlaceIdRoute
-  ApiProfileAvatarRoute: typeof ApiProfileAvatarRoute
   ArtworksArtworkIdPreviewRoute: typeof ArtworksArtworkIdPreviewRoute
-  ApiArtistsIndexRoute: typeof ApiArtistsIndexRoute
-  ApiArtworksIndexRoute: typeof ApiArtworksIndexRoute
-  ApiPlacesIndexRoute: typeof ApiPlacesIndexRoute
   ArtworksArtworkIdIndexRoute: typeof ArtworksArtworkIdIndexRoute
-  ApiArtworksImagesUploadRoute: typeof ApiArtworksImagesUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -475,27 +384,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUsersRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/api/artists/': {
-      id: '/api/artists/'
-      path: '/api/artists'
-      fullPath: '/api/artists/'
-      preLoaderRoute: typeof ApiArtistsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/artists/$artistId': {
-      id: '/api/artists/$artistId'
-      path: '/api/artists/$artistId'
-      fullPath: '/api/artists/$artistId'
-      preLoaderRoute: typeof ApiArtistsArtistIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/artworks/': {
-      id: '/api/artworks/'
-      path: '/api/artworks'
-      fullPath: '/api/artworks/'
-      preLoaderRoute: typeof ApiArtworksIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -515,27 +403,6 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/aggregate-weekly'
       fullPath: '/api/cron/aggregate-weekly'
       preLoaderRoute: typeof ApiCronAggregateWeeklyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/places/': {
-      id: '/api/places/'
-      path: '/api/places'
-      fullPath: '/api/places/'
-      preLoaderRoute: typeof ApiPlacesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/places/$placeId': {
-      id: '/api/places/$placeId'
-      path: '/api/places/$placeId'
-      fullPath: '/api/places/$placeId'
-      preLoaderRoute: typeof ApiPlacesPlaceIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/profile/avatar': {
-      id: '/api/profile/avatar'
-      path: '/api/profile/avatar'
-      fullPath: '/api/profile/avatar'
-      preLoaderRoute: typeof ApiProfileAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/$artworkId/': {
@@ -608,13 +475,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPlacesCreateRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/api/artworks/images/upload': {
-      id: '/api/artworks/images/upload'
-      path: '/api/artworks/images/upload'
-      fullPath: '/api/artworks/images/upload'
-      preLoaderRoute: typeof ApiArtworksImagesUploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/artworks/$artworkId/edit': {
       id: '/dashboard/artworks/$artworkId/edit'
       path: '/artworks/$artworkId/edit'
@@ -665,18 +525,11 @@ const rootRouteChildren: RootRouteChildren = {
   WhatsNewRoute: WhatsNewRoute,
   ApiAnalyticsRoute: ApiAnalyticsRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
-  ApiArtistsArtistIdRoute: ApiArtistsArtistIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronAggregateNightlyRoute: ApiCronAggregateNightlyRoute,
   ApiCronAggregateWeeklyRoute: ApiCronAggregateWeeklyRoute,
-  ApiPlacesPlaceIdRoute: ApiPlacesPlaceIdRoute,
-  ApiProfileAvatarRoute: ApiProfileAvatarRoute,
   ArtworksArtworkIdPreviewRoute: ArtworksArtworkIdPreviewRoute,
-  ApiArtistsIndexRoute: ApiArtistsIndexRoute,
-  ApiArtworksIndexRoute: ApiArtworksIndexRoute,
-  ApiPlacesIndexRoute: ApiPlacesIndexRoute,
   ArtworksArtworkIdIndexRoute: ArtworksArtworkIdIndexRoute,
-  ApiArtworksImagesUploadRoute: ApiArtworksImagesUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

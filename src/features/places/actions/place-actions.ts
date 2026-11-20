@@ -1,14 +1,15 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getRequiredUser } from '@/lib/auth-server';
+import { requirePermission } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
 import { PlaceFormSchema } from '@/schemas/place';
 
-export const createPlace = createServerFn({ method: 'POST' })
-  .validator((formData: FormData) => formData)
-  .handler(async ({ data: formData }) => {
-    try {
-      const user = await getRequiredUser();
+const requirePlaceManager = requirePermission({ place: ['manage'] });
 
+export const createPlace = createServerFn({ method: 'POST' })
+  .middleware([requirePlaceManager])
+  .validator((formData: FormData) => formData)
+  .handler(async ({ data: formData, context: { user } }) => {
+    try {
       // Parse form data
       const data = PlaceFormSchema.parse({
         name: formData.get('name'),
@@ -41,12 +42,11 @@ export const createPlace = createServerFn({ method: 'POST' })
   });
 
 export const updatePlace = createServerFn({ method: 'POST' })
+  .middleware([requirePlaceManager])
   .validator((formData: FormData) => formData)
-  .handler(async ({ data: formData }) => {
+  .handler(async ({ data: formData, context: { user } }) => {
     const placeId = String(formData.get('placeId'));
     try {
-      const user = await getRequiredUser();
-
       // Parse form data
       const data = PlaceFormSchema.parse({
         name: formData.get('name'),
@@ -79,11 +79,10 @@ export const updatePlace = createServerFn({ method: 'POST' })
   });
 
 export const deletePlace = createServerFn({ method: 'POST' })
+  .middleware([requirePlaceManager])
   .validator((placeId: string) => placeId)
   .handler(async ({ data: placeId }) => {
     try {
-      await getRequiredUser();
-
       await prisma.place.delete({
         where: { id: placeId },
       });

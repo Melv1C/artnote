@@ -1,16 +1,12 @@
-import { checkRolePermission } from '@/features/auth/lib';
+import { checkRolePermission, type PermissionCheck } from '@/features/auth/lib';
 import { createIsomorphicFn, createMiddleware, createServerFn } from '@tanstack/react-start';
 import { setResponseStatus } from '@tanstack/react-start/server';
 import { getUser } from './auth-server';
 
 export const UNAUTHORIZED_ERROR = 'UNAUTHORIZED';
 
-const canViewDashboard = (role: Parameters<typeof checkRolePermission>[0]) =>
-  checkRolePermission(role, { artwork: ['read'] });
+const DASHBOARD_PERMISSIONS: PermissionCheck = { artwork: ['manage'] };
 
-/**
- * Resolve the current user and whether they may access the dashboard.
- */
 export const getDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await getUser();
 
@@ -18,27 +14,36 @@ export const getDashboardAccess = createServerFn({ method: 'GET' }).handler(asyn
     return { user: null, canViewDashboard: false };
   }
 
-  return { user, canViewDashboard: await canViewDashboard(user.role) };
+  return { user, canViewDashboard: await checkRolePermission(user.role, DASHBOARD_PERMISSIONS) };
 });
 
 /**
- * Guards dashboard server functions, which are callable on their own (unlike server components).
+ * Server functions are public HTTP endpoints: every private read and every mutation goes through
+ * `requireAuth` or `requirePermission`, which put the signed-in user in `context.user`.
  */
-export const dashboardAccessMiddleware = createMiddleware({ type: 'function' }).server(
-  async ({ next }) => {
-    const user = await getUser();
+export const requireAuth = createMiddleware({ type: 'function' }).server(async ({ next }) => {
+  const user = await getUser();
 
-    if (!user || !(await canViewDashboard(user.role))) {
-      throw new Error(UNAUTHORIZED_ERROR);
-    }
+  if (!user) {
+    throw new Error(UNAUTHORIZED_ERROR);
+  }
 
-    return next({ context: { user } });
-  },
-);
+  return next({ context: { user } });
+});
 
-/**
- * Mark the SSR response as 401, matching Next's `unauthorized()`. No-op on the client.
- */
+export const requirePermission = (permissions: PermissionCheck) =>
+  createMiddleware({ type: 'function' })
+    .middleware([requireAuth])
+    .server(async ({ next, context }) => {
+      if (!(await checkRolePermission(context.user.role, permissions))) {
+        throw new Error(UNAUTHORIZED_ERROR);
+      }
+
+      return next();
+    });
+
+export const dashboardAccessMiddleware = requirePermission(DASHBOARD_PERMISSIONS);
+
 export const setUnauthorizedStatus = createIsomorphicFn()
   .server(() => setResponseStatus(401))
   .client(() => {});
