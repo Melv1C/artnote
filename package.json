@@ -13,6 +13,7 @@
     "vercel-build": "prisma generate && prisma migrate deploy && vite build",
     "start": "node .output/server/index.mjs",
     "preview": "vite preview",
+    "check": "bun run lint && prisma generate && prisma validate && prisma format --check && vite build && bun run type-check",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
     "format": "prettier --write .",

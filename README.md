@@ -50,6 +50,7 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
 - `bun run build` – production build (client assets and the Nitro server output in `.output/`; on Vercel, Nitro emits `.vercel/output`).
 - `bun run start` – serve the production build locally (`node .output/server/index.mjs`).
 - `bun run vercel-build` – used by Vercel: `prisma generate`, `prisma migrate deploy`, then `vite build`.
+- `bun run check` – everything CI runs: lint, Prisma generate and validate, build (regenerates `src/routeTree.gen.ts`) and type-check.
 - `bun run lint` / `bun run type-check` – ESLint + Prettier, and TypeScript.
 - `bun run db:setup` / `db:seed` / `db:reset` / `db:down` – local Docker database: set up, re-seed, recreate from scratch, stop.
 
