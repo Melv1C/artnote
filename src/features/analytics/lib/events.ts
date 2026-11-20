@@ -63,6 +63,7 @@ export type AnalyticsEventPayload = z.input<typeof AnalyticsEventPayloadSchema>;
 export function categorizePagePath(path: string): PageCategory {
   const normalized = path.toLowerCase().replace(/\/+$/, '') || '/';
   if (normalized === '/') return 'home';
+  // Notice URLs come from src/routes/artworks/$artworkId/ (index and preview); update both together.
   // An admin previewing a draft is dashboard work, not a reader on a notice
   if (normalized.startsWith('/artworks/') && normalized.endsWith('/preview')) return 'dashboard';
   if (normalized.startsWith('/artworks/')) return 'notice';

@@ -12,7 +12,7 @@
     "build": "vp build",
     "start": "node .output/server/index.mjs",
     "preview": "vp preview",
-    "check": "prisma generate && prisma validate && prisma format --check && vp check && vp test && knip --no-config-hints && vp build",
+    "check": "prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
     "fix": "vp check --fix",
     "vercel-build": "prisma generate && prisma migrate deploy && vp build",
     "db:setup": "bun scripts/db-setup.ts",
