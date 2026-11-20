@@ -10,12 +10,11 @@ Needs Bun (package manager and script runner), Node 24 (runtime) and Docker.
 
 ```bash
 bun install
-cp .env.example .env    # defaults point at the local Docker database
-bun run db:setup        # start Postgres, apply migrations, generate the Prisma client, seed
-bun run dev             # http://localhost:3000
+bun run db:setup        # write .env, start Postgres, create this worktree's database, migrate, generate, seed
+bun run dev             # the URL db:setup printed (BASE_URL in .env)
 ```
 
-If port 3000 is taken, run `BASE_URL=http://localhost:3100 bun run dev --port 3100`. Better Auth rejects sign-ins when `BASE_URL` doesn't match the origin.
+Each worktree gets its own database and dev port. On its first run, `db:setup` writes `.env` with a database named after the worktree folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL`. An existing `.env` is never overwritten. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
 Seeded accounts (password `artnote-dev-password`):
 
@@ -30,17 +29,17 @@ Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WR
 
 ## Commands
 
-| Command                                | Use                                                                                                    |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `bun run check`                        | Everything CI runs: lint, Prisma generate and validate, build (regenerates the route tree), type-check |
-| `bun run lint`                         | ESLint and Prettier check                                                                              |
-| `bun run lint:fix`                     | Fix lint and formatting                                                                                |
-| `bun run type-check`                   | TypeScript 7 only; needs a generated Prisma client and a fresh route tree, which `check` provides      |
-| `bun run db:setup`                     | Start the database, migrate, generate, seed. Safe to re-run.                                           |
-| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                           |
-| `bun run db:reset`                     | Delete the local Docker volume and set up from scratch                                                 |
-| `bun run db:down`                      | Stop the database                                                                                      |
-| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                |
+| Command                                | Use                                                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `bun run check`                        | Everything CI runs: lint, Prisma generate and validate, build (regenerates the route tree), type-check             |
+| `bun run lint`                         | ESLint and Prettier check                                                                                          |
+| `bun run lint:fix`                     | Fix lint and formatting                                                                                            |
+| `bun run type-check`                   | TypeScript 7 only; needs a generated Prisma client and a fresh route tree, which `check` provides                  |
+| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run. |
+| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                       |
+| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                              |
+| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                    |
+| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                            |
 
 There are no automated tests. To verify a change, run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then run the app and check the change in a browser, signed in with a seeded account when needed.
 
@@ -50,6 +49,7 @@ There are no automated tests. To verify a change, run `bun run check` and commit
 - Schema: `prisma/schema.prisma`. The client is generated into `src/generated/prisma` (gitignored) and imported from `@/generated/prisma/client`.
 - `status`, `role` and place `type` are plain strings; the allowed values live in Zod enums in `src/schemas/common.ts`.
 - Vercel runs `prisma migrate deploy` on every build, previews included, so a migration reaches the shared database as soon as a branch deploys.
+- Worktrees share one Postgres container (`compose.yaml`, port 5432) but each uses its own database, so seeding or resetting one never touches another.
 - Only run migrations, resets and seeds against the local Docker database. `db:setup`, `db:reset` and the seed refuse a non-local host (`scripts/assert-local-db.ts`).
 
 ## Code layout
