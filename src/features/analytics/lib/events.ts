@@ -63,6 +63,8 @@ export type AnalyticsEventPayload = z.input<typeof AnalyticsEventPayloadSchema>;
 export function categorizePagePath(path: string): PageCategory {
   const normalized = path.toLowerCase().replace(/\/+$/, '') || '/';
   if (normalized === '/') return 'home';
+  // An admin previewing a draft is dashboard work, not a reader on a notice
+  if (normalized.startsWith('/artworks/') && normalized.endsWith('/preview')) return 'dashboard';
   if (normalized.startsWith('/artworks/')) return 'notice';
   if (normalized === '/about' || normalized.startsWith('/about/')) return 'about';
   if (normalized === '/dashboard' || normalized.startsWith('/dashboard/')) return 'dashboard';

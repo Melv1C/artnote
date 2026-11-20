@@ -1,6 +1,6 @@
 # ArtNote
 
-ArtNote is a [TanStack Start](https://tanstack.com/start) application for exploring artworks through detailed notes. It uses Prisma on a PostgreSQL database (Prisma Accelerate in production, a Docker Postgres locally) and Better Auth for authentication, and is deployed on Vercel.
+ArtNote is a [TanStack Start](https://tanstack.com/start) application that publishes scholarly notices about paintings for a French-speaking audience. It uses Prisma on a PostgreSQL database (Prisma Accelerate in production, a Docker Postgres locally) and Better Auth for authentication, and is deployed on Vercel.
 
 ## Setup
 

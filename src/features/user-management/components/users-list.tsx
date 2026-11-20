@@ -17,12 +17,8 @@ export function UsersList() {
   const [banStatusFilter, setBanStatusFilter] = useState('all');
   const [selectedRowCount, setSelectedRowCount] = useState(0);
 
-  // TODO: When we have more users (>1000), consider implementing:
-  // - Server-side search and filtering
-  // - Virtual scrolling for table performance
-  // - Pagination with proper API endpoints
-  // For now, client-side filtering provides better UX for smaller datasets.
-  // Debounce search to reduce re-filtering
+  // fetchUsers returns at most USER_LIST_LIMIT (100) users, filtered here in the browser. Past that,
+  // move search and paging to the server, as PagedTable does for artists and places.
   const debouncedSearch = useDebounce(searchValue, 300);
 
   const { data, isLoading, error, refetch } = useUsers();

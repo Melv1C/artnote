@@ -5,7 +5,7 @@ describe('categorizePagePath', () => {
   it.each([
     ['/', 'home'],
     ['/artworks/abc123', 'notice'],
-    ['/artworks/abc123/preview', 'notice'],
+    ['/artworks/abc123/preview', 'dashboard'],
     ['/artworks', 'other'],
     ['/about', 'about'],
     ['/dashboard', 'dashboard'],

@@ -31,18 +31,18 @@ Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WR
 
 ## Commands
 
-| Command                                | Use                                                                                                                  |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `bun run check`                        | Everything CI runs: Prisma generate and validate, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
-| `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                       |
-| `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                 |
-| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`); tests import from `vite-plus/test`                                           |
-| `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                               |
-| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run.   |
-| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                         |
-| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                |
-| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                      |
-| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                              |
+| Command                                | Use                                                                                                                                |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run check`                        | Everything CI runs: Prisma generate, validate and format check, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
+| `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
+| `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
+| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`); tests import from `vite-plus/test`                                                         |
+| `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
+| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run.                 |
+| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
+| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                              |
+| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                                    |
+| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                                            |
 
 `vp` comes with the dependencies (`node_modules/.bin/vp`); use `bunx vp` when it is not on your `PATH`. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `bun install`) runs `vp check --fix` on staged files.
 
@@ -59,12 +59,15 @@ src/
                        server-only helpers (they import '@tanstack/react-start/server-only').
     components/        React components of the feature.
     hooks/             React hooks, including React Query hooks and their query-key factories.
-    lib/               Pure logic (no React, no Prisma client, no request): filters, policies,
-                       aggregation. Unit-tested next to the code as <name>.test.ts.
+    lib/               Pure logic (no React, no Prisma client calls, no request; `import type`
+                       of Prisma types is fine): filters, policies, aggregation.
+                       Unit-tested next to the code as <name>.test.ts.
   schemas/             Zod schemas per entity: row schemas, form schemas, input schemas.
   lib/                 Cross-feature infrastructure: env, Prisma, Better Auth, permissions,
                        guard middleware, uploads, SEO.
-  components/ui/       shadcn components and the rich text editor. components/layout/: app shell.
+  hooks/               Cross-feature React hooks (useDebounce, useIsMobile).
+  components/ui/       shadcn components and the rich text editor. components/layout/: app shell;
+                       components/data-table/: PagedTable.
 ```
 
 Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (tracking, beacon ingestion, nightly and weekly summaries, report queries), `admin-dashboard` (the dashboard home and its charts), `user-management`, `profile`, `auth`.
@@ -104,7 +107,7 @@ export const updatePlace = createServerFn({ method: 'POST' })
 - **Validation**: pass a Zod schema to `.validator()`; never a pass-through function like `(x: T) => x`. Bound every string and number that reaches a query (`IdSchema`, `SearchTextSchema`, `.max()`).
 - **Enforced by a test**: `src/lib/server-functions.test.ts` reads every `createServerFn` and fails when one has no guard (unless listed in its `PUBLIC_SERVER_FUNCTIONS`) or reads input without a schema. Adding a public server function means adding it to that list, on purpose.
 - **Output**: parse Prisma results through the schemas in `src/schemas/`. Zod drops every key a schema does not declare, so the schema decides what leaves the server. Public reads use the public schemas: `PublicArtworkSchema` (no `writerId` or view counters), `PublicPlaceSchema` and `PublicArtistSchema` (no audit ids), and `AuthorSchema` for a writer (`id`, `name`, `image`), never `UserSchema`.
-- **Errors**: server functions throw. A missing record is `throw notFound()`; a broken rule is `throw new Error('<message in French>')`. They never return `{ success, error }` objects and never swallow errors into `null` or `[]`.
+- **Errors**: server functions throw. A missing record is `throw notFound()`; a broken rule is `throw new Error('<message in French>')`. They never return `{ success, error }` objects and never swallow errors into `null` or `[]`. Guards are the one exception: they throw `UNAUTHORIZED_ERROR`, a marker that `UnauthorizedOrError` (`components/layout/unauthorized.tsx`) renders as a French page.
 - **Notice ownership**: a writer reads, edits, publishes and deletes only their own notices in the dashboard: every such query filters with `ownedBy(user.id, …)` (`features/artworks/lib/artwork-status.ts`), and another writer's notice is reported as not found (ADR 0003). Any admin can preview any notice. Public reads filter with `publishedWhere`.
 - **Loaders have no side effects**: the router preloads a route's loader when a link is hovered (`defaultPreload: 'intent'`), so a loader's server function must only read. Writes triggered by visiting a page run from the page component (see `useRecordNoticeView`).
 - **User administration** calls Better Auth's server API (`auth.api.*` with `getRequestHeaders()`), never the browser `authClient`.

@@ -6,6 +6,7 @@ import { useTrackedView } from './use-tracked-view';
  * the route location changes before the page unmounts, and must not start a new notice view.
  */
 export function useNoticeViewTracking(noticeId: string) {
+  // The URL of src/routes/artworks/$artworkId/index.tsx; update both together
   const path = `/artworks/${noticeId}`;
 
   useTrackedView(
