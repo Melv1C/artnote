@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ArtistSchema, PublicArtistSchema } from './artist';
 import { ArtworkImageInputSchema, ArtworkImageSchema } from './artwork-image';
+import { ImageSchema } from './image';
 import { ArtworkStatusSchema, IdSchema } from './common';
 import { PlaceSchema, PublicPlaceSchema } from './place';
 import { AuthorSchema } from './user';
@@ -68,7 +69,9 @@ export type PublicArtwork = z.infer<typeof PublicArtworkSchema>;
  * previews. `ArtworkFormSchema` drops those details when the server parses the submission.
  */
 export const ArtworkEditorSchema = ArtworkFormSchema.extend({
-  images: ArtworkImageSchema.array().max(50),
+  images: ArtworkImageInputSchema.extend({ id: z.string().optional(), image: ImageSchema })
+    .array()
+    .max(50),
 });
 
 export type ArtworkForm = z.infer<typeof ArtworkFormSchema>;

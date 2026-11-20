@@ -12,4 +12,4 @@ Domain terms used in ArtNote's code, UI and docs. Code identifiers are English; 
 - **Admin** / **user**: the two roles. Admins write notices and administer the site; users (lecteurs) only read published content. See `src/lib/permissions.ts`.
 - **Visitor** / **session** (analytics): a visitor is the consented `visitor_id` cookie; a session is the in-memory id of one page load. Without consent, a visitor is counted by session.
 - **Page view** / **notice view** (analytics): a page view is any route shown (`page_view_*` events, counted site-wide); a notice view is the time spent on a notice's public page (`notice_view_*` events, counted per notice).
-- **View count**: `Artwork.viewCount`, a server-side counter of public notice page loads, deduplicated per visitor for 30 minutes. Separate from analytics events.
+- **View count**: `Artwork.viewCount`, a server-side counter of public notice page loads, deduplicated per client IP for 30 minutes. Separate from analytics events.

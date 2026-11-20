@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { fr } from 'zod/locales';
+
+// Validation messages reach the UI: default them to French. Every schema imports this module.
+z.config(fr());
 
 // Allowed values of the plain-string columns `User.role`, `Artwork.status` and `Place.type`
 export const UserRoleSchema = z.enum(['admin', 'user']);

@@ -3,18 +3,22 @@ import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Server functions are public HTTP endpoints. This test reads every `createServerFn` in `src/`
- * and enforces the AGENTS.md rules that types cannot: a guard middleware unless the function is
- * listed below as public, and a Zod schema (not a pass-through function) wherever it reads input.
+ * Server functions are public HTTP endpoints, exported or not. This test reads every
+ * `createServerFn` in `src/` and enforces the AGENTS.md rules that types cannot: a guard
+ * middleware from `src/lib/auth-functions.ts` unless the function is listed below as public, and
+ * a Zod schema (not a pass-through function) wherever its handler reads input.
  */
 const PUBLIC_SERVER_FUNCTIONS = new Set([
   'fetchFilteredArtworks', // public notices list
   'fetchLatestPublishedArtworks', // home and "what's new"
   'fetchPublishedArtwork', // public notice page
   'recordNoticeView', // view counter, published notices only
-  'getDashboardAccess', // tells the dashboard layout whether to render
+  'getDashboardAccess', // the caller's own session and whether it may open the dashboard
   'getSiteUrl', // Open Graph base URL
 ]);
+
+const GUARD =
+  /\.middleware\(\[\s*(requireAuth|dashboardAccessMiddleware|requirePermission\(|require\w+)/;
 
 const SRC = join(import.meta.dirname, '..');
 
@@ -25,39 +29,55 @@ const sourceFiles = (dir: string): string[] =>
     return /\.tsx?$/.test(entry.name) && !entry.name.endsWith('.test.ts') ? [path] : [];
   });
 
-type ServerFn = { name: string; file: string; chain: string };
+type ServerFn = { name: string; file: string; builder: string; handlerParams: string };
 
-/** Each `export const <name> = createServerFn(...)` with its builder chain up to `.handler(`. */
-const serverFunctions: ServerFn[] = sourceFiles(SRC).flatMap(file => {
-  const source = readFileSync(file, 'utf8');
-  return [...source.matchAll(/export const (\w+) = createServerFn\(/g)].map(match => {
-    const start = match.index;
-    const chain = source.slice(start, source.indexOf('.handler(', start) + '.handler('.length);
-    const handler = source.slice(start + chain.length, start + chain.length + 120);
-    return { name: match[1] ?? '', file: relative(SRC, file), chain: chain + handler };
-  });
-});
+const files = sourceFiles(SRC).map(file => ({ file, source: readFileSync(file, 'utf8') }));
+
+/** Every `const <name> = createServerFn(...)`, with its builder chain and handler parameters. */
+const serverFunctions: ServerFn[] = files.flatMap(({ file, source }) =>
+  [...source.matchAll(/(?:export )?const (\w+) = createServerFn\(/g)].map(match => {
+    const handlerAt = source.indexOf('.handler(', match.index);
+    const builder = source.slice(match.index, handlerAt);
+    // The handler's parameter list: everything up to its arrow
+    const handlerParams = source.slice(handlerAt, source.indexOf('=>', handlerAt));
+    return { name: match[1] ?? '', file: relative(SRC, file), builder, handlerParams };
+  }),
+);
 
 describe('server functions', () => {
-  it('are found', () => {
-    expect(serverFunctions.length).toBeGreaterThan(30);
+  it('are all found', () => {
+    const calls = files.reduce(
+      (count, { source }) => count + (source.match(/createServerFn\(/g)?.length ?? 0),
+      0,
+    );
+    expect(serverFunctions).toHaveLength(calls);
   });
 
+  // Middleware names declared with a guard in their own file (e.g. `requireArtistManager`) count
   it.each(serverFunctions.filter(fn => !PUBLIC_SERVER_FUNCTIONS.has(fn.name)))(
     '$name ($file) has a guard middleware',
-    ({ chain }) => {
-      expect(chain).toMatch(/\.middleware\(\[/);
+    ({ builder }) => {
+      expect(builder).toMatch(GUARD);
     },
   );
 
-  it.each(serverFunctions.filter(fn => /\bdata\b/.test(fn.chain.split('.handler(')[1] ?? '')))(
+  it.each(serverFunctions.filter(fn => /\bdata\b/.test(fn.handlerParams)))(
     '$name ($file) validates its input with a schema',
-    ({ chain }) => {
-      expect(chain).toMatch(/\.validator\(/);
+    ({ builder }) => {
+      expect(builder).toMatch(/\.validator\(/);
       // A function validator such as `(x: T) => x` checks nothing at runtime
-      expect(chain).not.toMatch(/\.validator\(\s*\(/);
+      expect(builder).not.toMatch(/\.validator\(\s*\(/);
     },
   );
+
+  it('defines local guard aliases (e.g. `requireArtistManager`) with requirePermission', () => {
+    for (const { file, source } of files) {
+      if (file.endsWith('auth-functions.ts')) continue;
+      for (const [, name, value] of source.matchAll(/const (require\w+) = ([^;]+)/g)) {
+        expect(value, `${name} in ${relative(SRC, file)}`).toMatch(/^requirePermission\(/);
+      }
+    }
+  });
 
   it('lists only public functions that exist', () => {
     const names = new Set(serverFunctions.map(fn => fn.name));

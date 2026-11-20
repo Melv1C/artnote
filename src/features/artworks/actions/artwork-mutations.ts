@@ -133,6 +133,10 @@ export const recordNoticeView = createServerFn({ method: 'POST' })
   .handler(async ({ data: artworkId }) => {
     await recordArtworkView({
       artworkId,
-      forwardedFor: getRequestHeader('x-forwarded-for') ?? getRequestHeader('x-real-ip'),
+      // Vercel sets these from the connection; elsewhere they are client-controlled
+      forwardedFor:
+        getRequestHeader('x-vercel-forwarded-for') ??
+        getRequestHeader('x-real-ip') ??
+        getRequestHeader('x-forwarded-for'),
     });
   });

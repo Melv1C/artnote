@@ -16,8 +16,9 @@ function hashClientIp(forwardedFor: string | undefined): string | null {
 }
 
 /**
- * Count a public view of a notice in `Artwork.viewCount`, at most once per visitor in
- * `VIEW_DEDUPLICATION_WINDOW_MS`. Never throws: a failed count must not break the page.
+ * Count a public view of a notice in `Artwork.viewCount`, at most once per client IP in
+ * `VIEW_DEDUPLICATION_WINDOW_MS`. Requests without a client IP (the local dev server) are not
+ * counted. Never throws: a failed count must not break the page.
  */
 export async function recordArtworkView({
   artworkId,
@@ -28,18 +29,20 @@ export async function recordArtworkView({
 }): Promise<void> {
   try {
     const ipHash = hashClientIp(forwardedFor);
+    // Without a client IP a view cannot be deduplicated: do not count it
+    if (!ipHash) return;
 
-    if (ipHash) {
-      const recentView = await prisma.pageView.findFirst({
-        where: {
-          artworkId,
-          ipAddress: ipHash,
-          createdAt: { gte: new Date(Date.now() - VIEW_DEDUPLICATION_WINDOW_MS) },
-        },
-        select: { id: true },
-      });
-      if (recentView) return;
-    }
+    // Not atomic with the write below: two simultaneous requests may both count, which is
+    // acceptable for a view counter
+    const recentView = await prisma.pageView.findFirst({
+      where: {
+        artworkId,
+        ipAddress: ipHash,
+        createdAt: { gte: new Date(Date.now() - VIEW_DEDUPLICATION_WINDOW_MS) },
+      },
+      select: { id: true },
+    });
+    if (recentView) return;
 
     await prisma.$transaction(async tx => {
       // Only published notices count; an unknown or unpublished id is ignored

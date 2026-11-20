@@ -20,6 +20,7 @@ const ImageUploadSchema = z.object({
     .refine(file => ALLOWED_IMAGE_TYPES.includes(file.type), {
       message: 'Formats acceptés : JPEG, PNG, WebP, AVIF ou GIF',
     })
+    .refine(file => file.size > 0, { message: 'Le fichier est vide' })
     .refine(file => file.size <= MAX_IMAGE_BYTES, {
       message: 'Le fichier est trop volumineux (max 10 Mo)',
     }),

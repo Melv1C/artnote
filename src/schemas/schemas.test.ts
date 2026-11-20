@@ -93,6 +93,13 @@ describe('ArtworkFormSchema', () => {
     expect(parsed.images).toEqual([attachment]);
   });
 
+  it('reports default validation errors in French', () => {
+    const result = ArtworkFormSchema.safeParse({ ...form, images: [], medium: 'x'.repeat(300) });
+    const message = result.error?.issues[0]?.message ?? '';
+    expect(message).not.toMatch(/too big/i);
+    expect(message).toMatch(/trop/i);
+  });
+
   it('rejects unbounded ids', () => {
     const result = ArtworkFormSchema.safeParse({
       ...form,

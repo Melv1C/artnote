@@ -30,6 +30,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
 import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
 import { PlaceSelector } from './place-selector';
@@ -140,9 +141,11 @@ export function ArtworkForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Brouillon</SelectItem>
-                    <SelectItem value="PUBLISHED">Publié</SelectItem>
-                    <SelectItem value="ARCHIVED">Archivé</SelectItem>
+                    {ArtworkStatusSchema.options.map(status => (
+                      <SelectItem key={status} value={status}>
+                        {ARTWORK_STATUS_LABELS[status]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
