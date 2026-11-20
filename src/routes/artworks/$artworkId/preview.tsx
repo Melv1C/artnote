@@ -1,3 +1,4 @@
+import { UnauthorizedOrError } from '@/components/layout/unauthorized';
 import { Badge } from '@/components/ui/badge';
 import { fetchArtworkPreview } from '@/features/artworks/actions';
 import { ArtworkDetail } from '@/features/artworks/components';
@@ -6,6 +7,7 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute('/artworks/$artworkId/preview')({
   loader: ({ params }) => fetchArtworkPreview({ data: params.artworkId }),
   component: ArtworkPreviewPage,
+  errorComponent: UnauthorizedOrError,
 });
 
 function ArtworkPreviewPage() {

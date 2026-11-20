@@ -1,5 +1,4 @@
 import '@tanstack/react-start/server-only';
-import { getUser } from '@/lib/auth-server';
 import { prisma } from '@/lib/prisma';
 import { ArtworkSchema, ArtworkStatusSchema, UserSchema } from '@/schemas';
 
@@ -44,8 +43,6 @@ export async function getArtworkById(id: string) {
 
 export async function getArtworkByIdForPreview(id: string) {
   try {
-    const user = await getUser();
-
     const artwork = await prisma.artwork.findUnique({
       where: { id },
       include: {
@@ -70,13 +67,7 @@ export async function getArtworkByIdForPreview(id: string) {
       },
     });
 
-    if (!artwork || !user) {
-      return null;
-    }
-
-    const isAdmin = user.role === 'admin';
-
-    if (!isAdmin) {
+    if (!artwork) {
       return null;
     }
 

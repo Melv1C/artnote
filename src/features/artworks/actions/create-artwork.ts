@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { Prisma } from '@/generated/prisma/client';
-import { getRequiredUser } from '@/lib/auth-server';
+import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
 import { ArtworkStatusSchema } from '@/schemas';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
@@ -12,12 +12,10 @@ export type CreateArtworkResponse = {
 };
 
 export const createArtwork = createServerFn({ method: 'POST' })
+  .middleware([dashboardAccessMiddleware])
   .validator((data: ArtworkForm) => data)
-  .handler(async ({ data }): Promise<CreateArtworkResponse> => {
+  .handler(async ({ data, context: { user } }): Promise<CreateArtworkResponse> => {
     try {
-      // Get the current user session
-      const user = await getRequiredUser();
-
       // Validate the form data
       const validatedData = ArtworkFormSchema.parse(data);
 
