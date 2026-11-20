@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchArtist, fetchArtists } from '../actions/artist-queries';
 
+const TABLE_PAGE_SIZE = 50;
+
 type ArtistFilters = Parameters<typeof fetchArtists>[0]['data'];
 
 export function useArtists(filters: ArtistFilters = {}) {
   return useQuery({
     queryKey: ['artists', filters],
-    queryFn: () => fetchArtists({ data: filters }),
+    queryFn: () => fetchArtists({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
   });
 }

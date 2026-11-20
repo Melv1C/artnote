@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchPlace, fetchPlaces } from '../actions/place-queries';
 
+const TABLE_PAGE_SIZE = 50;
+
 type PlaceFilters = Parameters<typeof fetchPlaces>[0]['data'];
 
 export function usePlaces(filters: PlaceFilters = {}) {
   return useQuery({
     queryKey: ['places', filters],
-    queryFn: () => fetchPlaces({ data: filters }),
+    queryFn: () => fetchPlaces({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
   });
 }

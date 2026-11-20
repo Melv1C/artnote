@@ -3,7 +3,7 @@ import { getRequestHeaders } from '@tanstack/react-start/server';
 import { auth } from '@/lib/auth';
 import { requireAuth, requirePermission } from '@/lib/auth-functions';
 import { UserRole, UserRoleSchema, UserSchema } from '@/schemas';
-import { BanUser, UnbanUser } from '@/schemas/user';
+import { BanUser, BanUserSchema, UnbanUser, UnbanUserSchema } from '@/schemas/user';
 import { z } from 'zod';
 
 const USER_LIST_LIMIT = 100;
@@ -47,7 +47,7 @@ export const deleteUser = createServerFn({ method: 'POST' })
 
 export const banUser = createServerFn({ method: 'POST' })
   .middleware([requirePermission({ user: ['ban'] })])
-  .validator((data: BanUser) => data)
+  .validator((data: BanUser) => BanUserSchema.parse(data))
   .handler(async ({ data: { userId, banReason, banExpiresIn }, context: { user } }) => {
     assertNotSelf(user.id, userId, 'Cannot ban your own account');
     await auth.api.banUser({
@@ -59,7 +59,7 @@ export const banUser = createServerFn({ method: 'POST' })
 
 export const unbanUser = createServerFn({ method: 'POST' })
   .middleware([requirePermission({ user: ['ban'] })])
-  .validator((data: UnbanUser) => data)
+  .validator((data: UnbanUser) => UnbanUserSchema.parse(data))
   .handler(async ({ data: { userId } }) => {
     await auth.api.unbanUser({ body: { userId }, headers: getRequestHeaders() });
     return { success: true };
@@ -67,8 +67,15 @@ export const unbanUser = createServerFn({ method: 'POST' })
 
 export const createUser = createServerFn({ method: 'POST' })
   .middleware([requirePermission({ user: ['create'] })])
-  .validator(
-    (userData: { name: string; email: string; password: string; role?: UserRole }) => userData,
+  .validator((userData: { name: string; email: string; password: string; role?: UserRole }) =>
+    z
+      .object({
+        name: z.string(),
+        email: z.email(),
+        password: z.string(),
+        role: UserRoleSchema.optional(),
+      })
+      .parse(userData),
   )
   .handler(async ({ data: userData }) => {
     const newUser = await auth.api.createUser({
