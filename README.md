@@ -1,6 +1,6 @@
 # ArtNote
 
-ArtNote is a [TanStack Start](https://tanstack.com/start) application for exploring artworks through detailed notes. It uses Prisma (with Prisma Accelerate) on a PostgreSQL database and Better Auth for authentication, and is deployed on Vercel.
+ArtNote is a [TanStack Start](https://tanstack.com/start) application for exploring artworks through detailed notes. It uses Prisma on a PostgreSQL database (Prisma Accelerate in production, a Docker Postgres locally) and Better Auth for authentication, and is deployed on Vercel.
 
 ## Setup
 
@@ -25,21 +25,18 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
 3. Set up environment variables:
 
    ```bash
-   # Copy .env.example to .env and update the values for your environment
    cp .env.example .env
-   # Edit .env with your local configuration
-
-   # Pull development environment variables from Vercel
-   vercel env pull .env.local
    ```
 
-   `.env` and `.env.local` are loaded into `process.env` for server code (`.env.local` wins). The variables are validated in `src/lib/env.ts`.
+   The defaults point at the local Docker database. `.env` and `.env.local` are loaded into `process.env` for server code (`.env.local` wins). The variables are validated in `src/lib/env.ts`. Image uploads need a real `BLOB_READ_WRITE_TOKEN`: put only that variable in `.env.local`. Don't `vercel env pull` into `.env.local`, because its `PRISMA_DATABASE_URL` would point the app and the `db:*` scripts at the shared database.
 
-4. Apply database migrations (this also generates the Prisma client):
+4. Start the local database (Docker), apply migrations, generate the Prisma client and seed sample data:
 
    ```bash
-   bun run prisma:migrate
+   bun run db:setup
    ```
+
+   Sign in with `admin@example.com` or `user@example.com`, password `artnote-dev-password`. `PRISMA_DATABASE_URL` also accepts a `prisma+postgres://` Accelerate URL; `db:setup`, `db:reset` and the seed refuse to run against a non-local database.
 
 5. Run the development server:
    ```bash
@@ -54,6 +51,11 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application for explor
 - `bun run start` – serve the production build locally (`node .output/server/index.mjs`).
 - `bun run vercel-build` – used by Vercel: `prisma generate`, `prisma migrate deploy`, then `vite build`.
 - `bun run lint` / `bun run type-check` – ESLint + Prettier, and TypeScript.
+- `bun run db:setup` / `db:seed` / `db:reset` / `db:down` – local Docker database: set up, re-seed, recreate from scratch, stop.
+
+## Working with AI agents
+
+`AGENTS.md` (imported by `CLAUDE.md`) is the guide for coding agents: setup, commands, conventions and how to verify a change.
 
 ## Folder overview
 
