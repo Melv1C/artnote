@@ -2,9 +2,10 @@ import '@tanstack/react-start/server-only';
 import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { createHash } from 'node:crypto';
+import { publishedWhere } from '../lib/artwork-status';
 
 /** One view per visitor per notice in this window. */
-export const VIEW_DEDUPLICATION_WINDOW_MS = 30 * 60 * 1000;
+const VIEW_DEDUPLICATION_WINDOW_MS = 30 * 60 * 1000;
 
 /** Keep the client IP only as a salted hash, so stored rows can't be traced back to an address. */
 function hashClientIp(forwardedFor: string | undefined): string | null {
@@ -40,13 +41,14 @@ export async function recordArtworkView({
       if (recentView) return;
     }
 
-    await prisma.$transaction([
-      prisma.artwork.update({
-        where: { id: artworkId },
+    await prisma.$transaction(async tx => {
+      // Only published notices count; an unknown or unpublished id is ignored
+      const { count } = await tx.artwork.updateMany({
+        where: { id: artworkId, ...publishedWhere },
         data: { viewCount: { increment: 1 }, lastViewedAt: new Date() },
-      }),
-      prisma.pageView.create({ data: { artworkId, ipAddress: ipHash } }),
-    ]);
+      });
+      if (count) await tx.pageView.create({ data: { artworkId, ipAddress: ipHash } });
+    });
   } catch (error) {
     console.error('Recording artwork view failed:', error);
   }

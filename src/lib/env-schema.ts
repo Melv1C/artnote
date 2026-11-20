@@ -11,6 +11,7 @@ const envSchema = z
     // Set by Vercel, without a protocol
     VERCEL_URL: z.string().optional(),
     VERCEL_BRANCH_URL: z.string().optional(),
+    NODE_ENV: z.string().optional(),
     PRISMA_DATABASE_URL: z.url(),
     BETTER_AUTH_SECRET: z.string().min(10).optional(),
     BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').optional(),
@@ -18,11 +19,13 @@ const envSchema = z
     CRON_SECRET: z.string().min(16).optional(),
   })
   .superRefine((env, ctx) => {
-    if (env.VERCEL_ENV !== 'development' && !env.BETTER_AUTH_SECRET) {
+    // Only a local dev server may fall back to the public dev secret
+    const deployed = env.VERCEL_ENV !== 'development' || env.NODE_ENV === 'production';
+    if (deployed && !env.BETTER_AUTH_SECRET) {
       ctx.addIssue({
         code: 'custom',
         path: ['BETTER_AUTH_SECRET'],
-        message: `required when VERCEL_ENV is ${env.VERCEL_ENV}`,
+        message: `required outside local development (VERCEL_ENV=${env.VERCEL_ENV}, NODE_ENV=${env.NODE_ENV})`,
       });
     }
   })

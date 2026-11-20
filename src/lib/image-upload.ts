@@ -1,17 +1,12 @@
 import '@tanstack/react-start/server-only';
 import { put } from '@vercel/blob';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 // Raster formats only: SVG can carry scripts and is served from a public origin
-export const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-  'image/gif',
-];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
 
 const optionalText = z
   .string()
@@ -43,9 +38,14 @@ export function readImageUpload(formData: FormData) {
   return result.data;
 }
 
-/** Upload to Vercel Blob under `pathname` (sanitised, with a random suffix). */
-export const uploadPublicImage = (pathname: string, file: File) =>
-  put(pathname.replace(/[^a-zA-Z0-9./-]/g, '_'), file, {
-    access: 'public',
-    addRandomSuffix: true,
-  });
+const EXTENSIONS: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+  'image/gif': 'gif',
+};
+
+/** Upload to Vercel Blob as `<folder>/<random>.<ext>`; the client's file name is not used. */
+export const uploadPublicImage = (folder: 'artworks' | 'avatars', file: File) =>
+  put(`${folder}/${randomUUID()}.${EXTENSIONS[file.type] ?? 'img'}`, file, { access: 'public' });

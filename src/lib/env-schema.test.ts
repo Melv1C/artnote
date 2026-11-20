@@ -17,6 +17,13 @@ describe('parseEnv', () => {
     expect(() => parseEnv({ ...DATABASE, VERCEL_ENV: 'preview' })).toThrow(/BETTER_AUTH_SECRET/);
   });
 
+  it('refuses a production build without an auth secret, on Vercel or not', () => {
+    expect(() => parseEnv({ ...DATABASE, NODE_ENV: 'production' })).toThrow(/BETTER_AUTH_SECRET/);
+    expect(
+      parseEnv({ ...DATABASE, NODE_ENV: 'production', BETTER_AUTH_SECRET: 'a-real-secret' }),
+    ).toMatchObject({ BETTER_AUTH_SECRET: 'a-real-secret' });
+  });
+
   it('requires a database URL', () => {
     expect(() => parseEnv({})).toThrow(/PRISMA_DATABASE_URL/);
   });

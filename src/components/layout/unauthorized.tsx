@@ -4,7 +4,7 @@ import { Home, Shield } from 'lucide-react';
 import { UNAUTHORIZED_ERROR } from '@/lib/auth-functions';
 import { ErrorComponent, type ErrorComponentProps, Link } from '@tanstack/react-router';
 
-export function Unauthorized() {
+function Unauthorized() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center px-4">
       <div className="max-w-md mx-auto">

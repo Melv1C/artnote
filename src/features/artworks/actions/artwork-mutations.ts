@@ -6,8 +6,10 @@ import { ArtworkStatusSchema, emptyToNull, IdSchema } from '@/schemas/common';
 import { ImageSchema } from '@/schemas/image';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import { getRequestHeader } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import { nextPublishedAt } from '../lib/artwork-status';
+import { nextPublishedAt, ownedBy } from '../lib/artwork-status';
+import { recordArtworkView } from './artwork-views';
 
 /**
  * Load a notice for a mutation. Writers only change their own notices: another writer's notice
@@ -15,7 +17,7 @@ import { nextPublishedAt } from '../lib/artwork-status';
  */
 async function findOwnArtwork(artworkId: string, userId: string) {
   const artwork = await prisma.artwork.findFirst({
-    where: { id: artworkId, writerId: userId },
+    where: ownedBy(userId, artworkId),
     select: { id: true, publishedAt: true },
   });
   if (!artwork) throw notFound();
@@ -115,9 +117,22 @@ export const uploadArtworkImage = createServerFn({ method: 'POST' })
   .validator(ImageUploadSchema)
   .handler(async ({ data: formData }) => {
     const { file, alt, caption } = readImageUpload(formData);
-    const blob = await uploadPublicImage(`artworks/${file.name}`, file);
+    const blob = await uploadPublicImage('artworks', file);
     const image = await prisma.image.create({
       data: { url: blob.url, alt, caption, size: file.size, mimeType: file.type },
     });
     return ImageSchema.parse(image);
+  });
+
+/**
+ * Count a public view of a published notice. Public, called once by the notice page on mount
+ * (not from its loader, which the router also runs to preload on hover).
+ */
+export const recordNoticeView = createServerFn({ method: 'POST' })
+  .validator(IdSchema)
+  .handler(async ({ data: artworkId }) => {
+    await recordArtworkView({
+      artworkId,
+      forwardedFor: getRequestHeader('x-forwarded-for') ?? getRequestHeader('x-real-ip'),
+    });
   });

@@ -6,7 +6,7 @@ import { adminAc, defaultStatements } from 'better-auth/plugins/admin/access';
  * Resources and the actions a role can be granted on them. `user` and `session` come from
  * Better Auth's admin plugin (list, ban, set-role, impersonate, …).
  */
-export const statement = {
+const statement = {
   ...defaultStatements,
   artwork: ['read', 'manage'],
   artist: ['read', 'manage'],
@@ -30,7 +30,7 @@ export const user = ac.newRole({
   place: ['read'],
 });
 
-export const roles = { admin, user } satisfies Record<UserRole, unknown>;
+const roles = { admin, user } satisfies Record<UserRole, unknown>;
 
 type Resource = keyof typeof statement;
 

@@ -10,7 +10,7 @@ import type { Artwork } from '@/schemas/artwork';
 import { forwardRef } from 'react';
 
 interface ArtworkImagesCarouselProps {
-  artwork: Artwork;
+  artwork: Pick<Artwork, 'title' | 'images'>;
 }
 
 export const ArtworkImagesCarousel = forwardRef<HTMLElement, ArtworkImagesCarouselProps>(

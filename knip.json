@@ -2,6 +2,5 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["src/routes/**/*.{ts,tsx}", "scripts/*.ts"],
   "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts", "prisma/**/*.ts"],
-  "ignore": ["src/components/ui/**"],
-  "ignoreExportsUsedInFile": true
+  "ignore": ["src/components/ui/**"]
 }

@@ -22,12 +22,12 @@ export const fetchTotalUserCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .handler(() => prisma.user.count());
 
-export const fetchAdminUserCount = createServerFn({ method: 'GET' })
+const fetchAdminUserCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .handler(() => prisma.user.count({ where: { role: UserRoleSchema.enum.admin } }));
 
 /** Sign-ups since the start of this week (Sunday, server time) and during the week before. */
-export const fetchNewUsersThisWeek = createServerFn({ method: 'GET' })
+const fetchNewUsersThisWeek = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .handler(async () => {
     const startOfThisWeek = new Date();

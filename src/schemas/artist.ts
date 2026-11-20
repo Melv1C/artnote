@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { ArtworkStatusSchema, IdSchema, PaginationSchema, SearchTextSchema } from './common';
+import {
+  ArtworkStatusSchema,
+  IdSchema,
+  PaginationSchema,
+  SearchTextSchema,
+  UserRefSchema,
+} from './common';
 
 export const ArtistSchema = z.object({
   id: z.string(),
@@ -14,7 +20,8 @@ export const ArtistSchema = z.object({
   updatedById: z.string(),
 });
 
-const UserRefSchema = z.object({ id: z.string(), name: z.string() });
+/** An artist as public pages show it: no audit columns. */
+export const PublicArtistSchema = ArtistSchema.omit({ createdById: true, updatedById: true });
 
 /** An artist with who created and last edited it, and the notices it appears in (dashboard). */
 export const ArtistWithRelationsSchema = ArtistSchema.extend({

@@ -84,8 +84,14 @@ const eslintConfig = [
     },
   },
   {
-    // UI code reaches the server only through server functions
-    files: ['src/**/components/**/*.{ts,tsx}', 'src/**/hooks/**/*.{ts,tsx}', 'src/**/lib/**/*.ts'],
+    // UI code (pages, components, hooks, pure lib/) reaches the server only through server
+    // functions. Server routes under src/routes/api/ are .ts files and may import server modules.
+    files: [
+      'src/routes/**/*.tsx',
+      'src/**/components/**/*.{ts,tsx}',
+      'src/**/hooks/**/*.{ts,tsx}',
+      'src/**/lib/**/*.ts',
+    ],
     ignores: ['src/lib/**'],
     rules: {
       'no-restricted-imports': ['error', { paths: SERVER_ONLY_IMPORTS }],

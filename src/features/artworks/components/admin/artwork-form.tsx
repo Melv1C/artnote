@@ -18,7 +18,12 @@ import {
 } from '@/components/ui/select';
 import { ArtworkStatusSchema } from '@/schemas/common';
 import type { Artist } from '@/schemas/artist';
-import { type Artwork, ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
+import {
+  type Artwork,
+  ArtworkEditorSchema,
+  type ArtworkEditorValues,
+  type ArtworkForm,
+} from '@/schemas/artwork';
 import { type Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
@@ -51,8 +56,8 @@ export function ArtworkForm({
   );
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(initialValues?.place || null);
 
-  const form = useForm<ArtworkForm>({
-    resolver: zodResolver(ArtworkFormSchema),
+  const form = useForm<ArtworkEditorValues>({
+    resolver: zodResolver(ArtworkEditorSchema),
     defaultValues: {
       title: '',
       creationYear: null,
@@ -68,7 +73,7 @@ export function ArtworkForm({
     },
   });
 
-  const handleSubmit = async (data: ArtworkForm) => {
+  const handleSubmit = async (data: ArtworkEditorValues) => {
     try {
       setIsSubmitting(true);
 

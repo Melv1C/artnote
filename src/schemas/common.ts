@@ -20,5 +20,8 @@ export const PaginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
+/** Who created or last edited a record, as dashboard lists show it. */
+export const UserRefSchema = z.object({ id: z.string(), name: z.string() });
+
 /** Turn an empty or whitespace-only form value into null. */
 export const emptyToNull = (value: string | null | undefined) => value?.trim() || null;

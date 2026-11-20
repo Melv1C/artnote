@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, LogOut, User } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { signOut } from '@/lib/auth-client';
 import { DASHBOARD_PERMISSIONS } from '@/lib/permissions';
 import { PermissionGate } from './permission-gate';
 
@@ -25,7 +26,6 @@ interface UserButtonProps {
 
 export function UserButton({ user }: UserButtonProps) {
   const handleSignOut = async () => {
-    const { signOut } = await import('@/lib/auth-client');
     await signOut();
   };
 

@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
 interface ArtworkImagesPreviewButtonProps {
-  artwork: Artwork;
+  artwork: Pick<Artwork, 'title' | 'images'>;
   carouselRef: React.RefObject<HTMLElement | null>;
 }
 

@@ -29,19 +29,19 @@ Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WR
 
 ## Commands
 
-| Command                                | Use                                                                                                                 |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `bun run check`                        | Everything CI runs: lint, Prisma generate and validate, knip, build (regenerates the route tree), type-check, tests |
-| `bun run test`                         | Vitest unit tests (`src/**/*.test.ts`); `bun run test:watch` while working                                          |
-| `bun run lint`                         | ESLint (zero warnings) and Prettier check                                                                           |
-| `bun run lint:fix`                     | Fix lint and formatting                                                                                             |
-| `bun run knip`                         | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                              |
-| `bun run type-check`                   | TypeScript 7 only; needs a generated Prisma client and a fresh route tree, which `check` provides                   |
-| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run.  |
-| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                        |
-| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                               |
-| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                     |
-| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                             |
+| Command                                | Use                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bun run check`                        | Everything CI runs: lint, Prisma generate and validate, knip, build (regenerates the route tree), type-check, tests                                                                        |
+| `bun run test`                         | Vitest unit tests (`src/**/*.test.ts`); `bun run test:watch` while working                                                                                                                 |
+| `bun run lint`                         | ESLint (zero warnings) and Prettier check                                                                                                                                                  |
+| `bun run lint:fix`                     | Fix lint and formatting                                                                                                                                                                    |
+| `bun run knip`                         | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                                                                                     |
+| `bun run type-check`                   | TypeScript 7 (`tsc` comes from `@typescript/native`; the `typescript` package is v6 for typescript-eslint). Needs a generated Prisma client and a fresh route tree, which `check` provides |
+| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run.                                                                         |
+| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                                                                               |
+| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                                                                                      |
+| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                                                                                            |
+| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                                                                                                    |
 
 To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then run the app and check the change in a browser, signed in with a seeded account when needed.
 
@@ -66,7 +66,7 @@ src/
 
 Features: `artworks` (notices, public and dashboard), `artists`, `places`, `analytics` (tracking, beacon ingestion, nightly and weekly aggregation, dashboard reports), `admin-dashboard`, `user-management`, `profile`, `auth`.
 
-Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any.
+Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any. A feature may import another feature's `actions/`, `hooks/` and `lib/` (the dashboard composes `analytics`, `artworks` and `user-management` queries); UI shared by several features lives in `src/components/`.
 
 ## Writing a server function
 
@@ -83,9 +83,11 @@ export const updatePlace = createServerFn({ method: 'POST' })
 
 - **Guards** come from `src/lib/auth-functions.ts`: `dashboardAccessMiddleware` (admins: dashboard reads and notice writes), `requirePermission({ <resource>: [<action>] })` for a specific permission, `requireAuth` for a user's own data. Read the user from `context.user`, never from a second session lookup. Roles and permissions live in `src/lib/permissions.ts`; `hasRolePermission` is the one check, used by the guards and by `PermissionGate` in the UI.
 - **Validation**: pass a Zod schema to `.validator()`; never a pass-through function like `(x: T) => x`. Bound every string and number that reaches a query (`IdSchema`, `SearchTextSchema`, `.max()`).
-- **Output**: parse Prisma results through the schemas in `src/schemas/`. Public reads return public shapes only: a notice's writer is `AuthorSchema` (`id`, `name`, `image`), never the full `UserSchema`. Zod strips unknown keys, so parsing is what keeps private columns out of responses.
+- **Enforced by a test**: `src/lib/server-functions.test.ts` reads every `createServerFn` and fails when one has no guard (unless listed in its `PUBLIC_SERVER_FUNCTIONS`) or reads input without a schema. Adding a public server function means adding it to that list, on purpose.
+- **Output**: parse Prisma results through the schemas in `src/schemas/`. Zod drops every key a schema does not declare, so the schema decides what leaves the server. Public reads use the public schemas: `PublicArtworkSchema` (no `writerId` or view counters), `PublicPlaceSchema` and `PublicArtistSchema` (no audit ids), and `AuthorSchema` for a writer (`id`, `name`, `image`), never `UserSchema`.
 - **Errors**: server functions throw. A missing record is `throw notFound()`; a broken rule is `throw new Error('<message in French>')`. They never return `{ success, error }` objects and never swallow errors into `null` or `[]`.
-- **Notice ownership**: a writer edits, publishes and deletes only their own notices (`writerId === user.id`); another writer's notice is reported as not found (`findOwnArtwork` in `artwork-mutations.ts`). Any admin can preview any notice.
+- **Notice ownership**: a writer reads, edits, publishes and deletes only their own notices in the dashboard: every such query filters with `ownedBy(user.id, …)` (`features/artworks/lib/artwork-status.ts`), and another writer's notice is reported as not found. Any admin can preview any notice. Public reads filter with `publishedWhere`.
+- **Loaders have no side effects**: the router preloads a route's loader when a link is hovered (`defaultPreload: 'intent'`), so a loader's server function must only read. Writes triggered by visiting a page run from the page component (see `useRecordNoticeView`).
 - **User administration** calls Better Auth's server API (`auth.api.*` with `getRequestHeaders()`), never the browser `authClient`.
 
 ## Reading and mutating from the UI
@@ -97,11 +99,11 @@ export const updatePlace = createServerFn({ method: 'POST' })
 
 ## Analytics
 
-The browser sends events to `/api/analytics` (`features/analytics/lib/tracking.ts`): `AnalyticsProvider` sends a timed page view for every route; notice pages also send a notice view (`useNoticeViewTracking`). The visitor-id cookie is set only after cookie consent; the session id lives in memory. Vercel Cron calls `/api/cron/aggregate-nightly` and `/api/cron/aggregate-weekly` with `CRON_SECRET`; they summarise events with the pure functions in `features/analytics/lib/aggregate.ts` and delete raw events after 90 days. The dashboard reads only the summaries. `Artwork.viewCount` is a separate server-side counter (`features/artworks/actions/artwork-views.ts`) that stores only salted IP hashes.
+The browser sends events to `/api/analytics` (`features/analytics/lib/tracking.ts`): `AnalyticsProvider` sends a timed page view for every route; notice pages also send a notice view (`useNoticeViewTracking`). The visitor-id cookie is set only after cookie consent; the session id lives in memory. Vercel Cron calls `/api/cron/aggregate-nightly` and `/api/cron/aggregate-weekly` with `CRON_SECRET`; they summarise events with the pure functions in `features/analytics/lib/aggregate.ts` and delete raw events after 90 days. The dashboard reads only the summaries. `Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per visitor per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/artwork-views.ts`).
 
 ## Environment
 
-Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. Outside development, a missing `BETTER_AUTH_SECRET` stops the server at startup, and the cron endpoints reject every request when `CRON_SECRET` is unset.
+Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. Only a local dev server (`VERCEL_ENV` unset or `development`, and `NODE_ENV` not `production`) may run without `BETTER_AUTH_SECRET`; anywhere else the server refuses to start. The cron endpoints reject every request when `CRON_SECRET` is unset.
 
 ## Database
 
@@ -115,9 +117,10 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 
 ## Boundaries lint enforces
 
-- Components, hooks and feature `lib/` code cannot import `@/lib/prisma`, `@/lib/auth`, `@/lib/auth-server` or `@/lib/env`; they reach the server through server functions.
+- Pages (`src/routes/**/*.tsx`), components, hooks and feature `lib/` code cannot import `@/lib/prisma`, `@/lib/auth`, `@/lib/auth-server` or `@/lib/env`; they reach the server through server functions. Modules that must stay on the server also import `@tanstack/react-start/server-only`, so the build fails if one reaches the browser bundle.
 - No `process.env` outside `src/lib/env.ts`, scripts and config.
-- Type-only imports use `import type`; unused code fails lint, and unused files, exports and dependencies fail knip.
+- Type-only imports use `import type`; unused code fails lint, and unused files, exports and dependencies fail knip. knip skips `src/components/ui/` because shadcn components export variants the app may not use yet.
+- Five React Compiler rules (`react-hooks/purity`, `set-state-in-effect`, …) are off in `eslint.config.mjs` because existing components break them; new code should still follow them.
 
 ## Conventions
 
@@ -128,5 +131,5 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 ## Branches and releases
 
 - Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging.
-- CI's required checks are the jobs named "Lint & Type Check" (runs `bun run check`) and "Validate Prisma Schema"; keep those names.
+- CI (`.github/workflows/ci.yml`) runs `bun run check` then fails if the build changed committed files (job "Lint & Type Check"), validates the Prisma schema ("Validate Prisma Schema"), and runs `bun audit --audit-level=critical`. The first two are required checks on `main`; keep their names.
 - Releases push a `vX.Y.Z` tag on a `main` commit; the Release workflow moves `production` to it. See the README's Deployments section.

@@ -6,15 +6,14 @@ import { ArtworkStatusSchema, IdSchema } from '@/schemas/common';
 import { authorSelect } from '@/schemas/user';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { getRequestHeader } from '@tanstack/react-start/server';
 import { z } from 'zod';
+import { ownedBy, publishedWhere } from '../lib/artwork-status';
 import {
   ArtworkFiltersSchema,
   buildArtworkOrderBy,
   buildArtworkWhere,
   sortByFirstArtist,
 } from '../lib/artwork-search';
-import { recordArtworkView } from './artwork-views';
 
 const artworkInclude = {
   place: true,
@@ -27,11 +26,6 @@ const publicArtworkInclude = {
   ...artworkInclude,
   writer: { select: authorSelect },
 } satisfies Prisma.ArtworkInclude;
-
-const published = {
-  status: ArtworkStatusSchema.enum.PUBLISHED,
-  publishedAt: { not: null },
-} satisfies Prisma.ArtworkWhereInput;
 
 /** Published notices matching the public list's filters. */
 export const fetchFilteredArtworks = createServerFn({ method: 'GET' })
@@ -52,7 +46,7 @@ export const fetchLatestPublishedArtworks = createServerFn({ method: 'GET' })
   .handler(async ({ data: limit }) =>
     PublicArtworkSchema.array().parse(
       await prisma.artwork.findMany({
-        where: published,
+        where: publishedWhere,
         include: publicArtworkInclude,
         orderBy: { publishedAt: 'desc' },
         take: limit,
@@ -60,21 +54,18 @@ export const fetchLatestPublishedArtworks = createServerFn({ method: 'GET' })
     ),
   );
 
-/** A published notice for its public page. Records the view. */
+/**
+ * A published notice for its public page. Has no side effects: the router preloads it on hover;
+ * the page records the view itself (`recordNoticeView`).
+ */
 export const fetchPublishedArtwork = createServerFn({ method: 'GET' })
   .validator(IdSchema)
   .handler(async ({ data: artworkId }) => {
     const artwork = await prisma.artwork.findFirst({
-      where: { id: artworkId, ...published },
+      where: { id: artworkId, ...publishedWhere },
       include: publicArtworkInclude,
     });
     if (!artwork) throw notFound();
-
-    await recordArtworkView({
-      artworkId,
-      forwardedFor: getRequestHeader('x-forwarded-for') ?? getRequestHeader('x-real-ip'),
-    });
-
     return PublicArtworkSchema.parse(artwork);
   });
 
@@ -97,7 +88,7 @@ export const fetchMyArtworks = createServerFn({ method: 'GET' })
   .handler(async ({ context: { user } }) =>
     ArtworkSchema.array().parse(
       await prisma.artwork.findMany({
-        where: { writerId: user.id },
+        where: ownedBy(user.id),
         include: artworkInclude,
         orderBy: { updatedAt: 'desc' },
       }),
@@ -110,7 +101,7 @@ export const fetchMyArtworkForEdit = createServerFn({ method: 'GET' })
   .validator(IdSchema)
   .handler(async ({ data: artworkId, context: { user } }) => {
     const artwork = await prisma.artwork.findFirst({
-      where: { id: artworkId, writerId: user.id },
+      where: ownedBy(user.id, artworkId),
       include: artworkInclude,
     });
     if (!artwork) throw notFound();
@@ -122,7 +113,7 @@ export const fetchMyArtworkCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(ArtworkStatusSchema.optional())
   .handler(({ data: status, context: { user } }) =>
-    prisma.artwork.count({ where: { writerId: user.id, ...(status && { status }) } }),
+    prisma.artwork.count({ where: { ...ownedBy(user.id), ...(status && { status }) } }),
   );
 
 /** Total public views of the current user's notices. */
@@ -130,7 +121,7 @@ export const fetchMyArtworkViewCount = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .handler(async ({ context: { user } }) => {
     const { _sum } = await prisma.artwork.aggregate({
-      where: { writerId: user.id },
+      where: ownedBy(user.id),
       _sum: { viewCount: true },
     });
     return _sum.viewCount ?? 0;
@@ -145,3 +136,8 @@ export const loadArtworkStats = () => ({
 });
 
 export type ArtworkStatsData = ReturnType<typeof loadArtworkStats>;
+
+/** Published notices, all writers. */
+export const fetchPublishedArtworkCount = createServerFn({ method: 'GET' })
+  .middleware([dashboardAccessMiddleware])
+  .handler(() => prisma.artwork.count({ where: publishedWhere }));

@@ -17,3 +17,18 @@ export function nextPublishedAt(
 ): Date | null {
   return status === ArtworkStatusSchema.enum.PUBLISHED ? (previous ?? now) : null;
 }
+
+/** Prisma `where` for notices visible to the public. */
+export const publishedWhere = {
+  status: ArtworkStatusSchema.enum.PUBLISHED,
+  publishedAt: { not: null },
+} as const;
+
+/**
+ * Prisma `where` for the notices a writer may read and change in the dashboard: their own.
+ * Every dashboard notice query and mutation goes through it.
+ */
+export const ownedBy = (writerId: string, artworkId?: string) => ({
+  writerId,
+  ...(artworkId !== undefined && { id: artworkId }),
+});

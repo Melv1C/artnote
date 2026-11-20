@@ -7,14 +7,7 @@ import {
   fetchTopNotices,
 } from '@/features/analytics/actions/analytics-queries';
 import { fetchTotalUserCount } from '@/features/user-management/actions/user-queries';
-import { dashboardAccessMiddleware } from '@/lib/auth-functions';
-import { prisma } from '@/lib/prisma';
-import { ArtworkStatusSchema } from '@/schemas/common';
-import { createServerFn } from '@tanstack/react-start';
-
-export const fetchPublishedNoticeCount = createServerFn({ method: 'GET' })
-  .middleware([dashboardAccessMiddleware])
-  .handler(() => prisma.artwork.count({ where: { status: ArtworkStatusSchema.enum.PUBLISHED } }));
+import { fetchPublishedArtworkCount } from '@/features/artworks/actions/artwork-queries';
 
 /**
  * Start every dashboard query without awaiting, so each card streams in behind its own Suspense
@@ -23,7 +16,7 @@ export const fetchPublishedNoticeCount = createServerFn({ method: 'GET' })
 export const loadAdminDashboardData = () => ({
   stats: {
     userCount: fetchTotalUserCount(),
-    noticeCount: fetchPublishedNoticeCount(),
+    noticeCount: fetchPublishedArtworkCount(),
   },
   analytics: {
     overview: fetchAnalyticsOverview(),

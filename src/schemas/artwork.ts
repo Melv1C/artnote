@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { ArtistSchema } from './artist';
-import { ArtworkImageSchema } from './artwork-image';
+import { ArtistSchema, PublicArtistSchema } from './artist';
+import { ArtworkImageInputSchema, ArtworkImageSchema } from './artwork-image';
 import { ArtworkStatusSchema, IdSchema } from './common';
-import { PlaceSchema } from './place';
+import { PlaceSchema, PublicPlaceSchema } from './place';
 import { AuthorSchema } from './user';
 
 /** A notice as read from the database, with its place, artists and images. */
@@ -27,8 +27,19 @@ export const ArtworkSchema = z.object({
   artists: z.object({ artist: ArtistSchema, role: z.string().nullable() }).array(),
 });
 
-/** A notice with its writer's public profile, as public pages read it. */
-export const PublicArtworkSchema = ArtworkSchema.extend({ writer: AuthorSchema });
+/**
+ * A notice as public pages read it: its writer's public profile, and no internal columns
+ * (writer id, view counters, audit ids of its place and artists). Parsing drops them.
+ */
+export const PublicArtworkSchema = ArtworkSchema.omit({
+  writerId: true,
+  viewCount: true,
+  lastViewedAt: true,
+}).extend({
+  place: PublicPlaceSchema.nullable(),
+  artists: z.object({ artist: PublicArtistSchema, role: z.string().nullable() }).array(),
+  writer: AuthorSchema,
+});
 
 const optionalText = (max: number) => z.string().max(max).nullable();
 
@@ -46,10 +57,19 @@ export const ArtworkFormSchema = z.object({
   sources: optionalText(100_000),
   status: ArtworkStatusSchema,
   placeId: IdSchema.nullable(),
-  images: ArtworkImageSchema.array().max(50),
+  images: ArtworkImageInputSchema.array().max(50),
   artistIds: IdSchema.array().max(50),
 });
 
 export type Artwork = z.infer<typeof ArtworkSchema>;
 export type PublicArtwork = z.infer<typeof PublicArtworkSchema>;
+/**
+ * The notice editor's state: the submitted form plus each attached image's details, for
+ * previews. `ArtworkFormSchema` drops those details when the server parses the submission.
+ */
+export const ArtworkEditorSchema = ArtworkFormSchema.extend({
+  images: ArtworkImageSchema.array().max(50),
+});
+
 export type ArtworkForm = z.infer<typeof ArtworkFormSchema>;
+export type ArtworkEditorValues = z.infer<typeof ArtworkEditorSchema>;

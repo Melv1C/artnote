@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const AnalyticsEventTypeSchema = z.enum([
+const AnalyticsEventTypeSchema = z.enum([
   'page_view_start',
   'page_view_end',
   'notice_view_start',

@@ -1,32 +1,104 @@
 import { describe, expect, it } from 'vitest';
-import { PublicArtworkSchema } from './artwork';
+import { ArtworkFormSchema, PublicArtworkSchema } from './artwork';
 import { PlaceFormSchema } from './place';
 import { UserProfileFormSchema } from './user';
 
+const audit = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  createdById: 'u1',
+  updatedById: 'u1',
+};
+
 describe('PublicArtworkSchema', () => {
-  it("strips the writer's private fields", () => {
-    const row = {
-      id: 'a1',
-      title: 'La Mort de Marat',
-      creationYear: '1793',
-      medium: null,
-      dimensions: null,
-      notice: null,
-      sources: null,
-      status: 'PUBLISHED',
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      writerId: 'u1',
-      placeId: null,
-      place: null,
-      viewCount: 0,
-      lastViewedAt: null,
-      images: [],
-      artists: [],
-      writer: { id: 'u1', name: 'Ada', image: null, email: 'ada@example.com', role: 'admin' },
-    };
-    expect(PublicArtworkSchema.parse(row).writer).toEqual({ id: 'u1', name: 'Ada', image: null });
+  const row = {
+    id: 'a1',
+    title: 'La Mort de Marat',
+    creationYear: '1793',
+    medium: null,
+    dimensions: null,
+    notice: null,
+    sources: null,
+    status: 'PUBLISHED',
+    publishedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    writerId: 'u1',
+    placeId: 'p1',
+    place: {
+      id: 'p1',
+      name: 'MRBAB',
+      type: 'MUSEUM',
+      address: null,
+      city: 'Bruxelles',
+      country: 'Belgique',
+      latitude: null,
+      longitude: null,
+      website: null,
+      description: null,
+      ...audit,
+    },
+    viewCount: 12,
+    lastViewedAt: new Date(),
+    images: [],
+    artists: [
+      {
+        role: null,
+        artist: {
+          id: 'ar1',
+          firstName: 'Jacques-Louis',
+          lastName: 'David',
+          birthDate: null,
+          deathDate: null,
+          biography: null,
+          ...audit,
+        },
+      },
+    ],
+    writer: { id: 'u1', name: 'Ada', image: null, email: 'ada@example.com', role: 'admin' },
+  };
+
+  it('keeps only public fields, at every level', () => {
+    const notice = PublicArtworkSchema.parse(row);
+    expect(notice.writer).toEqual({ id: 'u1', name: 'Ada', image: null });
+    expect(notice).not.toHaveProperty('writerId');
+    expect(notice).not.toHaveProperty('viewCount');
+    expect(notice).not.toHaveProperty('lastViewedAt');
+    expect(notice.place).not.toHaveProperty('createdById');
+    expect(notice.place).not.toHaveProperty('updatedById');
+    expect(notice.artists[0]?.artist).not.toHaveProperty('createdById');
+    expect(notice.artists[0]?.artist).not.toHaveProperty('updatedById');
+  });
+});
+
+describe('ArtworkFormSchema', () => {
+  const form = {
+    title: 'Marat',
+    creationYear: null,
+    medium: null,
+    dimensions: null,
+    notice: null,
+    sources: null,
+    status: 'DRAFT',
+    placeId: null,
+    artistIds: [],
+  };
+  const attachment = { imageId: 'img1', sortOrder: 0, isMain: true, legend: null, source: null };
+
+  it('drops the image details the editor sends along with each attachment', () => {
+    const parsed = ArtworkFormSchema.parse({
+      ...form,
+      images: [{ ...attachment, image: { id: 'img1', url: 'https://evil.example/x.png' } }],
+    });
+    expect(parsed.images).toEqual([attachment]);
+  });
+
+  it('rejects unbounded ids', () => {
+    const result = ArtworkFormSchema.safeParse({
+      ...form,
+      images: [{ ...attachment, imageId: 'x'.repeat(65) }],
+    });
+    expect(result.success).toBe(false);
   });
 });
 

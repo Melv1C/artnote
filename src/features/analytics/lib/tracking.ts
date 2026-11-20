@@ -26,7 +26,7 @@ export function getConsentStatus(): ConsentStatus | null {
 }
 
 /** Persistent visitor id, set only after the visitor accepts cookies. */
-export const getVisitorId = () => readCookie(VISITOR_COOKIE);
+const getVisitorId = () => readCookie(VISITOR_COOKIE);
 
 /** Record the visitor's cookie choice: accepting creates a visitor id, rejecting removes it. */
 export function setConsent(accepted: boolean): string | null {

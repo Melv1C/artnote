@@ -10,7 +10,7 @@ import {
 } from '../lib/aggregate';
 
 /** Raw events are deleted after this many days; the daily and weekly summaries stay. */
-export const EVENT_RETENTION_DAYS = 90;
+const EVENT_RETENTION_DAYS = 90;
 /** Server-side view rows only serve view-count deduplication. */
 const PAGE_VIEW_RETENTION_DAYS = 1;
 

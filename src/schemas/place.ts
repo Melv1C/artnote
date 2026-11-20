@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { IdSchema, PaginationSchema, PlaceTypeSchema, SearchTextSchema } from './common';
+import {
+  IdSchema,
+  PaginationSchema,
+  PlaceTypeSchema,
+  SearchTextSchema,
+  UserRefSchema,
+} from './common';
 
 export const PlaceSchema = z.object({
   id: z.string(),
@@ -18,7 +24,8 @@ export const PlaceSchema = z.object({
   updatedById: z.string(),
 });
 
-const UserRefSchema = z.object({ id: z.string(), name: z.string() });
+/** A place as public pages show it: no audit columns. */
+export const PublicPlaceSchema = PlaceSchema.omit({ createdById: true, updatedById: true });
 
 /** A place with who created and last edited it, and the notices located there (dashboard). */
 export const PlaceWithRelationsSchema = PlaceSchema.extend({

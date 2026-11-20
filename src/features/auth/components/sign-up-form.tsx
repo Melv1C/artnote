@@ -61,7 +61,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       });
 
       if (result.error) {
-        if (result.error.message?.includes('email')) {
+        if (result.error.code?.startsWith('USER_ALREADY_EXISTS')) {
           setError('Cette adresse email est déjà utilisée');
         } else {
           setError('Erreur lors de la création du compte');

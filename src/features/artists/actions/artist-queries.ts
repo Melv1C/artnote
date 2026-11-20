@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
+import { containsInsensitive as insensitive } from '@/lib/prisma-filters';
 import { prisma } from '@/lib/prisma';
 import { ArtistFiltersSchema, ArtistWithRelationsSchema } from '@/schemas/artist';
 import { IdSchema } from '@/schemas/common';
@@ -18,8 +19,6 @@ const artistInclude = {
     },
   },
 } satisfies Prisma.ArtistInclude;
-
-const insensitive = (value: string) => ({ contains: value, mode: 'insensitive' as const });
 
 export const fetchArtists = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])

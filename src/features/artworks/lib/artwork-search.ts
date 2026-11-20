@@ -1,9 +1,11 @@
 import type { Prisma } from '@/generated/prisma/client';
+import { containsInsensitive as contains } from '@/lib/prisma-filters';
 import { SearchTextSchema } from '@/schemas/common';
+import { publishedWhere } from './artwork-status';
 import { z } from 'zod';
 
-export const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
-export const SortOrderSchema = z.enum(['asc', 'desc']);
+const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
+const SortOrderSchema = z.enum(['asc', 'desc']);
 
 // Default search parsing turns numeric values (e.g. `?year=1890`) into numbers, so accept both
 // and keep the parsed value to avoid rewriting the URL
@@ -49,8 +51,6 @@ export const toArtworkFilters = (search: ArtworksSearch): ArtworkFilters => ({
   order: search.order,
 });
 
-const contains = (value: string) => ({ contains: value, mode: 'insensitive' as const });
-
 const artistNamed = (name: string): Prisma.ArtworkWhereInput => ({
   artists: {
     some: {
@@ -65,8 +65,7 @@ export function buildArtworkWhere(
 ): Prisma.ArtworkWhereInput {
   const { search, artist, place, medium, year } = filters;
   return {
-    status: 'PUBLISHED',
-    publishedAt: { not: null },
+    ...publishedWhere,
     AND: [
       search
         ? {

@@ -25,7 +25,7 @@ export const uploadAvatar = createServerFn({ method: 'POST' })
   .validator(z.instanceof(FormData))
   .handler(async ({ data: formData, context: { user } }) => {
     const { file } = readImageUpload(formData);
-    const blob = await uploadPublicImage(`avatars/${user.id}`, file);
+    const blob = await uploadPublicImage('avatars', file);
     await prisma.user.update({ where: { id: user.id }, data: { image: blob.url } });
     return { url: blob.url };
   });

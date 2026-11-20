@@ -110,7 +110,7 @@ export function UsersList() {
         {error ? (
           <div className="flex flex-col items-center justify-center h-32 gap-4">
             <div className="text-destructive text-center">
-              {error instanceof Error ? error.message : 'Une erreur est survenue'}
+              Erreur lors du chargement des utilisateurs
             </div>
             <Button onClick={handleRefresh} variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />

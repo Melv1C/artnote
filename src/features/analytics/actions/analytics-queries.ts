@@ -1,12 +1,12 @@
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
-import { ArtworkStatusSchema } from '@/schemas/common';
+import { publishedWhere } from '@/features/artworks/lib/artwork-status';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { utcDaysAgo } from '../lib/aggregate';
 
 /** Dashboard reports cover this many days of daily summaries. */
-export const REPORT_DAYS = 30;
+const REPORT_DAYS = 30;
 
 const chartColor = (index: number) => `var(--chart-${(index % 5) + 1})`;
 
@@ -33,7 +33,7 @@ export const fetchAnalyticsOverview = createServerFn({ method: 'GET' })
       siteSummariesSince(REPORT_DAYS),
       pageViewsSince(24 * 60 * 60 * 1000),
       pageViewsSince(60 * 60 * 1000),
-      prisma.artwork.count({ where: { status: ArtworkStatusSchema.enum.PUBLISHED } }),
+      prisma.artwork.count({ where: publishedWhere }),
     ]);
 
     const cookieAccepts = sum(days, day => day.cookieAccepts);

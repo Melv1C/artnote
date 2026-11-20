@@ -32,10 +32,10 @@ export function AnalyticsOverviewCards({ summary, realtimeStats }: AnalyticsOver
       description: 'Total des pages consultées',
     },
     {
-      title: 'Visiteurs uniques (30j)',
+      title: 'Visiteurs (30j)',
       value: formatNumber(summary.uniqueVisitors),
       icon: Users,
-      description: 'Visiteurs distincts',
+      description: 'Somme des visiteurs uniques de chaque jour',
     },
     {
       title: 'Durée moyenne',
