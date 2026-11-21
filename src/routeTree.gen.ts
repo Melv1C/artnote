@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as WhatsNewRouteImport } from './routes/whats-new'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
   '/api/analytics': typeof ApiAnalyticsRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
   '/api/analytics': typeof ApiAnalyticsRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
   '/api/analytics': typeof ApiAnalyticsRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/confidentialite'
     | '/profile'
     | '/whats-new'
     | '/api/analytics'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/confidentialite'
     | '/profile'
     | '/whats-new'
     | '/api/analytics'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/confidentialite'
     | '/profile'
     | '/whats-new'
     | '/api/analytics'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
   WhatsNewRoute: typeof WhatsNewRoute
   ApiAnalyticsRoute: typeof ApiAnalyticsRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -521,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
   WhatsNewRoute: WhatsNewRoute,
   ApiAnalyticsRoute: ApiAnalyticsRoute,
