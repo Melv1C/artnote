@@ -246,7 +246,7 @@ export function ArtworkForm({
                     <FormLabel>Année de création</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="2023, XIXe siècle..."
+                        placeholder="2023, XIXe siècle…"
                         {...field}
                         value={field.value || ''}
                         onChange={e => field.onChange(e.target.value || null)}
@@ -264,7 +264,7 @@ export function ArtworkForm({
                     <FormLabel>Matériaux et techniques</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Huile sur toile, Bronze..."
+                        placeholder="Huile sur toile, Bronze…"
                         {...field}
                         value={field.value || ''}
                         onChange={e => field.onChange(e.target.value || null)}

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/artworks/')({
   head: () => ({
     meta: pageMeta(
       'ArtNote - Toutes les notices',
-      "Explorez toutes les notices sur l'histoire de la peinture disponibles sur ArtNote.",
+      'Explorez toutes les notices sur l’histoire de la peinture disponibles sur ArtNote.',
     ),
   }),
   component: ArtworksPage,
@@ -36,7 +36,7 @@ function ArtworksPage() {
       </header>
 
       {/* Stays at hand while scrolling the list */}
-      <div className="sticky top-(--header-total) z-30 -mx-4 mb-8 bg-background/[0.97] px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="sticky top-(--header-total) z-30 -mx-4 mb-8 bg-background px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <ArtworksFilter />
       </div>
 

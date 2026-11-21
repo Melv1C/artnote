@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/$placeId')({
   loader: ({ params }) => fetchPlace({ data: params.placeId }),
+  head: () => ({ meta: [{ title: 'ArtNote - Modifier le lieu' }] }),
   component: EditPlacePage,
 });
 

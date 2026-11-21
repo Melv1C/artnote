@@ -35,7 +35,7 @@ export function ArtistRowActions({ artist }: { artist: Artist }) {
       toast.success('Artiste supprimé');
     } catch (error) {
       console.error('Deleting artist failed:', error);
-      toast.error("Erreur lors de la suppression de l'artiste");
+      toast.error('Erreur lors de la suppression de l’artiste');
     }
   };
 

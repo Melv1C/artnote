@@ -11,8 +11,8 @@ export function Header() {
 
   return (
     <>
-      <header className="pt-safe sticky top-0 z-40 w-full border-b border-border/60 bg-background/[0.97] backdrop-blur-xl">
-        <div className="mx-auto flex h-(--header-height) w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <header className="pt-safe sticky top-0 z-40 w-full border-b border-border/60 bg-background">
+        <div className="page-width flex h-(--header-height) items-center justify-between gap-4">
           <Logo />
 
           {/* Wide screens: sections in the bar. Phones use the tab bar at the bottom. */}

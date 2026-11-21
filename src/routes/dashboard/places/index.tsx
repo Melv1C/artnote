@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { Link, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/')({
+  head: () => ({ meta: [{ title: 'ArtNote - Lieux' }] }),
   component: PlacesPage,
 });
 

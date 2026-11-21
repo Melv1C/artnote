@@ -27,7 +27,7 @@ interface ArtistSelectorProps {
 export function ArtistSelector({
   selectedArtists,
   onSelectionChange,
-  placeholder = 'Sélectionner des artistes...',
+  placeholder = 'Sélectionner des artistes…',
   className,
   disabled = false,
 }: ArtistSelectorProps) {
@@ -75,12 +75,12 @@ export function ArtistSelector({
         <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput
-              placeholder="Rechercher un artiste..."
+              placeholder="Rechercher un artiste…"
               value={searchValue}
               onValueChange={setSearchValue}
             />
             <CommandList>
-              <CommandEmpty>{isLoading ? 'Chargement...' : 'Aucun artiste trouvé.'}</CommandEmpty>
+              <CommandEmpty>{isLoading ? 'Chargement…' : 'Aucun artiste trouvé.'}</CommandEmpty>
               <CommandGroup>
                 {artists.map(artist => {
                   const isSelected = selectedArtists.some(a => a.id === artist.id);

@@ -65,7 +65,7 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
         disabled={isUploading}
       >
         <Upload className="mr-2 h-4 w-4" />
-        {isUploading ? 'Upload...' : 'Changer'}
+        {isUploading ? 'Envoi…' : 'Changer'}
       </Button>
     </div>
   );

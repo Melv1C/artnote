@@ -10,7 +10,7 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/[0.97] backdrop-blur-xl md:hidden"
+      className="pb-safe px-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background md:hidden"
     >
       <ul className="mx-auto grid h-(--tabbar-height) max-w-md grid-cols-4">
         {SITE_NAV.map(item => (

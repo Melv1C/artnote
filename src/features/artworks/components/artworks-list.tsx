@@ -20,6 +20,9 @@ export function ArtworksList({ artworksPromise, isFiltered }: ArtworksListProps)
   if (artworks.length === 0) {
     return (
       <div className="mx-auto flex max-w-sm flex-col items-center py-16 text-center">
+        <p className="sr-only" role="status">
+          0 notice
+        </p>
         <div className="mb-5 flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
           <SearchX className="size-6" aria-hidden="true" />
         </div>

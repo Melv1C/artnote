@@ -14,13 +14,15 @@ import { ShareButton } from './share-button';
 
 interface ArtworkDetailProps {
   artwork: PublicArtwork;
+  /** An admin's preview: its link is not for readers, so it is not offered for sharing */
+  preview?: boolean;
 }
 
 /**
  * A notice as readers see it. On a phone: the painting on its wall, then its cartel, the notice
  * and where to see the work. On a wide screen the painting stays in view beside the text.
  */
-export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
+export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
   const { title, creationYear, medium, dimensions, notice, sources, writer, place, artists } =
     artwork;
   const images = orderedImages(artwork.images);
@@ -71,13 +73,16 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
           )}
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {images.length > 0 && (
+            {/* One image is opened by tapping it; several deserve saying so */}
+            {images.length > 1 && (
               <Button variant="outline" className="rounded-full" onClick={() => openViewer(0)}>
                 <Images />
-                {images.length > 1 ? `Voir les ${images.length} images` : 'Voir en grand'}
+                Voir les {images.length} images
               </Button>
             )}
-            <ShareButton title={title} text={artist ? `${title}, ${artist}` : title} />
+            {!preview && (
+              <ShareButton title={title} text={artist ? `${title}, ${artist}` : title} />
+            )}
           </div>
 
           {notice && (

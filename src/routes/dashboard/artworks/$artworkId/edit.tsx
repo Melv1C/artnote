@@ -8,6 +8,7 @@ import { Eye } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard/artworks/$artworkId/edit')({
   loader: ({ params }) => fetchMyArtworkForEdit({ data: params.artworkId }),
+  head: () => ({ meta: [{ title: 'ArtNote - Modifier la notice' }] }),
   component: EditArtworkPage,
 });
 

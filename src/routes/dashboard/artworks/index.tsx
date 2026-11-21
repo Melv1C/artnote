@@ -18,6 +18,7 @@ export const Route = createFileRoute('/dashboard/artworks/')({
     stats: loadArtworkStats(),
     artworks: fetchMyArtworks(),
   }),
+  head: () => ({ meta: [{ title: 'ArtNote - Mes notices' }] }),
   component: ArtworksPage,
 });
 

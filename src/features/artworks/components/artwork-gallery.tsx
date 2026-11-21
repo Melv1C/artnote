@@ -68,7 +68,7 @@ export function ArtworkGallery({ title, images, onOpen, className }: ArtworkGall
           ))}
         </div>
 
-        <span className="pointer-events-none absolute right-2 bottom-2 flex size-8 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm backdrop-blur sm:right-3 sm:bottom-3 sm:size-9">
+        <span className="pointer-events-none absolute right-2 bottom-1 flex size-7 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm backdrop-blur sm:right-3 sm:bottom-3 sm:size-9">
           <Expand className="size-4" aria-hidden="true" />
         </span>
 

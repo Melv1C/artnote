@@ -26,7 +26,9 @@ export function Painting({
   decorative,
 }: PaintingProps) {
   return (
-    <div className={cn('flex items-center justify-center bg-wall', className)}>
+    <div
+      className={cn('flex min-h-0 items-center justify-center overflow-hidden bg-wall', className)}
+    >
       {image ? (
         <img
           src={image.url}

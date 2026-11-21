@@ -48,7 +48,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
         await navigate({ to: '/dashboard/places' });
       } catch (error) {
         console.error('Saving place failed:', error);
-        toast.error("Erreur lors de l'enregistrement du lieu");
+        toast.error('Erreur lors de l’enregistrement du lieu');
       }
     });
   };
@@ -147,7 +147,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Enregistrement...' : place ? 'Modifier' : 'Créer'}
+          {isPending ? 'Enregistrement…' : place ? 'Modifier' : 'Créer'}
         </Button>
       </div>
     </form>

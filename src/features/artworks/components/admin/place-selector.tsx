@@ -26,7 +26,7 @@ interface PlaceSelectorProps {
 export function PlaceSelector({
   selectedPlace,
   onSelectionChange,
-  placeholder = 'Sélectionner un lieu...',
+  placeholder = 'Sélectionner un lieu…',
   className,
   disabled = false,
 }: PlaceSelectorProps) {
@@ -72,12 +72,12 @@ export function PlaceSelector({
         <PopoverContent className="w-(--radix-popover-trigger-width) min-w-72 p-0" align="start">
           <Command>
             <CommandInput
-              placeholder="Rechercher un lieu..."
+              placeholder="Rechercher un lieu…"
               value={searchValue}
               onValueChange={setSearchValue}
             />
             <CommandList>
-              <CommandEmpty>{isLoading ? 'Chargement...' : 'Aucun lieu trouvé.'}</CommandEmpty>
+              <CommandEmpty>{isLoading ? 'Chargement…' : 'Aucun lieu trouvé.'}</CommandEmpty>
               <CommandGroup>
                 {places.map(place => (
                   <CommandItem

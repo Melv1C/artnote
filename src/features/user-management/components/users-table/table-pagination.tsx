@@ -6,12 +6,20 @@ interface TablePaginationProps<TData extends RowData> {
   table: TanStackTable<DataTableFeatures, TData>;
 }
 
+/** "Aucune sélection", "1 compte sélectionné sur 4", "2 comptes sélectionnés sur 4". */
+function selectionLabel(selected: number, total: number) {
+  if (selected === 0) return `Aucune sélection · ${total} compte${total > 1 ? 's' : ''}`;
+  return `${selected} compte${selected > 1 ? 's sélectionnés' : ' sélectionné'} sur ${total}`;
+}
+
 export function TablePagination<TData extends RowData>({ table }: TablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-end space-x-2 py-4">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} sur{' '}
-        {table.getFilteredRowModel().rows.length} ligne(s) sélectionnée(s).
+        {selectionLabel(
+          table.getFilteredSelectedRowModel().rows.length,
+          table.getFilteredRowModel().rows.length,
+        )}
       </div>
       <div className="space-x-2">
         <Button

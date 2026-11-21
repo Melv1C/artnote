@@ -82,7 +82,7 @@ export function ArtworkImageViewer({
       >
         <DialogTitle className="sr-only">Images de {title}</DialogTitle>
 
-        <div className="pt-safe absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/70 to-transparent">
+        <div className="pt-safe px-safe absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/70 to-transparent">
           <div className="flex h-14 items-center justify-between px-3">
             <p className="work-title truncate pl-1 text-base text-white/90">{title}</p>
             <div className="flex items-center gap-3">

@@ -205,7 +205,7 @@ export function ProfilePage() {
                           </Button>
                           <Button type="submit" disabled={isSubmitting || !isDirty}>
                             <Save className="mr-2 h-4 w-4" />
-                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+                            {isSubmitting ? 'Enregistrement…' : 'Enregistrer'}
                           </Button>
                         </div>
                       )}
@@ -240,7 +240,7 @@ export function ProfilePage() {
                     <div className="space-y-2">
                       <Label htmlFor="bio">Biographie</Label>
                       <p className="text-sm text-muted-foreground">
-                        Parlez de votre expertise en art et histoire de l'art
+                        Parlez de votre expertise en art et histoire de l’art
                       </p>
                       {isEditing ? (
                         <div>
@@ -251,7 +251,7 @@ export function ProfilePage() {
                                 shouldDirty: true,
                               })
                             }
-                            placeholder="Décrivez votre parcours, vos spécialisations, votre passion pour l'art..."
+                            placeholder="Décrivez votre parcours, vos spécialisations, votre passion pour l’art…"
                             className="min-h-[200px]"
                           />
                           {errors.bio && (

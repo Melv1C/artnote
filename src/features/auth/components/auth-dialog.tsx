@@ -47,7 +47,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <DialogDescription>
             {mode === 'signin'
               ? 'Retrouvez votre compte ArtNote.'
-              : 'Un compte gratuit, pour suivre les notices qui vous intéressent.'}
+              : 'Un compte gratuit, en quelques secondes.'}
           </DialogDescription>
         </DialogHeader>
 

@@ -3,6 +3,7 @@ import { ArtistForm } from '@/features/artists/components/artist-form';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/create')({
+  head: () => ({ meta: [{ title: 'ArtNote - Nouvel artiste' }] }),
   component: CreateArtistPage,
 });
 

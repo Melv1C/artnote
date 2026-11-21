@@ -39,7 +39,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
         await navigate({ to: '/dashboard/artists' });
       } catch (error) {
         console.error('Saving artist failed:', error);
-        toast.error("Erreur lors de l'enregistrement de l'artiste");
+        toast.error('Erreur lors de l’enregistrement de l’artiste');
       }
     });
   };
@@ -62,7 +62,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           <Input
             id="birthDate"
             name="birthDate"
-            placeholder="1525, 01/01/1950, XIXe siècle..."
+            placeholder="1525, 01/01/1950, XIXe siècle…"
             defaultValue={artist?.birthDate ?? ''}
           />
         </div>
@@ -72,7 +72,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           <Input
             id="deathDate"
             name="deathDate"
-            placeholder="1569, vers 1600..."
+            placeholder="1569, vers 1600…"
             defaultValue={artist?.deathDate ?? ''}
           />
         </div>
@@ -85,7 +85,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           name="biography"
           defaultValue={artist?.biography || ''}
           rows={8}
-          placeholder="Décrivez la vie et l'œuvre de l'artiste..."
+          placeholder="Décrivez la vie et l’œuvre de l’artiste…"
         />
       </div>
 
@@ -98,7 +98,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           Annuler
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Enregistrement...' : artist ? 'Modifier' : 'Créer'}
+          {isPending ? 'Enregistrement…' : artist ? 'Modifier' : 'Créer'}
         </Button>
       </div>
     </form>

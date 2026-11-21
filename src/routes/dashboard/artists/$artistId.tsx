@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/$artistId')({
   loader: ({ params }) => fetchArtist({ data: params.artistId }),
+  head: () => ({ meta: [{ title: 'ArtNote - Modifier l’artiste' }] }),
   component: EditArtistPage,
 });
 

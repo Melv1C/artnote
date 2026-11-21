@@ -324,18 +324,26 @@
 @utility pt-safe {
   padding-top: env(safe-area-inset-top);
 }
+@utility px-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
 
 /* The page's column: centred, with the side gutters of the header */
 @utility page-width {
   margin-inline: auto;
   width: 100%;
   max-width: 80rem;
-  padding-inline: 1rem;
+  /* Never under a notch: a landscape phone or an installed app has side insets */
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
   @media (width >= 40rem) {
-    padding-inline: 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
   }
   @media (width >= 64rem) {
-    padding-inline: 2rem;
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
   }
 }
 

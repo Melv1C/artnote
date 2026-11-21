@@ -4,6 +4,7 @@ import { createArtwork } from '@/features/artworks/actions/artwork-mutations';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artworks/create')({
+  head: () => ({ meta: [{ title: 'ArtNote - Nouvelle notice' }] }),
   component: CreateArtworkPage,
 });
 

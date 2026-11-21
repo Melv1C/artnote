@@ -11,7 +11,6 @@ import {
   setUnauthorizedStatus,
 } from '@/lib/auth-functions';
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router';
-import { ArrowUpRight } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -44,10 +43,7 @@ function DashboardLayout() {
             <DashboardBreadcrumbs />
           </div>
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to="/">
-              Voir le site
-              <ArrowUpRight />
-            </Link>
+            <Link to="/">Voir le site</Link>
           </Button>
           <ModeToggle />
         </header>

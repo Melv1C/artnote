@@ -16,7 +16,7 @@ export function StatCard({ title, value, icon: Icon, subtitle, tone }: StatCardP
               'flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground',
               tone === 'success' && 'bg-success/12 text-success',
               tone === 'warning' &&
-                'bg-warning/15 text-[color-mix(in_oklch,var(--warning)_70%,var(--foreground))]',
+                'bg-warning/15 text-[color-mix(in_oklab,var(--warning)_70%,var(--foreground))]',
             )}
           >
             <Icon className="size-4" aria-hidden="true" />
