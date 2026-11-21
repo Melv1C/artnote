@@ -8,11 +8,11 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "vp dev",
+    "dev": "bun scripts/preflight.ts dev && vp dev",
     "build": "vp build",
     "start": "node .output/server/index.mjs",
     "preview": "vp preview",
-    "check": "prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
+    "check": "bun scripts/preflight.ts check && prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
     "fix": "vp check --fix",
     "worktree:setup": "bun scripts/worktree-setup.ts",
     "db:seed": "prisma db seed",

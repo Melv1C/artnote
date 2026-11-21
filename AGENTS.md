@@ -14,7 +14,7 @@ bun run worktree:setup  # write .env, start Postgres and MinIO, create this work
 bun run dev             # the URL worktree:setup printed (BASE_URL in .env)
 ```
 
-In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions.
+In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions. That hook does not always run: when `bun run dev` or `bun run check` stops with "This checkout is not set up" (`scripts/preflight.ts`), run `bun install && bun run worktree:setup` and try again.
 
 Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
