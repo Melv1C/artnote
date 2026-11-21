@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** ready
+**Status:** done
 
 - [ ] The public notice page sends exactly one `notice_read` per reading, timed from arrival until leaving or hiding the tab, whichever comes first.
 - [ ] The event's URL is the notice's path, even when it is sent after navigation to another page.

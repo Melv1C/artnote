@@ -4,7 +4,7 @@
 
 **Blocked by:** None
 
-**Status:** ready
+**Status:** done
 
 - [ ] `/confidentialite` is a public page with its own page title and description. It covers:
   - Umami: cookieless, EU hosting, no personal data, Do Not Track honoured;
