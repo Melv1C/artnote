@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { AnalyticsProvider } from '@/features/analytics/components/analytics-provider';
-import { CookieBanner } from '@/features/analytics/components/cookie-banner';
 import { getUmamiWebsiteId } from '@/features/analytics/actions/umami-config';
 import { useUmamiPageViews } from '@/features/analytics/hooks/use-umami-page-views';
 import { NotFound } from '@/components/layout/not-found';
@@ -83,7 +82,6 @@ function RootDocument({ children }: PropsWithChildren) {
               <ConditionalLayout>{children}</ConditionalLayout>
             </AnalyticsProvider>
             <Toaster />
-            <CookieBanner />
           </QueryProvider>
         </ThemeProvider>
         <Scripts />
