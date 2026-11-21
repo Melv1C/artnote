@@ -17,6 +17,9 @@ const envSchema = z
     BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').optional(),
     // Bearer token Vercel Cron sends to /api/cron/*
     CRON_SECRET: z.string().min(16).optional(),
+    // Umami Cloud website id (ADR 0010). Not a secret: it ends up in page HTML. Set in
+    // production only; where it is unset, no tracker loads and nothing is measured.
+    UMAMI_WEBSITE_ID: z.uuid().optional(),
   })
   .superRefine((env, ctx) => {
     // Only a local dev server may fall back to the public dev secret

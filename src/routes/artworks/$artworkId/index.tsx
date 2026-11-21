@@ -13,7 +13,9 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
       return { meta: [{ title: 'ArtNote - Œuvre non trouvée' }] };
     }
 
-    const siteUrl = (matches[0]?.loaderData as string | undefined) ?? '';
+    // The root route's loader data (src/routes/__root.tsx)
+    const root = matches[0]?.loaderData as { siteUrl: string } | undefined;
+    const siteUrl = root?.siteUrl ?? '';
     const mainImages = artwork.images.filter(image => image.isMain);
 
     return {

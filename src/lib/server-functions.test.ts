@@ -15,6 +15,7 @@ const PUBLIC_SERVER_FUNCTIONS = new Set([
   'recordNoticeView', // view counter, published notices only
   'getDashboardAccess', // the caller's own session and whether it may open the dashboard
   'getSiteUrl', // Open Graph base URL
+  'getUmamiWebsiteId', // Umami website id, rendered in every page's HTML
 ]);
 
 // The guards of src/lib/auth-functions.ts; a local alias (`requireArtistManager`) also counts
