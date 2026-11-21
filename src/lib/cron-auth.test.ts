@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { isAuthorizedCronRequest } from './cron-auth';
 
 const request = (authorization?: string) =>
-  new Request('https://artnote.test/api/cron/aggregate-nightly', {
+  new Request('https://artnote.test/api/cron/prune-view-records', {
     headers: authorization ? { authorization } : {},
   });
 

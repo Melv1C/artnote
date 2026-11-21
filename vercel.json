@@ -5,12 +5,8 @@
   "buildCommand": "bun run vercel-build",
   "crons": [
     {
-      "path": "/api/cron/aggregate-nightly",
+      "path": "/api/cron/prune-view-records",
       "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/aggregate-weekly",
-      "schedule": "0 3 * * 0"
     }
   ]
 }

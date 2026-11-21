@@ -15,13 +15,11 @@ import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as WhatsNewRouteImport } from './routes/whats-new'
-import { Route as ApiAnalyticsRouteImport } from './routes/api/analytics'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiCronAggregateNightlyRouteImport } from './routes/api/cron/aggregate-nightly'
-import { Route as ApiCronAggregateWeeklyRouteImport } from './routes/api/cron/aggregate-weekly'
+import { Route as ApiCronPruneViewRecordsRouteImport } from './routes/api/cron/prune-view-records'
 import { Route as ArtworksArtworkIdIndexRouteImport } from './routes/artworks/$artworkId/index'
 import { Route as ArtworksArtworkIdPreviewRouteImport } from './routes/artworks/$artworkId/preview'
 import { Route as DashboardArtistsIndexRouteImport } from './routes/dashboard/artists/index'
@@ -64,11 +62,6 @@ const WhatsNewRoute = WhatsNewRouteImport.update({
   path: '/whats-new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAnalyticsRoute = ApiAnalyticsRouteImport.update({
-  id: '/api/analytics',
-  path: '/api/analytics',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ArtworksIndexRoute = ArtworksIndexRouteImport.update({
   id: '/artworks/',
   path: '/artworks/',
@@ -89,14 +82,9 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiCronAggregateNightlyRoute = ApiCronAggregateNightlyRouteImport.update({
-  id: '/api/cron/aggregate-nightly',
-  path: '/api/cron/aggregate-nightly',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCronAggregateWeeklyRoute = ApiCronAggregateWeeklyRouteImport.update({
-  id: '/api/cron/aggregate-weekly',
-  path: '/api/cron/aggregate-weekly',
+const ApiCronPruneViewRecordsRoute = ApiCronPruneViewRecordsRouteImport.update({
+  id: '/api/cron/prune-view-records',
+  path: '/api/cron/prune-view-records',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksArtworkIdIndexRoute = ArtworksArtworkIdIndexRouteImport.update({
@@ -165,13 +153,11 @@ export interface FileRoutesByFullPath {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
-  '/api/analytics': typeof ApiAnalyticsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
-  '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
+  '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -190,13 +176,11 @@ export interface FileRoutesByTo {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
-  '/api/analytics': typeof ApiAnalyticsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
-  '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
+  '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -217,13 +201,11 @@ export interface FileRoutesById {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/whats-new': typeof WhatsNewRoute
-  '/api/analytics': typeof ApiAnalyticsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/cron/aggregate-nightly': typeof ApiCronAggregateNightlyRoute
-  '/api/cron/aggregate-weekly': typeof ApiCronAggregateWeeklyRoute
+  '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -245,13 +227,11 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/whats-new'
-    | '/api/analytics'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
     | '/api/auth/$'
-    | '/api/cron/aggregate-nightly'
-    | '/api/cron/aggregate-weekly'
+    | '/api/cron/prune-view-records'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -270,13 +250,11 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/whats-new'
-    | '/api/analytics'
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
     | '/api/auth/$'
-    | '/api/cron/aggregate-nightly'
-    | '/api/cron/aggregate-weekly'
+    | '/api/cron/prune-view-records'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -296,13 +274,11 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/whats-new'
-    | '/api/analytics'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
     | '/api/auth/$'
-    | '/api/cron/aggregate-nightly'
-    | '/api/cron/aggregate-weekly'
+    | '/api/cron/prune-view-records'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -323,11 +299,9 @@ export interface RootRouteChildren {
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
   WhatsNewRoute: typeof WhatsNewRoute
-  ApiAnalyticsRoute: typeof ApiAnalyticsRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiCronAggregateNightlyRoute: typeof ApiCronAggregateNightlyRoute
-  ApiCronAggregateWeeklyRoute: typeof ApiCronAggregateWeeklyRoute
+  ApiCronPruneViewRecordsRoute: typeof ApiCronPruneViewRecordsRoute
   ArtworksArtworkIdPreviewRoute: typeof ArtworksArtworkIdPreviewRoute
   ArtworksArtworkIdIndexRoute: typeof ArtworksArtworkIdIndexRoute
 }
@@ -376,13 +350,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhatsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/analytics': {
-      id: '/api/analytics'
-      path: '/api/analytics'
-      fullPath: '/api/analytics'
-      preLoaderRoute: typeof ApiAnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/artworks/': {
       id: '/artworks/'
       path: '/artworks'
@@ -411,18 +378,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/cron/aggregate-nightly': {
-      id: '/api/cron/aggregate-nightly'
-      path: '/api/cron/aggregate-nightly'
-      fullPath: '/api/cron/aggregate-nightly'
-      preLoaderRoute: typeof ApiCronAggregateNightlyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cron/aggregate-weekly': {
-      id: '/api/cron/aggregate-weekly'
-      path: '/api/cron/aggregate-weekly'
-      fullPath: '/api/cron/aggregate-weekly'
-      preLoaderRoute: typeof ApiCronAggregateWeeklyRouteImport
+    '/api/cron/prune-view-records': {
+      id: '/api/cron/prune-view-records'
+      path: '/api/cron/prune-view-records'
+      fullPath: '/api/cron/prune-view-records'
+      preLoaderRoute: typeof ApiCronPruneViewRecordsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/$artworkId/': {
@@ -544,11 +504,9 @@ const rootRouteChildren: RootRouteChildren = {
   ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
   WhatsNewRoute: WhatsNewRoute,
-  ApiAnalyticsRoute: ApiAnalyticsRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiCronAggregateNightlyRoute: ApiCronAggregateNightlyRoute,
-  ApiCronAggregateWeeklyRoute: ApiCronAggregateWeeklyRoute,
+  ApiCronPruneViewRecordsRoute: ApiCronPruneViewRecordsRoute,
   ArtworksArtworkIdPreviewRoute: ArtworksArtworkIdPreviewRoute,
   ArtworksArtworkIdIndexRoute: ArtworksArtworkIdIndexRoute,
 }

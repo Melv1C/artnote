@@ -53,7 +53,7 @@ To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` ch
 ```
 src/
   routes/              Pages and layouts (file routes). routes/api/** holds only the Better Auth
-                       handler, the Vercel crons and the analytics beacon.
+                       handler and the Vercel cron.
   features/<feature>/
     actions/           Server code: <entity>-queries.ts (reads), <entity>-mutations.ts (writes),
                        server-only helpers (they import '@tanstack/react-start/server-only').
@@ -70,25 +70,24 @@ src/
                        components/data-table/: PagedTable.
 ```
 
-Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (tracking, beacon ingestion, nightly and weekly summaries, report queries), `admin-dashboard` (the dashboard home and its charts), `user-management`, `profile`, `auth`.
+Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (the Umami tracker: which pages are measured, page views and notice readings), `admin-dashboard` (the dashboard home: content figures and the link to Umami), `user-management`, `profile`, `auth`.
 
 Dashboard lists come in two kinds. Artists and places are server-paginated: `PagedTable` (`src/components/data-table/paged-table.tsx`) renders one page, the server filters, orders and pages (`paginate`, `pageWindow` in `src/lib/pagination.ts`), and each feature keeps its filter-to-`where` mapping as a tested pure builder in `lib/` (`buildArtistWhere`, `buildPlaceWhere`). The writer's notices and the users are small lists loaded whole and filtered in the browser (`filterAdminArtworks`; users are capped at 100 by `fetchUsers`). `buildArtworkWhere` belongs to the public notices list, not the dashboard.
 
-Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any. A feature may import another feature's `actions/`, `hooks/` and `lib/` (the dashboard composes `analytics`, `artworks` and `user-management` queries); UI shared by several features lives in `src/components/`.
+Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any. A feature may import another feature's `actions/`, `hooks/` and `lib/` (the dashboard composes `artworks` and `user-management` queries); UI shared by several features lives in `src/components/`.
 
 ## Domain terms in code
 
 `GLOSSARY.md` names the concepts; some carry other names in the schema and code:
 
-| Term                   | In code                                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------------------- |
-| Notice                 | `Artwork` model, `artwork*` in code; `noticeId` in analytics (ADR 0001)                       |
-| Image attachment       | `ArtworkImage` model                                                                          |
-| Artist credit          | `ArtworkArtist` model (an artist and their role on one notice)                                |
-| Writer / Author        | `Artwork.writer` (a `User`) / `AuthorSchema`                                                  |
-| Page view, notice view | `AnalyticsEvent` rows (`page_view_*`, `notice_view_*`)                                        |
-| View count             | `Artwork.viewCount`; its deduplication records are the `PageView` model, not page views       |
-| Session (analytics)    | `sessionId` on analytics events; the `Session` model is a Better Auth sign-in, something else |
+| Term                      | In code                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| Notice                    | `Artwork` model, `artwork*` in code; `noticeId` in the Umami notice reading (ADR 0001)  |
+| Image attachment          | `ArtworkImage` model                                                                    |
+| Artist credit             | `ArtworkArtist` model (an artist and their role on one notice)                          |
+| Writer / Author           | `Artwork.writer` (a `User`) / `AuthorSchema`                                            |
+| Page view, notice reading | Umami page views and `notice_read` events, sent from `features/analytics` (no table)    |
+| View count                | `Artwork.viewCount`; its deduplication records are the `PageView` model, not page views |
 
 ## Writing a server function
 
@@ -121,11 +120,13 @@ export const updatePlace = createServerFn({ method: 'POST' })
 
 ## Analytics
 
-Audience measurement is first-party (ADR 0004). The browser sends events to `/api/analytics` (`features/analytics/lib/tracking.ts`): `AnalyticsProvider` sends a timed page view for every route; notice pages also send a notice view (`useNoticeViewTracking`). The visitor-id cookie is set only after cookie consent; the session id lives in memory. Vercel Cron calls `/api/cron/aggregate-nightly` and `/api/cron/aggregate-weekly` with `CRON_SECRET`; they summarise events with the pure functions in `features/analytics/lib/aggregate.ts` and delete raw events after 90 days. The dashboard reads only the summaries. `Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per client IP per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/view-count.ts`, which also prunes its own records for the nightly cron). The IP comes from Vercel's `x-vercel-forwarded-for`; requests without one, such as on the local dev server, are not counted.
+Audience measurement uses Umami Cloud (ADR 0010, which supersedes ADR 0004). The root layout renders Umami's script only where `UMAMI_WEBSITE_ID` is set (production), served with its collect endpoint under `/stats/` on our own domain (Nitro route rules in `vite.config.ts`). Automatic page views are off: `useUmamiPageViews` sends one for each route that `isMeasuredPath` accepts (public pages, not the dashboard or previews), and notice pages send a `notice_read` with its reading-time bracket when the reader leaves (`useNoticeReading`). The rules live in the pure, tested `features/analytics/lib/umami.ts`. Umami is cookieless, and missing or blocked it does nothing. Admins read the figures in Umami, from the "Voir les statistiques" link on the dashboard home; the app has no analytics charts or queries. The `AnalyticsEvent` and summary tables are unused and will be dropped in a later migration (ADR 0006).
+
+`Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per client IP per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/view-count.ts`). Vercel Cron calls `/api/cron/prune-view-records` nightly with `CRON_SECRET` to delete the deduplication records that can no longer affect a count; it is the only cron (`vercel.json`). The IP comes from Vercel's `x-vercel-forwarded-for`; requests without one, such as on the local dev server, are not counted.
 
 ## Environment
 
-Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. Only a local dev server (`VERCEL_ENV` unset or `development`, and `NODE_ENV` not `production`) may run without `BETTER_AUTH_SECRET`; anywhere else the server refuses to start. The cron endpoints reject every request when `CRON_SECRET` is unset.
+Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. Only a local dev server (`VERCEL_ENV` unset or `development`, and `NODE_ENV` not `production`) may run without `BETTER_AUTH_SECRET`; anywhere else the server refuses to start. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered.
 
 ## Database
 
