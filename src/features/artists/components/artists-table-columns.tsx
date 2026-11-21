@@ -48,18 +48,12 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
   {
     accessorKey: 'birthDate',
     header: 'Date de naissance',
-    cell: ({ row }) => {
-      const birthDate = row.getValue('birthDate') as Date | null;
-      return birthDate ? new Date(birthDate).toLocaleDateString('fr-FR') : '—';
-    },
+    cell: ({ row }) => row.original.birthDate ?? '—',
   },
   {
     accessorKey: 'deathDate',
     header: 'Date de décès',
-    cell: ({ row }) => {
-      const deathDate = row.getValue('deathDate') as Date | null;
-      return deathDate ? new Date(deathDate).toLocaleDateString('fr-FR') : '—';
-    },
+    cell: ({ row }) => row.original.deathDate ?? '—',
   },
   {
     accessorKey: 'artworks',

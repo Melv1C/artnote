@@ -8,15 +8,13 @@ import { columns } from './artists-table-columns';
 
 export function ArtistsTable() {
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({ search: '', name: '', bornAfter: '', bornBefore: '' });
+  const [filters, setFilters] = useState({ search: '', name: '' });
   const debounced = useDebounce(filters, 300);
 
   const { data, isLoading, isError } = useArtists({
     page,
     search: debounced.search || undefined,
     name: debounced.name || undefined,
-    bornAfter: debounced.bornAfter || undefined,
-    bornBefore: debounced.bornBefore || undefined,
   });
 
   // A new filter starts again from the first page
@@ -41,20 +39,6 @@ export function ArtistsTable() {
           placeholder="Nom"
           value={filters.name}
           onChange={setFilter('name')}
-          className="w-48"
-        />
-        <Input
-          placeholder="Né après"
-          type="date"
-          value={filters.bornAfter}
-          onChange={setFilter('bornAfter')}
-          className="w-48"
-        />
-        <Input
-          placeholder="Né avant"
-          type="date"
-          value={filters.bornBefore}
-          onChange={setFilter('bornBefore')}
           className="w-48"
         />
       </div>

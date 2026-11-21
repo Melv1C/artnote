@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
+import { ArtistFormSchema } from './artist';
 import { ArtworkFormSchema, PublicArtworkSchema } from './artwork';
 import { PlaceFormSchema } from './place';
 import { UserProfileFormSchema } from './user';
@@ -130,6 +131,23 @@ describe('PlaceFormSchema', () => {
     expect(place.latitude).toBe(51.04);
     expect(place.longitude).toBeUndefined();
     expect(PlaceFormSchema.safeParse({ name: 'X', type: 'MUSEUM', latitude: '120' }).success).toBe(
+      false,
+    );
+  });
+});
+
+describe('ArtistFormSchema', () => {
+  const artist = { firstName: 'Pieter', lastName: 'Bruegel' };
+
+  it('takes birth and death dates as free text, as precise as the sources allow', () => {
+    for (const date of ['01/01/1950', '1950', 'vers 1525', 'XIXe siècle']) {
+      expect(ArtistFormSchema.parse({ ...artist, birthDate: date }).birthDate).toBe(date);
+    }
+    expect(ArtistFormSchema.parse({ ...artist, deathDate: ' 1569 ' }).deathDate).toBe('1569');
+  });
+
+  it('bounds a date’s length', () => {
+    expect(ArtistFormSchema.safeParse({ ...artist, birthDate: 'x'.repeat(101) }).success).toBe(
       false,
     );
   });
