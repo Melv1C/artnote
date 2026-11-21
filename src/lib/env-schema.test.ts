@@ -36,4 +36,15 @@ describe('parseEnv', () => {
       'https://artnote-abc.vercel.app',
     );
   });
+
+  it('accepts an optional Umami website id, a UUID', () => {
+    expect(parseEnv(DATABASE).UMAMI_WEBSITE_ID).toBeUndefined();
+    expect(
+      parseEnv({ ...DATABASE, UMAMI_WEBSITE_ID: '3f2b8c1e-6d4a-4f7b-9e1c-2a5d8b7c4e90' })
+        .UMAMI_WEBSITE_ID,
+    ).toBe('3f2b8c1e-6d4a-4f7b-9e1c-2a5d8b7c4e90');
+    expect(() => parseEnv({ ...DATABASE, UMAMI_WEBSITE_ID: 'not-a-uuid' })).toThrow(
+      /UMAMI_WEBSITE_ID/,
+    );
+  });
 });

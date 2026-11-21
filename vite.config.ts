@@ -42,7 +42,15 @@ export default defineConfig(({ mode }) => {
       viteReact(),
       // Nitro builds the server output; on Vercel it auto-selects the Vercel preset.
       // Vercel merges vercel.json crons into the build output at deploy time, so they must not be duplicated here.
-      nitro(),
+      nitro({
+        // Umami's tracker and collect endpoint, served from our own domain so ad-blockers that
+        // block Umami's domains let them through (ADR 0010). On Vercel these become CDN rewrites;
+        // vercel.json rewrites may be ignored for a Nitro build output, so they live here.
+        routeRules: {
+          '/stats/script.js': { proxy: 'https://cloud.umami.is/script.js' },
+          '/stats/api/send': { proxy: 'https://gateway.umami.is/api/send' },
+        },
+      }),
     ],
 
     // Unit tests for pure modules. No database, no server runtime.
