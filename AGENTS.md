@@ -10,13 +10,13 @@ Needs Bun (package manager and script runner), Node 24 (runtime) and Docker.
 
 ```bash
 bun install
-bun run db:setup        # write .env, start Postgres, create this worktree's database, migrate, generate, seed
-bun run dev             # the URL db:setup printed (BASE_URL in .env)
+bun run worktree:setup  # write .env, start Postgres and MinIO, create this worktree's database, migrate, generate, seed
+bun run dev             # the URL worktree:setup printed (BASE_URL in .env)
 ```
 
-In T3 Code, `t3.json` runs `bun install && bun run db:setup` when a worktree is created, and offers Dev and Check actions.
+In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions.
 
-Each worktree gets its own database and dev port (ADR 0007). On its first run, `db:setup` writes `.env` with a database named after the worktree folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL`. An existing `.env` is never overwritten. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
+Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
 Seeded accounts (password `artnote-dev-password`):
 
@@ -29,7 +29,7 @@ Seeded accounts (password `artnote-dev-password`):
 
 The seed also creates 2 places, 3 artists and 3 notices (2 published, 1 draft), all by `admin@example.com`.
 
-Image and avatar uploads go to the local MinIO that `db:setup` starts (`compose.yaml`, bucket `artnote` shared by every worktree). A `.env` written before MinIO was added lacks the `S3_*` variables: copy them from `.env.example`.
+Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`compose.yaml`, bucket `artnote` shared by every worktree). A `.env` written before MinIO was added lacks the `S3_*` variables: copy them from `.env.example`.
 
 ## Commands
 
@@ -38,9 +38,9 @@ Image and avatar uploads go to the local MinIO that `db:setup` starts (`compose.
 | `bun run check`                        | Everything CI runs: Prisma generate, validate and format check, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
 | `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
 | `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
-| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`); tests import from `vite-plus/test`                                                         |
+| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
 | `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
-| `bun run db:setup`                     | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
+| `bun run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
 | `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
 | `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                              |
 | `bun run db:down`                      | Stop the Postgres and MinIO containers, for every worktree                                                                         |
@@ -61,14 +61,13 @@ To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` ch
 
 Dokploy builds the `Dockerfile` for each one; the container migrates the database before it starts (ADR 0011). Deploys don't wait for CI. Dokploy posts a preview's address on its PR.
 
-**QA a change on staging or its preview, never on production.** Staging has the same four accounts as the local seed, with their own passwords. They live in `.env.qa` at the root of the main checkout (the first path `git worktree list` prints), not in this repository:
+**QA a change on staging or its preview, never on production.** Staging has the same four accounts as the local seed, with their own passwords. They live in the main checkout's `.env`, so `worktree:setup` copies them into this worktree's `.env`: `STAGING_URL`, `QA_ADMIN_EMAIL`/`QA_ADMIN_PASSWORD`, `QA_WRITER_…`, `QA_USER_…` and `QA_BANNED_…`. Read them from there:
 
 ```bash
-set -a; source "$(git worktree list | head -1 | cut -d' ' -f1)/.env.qa"; set +a
-# STAGING_URL, QA_ADMIN_EMAIL/PASSWORD, QA_WRITER_…, QA_USER_…, QA_BANNED_…
+set -a; source .env; set +a
 ```
 
-- Don't print the passwords, paste them into PRs or comments, or change them. If `.env.qa` or an account is missing, ask Melvyn instead of creating one.
+- Don't print the passwords, paste them into PRs or comments, or change them. If the `QA_*` variables are missing from this worktree's `.env` (it predates them), delete it and run `bun run worktree:setup` again. If they are missing from the main checkout's `.env` too, or an account doesn't work, ask Melvyn instead of creating one.
 - A preview shares staging's database: a migration on a labelled PR reaches staging at once, and what you create in a preview shows on staging. Start the titles of test notices, artists and places with `[QA]` and delete them afterwards. Leave the seed content as it is.
 - Uploads on staging and previews are public files under `files.stg.artnote.melvyn.be`: upload only test images.
 - Better Auth limits sign-ins per IP: space out sign-ins (about 10 seconds) when switching accounts.
@@ -162,7 +161,7 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 - The `Concept` and `Keyword` tables exist in the schema for a planned feature; no code reads or writes them yet.
 - Every container runs `prisma migrate deploy` when it starts, previews included, and previews share staging's database, so a migration reaches it as soon as a branch deploys: keep migrations backward compatible (ADR 0006).
 - Worktrees share one Postgres container (`compose.yaml`, port 5432) but each uses its own database, so seeding or resetting one never touches another.
-- Only run migrations, resets and seeds against the local Docker database. `db:setup`, `db:reset` and the seed refuse a non-local host (`scripts/assert-local-db.ts`).
+- Only run migrations, resets and seeds against the local Docker database. `worktree:setup`, `db:reset` and the seed refuse a non-local host (`scripts/assert-local-db.ts`).
 
 ## Boundaries lint enforces
 

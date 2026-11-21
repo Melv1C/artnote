@@ -5,7 +5,7 @@
   "scripts": [
     {
       "name": "Setup worktree",
-      "command": "bun install && bun run db:setup",
+      "command": "bun install && bun run worktree:setup",
       "icon": "configure",
       "runOnWorktreeCreate": true,
       "async": false
