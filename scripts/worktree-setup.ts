@@ -1,10 +1,13 @@
-import { config } from 'dotenv';
+// Set up this git worktree (`bun run worktree:setup`, run by t3.json after `bun install`): write
+// its .env, start Postgres and MinIO, create its database, migrate, generate and seed (ADR 0007).
+import { config, parse } from 'dotenv';
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
-import { basename } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { assertLocalDatabase } from './assert-local-db';
+import { buildWorktreeEnv } from './worktree-env';
 
 const ENV_FILE = '.env';
 const FIRST_DEV_PORT = 3100;
@@ -47,29 +50,36 @@ async function pickDevPort(slug: string) {
   throw new Error(`No free port between ${FIRST_DEV_PORT} and ${FIRST_DEV_PORT + DEV_PORT_RANGE}.`);
 }
 
-function setEnvLine(content: string, key: string, value: string) {
-  const line = `${key}="${value}"`;
-  const pattern = new RegExp(`^${key}=.*$`, 'm');
-  return pattern.test(content) ? content.replace(pattern, line) : `${content.trimEnd()}\n${line}\n`;
+/** The main checkout's .env: the first worktree `git worktree list` prints. Null when it has none. */
+function readMainEnv() {
+  const main = read('git', 'worktree', 'list', '--porcelain').match(/^worktree (.+)$/m)?.[1];
+  if (!main || resolve(main) === resolve('.')) return null;
+  const file = join(main, ENV_FILE);
+  return existsSync(file) ? { file, content: readFileSync(file, 'utf8') } : null;
 }
 
 async function writeWorktreeEnv() {
   const slug = worktreeSlug();
   const database = `artnote_${slug}`.slice(0, 63);
   const port = await pickDevPort(slug);
+  const mainEnv = readMainEnv();
+  const fromMain = parse(mainEnv?.content ?? '');
 
-  let content = readFileSync('.env.example', 'utf8');
-  content = setEnvLine(content, 'BASE_URL', `http://localhost:${port}`);
-  content = setEnvLine(
-    content,
-    'PRISMA_DATABASE_URL',
-    `postgresql://artnote:artnote@localhost:5432/${database}`,
-  );
-  content = setEnvLine(content, 'BETTER_AUTH_SECRET', randomBytes(32).toString('base64url'));
-  content = setEnvLine(content, 'CRON_SECRET', randomBytes(24).toString('base64url'));
+  const content = buildWorktreeEnv(readFileSync('.env.example', 'utf8'), mainEnv?.content ?? null, {
+    BASE_URL: `http://localhost:${port}`,
+    PRISMA_DATABASE_URL: `postgresql://artnote:artnote@localhost:5432/${database}`,
+    // Secrets of its own, unless the main checkout's .env sets them
+    ...(!fromMain.BETTER_AUTH_SECRET && {
+      BETTER_AUTH_SECRET: randomBytes(32).toString('base64url'),
+    }),
+    ...(!fromMain.CRON_SECRET && { CRON_SECRET: randomBytes(24).toString('base64url') }),
+  });
   writeFileSync(ENV_FILE, content);
 
-  console.log(`Wrote ${ENV_FILE}: database ${database}, app on http://localhost:${port}`);
+  const source = mainEnv ? `.env.example and ${mainEnv.file}` : '.env.example';
+  console.log(
+    `Wrote ${ENV_FILE} from ${source}: database ${database}, app on http://localhost:${port}`,
+  );
 }
 
 function databaseFromUrl(url: string) {

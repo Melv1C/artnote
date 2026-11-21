@@ -14,9 +14,9 @@
     "preview": "vp preview",
     "check": "prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
     "fix": "vp check --fix",
-    "db:setup": "bun scripts/db-setup.ts",
+    "worktree:setup": "bun scripts/worktree-setup.ts",
     "db:seed": "prisma db seed",
-    "db:reset": "bun scripts/db-setup.ts --reset",
+    "db:reset": "bun scripts/worktree-setup.ts --reset",
     "db:down": "docker compose down",
     "prisma:migrate": "prisma migrate dev",
     "prepare": "vp config"

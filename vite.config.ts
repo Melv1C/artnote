@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
 
     // Unit tests for pure modules. No database, no server runtime.
     test: {
-      include: ['src/**/*.test.ts'],
+      include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
       environment: 'node',
     },
 
