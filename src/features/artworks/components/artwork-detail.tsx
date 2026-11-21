@@ -120,7 +120,7 @@ export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
                     <span className="sr-only">(nouvel onglet)</span>
                   </a>
                 </Button>
-                {place.website && (
+                {isWebLink(place.website) && (
                   <Button asChild size="sm" variant="outline" className="rounded-full">
                     <a href={place.website} target="_blank" rel="noopener noreferrer">
                       <ExternalLink />
@@ -178,6 +178,11 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
       <dd className="mt-0.5 font-medium">{children}</dd>
     </div>
   );
+}
+
+/** Only http(s) addresses become links: a place's website is typed by an admin */
+function isWebLink(url: string | null): url is string {
+  return url != null && /^https?:\/\//i.test(url);
 }
 
 function capitalize(text: string) {
