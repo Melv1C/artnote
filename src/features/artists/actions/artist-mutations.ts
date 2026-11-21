@@ -10,8 +10,8 @@ const requireArtistManager = requirePermission({ artist: ['manage'] });
 const toArtistData = (form: ArtistForm) => ({
   firstName: form.firstName,
   lastName: form.lastName,
-  birthDate: form.birthDate ? new Date(form.birthDate) : null,
-  deathDate: form.deathDate ? new Date(form.deathDate) : null,
+  birthDate: emptyToNull(form.birthDate),
+  deathDate: emptyToNull(form.deathDate),
   biography: emptyToNull(form.biography),
 });
 

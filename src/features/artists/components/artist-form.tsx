@@ -62,10 +62,8 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           <Input
             id="birthDate"
             name="birthDate"
-            type="date"
-            defaultValue={
-              artist?.birthDate ? new Date(artist.birthDate).toISOString().split('T')[0] : ''
-            }
+            placeholder="1525, 01/01/1950, XIXe siècle..."
+            defaultValue={artist?.birthDate ?? ''}
           />
         </div>
 
@@ -74,10 +72,8 @@ export function ArtistForm({ artist }: ArtistFormProps) {
           <Input
             id="deathDate"
             name="deathDate"
-            type="date"
-            defaultValue={
-              artist?.deathDate ? new Date(artist.deathDate).toISOString().split('T')[0] : ''
-            }
+            placeholder="1569, vers 1600..."
+            defaultValue={artist?.deathDate ?? ''}
           />
         </div>
       </div>

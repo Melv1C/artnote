@@ -11,8 +11,8 @@ export const ArtistSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  birthDate: z.date().nullable(),
-  deathDate: z.date().nullable(),
+  birthDate: z.string().nullable(),
+  deathDate: z.string().nullable(),
   biography: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -36,21 +36,20 @@ export const ArtistWithRelationsSchema = ArtistSchema.extend({
   ),
 });
 
-const isoDate = z.iso.date('Date invalide');
-
 export const ArtistFiltersSchema = PaginationSchema.extend({
   search: SearchTextSchema.optional(),
   name: SearchTextSchema.optional(),
-  bornAfter: isoDate.optional(),
-  bornBefore: isoDate.optional(),
 });
 
-/** What the artist form submits. Dates are `YYYY-MM-DD`; empty strings mean "not set". */
+/** A birth or death date as the sources give it: "1950", "01/01/1950", "vers 1525", "XIXe siècle". */
+const artistDate = z.string().trim().max(100);
+
+/** What the artist form submits. Empty strings mean "not set". */
 export const ArtistFormSchema = z.object({
   firstName: z.string().trim().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
   lastName: z.string().trim().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
-  birthDate: isoDate.or(z.literal('')).optional(),
-  deathDate: isoDate.or(z.literal('')).optional(),
+  birthDate: artistDate.optional(),
+  deathDate: artistDate.optional(),
   biography: z.string().max(100_000).optional(),
 });
 

@@ -7,7 +7,7 @@ import type { z } from '@/lib/zod';
 export function buildArtistWhere(
   filters: z.output<typeof ArtistFiltersSchema>,
 ): Prisma.ArtistWhereInput {
-  const { search, name, bornAfter, bornBefore } = filters;
+  const { search, name } = filters;
   return {
     AND: [
       search
@@ -20,8 +20,6 @@ export function buildArtistWhere(
           }
         : {},
       name ? { OR: [{ firstName: contains(name) }, { lastName: contains(name) }] } : {},
-      bornAfter ? { birthDate: { gte: new Date(bornAfter) } } : {},
-      bornBefore ? { birthDate: { lte: new Date(bornBefore) } } : {},
     ],
   };
 }

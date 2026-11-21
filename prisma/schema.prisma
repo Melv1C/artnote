@@ -98,16 +98,21 @@ model Verification {
 }
 
 model Artist {
-  id          String    @id @default(cuid())
-  firstName   String
-  lastName    String
-  birthDate   DateTime?
-  deathDate   DateTime?
-  biography   String? // Rich text biography
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  createdById String
-  updatedById String
+  id              String    @id @default(cuid())
+  firstName       String
+  lastName        String
+  // Free text as the sources give it: "1950", "01/01/1950", "vers 1525", "XIXe siècle"
+  birthDate       String?   @map("birthDateText")
+  deathDate       String?   @map("deathDateText")
+  // The former date columns, unread since birthDate and deathDate became text.
+  // Dropped in a later release, once production runs the code above (ADR 0006).
+  legacyBirthDate DateTime? @map("birthDate")
+  legacyDeathDate DateTime? @map("deathDate")
+  biography       String? // Rich text biography
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdById     String
+  updatedById     String
 
   // Relations
   artworks  ArtworkArtist[]
