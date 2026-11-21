@@ -25,16 +25,11 @@ function AdminUsersCard({ count }: { count: Promise<number> }) {
 function NewUsersThisWeekCard({ counts }: { counts: UserStatsData['newUsers'] }) {
   const { newUsersThisWeek, newUsersLastWeek } = use(counts);
 
-  // Calculate percentage change
-  const percentageChange =
+  // A percentage means nothing against an empty week: give last week's count instead
+  const subtitle =
     newUsersLastWeek === 0
-      ? newUsersThisWeek > 0
-        ? 100
-        : 0
-      : Math.round(((newUsersThisWeek - newUsersLastWeek) / newUsersLastWeek) * 100);
-
-  const trend = percentageChange > 0 ? '+' : '';
-  const subtitle = `${trend}${percentageChange} % par rapport à la semaine dernière`;
+      ? 'Aucun la semaine dernière'
+      : `${newUsersLastWeek} la semaine dernière`;
 
   return (
     <StatCard

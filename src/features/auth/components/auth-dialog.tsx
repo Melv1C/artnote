@@ -26,7 +26,15 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent sheetOnMobile className="gap-6 sm:max-w-[420px]">
+      <DialogContent
+        sheetOnMobile
+        className="gap-6 sm:max-w-[420px]"
+        // On a touch screen, show the whole sheet first: focusing the email field would open the
+        // keyboard over the password and the button
+        onOpenAutoFocus={event => {
+          if (window.matchMedia('(pointer: coarse)').matches) event.preventDefault();
+        }}
+      >
         <DialogHeader className="items-center text-center sm:items-center sm:text-center">
           <img
             src="/logo-96.png"

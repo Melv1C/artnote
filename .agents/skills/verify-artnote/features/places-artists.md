@@ -4,9 +4,9 @@ Admins keep the catalogue of places (museums, churches…) and artists that noti
 
 ## Sub-features
 
-- `places-list` "Lieux" table (Nom, Type, Ville, Pays, Œuvres, Créé le) with filters "Rechercher un lieu...", type, "Ville", "Pays".
+- `places-list` "Lieux" table (Nom, Type, Ville, Pays, Œuvres, Créé le) with filters "Rechercher un lieu…", type, "Ville", "Pays".
 - `places-create` "Nouveau lieu" form: "Nom *", type, "Adresse", "Ville", "Pays", "Site web", "Latitude", "Longitude", "Description"; submit "Créer".
-- `artists-list` artists table (Nom, Date de naissance, Date de décès, Œuvres, Créé le) with "Rechercher un artiste..." and date filters.
+- `artists-list` artists table (Nom, Date de naissance, Date de décès, Œuvres, Créé le) with "Rechercher un artiste…" and date filters.
 - `artists-create` "Nouvel artiste" form: "Prénom *", "Nom *", "Date de naissance", "Date de décès", "Biographie"; submit "Créer".
 - `catalogue-row-actions` "Ouvrir le menu" on a row: "Modifier", "Supprimer".
 - `catalogue-pagination` "Précédent" and "Suivant" buttons under each table.

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import type { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
 import { Link } from '@tanstack/react-router';
 import { SearchX } from 'lucide-react';
-import { use } from 'react';
+import { use, useDeferredValue } from 'react';
 import { ArtworkCard } from './artwork-card';
 
 interface ArtworksListProps {
@@ -12,7 +12,10 @@ interface ArtworksListProps {
 }
 
 export function ArtworksList({ artworksPromise, isFiltered }: ArtworksListProps) {
-  const artworks = use(artworksPromise);
+  // A new search keeps the current cards on screen, dimmed, instead of the skeleton
+  const deferred = useDeferredValue(artworksPromise);
+  const artworks = use(deferred);
+  const isUpdating = deferred !== artworksPromise;
 
   if (artworks.length === 0) {
     return (
@@ -40,7 +43,10 @@ export function ArtworksList({ artworksPromise, isFiltered }: ArtworksListProps)
   }
 
   return (
-    <div>
+    <div
+      aria-busy={isUpdating}
+      className={isUpdating ? 'opacity-60 transition-opacity' : 'transition-opacity'}
+    >
       <p className="mb-6 text-sm text-muted-foreground" role="status">
         {artworks.length} notice{artworks.length > 1 ? 's' : ''}
       </p>

@@ -131,7 +131,7 @@ function Recent({ latest }: { latest: Latest }) {
       <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
         {recent.map(artwork => (
           <li key={artwork.id} className="w-[78%] shrink-0 snap-start sm:w-auto">
-            <ArtworkCard artwork={artwork} />
+            <ArtworkCard artwork={artwork} headingLevel={3} />
           </li>
         ))}
       </ul>

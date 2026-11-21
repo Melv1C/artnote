@@ -10,8 +10,12 @@ import {
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import type { ArtworkImage } from '@/schemas/artwork-image';
 import { Minus, Plus, RotateCcw, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
+import { useEffect, useRef, useState } from 'react';
+import {
+  type ReactZoomPanPinchContentRef,
+  TransformComponent,
+  TransformWrapper,
+} from 'react-zoom-pan-pinch';
 
 interface ArtworkImageViewerProps {
   title: string;
@@ -36,6 +40,8 @@ export function ArtworkImageViewer({
   const [index, setIndex] = useState(startIndex);
   // Zoomed in, a drag pans the image; at rest, it swipes to the next one
   const [zoomed, setZoomed] = useState(false);
+  // Each slide keeps its own zoom: reset the ones left behind
+  const zoomers = useRef<(ReactZoomPanPinchContentRef | null)[]>([]);
 
   // Each opening starts on the image that was tapped
   useEffect(() => {
@@ -49,8 +55,12 @@ export function ArtworkImageViewer({
   useEffect(() => {
     if (!api) return;
     const onSelect = () => {
-      setIndex(api.selectedScrollSnap());
+      const selected = api.selectedScrollSnap();
+      setIndex(selected);
       setZoomed(false);
+      zoomers.current.forEach((zoomer, i) => {
+        if (i !== selected) void zoomer?.resetTransform(0);
+      });
     };
     api.on('select', onSelect);
     return () => {
@@ -61,7 +71,7 @@ export function ArtworkImageViewer({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="inset-0 top-0 left-0 flex h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-none bg-black p-0 text-white sm:max-w-none"
+        className="inset-0 top-0 left-0 flex h-dvh w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-none bg-black p-0 text-white sm:max-w-none"
         showCloseButton={false}
         aria-describedby={undefined}
         onKeyDown={event => {
@@ -110,8 +120,14 @@ export function ArtworkImageViewer({
                   centerOnInit
                   wheel={{ step: 0.15 }}
                   doubleClick={{ mode: 'toggle', step: 1.5 }}
+                  ref={zoomer => {
+                    zoomers.current[i] = zoomer;
+                  }}
                   panning={{ disabled: !zoomed }}
-                  onTransform={(_, state) => setZoomed(state.scale > 1.01)}
+                  onTransform={(_, state) => {
+                    // Only the image in view decides whether a drag pans or swipes
+                    if (i === index) setZoomed(state.scale > 1.01);
+                  }}
                 >
                   {({ zoomIn, zoomOut, resetTransform }) => (
                     <div className="relative flex h-full w-full flex-col">

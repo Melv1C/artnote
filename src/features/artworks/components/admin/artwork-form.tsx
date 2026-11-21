@@ -27,8 +27,8 @@ import {
 } from '@/schemas/artwork';
 import { type Place } from '@/schemas/place';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
@@ -76,15 +76,36 @@ export function ArtworkForm({
     },
   });
 
+  // Saved: leaving is expected, the guard below lets it through
+  const saved = useRef(false);
+
+  // Leaving with unsaved changes, by any route (sidebar, breadcrumb, back, closing the tab),
+  // asks first: there is no autosave
+  useBlocker({
+    shouldBlockFn: async () => {
+      if (saved.current || !form.formState.isDirty) return false;
+      const leave = await confirm({
+        title: 'Quitter sans enregistrer ?',
+        description: 'Les modifications apportées à cette notice seront perdues.',
+        confirmLabel: 'Quitter sans enregistrer',
+        destructive: true,
+      });
+      return !leave;
+    },
+    enableBeforeUnload: () => !saved.current && form.formState.isDirty,
+  });
+
   const handleSubmit = async (data: ArtworkEditorValues) => {
     try {
       setIsSubmitting(true);
 
       await onSubmit(data);
+      saved.current = true;
       toast.success(successMessage);
       await navigate({ to: '/dashboard/artworks' });
     } catch (error) {
       console.error('Saving artwork failed:', error);
+      saved.current = false;
       setIsSubmitting(false);
       toast.error('La notice n’a pas pu être enregistrée. Réessayez.');
     }
@@ -92,7 +113,7 @@ export function ArtworkForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
+      <form onSubmit={event => void form.handleSubmit(handleSubmit)(event)}>
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           {/* The text: what readers read */}
           <div className="space-y-6">
@@ -305,19 +326,8 @@ export function ArtworkForm({
             <Button
               type="button"
               variant="outline"
-              onClick={async () => {
-                // Leaving loses the changes: ask first
-                if (
-                  form.formState.isDirty &&
-                  !(await confirm({
-                    title: 'Quitter sans enregistrer ?',
-                    description: 'Les modifications apportées à cette notice seront perdues.',
-                    confirmLabel: 'Quitter sans enregistrer',
-                    destructive: true,
-                  }))
-                ) {
-                  return;
-                }
+              onClick={() => {
+                // With unsaved changes, the navigation guard asks first
                 if (onCancel) onCancel();
                 else void navigate({ to: '/dashboard/artworks' });
               }}

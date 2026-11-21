@@ -9,13 +9,16 @@ interface ArtworkCardProps {
   /** The first cards of a list load their image at once */
   priority?: boolean;
   className?: string;
+  /** The title's heading level: 2 in a page's list, 3 under a section heading */
+  headingLevel?: 2 | 3;
 }
 
 /**
  * A notice in a list: the painting on its wall, then its cartel (the museum label): artist, title
  * in italics, date and place.
  */
-export function ArtworkCard({ artwork, priority, className }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, priority, className, headingLevel = 2 }: ArtworkCardProps) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const { id, title, creationYear, images, place, artists } = artwork;
   const artist = artistNames(artists);
 
@@ -38,9 +41,9 @@ export function ArtworkCard({ artwork, priority, className }: ArtworkCardProps) 
       />
       <div className="space-y-1 px-1 pt-4">
         {artist && <p className="text-sm font-semibold text-foreground">{artist}</p>}
-        <h3 className="work-title text-[1.375rem] leading-snug text-foreground decoration-primary/40 decoration-1 underline-offset-4 group-hover:underline">
+        <Heading className="work-title text-[1.375rem] leading-snug text-foreground decoration-primary/40 decoration-1 underline-offset-4 group-hover:underline">
           {title}
-        </h3>
+        </Heading>
         {(creationYear || place) && (
           <p className="text-sm text-muted-foreground">
             {[creationYear, place?.name].filter(Boolean).join(', ')}
