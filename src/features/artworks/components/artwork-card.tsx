@@ -32,7 +32,8 @@ export function ArtworkCard({ artwork, priority, className }: ArtworkCardProps) 
         image={mainImage(images)?.image}
         title={title}
         priority={priority}
-        className="aspect-[4/3] rounded-2xl p-6 transition-colors duration-300 group-hover:bg-accent sm:p-8"
+        decorative
+        className="aspect-[4/3] rounded-2xl p-5 transition-colors duration-300 group-hover:bg-accent sm:p-8"
         imgClassName="transition-transform duration-500 ease-out group-hover:scale-[1.02]"
       />
       <div className="space-y-1 px-1 pt-4">

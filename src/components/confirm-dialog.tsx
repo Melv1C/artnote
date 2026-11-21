@@ -50,7 +50,12 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext value={confirm}>
       {children}
       <Dialog open={open} onOpenChange={next => !next && settle(false)}>
-        <DialogContent sheetOnMobile showCloseButton={false} className="sm:max-w-md">
+        <DialogContent
+          sheetOnMobile
+          showCloseButton={false}
+          role="alertdialog"
+          className="sm:max-w-md"
+        >
           {options && (
             <>
               <DialogHeader>
@@ -60,13 +65,18 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 )}
               </DialogHeader>
               <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={() => settle(false)}>
+                {/* A destructive action never has focus first: Enter must not delete */}
+                <Button
+                  variant="outline"
+                  onClick={() => settle(false)}
+                  autoFocus={options.destructive}
+                >
                   Annuler
                 </Button>
                 <Button
                   variant={options.destructive ? 'destructive' : 'default'}
                   onClick={() => settle(true)}
-                  autoFocus
+                  autoFocus={!options.destructive}
                 >
                   {options.confirmLabel}
                 </Button>

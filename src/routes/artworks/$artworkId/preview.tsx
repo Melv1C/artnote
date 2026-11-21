@@ -25,7 +25,7 @@ function ArtworkPreviewPage() {
   return (
     <>
       {/* Says, before anything else, that readers may not see this page */}
-      <div className="sticky top-[calc(var(--header-height)+env(safe-area-inset-top))] z-30 border-b border-warning/40 bg-[color-mix(in_oklch,var(--warning)_16%,var(--background))]">
+      <div className="sticky top-(--header-total) z-30 border-b border-warning/40 bg-[color-mix(in_oklch,var(--warning)_16%,var(--background))]">
         <div className="page-width flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-2.5">
           <p className="flex items-center gap-2 text-sm">
             <EyeOff className="size-4 shrink-0" aria-hidden="true" />

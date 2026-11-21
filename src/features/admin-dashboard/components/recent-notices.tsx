@@ -49,6 +49,7 @@ export function RecentNotices({ artworks }: { artworks: AdminDashboardData['myAr
                   title={artwork.title}
                   className="size-11 shrink-0 rounded-md p-1 [&_span]:hidden [&_svg]:size-4"
                   imgClassName="shadow-sm"
+                  decorative
                 />
                 <div className="min-w-0 flex-1">
                   <p className="work-title truncate text-base">{artwork.title}</p>

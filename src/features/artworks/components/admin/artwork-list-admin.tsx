@@ -105,19 +105,30 @@ export function ArtworkListAdmin({
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
+        <div
+          role="table"
+          aria-label="Mes notices"
+          aria-rowcount={artworks.length + 1}
+          className="overflow-hidden rounded-xl border bg-card shadow-xs"
+        >
           <div
+            role="row"
             className="hidden grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] gap-x-4 lg:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem] border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground md:grid"
-            aria-hidden="true"
           >
-            <span />
-            <span>Notice</span>
-            <span>Statut</span>
-            <span>Modifiée</span>
-            <span className="text-right">Vues</span>
-            <span />
+            <span role="columnheader">
+              <span className="sr-only">Image</span>
+            </span>
+            <span role="columnheader">Notice</span>
+            <span role="columnheader">Statut</span>
+            <span role="columnheader">Modifiée</span>
+            <span role="columnheader" className="text-right">
+              Vues
+            </span>
+            <span role="columnheader">
+              <span className="sr-only">Actions</span>
+            </span>
           </div>
-          <ul className="divide-y" aria-label={`${artworks.length} notices`}>
+          <div role="rowgroup" className="divide-y">
             {artworks.map(artwork => (
               <ArtworkRowAdmin
                 key={artwork.id}
@@ -126,7 +137,7 @@ export function ArtworkListAdmin({
                 onStatusChange={onStatusChange}
               />
             ))}
-          </ul>
+          </div>
           {isFiltered && (
             <p className="border-t px-4 py-2.5 text-xs text-muted-foreground">
               {artworks.length} sur {initialArtworks.length} notices

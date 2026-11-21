@@ -47,7 +47,7 @@ export function ArtworkGallery({ title, images, onOpen, className }: ArtworkGall
               key={attachment.imageId}
               type="button"
               onClick={() => onOpen(i)}
-              className="group relative flex h-full w-full shrink-0 snap-center items-center justify-center p-6 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:p-10"
+              className="group relative flex h-full w-full shrink-0 snap-center items-center justify-center px-6 py-8 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:p-10"
               aria-label={`Agrandir l’image ${i + 1} sur ${images.length}`}
             >
               <Painting
@@ -61,7 +61,7 @@ export function ArtworkGallery({ title, images, onOpen, className }: ArtworkGall
           ))}
         </div>
 
-        <span className="pointer-events-none absolute right-3 bottom-3 hidden size-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm backdrop-blur md:flex">
+        <span className="pointer-events-none absolute right-2 bottom-2 flex size-8 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm backdrop-blur sm:right-3 sm:bottom-3 sm:size-9">
           <Expand className="size-4" aria-hidden="true" />
         </span>
 

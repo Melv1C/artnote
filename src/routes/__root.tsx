@@ -19,6 +19,7 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
 import { type PropsWithChildren } from 'react';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeColor } from '@/components/theme/theme-color';
 import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
@@ -94,7 +95,13 @@ function RootDocument({ children }: PropsWithChildren) {
             <ConfirmProvider>
               <ConditionalLayout>{children}</ConditionalLayout>
             </ConfirmProvider>
-            <Toaster />
+            <Toaster
+              // On a phone, toasts sit above the tab bar
+              mobileOffset={{
+                bottom: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 0.5rem)',
+              }}
+            />
+            <ThemeColor />
           </QueryProvider>
         </ThemeProvider>
         <Scripts />

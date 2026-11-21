@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -51,6 +52,7 @@ export function ArtworkForm({
   successMessage = 'Notice enregistrée avec succès !',
 }: ArtworkFormProps) {
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
     initialValues?.artists.map(a => a.artist) || [],
@@ -84,7 +86,7 @@ export function ArtworkForm({
     } catch (error) {
       console.error('Saving artwork failed:', error);
       setIsSubmitting(false);
-      toast.error("Erreur lors de l'enregistrement de la notice");
+      toast.error('La notice n’a pas pu être enregistrée. Réessayez.');
     }
   };
 
@@ -168,7 +170,7 @@ export function ArtworkForm({
           </div>
 
           {/* The cartel and the publication: short facts, on the side */}
-          <div className="space-y-6 lg:sticky lg:top-20">
+          <div className="space-y-6">
             <FormSection title="Publication">
               <FormField
                 control={form.control}
@@ -238,7 +240,7 @@ export function ArtworkForm({
                 name="medium"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Matériaux et Techniques</FormLabel>
+                    <FormLabel>Matériaux et techniques</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Huile sur toile, Bronze..."
@@ -303,7 +305,22 @@ export function ArtworkForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onCancel?.() || navigate({ to: '/dashboard/artworks' })}
+              onClick={async () => {
+                // Leaving loses the changes: ask first
+                if (
+                  form.formState.isDirty &&
+                  !(await confirm({
+                    title: 'Quitter sans enregistrer ?',
+                    description: 'Les modifications apportées à cette notice seront perdues.',
+                    confirmLabel: 'Quitter sans enregistrer',
+                    destructive: true,
+                  }))
+                ) {
+                  return;
+                }
+                if (onCancel) onCancel();
+                else void navigate({ to: '/dashboard/artworks' });
+              }}
               disabled={isSubmitting}
             >
               Annuler

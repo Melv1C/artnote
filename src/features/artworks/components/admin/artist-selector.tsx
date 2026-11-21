@@ -67,7 +67,7 @@ export function ArtistSelector({
             disabled={disabled}
           >
             {selectedArtists.length > 0
-              ? `${selectedArtists.length} artiste(s) sélectionné(s)`
+              ? `${selectedArtists.length} artiste${selectedArtists.length > 1 ? 's' : ''}`
               : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>

@@ -35,14 +35,14 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
       <BackLink />
 
       <div className="page-width lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-12 lg:pt-4 xl:gap-16">
-        <GalleryColumn>
+        <GalleryColumn onReopen={images.length > 0 ? () => openViewer(0) : undefined}>
           {galleryRef => (
             <div ref={galleryRef}>
               <ArtworkGallery
                 title={title}
                 images={images}
                 onOpen={openViewer}
-                className="-mx-4 sm:mx-0 lg:h-[calc(100svh-var(--header-height)-6rem)]"
+                className="-mx-4 sm:mx-0 lg:h-[calc(100svh-var(--header-total)-6rem)]"
               />
             </div>
           )}
@@ -205,12 +205,14 @@ function BackLink() {
 
 /**
  * The column of the gallery: sticky beside the text on wide screens. On a phone, once the reader
- * has scrolled past it, a button brings the images back.
+ * has scrolled past it, a button opens the images full screen without losing their place.
  */
 function GalleryColumn({
   children,
+  onReopen,
 }: {
   children: (ref: React.RefObject<HTMLDivElement | null>) => React.ReactNode;
+  onReopen?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [outOfView, setOutOfView] = useState(false);
@@ -226,21 +228,23 @@ function GalleryColumn({
   }, []);
 
   return (
-    <div className="lg:sticky lg:top-[calc(var(--header-height)+1.5rem)] lg:self-start">
+    <div className="lg:sticky lg:top-[calc(var(--header-total)+1.5rem)] lg:self-start">
       {children(ref)}
-      <button
-        type="button"
-        onClick={() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-        tabIndex={outOfView ? 0 : -1}
-        aria-hidden={!outOfView}
-        className={cn(
-          'fixed right-4 bottom-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+1rem)] z-30 flex h-11 items-center gap-2 rounded-full bg-foreground px-4 text-sm font-medium text-background shadow-lg transition-all duration-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none lg:hidden',
-          outOfView ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
-        )}
-      >
-        <Images className="size-4" aria-hidden="true" />
-        Revoir l’œuvre
-      </button>
+      {onReopen && (
+        <button
+          type="button"
+          onClick={onReopen}
+          tabIndex={outOfView ? 0 : -1}
+          aria-hidden={!outOfView}
+          className={cn(
+            'fixed right-4 bottom-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+1rem)] z-30 md:bottom-6 flex h-11 items-center gap-2 rounded-full bg-foreground px-4 text-sm font-medium text-background shadow-lg transition-all duration-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none lg:hidden',
+            outOfView ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
+          )}
+        >
+          <Images className="size-4" aria-hidden="true" />
+          Revoir l’œuvre
+        </button>
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/about')({
   head: () => ({
     meta: pageMeta(
       'ArtNote - À propos',
-      "Découvrez l'équipe derrière ArtNote, notre mission et nos valeurs.",
+      'Découvrez l’équipe derrière ArtNote, notre mission et nos valeurs.',
     ),
   }),
   component: AboutPage,
@@ -18,7 +18,7 @@ const FOUNDERS = [
     role: 'Rédaction et supervision des notices',
     photo: '/elise.jpeg',
     quote:
-      "Je suis diplômée d'un master en Histoire de l'art à l'UCLouvain. Spécialisée dans la peinture des XVIe et XVIIe siècles, je souhaite contribuer à rendre les œuvres d'art accessibles à tous, sans pour autant sacrifier la rigueur scientifique. J'assure la rédaction et la supervision des notices.",
+      'Je suis diplômée d’un master en Histoire de l’art à l’UCLouvain. Spécialisée dans la peinture des XVIe et XVIIe siècles, je souhaite contribuer à rendre les œuvres d’art accessibles à tous, sans pour autant sacrifier la rigueur scientifique. J’assure la rédaction et la supervision des notices.',
     email: 'elisepoot02@gmail.com',
   },
   {
@@ -26,7 +26,7 @@ const FOUNDERS = [
     role: 'Conception et développement du site',
     photo: '/melvyn.jpeg',
     quote:
-      "Pour ma part, passionné par le développement web, j'ai récemment obtenu mon diplôme de master en ingénieur informatique à l'UCLouvain. A présent, je travaille chez Qualifio en tant que Software Developer, où je mets mes compétences techniques au service de projets innovants. Chez ArtNote, je suis en charge de la conception et du développement du site.",
+      'Pour ma part, passionné par le développement web, j’ai récemment obtenu mon diplôme de master en ingénieur informatique à l’UCLouvain. À présent, je travaille chez Qualifio en tant que Software Developer, où je mets mes compétences techniques au service de projets innovants. Chez ArtNote, je suis en charge de la conception et du développement du site.',
     email: 'claes.melvyn@gmail.com',
   },
 ];
@@ -36,7 +36,7 @@ const VALUES = [
   { title: 'Accessibilité', text: 'Une lecture fluide et claire pour tous les publics.' },
   {
     title: 'Exigence scientifique',
-    text: "Chaque notice respecte les standards de la recherche en histoire de l'art.",
+    text: 'Chaque notice respecte les standards de la recherche en histoire de l’art.',
   },
   {
     title: 'Transmission',
@@ -51,7 +51,7 @@ function AboutPage() {
         <h1 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">À propos</h1>
         <p className="mt-4 text-lg text-muted-foreground md:text-xl">
           ArtNote est un projet fondé en 2025, né de la rencontre entre deux univers complémentaires
-          : l'informatique et l'histoire de l'art.
+          : l’informatique et l’histoire de l’art.
         </p>
       </header>
 
@@ -114,13 +114,13 @@ function AboutPage() {
           <div className="mt-5 space-y-4 text-lg leading-relaxed text-wall-foreground">
             <p>
               Notre objectif est de proposer des notices scientifiques complètes et accessibles sur
-              des tableaux exposés dans les musées belges. Que vous soyez curieux d'art, amateur
-              passionné ou historien de l'art confirmé, ArtNote vous offre un contenu fiable,
+              des tableaux exposés dans les musées belges. Que vous soyez curieux d’art, amateur
+              passionné ou historien de l’art confirmé, ArtNote vous offre un contenu fiable,
               documenté et enrichi.
             </p>
             <p>
-              Par le biais de ces notices, nous souhaitons contribuer à la (re)découverte d'œuvres,
-              d'artistes ou des courants parfois laissés dans l'ombre, pour contribuer à une
+              Par le biais de ces notices, nous souhaitons contribuer à la (re)découverte d’œuvres,
+              d’artistes ou des courants parfois laissés dans l’ombre, pour contribuer à une
               meilleure connaissance du patrimoine artistique en Belgique.
             </p>
           </div>

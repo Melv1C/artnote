@@ -6,7 +6,6 @@ import {
   LogOut,
   MapPin,
   Palette,
-  Plus,
   UserRound,
   Users,
 } from 'lucide-react';
@@ -112,9 +111,13 @@ export function DashboardSidebar({ user }: { user: User }) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip="ArtNote">
               <Link to="/dashboard">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-serif text-lg text-primary-foreground">
-                  A
-                </span>
+                <img
+                  src="/logo-96.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0 rounded-lg bg-white ring-1 ring-sidebar-border"
+                />
                 <span className="grid leading-tight">
                   <span className="font-serif text-lg font-medium">ArtNote</span>
                   <span className="text-xs text-muted-foreground">Rédaction</span>
@@ -126,25 +129,6 @@ export function DashboardSidebar({ user }: { user: User }) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip="Nouvelle notice"
-                  className="bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-                >
-                  <Link to="/dashboard/artworks/create">
-                    <Plus />
-                    <span className="font-medium">Nouvelle notice</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>

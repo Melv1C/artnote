@@ -9,19 +9,28 @@ interface PaintingProps {
   className?: string;
   imgClassName?: string;
   priority?: boolean;
+  /** Inside a link that already names the work: the image adds nothing for a screen reader */
+  decorative?: boolean;
 }
 
 /**
  * A painting hung on the wall: shown whole (never cropped), with a soft shadow, on the `wall`
  * colour. Without an image, an empty frame stands in.
  */
-export function Painting({ image, title, className, imgClassName, priority }: PaintingProps) {
+export function Painting({
+  image,
+  title,
+  className,
+  imgClassName,
+  priority,
+  decorative,
+}: PaintingProps) {
   return (
     <div className={cn('flex items-center justify-center bg-wall', className)}>
       {image ? (
         <img
           src={image.url}
-          alt={image.alt || title}
+          alt={decorative ? '' : image.alt || title}
           width={image.width ?? undefined}
           height={image.height ?? undefined}
           loading={priority ? 'eager' : 'lazy'}
@@ -33,9 +42,11 @@ export function Painting({ image, title, className, imgClassName, priority }: Pa
           )}
         />
       ) : (
-        <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <Frame className="size-10" strokeWidth={1.25} aria-hidden="true" />
-          <span className="text-xs">Image à venir</span>
+          <span className="text-xs" aria-hidden={decorative}>
+            Image à venir
+          </span>
         </div>
       )}
     </div>

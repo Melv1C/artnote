@@ -96,7 +96,7 @@ export function ArtworksFilter() {
           type="search"
           enterKeyHint="search"
           autoComplete="off"
-          placeholder="Une œuvre, un artiste, un musée…"
+          placeholder="Œuvre, artiste, musée…"
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="h-12 w-full rounded-full border border-input bg-card pr-12 pl-11 text-base shadow-xs transition-[box-shadow,border-color] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40 [&::-webkit-search-cancel-button]:hidden"

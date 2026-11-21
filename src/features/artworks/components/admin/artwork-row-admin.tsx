@@ -76,21 +76,25 @@ export function ArtworkRowAdmin({ artwork, onDelete, onStatusChange }: ArtworkRo
   };
 
   return (
-    <li
+    <div
+      role="row"
       className={cn(
         'group grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-x-4 px-4 py-3 transition-colors hover:bg-muted/50 md:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] lg:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem]',
         isPending && 'pointer-events-none opacity-60',
       )}
       aria-busy={isPending}
     >
-      <Painting
-        image={mainImage(images)?.image}
-        title={title}
-        className="size-14 rounded-lg p-1.5 [&_svg]:size-5 [&_span]:hidden"
-        imgClassName="shadow-sm"
-      />
+      <div role="cell">
+        <Painting
+          image={mainImage(images)?.image}
+          title={title}
+          className="size-14 rounded-lg p-1.5 [&_svg]:size-5 [&_span]:hidden"
+          imgClassName="shadow-sm"
+          decorative
+        />
+      </div>
 
-      <div className="min-w-0">
+      <div role="cell" className="min-w-0">
         <Link
           to="/dashboard/artworks/$artworkId/edit"
           params={{ artworkId: id }}
@@ -112,27 +116,28 @@ export function ArtworkRowAdmin({ artwork, onDelete, onStatusChange }: ArtworkRo
         </p>
       </div>
 
-      <div className="hidden md:block">
+      <div role="cell" className="hidden md:block">
         <StatusBadge status={status} />
       </div>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <p className="hidden text-sm text-muted-foreground md:block">
-            {formatDistanceToNow(new Date(updatedAt), { addSuffix: true, locale: fr })}
-          </p>
-        </TooltipTrigger>
-        <TooltipContent>
-          Modifiée le {format(new Date(updatedAt), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
-        </TooltipContent>
-      </Tooltip>
+      <div role="cell" className="hidden text-sm text-muted-foreground md:block">
+        <time
+          dateTime={new Date(updatedAt).toISOString()}
+          title={format(new Date(updatedAt), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
+        >
+          {formatDistanceToNow(new Date(updatedAt), { addSuffix: true, locale: fr })}
+        </time>
+      </div>
 
-      <p className="hidden text-right text-sm tabular-nums text-muted-foreground md:block">
+      <div
+        role="cell"
+        className="hidden text-right text-sm tabular-nums text-muted-foreground md:block"
+      >
         {viewCount.toLocaleString('fr-BE')}
         <span className="sr-only"> vues</span>
-      </p>
+      </div>
 
-      <div className="flex items-center justify-end gap-1">
+      <div role="cell" className="flex items-center justify-end gap-1">
         <Button asChild size="sm" variant="ghost" className="hidden lg:inline-flex">
           <Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }}>
             <Pencil />
@@ -186,6 +191,6 @@ export function ArtworkRowAdmin({ artwork, onDelete, onStatusChange }: ArtworkRo
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </li>
+    </div>
   );
 }

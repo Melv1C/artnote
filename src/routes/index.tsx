@@ -19,23 +19,26 @@ function HomePage() {
   const { latest } = Route.useLoaderData();
 
   return (
-    <div className="page-width pt-8 pb-6 md:pt-16">
-      <section className="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+    <div className="page-width pt-6 pb-6 md:pt-16">
+      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
         <div className="animate-rise">
-          <h1 className="font-serif text-[2.75rem] leading-[1.02] font-medium tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="font-serif text-[2.35rem] leading-[1.02] font-medium tracking-tight sm:text-6xl lg:text-7xl">
             La peinture dans tout son art
           </h1>
-          <p className="mt-5 max-w-xl text-lg text-muted-foreground sm:text-xl">
+          <p className="mt-4 max-w-xl text-muted-foreground sm:mt-5 sm:text-xl">
             (Re)découvrez l’histoire de la peinture à travers des notices scientifiques, et visitez
             les musées belges autrement.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mt-8">
             <Button size="lg" asChild className="rounded-full">
               <Link to="/artworks">Parcourir les notices</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="rounded-full">
-              <Link to="/about">Qui écrit les notices ?</Link>
-            </Button>
+            <Link
+              to="/about"
+              className="inline-flex h-11 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Qui écrit les notices ?
+            </Link>
           </div>
         </div>
 
@@ -72,7 +75,8 @@ function FeaturedNotice({ artwork }: { artwork: PublicArtwork }) {
         image={mainImage(artwork.images)?.image}
         title={artwork.title}
         priority
-        className="aspect-[5/4] p-8 sm:rounded-3xl sm:p-12"
+        decorative
+        className="aspect-[4/3] p-6 sm:aspect-[5/4] sm:rounded-3xl sm:p-12"
         imgClassName="transition-transform duration-700 ease-out group-hover:scale-[1.015]"
       />
       <div className="flex items-end justify-between gap-4 px-4 pt-4 sm:px-1">

@@ -34,6 +34,8 @@ export function ArtworkImageViewer({
 }: ArtworkImageViewerProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [index, setIndex] = useState(startIndex);
+  // Zoomed in, a drag pans the image; at rest, it swipes to the next one
+  const [zoomed, setZoomed] = useState(false);
 
   // Each opening starts on the image that was tapped
   useEffect(() => {
@@ -41,8 +43,15 @@ export function ArtworkImageViewer({
   }, [open, startIndex]);
 
   useEffect(() => {
+    api?.reInit({ watchDrag: !zoomed });
+  }, [api, zoomed]);
+
+  useEffect(() => {
     if (!api) return;
-    const onSelect = () => setIndex(api.selectedScrollSnap());
+    const onSelect = () => {
+      setIndex(api.selectedScrollSnap());
+      setZoomed(false);
+    };
     api.on('select', onSelect);
     return () => {
       api.off('select', onSelect);
@@ -55,6 +64,11 @@ export function ArtworkImageViewer({
         className="inset-0 top-0 left-0 flex h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-none bg-black p-0 text-white sm:max-w-none"
         showCloseButton={false}
         aria-describedby={undefined}
+        onKeyDown={event => {
+          if (zoomed) return;
+          if (event.key === 'ArrowLeft') api?.scrollPrev();
+          if (event.key === 'ArrowRight') api?.scrollNext();
+        }}
       >
         <DialogTitle className="sr-only">Images de {title}</DialogTitle>
 
@@ -96,11 +110,13 @@ export function ArtworkImageViewer({
                   centerOnInit
                   wheel={{ step: 0.15 }}
                   doubleClick={{ mode: 'toggle', step: 1.5 }}
+                  panning={{ disabled: !zoomed }}
+                  onTransform={(_, state) => setZoomed(state.scale > 1.01)}
                 >
                   {({ zoomIn, zoomOut, resetTransform }) => (
                     <div className="relative flex h-full w-full flex-col">
                       <TransformComponent
-                        wrapperStyle={{ width: '100%', height: '100%' }}
+                        wrapperStyle={{ width: '100%', height: '100%', touchAction: 'none' }}
                         contentStyle={{
                           width: '100%',
                           height: '100%',
@@ -124,7 +140,7 @@ export function ArtworkImageViewer({
                           <ZoomButton label="Dézoomer" onClick={() => zoomOut()}>
                             <Minus className="size-5" />
                           </ZoomButton>
-                          <ZoomButton label="Taille réelle" onClick={() => resetTransform()}>
+                          <ZoomButton label="Ajuster à l’écran" onClick={() => resetTransform()}>
                             <RotateCcw className="size-5" />
                           </ZoomButton>
                           <ZoomButton label="Zoomer" onClick={() => zoomIn()}>

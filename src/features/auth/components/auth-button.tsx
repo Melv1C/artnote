@@ -11,7 +11,13 @@ export function AuthButton({ onSignInClick }: AuthButtonProps) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <Skeleton className="size-9 rounded-full" aria-label="Chargement du compte" />;
+    // As wide as "Se connecter", what most readers get, so the header does not shift
+    return (
+      <Skeleton
+        className="h-10 w-[7.25rem] rounded-full md:h-9"
+        aria-label="Chargement du compte"
+      />
+    );
   }
 
   if (user) {
