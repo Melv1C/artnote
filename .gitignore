@@ -41,3 +41,7 @@ yarn-error.log*
 /src/generated/prisma
 .env*.local
 .vitest/
+
+# verification runs (.agents/skills/verify-artnote)
+/.verify/
+/.playwright-cli/
