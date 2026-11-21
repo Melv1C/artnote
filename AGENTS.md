@@ -16,7 +16,7 @@ bun run dev             # the URL worktree:setup printed (BASE_URL in .env)
 
 In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions.
 
-Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, delete this one and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
+Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
 Seeded accounts (password `artnote-dev-password`):
 
@@ -38,7 +38,7 @@ Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`co
 | `bun run check`                        | Everything CI runs: Prisma generate, validate and format check, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
 | `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
 | `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
-| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`); tests import from `vite-plus/test`                                                         |
+| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
 | `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
 | `bun run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
 | `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
