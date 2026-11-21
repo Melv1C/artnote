@@ -1,46 +1,91 @@
 import { z } from '@/lib/zod';
 
 const DEV_AUTH_SECRET = 'dev-only-better-auth-secret';
-const FALLBACK_SITE_URL = 'https://artnote.vercel.app';
+const DEV_BASE_URL = 'http://localhost:3000';
+const STORAGE_KEYS = [
+  'S3_ENDPOINT',
+  'S3_BUCKET',
+  'S3_ACCESS_KEY_ID',
+  'S3_SECRET_ACCESS_KEY',
+  'S3_PUBLIC_URL',
+] as const;
 
 const envSchema = z
   .object({
-    VERCEL_ENV: z.enum(['development', 'preview', 'production']).default('development'),
-    // Better Auth base URL and the origin the dev server listens on
-    BASE_URL: z.url().optional(),
-    // Set by Vercel, without a protocol
-    VERCEL_URL: z.string().optional(),
-    VERCEL_BRANCH_URL: z.string().optional(),
     NODE_ENV: z.string().optional(),
+    // Public origin of the app: Better Auth base URL, absolute Open Graph URLs, and the port the
+    // dev server listens on
+    BASE_URL: z.url().optional(),
+    // Host of a Dokploy preview deployment, without a protocol. Dokploy sets it on previews only;
+    // it replaces BASE_URL so Better Auth accepts sign-ins on the preview's own host.
+    DOKPLOY_DEPLOY_URL: z.string().optional(),
     PRISMA_DATABASE_URL: z.url(),
     BETTER_AUTH_SECRET: z.string().min(10).optional(),
-    BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_rw_').optional(),
-    // Bearer token Vercel Cron sends to /api/cron/*
+    // Bearer token the scheduled job sends to /api/cron/*
     CRON_SECRET: z.string().min(16).optional(),
+    // Header that carries the visitor's IP for the view count, set by the reverse proxy in front
+    // of the app (Traefik's `x-real-ip` on Dokploy). Only name a header the proxy overwrites:
+    // a client can send any header. Unset, views are not counted (local dev server).
+    CLIENT_IP_HEADER: z
+      .string()
+      .regex(/^[A-Za-z0-9-]+$/)
+      .transform(name => name.toLowerCase())
+      .optional(),
+    // S3-compatible object storage (MinIO) for image and avatar uploads. All five or none;
+    // without them uploads fail.
+    S3_ENDPOINT: z.url().optional(),
+    S3_BUCKET: z.string().min(3).optional(),
+    S3_ACCESS_KEY_ID: z.string().min(3).optional(),
+    S3_SECRET_ACCESS_KEY: z.string().min(8).optional(),
+    // Public base URL of the bucket's objects, such as https://files.artnote.melvyn.be/artnote
+    S3_PUBLIC_URL: z.url().optional(),
     // Umami Cloud website id (ADR 0010). Not a secret: it ends up in page HTML. Set in
     // production only; where it is unset, no tracker loads and nothing is measured.
     UMAMI_WEBSITE_ID: z.uuid().optional(),
   })
   .superRefine((env, ctx) => {
     // Only a local dev server may fall back to the public dev secret
-    const deployed = env.VERCEL_ENV !== 'development' || env.NODE_ENV === 'production';
-    if (deployed && !env.BETTER_AUTH_SECRET) {
+    if (env.NODE_ENV === 'production' && !env.BETTER_AUTH_SECRET) {
       ctx.addIssue({
         code: 'custom',
         path: ['BETTER_AUTH_SECRET'],
-        message: `required outside local development (VERCEL_ENV=${env.VERCEL_ENV}, NODE_ENV=${env.NODE_ENV})`,
+        message: 'required when NODE_ENV=production',
       });
     }
+    const storageKeys = STORAGE_KEYS.filter(key => env[key] !== undefined);
+    if (storageKeys.length > 0 && storageKeys.length < STORAGE_KEYS.length) {
+      for (const key of STORAGE_KEYS.filter(key => env[key] === undefined)) {
+        ctx.addIssue({ code: 'custom', path: [key], message: 'set all S3_* variables, or none' });
+      }
+    }
   })
-  .transform(env => ({
-    ...env,
-    BASE_URL: env.BASE_URL ?? 'http://localhost:3000',
-    BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET ?? DEV_AUTH_SECRET,
-    // Absolute origin for Open Graph URLs: BASE_URL when set, else the Vercel deployment URL
-    SITE_URL: withProtocol(
-      env.BASE_URL ?? env.VERCEL_URL ?? env.VERCEL_BRANCH_URL ?? FALLBACK_SITE_URL,
-    ),
-  }));
+  .transform(
+    ({
+      DOKPLOY_DEPLOY_URL,
+      S3_ENDPOINT,
+      S3_BUCKET,
+      S3_ACCESS_KEY_ID,
+      S3_SECRET_ACCESS_KEY,
+      S3_PUBLIC_URL,
+      ...env
+    }) => ({
+      ...env,
+      BASE_URL: DOKPLOY_DEPLOY_URL
+        ? withProtocol(DOKPLOY_DEPLOY_URL)
+        : (env.BASE_URL ?? DEV_BASE_URL),
+      BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET ?? DEV_AUTH_SECRET,
+      storage:
+        S3_ENDPOINT && S3_BUCKET && S3_ACCESS_KEY_ID && S3_SECRET_ACCESS_KEY && S3_PUBLIC_URL
+          ? {
+              endpoint: S3_ENDPOINT,
+              bucket: S3_BUCKET,
+              accessKeyId: S3_ACCESS_KEY_ID,
+              secretAccessKey: S3_SECRET_ACCESS_KEY,
+              publicUrl: S3_PUBLIC_URL.replace(/\/+$/, ''),
+            }
+          : null,
+    }),
+  );
 
 export type Env = z.output<typeof envSchema>;
 

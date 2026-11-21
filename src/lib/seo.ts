@@ -14,7 +14,7 @@ export const DEFAULT_OG_IMAGE = {
 };
 
 /** Origin used to resolve absolute Open Graph URLs. Loaded once by the root route. */
-export const getSiteUrl = createServerFn({ method: 'GET' }).handler(() => env.SITE_URL);
+export const getSiteUrl = createServerFn({ method: 'GET' }).handler(() => env.BASE_URL);
 
 const absoluteUrl = (siteUrl: string, path: string) => new URL(path, siteUrl).toString();
 

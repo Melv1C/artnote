@@ -1,4 +1,5 @@
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
+import { env } from '@/lib/env';
 import { readImageUpload, uploadPublicImage } from '@/lib/image-upload';
 import { prisma } from '@/lib/prisma';
 import { ArtworkFormSchema, type ArtworkForm } from '@/schemas/artwork';
@@ -118,9 +119,9 @@ export const uploadArtworkImage = createServerFn({ method: 'POST' })
   .validator(ImageUploadSchema)
   .handler(async ({ data: formData }) => {
     const { file, alt, caption } = readImageUpload(formData);
-    const blob = await uploadPublicImage('artworks', file);
+    const upload = await uploadPublicImage('artworks', file);
     const image = await prisma.image.create({
-      data: { url: blob.url, alt, caption, size: file.size, mimeType: file.type },
+      data: { url: upload.url, alt, caption, size: file.size, mimeType: file.type },
     });
     return ImageSchema.parse(image);
   });
@@ -134,6 +135,6 @@ export const recordNoticeView = createServerFn({ method: 'POST' })
   .handler(async ({ data: artworkId }) => {
     await recordView({
       artworkId,
-      clientIp: clientIpFrom(getRequestHeader('x-vercel-forwarded-for')),
+      clientIp: env.CLIENT_IP_HEADER ? clientIpFrom(getRequestHeader(env.CLIENT_IP_HEADER)) : null,
     });
   });

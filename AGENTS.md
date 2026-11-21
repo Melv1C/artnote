@@ -2,7 +2,7 @@
 
 ArtNote publishes scholarly notices about paintings for a French-speaking (Belgian) audience. Readers browse and read notices; admins write them in `/dashboard`. Use the domain terms of `GLOSSARY.md` (notice, writer, author, view count…), and read the decisions in `docs/adr/` before changing an area they cover.
 
-Stack: TanStack Start (React 19, Vite, Nitro), TanStack Router (file routes), Prisma 7 on PostgreSQL, Better Auth, Tailwind 4 + shadcn, Tiptap, Zod 4. Toolchain: Vite+ (`vp`: Vite, Vitest, Oxlint, Oxfmt) plus knip, configured in `vite.config.ts` (ADR 0008). Hosted on Vercel. Single app, not a monorepo.
+Stack: TanStack Start (React 19, Vite, Nitro), TanStack Router (file routes), Prisma 7 on PostgreSQL, Better Auth, Tailwind 4 + shadcn, Tiptap, Zod 4. Toolchain: Vite+ (`vp`: Vite, Vitest, Oxlint, Oxfmt) plus knip, configured in `vite.config.ts` (ADR 0008). Self-hosted on Dokploy with MinIO for uploads (ADR 0011). Single app, not a monorepo.
 
 ## Local setup
 
@@ -27,7 +27,7 @@ Seeded accounts (password `artnote-dev-password`):
 
 The seed also creates 2 places, 3 artists and 3 notices (2 published, 1 draft).
 
-Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WRITE_TOKEN`. Put only that variable in `.env.local`, never a `vercel env pull`: `.env.local` wins over `.env`, and its `PRISMA_DATABASE_URL` would point everything at the shared database.
+Image and avatar uploads go to the local MinIO that `db:setup` starts (`compose.yaml`, bucket `artnote` shared by every worktree). A `.env` written before MinIO was added lacks the `S3_*` variables: copy them from `.env.example`.
 
 ## Commands
 
@@ -38,10 +38,10 @@ Image and avatar uploads go to Vercel Blob and fail without a real `BLOB_READ_WR
 | `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
 | `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`); tests import from `vite-plus/test`                                                         |
 | `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
-| `bun run db:setup`                     | Write `.env` if missing, start Postgres, create this worktree's database, migrate, generate, seed. Safe to re-run.                 |
+| `bun run db:setup`                     | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
 | `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
 | `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                              |
-| `bun run db:down`                      | Stop the Postgres container, for every worktree                                                                                    |
+| `bun run db:down`                      | Stop the Postgres and MinIO containers, for every worktree                                                                         |
 | `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                                            |
 
 `vp` comes with the dependencies (`node_modules/.bin/vp`); use `bunx vp` when it is not on your `PATH`. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `bun install`) runs `vp check --fix` on staged files.
@@ -53,7 +53,7 @@ To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` ch
 ```
 src/
   routes/              Pages and layouts (file routes). routes/api/** holds only the Better Auth
-                       handler and the Vercel cron.
+                       handler and the cron endpoint.
   features/<feature>/
     actions/           Server code: <entity>-queries.ts (reads), <entity>-mutations.ts (writes),
                        server-only helpers (they import '@tanstack/react-start/server-only').
@@ -122,19 +122,19 @@ export const updatePlace = createServerFn({ method: 'POST' })
 
 Audience measurement uses Umami Cloud (ADR 0010, which supersedes ADR 0004). The root layout renders Umami's script only where `UMAMI_WEBSITE_ID` is set (production), served with its collect endpoint under `/stats/` on our own domain (Nitro route rules in `vite.config.ts`). Automatic page views are off: `useUmamiPageViews` sends one for each route that `isMeasuredPath` accepts (public pages, not the dashboard or previews), and notice pages send a `notice_read` with its reading-time bracket when the reader leaves (`useNoticeReading`). The rules live in the pure, tested `features/analytics/lib/umami.ts`. Umami is cookieless, and missing or blocked it does nothing. Admins read the figures in Umami, from the "Voir les statistiques" link on the dashboard home; the app has no analytics charts or queries. The first-party analytics tables were dropped; their earlier daily summaries survive only in a CSV archive outside the repo.
 
-`Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per client IP per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/view-count.ts`). Vercel Cron calls `/api/cron/prune-view-records` nightly with `CRON_SECRET` to delete the deduplication records that can no longer affect a count; it is the only cron (`vercel.json`). The IP comes from Vercel's `x-vercel-forwarded-for`; requests without one, such as on the local dev server, are not counted.
+`Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per client IP per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/view-count.ts`). A Dokploy schedule calls `/api/cron/prune-view-records` nightly with `CRON_SECRET` to delete the deduplication records that can no longer affect a count; it is the only cron (README, Deployments). The IP comes from the header named by `CLIENT_IP_HEADER` (`x-real-ip`, set by Traefik); where it is unset, such as on the local dev server, views are not counted.
 
 ## Environment
 
-Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. Only a local dev server (`VERCEL_ENV` unset or `development`, and `NODE_ENV` not `production`) may run without `BETTER_AUTH_SECRET`; anywhere else the server refuses to start. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered.
+Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. With `NODE_ENV=production` (the Docker image) the server refuses to start without `BETTER_AUTH_SECRET`. On a Dokploy preview, `DOKPLOY_DEPLOY_URL` replaces `BASE_URL`. The `S3_*` variables are all set or all unset; without them uploads fail. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered.
 
 ## Database
 
-- `PRISMA_DATABASE_URL` selects the connection (`src/lib/prisma-client.ts`). A `postgresql://` URL connects directly through `@prisma/adapter-pg`; a `prisma+postgres://` URL goes through Prisma Accelerate (Vercel).
+- `PRISMA_DATABASE_URL` selects the connection (`src/lib/prisma-client.ts`), a `postgresql://` URL through `@prisma/adapter-pg`.
 - Schema: `prisma/schema.prisma`. The client is generated into `src/generated/prisma` (gitignored) and imported from `@/generated/prisma/client`.
 - `status`, `role` and place `type` are plain strings; the allowed values live in Zod enums in `src/schemas/common.ts` (ADR 0005).
 - The `Concept` and `Keyword` tables exist in the schema for a planned feature; no code reads or writes them yet.
-- Vercel runs `prisma migrate deploy` on every build, previews included, so a migration reaches the shared preview database as soon as a branch deploys: keep migrations backward compatible (ADR 0006).
+- Every container runs `prisma migrate deploy` when it starts, previews included, and previews share staging's database, so a migration reaches it as soon as a branch deploys: keep migrations backward compatible (ADR 0006).
 - Worktrees share one Postgres container (`compose.yaml`, port 5432) but each uses its own database, so seeding or resetting one never touches another.
 - Only run migrations, resets and seeds against the local Docker database. `db:setup`, `db:reset` and the seed refuse a non-local host (`scripts/assert-local-db.ts`).
 
@@ -154,6 +154,6 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 
 ## Branches and releases
 
-- Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging.
+- Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging; the `preview` label on a PR gives it a Dokploy preview.
 - CI (`.github/workflows/ci.yml`) is one job, "Check", the required check on `main`: it runs `bun run check`, fails if the build changed committed files, and runs `bun audit --audit-level=critical`.
 - Releases push a `vX.Y.Z` tag on a `main` commit; the Release workflow moves `production` to it (ADR 0009). See the README's Deployments section.

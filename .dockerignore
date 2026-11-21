@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+.output
+.nitro
+.tanstack
+dist
+src/generated
+.scratch

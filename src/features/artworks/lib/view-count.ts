@@ -9,10 +9,9 @@ export const viewRecordsExpireBefore = (now: Date) =>
   new Date(now.getTime() - Math.max(VIEW_RECORD_RETENTION_MS, VIEW_DEDUPLICATION_WINDOW_MS));
 
 /**
- * The client IP from Vercel's `x-vercel-forwarded-for` header ("client, proxy…"), or null.
- * Only Vercel's header is trusted: `x-forwarded-for` and `x-real-ip` can be set by the client
- * when the app is not behind Vercel's proxy.
+ * The client IP from the header the reverse proxy sets (`CLIENT_IP_HEADER`), or null. Takes the
+ * first entry of a "client, proxy…" list.
  */
-export function clientIpFrom(vercelForwardedFor: string | null | undefined): string | null {
-  return vercelForwardedFor?.split(',')[0]?.trim() || null;
+export function clientIpFrom(header: string | null | undefined): string | null {
+  return header?.split(',')[0]?.trim() || null;
 }

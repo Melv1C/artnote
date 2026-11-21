@@ -106,7 +106,8 @@ config({ path: ENV_FILE, quiet: true });
 
 const database = databaseFromUrl(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
 
-run('docker', 'compose', 'up', '-d', '--wait', 'db');
+run('docker', 'compose', 'up', '-d', '--wait', 'db', 'storage');
+run('docker', 'compose', 'run', '--rm', 'storage-init');
 
 if (reset) {
   psql(database.user, `DROP DATABASE IF EXISTS "${database.name}" WITH (FORCE)`);

@@ -14,6 +14,10 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BASE_URL,
+  // Rate limiting keys on the client IP: read it from the header the reverse proxy sets
+  ...(env.CLIENT_IP_HEADER && {
+    advanced: { ipAddress: { ipAddressHeaders: [env.CLIENT_IP_HEADER] } },
+  }),
   emailAndPassword: {
     enabled: true,
     signUp: {

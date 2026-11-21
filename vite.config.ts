@@ -9,7 +9,7 @@ import { defineConfig, loadEnv } from 'vite-plus';
 // type check together.
 
 const GENERATED = ['src/generated/**', 'src/routeTree.gen.ts'];
-const BUILD_OUTPUT = ['.output/**', '.nitro/**', '.tanstack/**', '.vercel/**', 'dist/**'];
+const BUILD_OUTPUT = ['.output/**', '.nitro/**', '.tanstack/**', 'dist/**'];
 
 // Zod with the French locale set; importing 'zod' directly would skip it
 const ZOD_IMPORT = { name: 'zod', message: "Import { z } from '@/lib/zod' (French messages)." };
@@ -40,12 +40,10 @@ export default defineConfig(({ mode }) => {
       }),
       // React's Vite plugin must come after the Start plugin
       viteReact(),
-      // Nitro builds the server output; on Vercel it auto-selects the Vercel preset.
-      // Vercel merges vercel.json crons into the build output at deploy time, so they must not be duplicated here.
+      // Nitro builds the Node server in .output/ that the Docker image runs (Dockerfile)
       nitro({
         // Umami's tracker and collect endpoint, served from our own domain so ad-blockers that
-        // block Umami's domains let them through (ADR 0010). On Vercel these become CDN rewrites;
-        // vercel.json rewrites may be ignored for a Nitro build output, so they live here.
+        // block Umami's domains let them through (ADR 0010)
         routeRules: {
           '/stats/script.js': { proxy: 'https://cloud.umami.is/script.js' },
           '/stats/api/send': { proxy: 'https://gateway.umami.is/api/send' },
