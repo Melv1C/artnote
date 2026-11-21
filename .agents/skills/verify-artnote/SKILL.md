@@ -30,7 +30,7 @@ Seeded data (re-seeded by every `launch`; extra rows are not removed by seeding)
 | Account (password `artnote-dev-password`) | Role          | What it shows                                                                  |
 | ----------------------------------------- | ------------- | ------------------------------------------------------------------------------ |
 | `admin@example.com` ("Admin ArtNote")     | admin         | the dashboard; writer of all 3 seed notices                                    |
-| `writer@example.com`                      | admin         | ownership: sees no seed notice in "Mes Notices"; their edit URLs are not found |
+| `writer@example.com`                      | admin         | ownership: sees no seed notice in "Mes notices"; their edit URLs are not found |
 | `user@example.com`                        | user (reader) | signed-in reader; `/dashboard` shows "Accès non autorisé"                      |
 | `banned@example.com`                      | user, banned  | sign-in refused                                                                |
 
@@ -63,9 +63,9 @@ Rules that keep drives stable:
 
 - Target by role and accessible name, as Playwright locators: `"getByRole('button', { name: 'Créer la notice' })"`. Refs like `e42` change after every navigation; use them only inside one snapshot-act step.
 - Scope by container when a name repeats: the sign-in dialog has its own "Se connecter" button (`getByRole('dialog', { name: 'Se connecter' }).getByRole('button', { name: 'Se connecter' })`); the editor's undo button is also called "Annuler" (the form's cancel is `getByRole('button', { name: 'Annuler' }).last()`).
-- The dashboard layout nests two `main` landmarks: snapshot `"getByRole('main').last()"` for the page body.
+- The dashboard has one `main` landmark (the inset beside the sidebar); `"getByRole('main').last()"` works on every page.
 - Rich text fields (Notice, Bibliographie) are Tiptap editors with no accessible name: `click "[contenteditable=true] >> nth=0"` (Notice) or `nth=1` (Bibliographie), then `type "…"`.
-- Deletes use the browser's `confirm()`: after choosing "Supprimer", run `playwright-cli -s=$S dialog-accept` (snapshots are blocked until you do).
+- Deletes ask in an in-page `alertdialog` ("Supprimer « … » ?"), not the browser's `confirm()`: click its destructive button ("Supprimer la notice", "Supprimer", "Supprimer le compte") or "Annuler". Focus starts on "Annuler".
 - After an action, wait for its result, not a fixed time: poll `playwright-cli -s=$S --raw eval "location.pathname"` or `find "<text>"`. Toasts live in `region "Notifications alt+T"` and vanish after a few seconds.
 - Read state back from the database (each query runs in a read-only transaction, a guard against mistakes, not a sandbox): `$C sql "select id, title, status from artwork where title like '[QA]%'"`. Tables use `@@map` names (`artwork`, `artist`, `place`, `artwork_artist`, `"user"`) with camelCase quoted columns (`"writerId"`, `"placeId"`, `"publishedAt"`, `"viewCount"`).
 
