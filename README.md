@@ -30,7 +30,7 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application that publi
    bun run db:setup
    ```
 
-   Sign in with `admin@example.com` or `user@example.com`, password `artnote-dev-password`. `db:setup`, `db:reset` and the seed refuse to run against a non-local database.
+   Sign in with `admin@example.com`, `writer@example.com` (a second admin), `user@example.com` or `banned@example.com` (refused), password `artnote-dev-password`. Staging has the same accounts with other passwords (AGENTS.md, Environments and QA). `db:setup`, `db:reset` and the seed refuse to run against a non-local database.
 
 5. Run the development server:
    ```bash
