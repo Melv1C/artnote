@@ -22,6 +22,6 @@ export const cronHandler =
       return Response.json({ ok: true, ...result, durationMs });
     } catch (error) {
       console.error(`${name} cron failed:`, error);
-      return Response.json({ ok: false, error: 'Aggregation failed' }, { status: 500 });
+      return Response.json({ ok: false, error: 'Job failed' }, { status: 500 });
     }
   };

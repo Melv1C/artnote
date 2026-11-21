@@ -16,6 +16,7 @@
 import { StatCard } from '@/components/stats/stat-card';
 import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
 import type { AdminDashboardData } from '../actions/dashboard-queries';
+import { AudienceLinkCard } from './audience-link-card';
 import { NotebookPen, Users } from 'lucide-react';
 import { Suspense, use } from 'react';
 
@@ -44,6 +45,8 @@ export function StatsOverview({ data }: StatsOverviewProps) {
       <Suspense fallback={<StatCardSkeleton title="Notices Publiées" icon={NotebookPen} />}>
         <NoticeCountCard count={data.noticeCount} />
       </Suspense>
+
+      <AudienceLinkCard />
     </div>
   );
 }

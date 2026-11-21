@@ -73,7 +73,7 @@ git push origin v1.2.0
 
 ## Code structure
 
-`AGENTS.md` describes the folder layout, how to write a server function (guard, Zod validator, errors), how the UI reads and mutates data, and the analytics pipeline. `GLOSSARY.md` defines the domain terms, and `docs/adr/` records the decisions behind the architecture.
+`AGENTS.md` describes the folder layout, how to write a server function (guard, Zod validator, errors), how the UI reads and mutates data, and audience measurement. `GLOSSARY.md` defines the domain terms, and `docs/adr/` records the decisions behind the architecture.
 
 ## Toolchain
 
