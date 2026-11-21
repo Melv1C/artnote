@@ -16,7 +16,7 @@ declare global {
  * (not configured, or blocked) and never throws: measurement must not break reading.
  * Returns a cleanup that cancels a send still waiting for the script.
  */
-function withUmami(send: (umami: Umami) => void): () => void {
+export function withUmami(send: (umami: Umami) => void): () => void {
   const run = () => {
     try {
       if (window.umami) send(window.umami);
