@@ -20,6 +20,11 @@
       "name": "Check",
       "command": "bun run check",
       "icon": "test"
+    },
+    {
+      "name": "E2E",
+      "command": "bun run test:e2e",
+      "icon": "test"
     }
   ]
 }

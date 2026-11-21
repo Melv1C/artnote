@@ -32,3 +32,45 @@ jobs:
         run: git diff --exit-code
 
       - run: bun audit --audit-level=critical
+
+  # Playwright against the dev server on a throwaway, seeded database (e2e/, playwright.config.ts)
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: artnote
+          POSTGRES_PASSWORD: artnote
+          POSTGRES_DB: artnote
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U artnote" --health-interval 2s --health-timeout 5s
+          --health-retries 15
+    env:
+      # The run uses artnote_e2e on port 4000 (scripts/e2e-env.ts)
+      PRISMA_DATABASE_URL: postgresql://artnote:artnote@localhost:5432/artnote
+      BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: voidzero-dev/setup-vp@v1.22.0
+        with:
+          node-version-file: .nvmrc
+          cache: true
+
+      - run: bunx prisma generate
+
+      - run: bunx playwright install --with-deps chromium
+
+      - run: bun run test:e2e
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
