@@ -11,7 +11,7 @@ interface ArtworkSearchInputProps {
 export function ArtworkSearchInput({
   value,
   onChange,
-  placeholder = 'Rechercher par titre, technique, année...',
+  placeholder = 'Rechercher par titre, matériaux et techniques, année...',
 }: ArtworkSearchInputProps) {
   return (
     <div className="relative flex-1 max-w-md">
