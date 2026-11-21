@@ -72,25 +72,25 @@ _Avoid_: Visitor (reserved for analytics), lecteur (in code)
 ## Audience measurement
 
 **Visitor**:
-One browser that accepted analytics cookies, recognised across visits. Without consent, each session counts as its own visitor.
+One browser as the audience tool recognises it, without a cookie, over a limited period. Not a person and not a reader account.
 _Avoid_: User, reader (in analytics)
 
-**Session**:
-One page load of the site and the navigation that follows, until the tab is closed or reloaded. Not a sign-in.
-_Avoid_: Visit, login session
+**Visit**:
+A visitor's run of page views without a long pause. Not a sign-in.
+_Avoid_: Session, login
 
 **Page view**:
-A reader seeing any page, timed from arrival to departure.
+A visitor opening any public page. Dashboard pages and previews are not measured.
 _Avoid_: Hit, impression
 
-**Notice view**:
-A reader spending time on a notice's page, measured per notice.
-_Avoid_: Notice page view
+**Notice reading**:
+A visitor leaving a notice's page, recorded with the notice and how long they stayed, as a reading-time bracket.
+_Avoid_: Notice view, notice page view
+
+**Reading-time bracket**:
+The span a notice reading falls in: under 30 seconds, 30 seconds to under 2 minutes, 2 to under 5 minutes, 5 minutes or more.
+_Avoid_: Duration, dwell time
 
 **View count**:
-The running number of times a notice's page was opened, counted at most once per network address every 30 minutes. Separate from page views and notice views; the records kept to deduplicate it are not page views either.
+The running number of times a notice's page was opened, counted at most once per network address every 30 minutes. Separate from page views and notice readings; the records kept to deduplicate it are not page views either.
 _Avoid_: Views (unqualified), hits
-
-**Daily summary** / **weekly summary**:
-The audience figures of one day or one week, for the whole site or one notice, kept after the individual page and notice views are discarded.
-_Avoid_: Report, aggregate
