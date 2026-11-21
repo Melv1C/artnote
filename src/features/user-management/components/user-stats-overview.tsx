@@ -28,8 +28,8 @@ function NewUsersThisWeekCard({ counts }: { counts: UserStatsData['newUsers'] })
   // A percentage means nothing against an empty week: give last week's count instead
   const subtitle =
     newUsersLastWeek === 0
-      ? 'Aucun la semaine dernière'
-      : `${newUsersLastWeek} la semaine dernière`;
+      ? 'Aucune inscription la semaine dernière'
+      : `${newUsersLastWeek} inscription${newUsersLastWeek > 1 ? 's' : ''} la semaine dernière`;
 
   return (
     <StatCard

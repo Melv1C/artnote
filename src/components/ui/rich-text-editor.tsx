@@ -344,7 +344,7 @@ export function RichTextEditor({
   value,
   onChange,
   className,
-  placeholder = 'Commencez à écrire...',
+  placeholder = 'Commencez à écrire…',
   config,
 }: RichTextEditorProps) {
   const finalConfig = config || defaultConfig;

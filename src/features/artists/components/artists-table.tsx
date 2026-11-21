@@ -38,7 +38,7 @@ export function ArtistsTable() {
         </div>
         <Input
           placeholder="Filtrer par nom"
-          aria-label="Filtrer par nom de famille"
+          aria-label="Filtrer par nom"
           value={filters.name}
           onChange={setFilter('name')}
           className="w-48"

@@ -30,9 +30,12 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         sheetOnMobile
         className="gap-6 sm:max-w-[420px]"
         // On a touch screen, show the whole sheet first: focusing the email field would open the
-        // keyboard over the password and the button
+        // keyboard over the password and the button. Focus goes to the sheet itself, so a screen
+        // reader is inside it
         onOpenAutoFocus={event => {
-          if (window.matchMedia('(pointer: coarse)').matches) event.preventDefault();
+          if (!window.matchMedia('(pointer: coarse)').matches) return;
+          event.preventDefault();
+          (event.currentTarget as HTMLElement).focus();
         }}
       >
         <DialogHeader className="items-center text-center sm:items-center sm:text-center">

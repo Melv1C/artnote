@@ -69,6 +69,21 @@
   --tabbar-height: 3.75rem;
   /* The header with the notch above it, in an installed app */
   --header-total: calc(var(--header-height) + env(safe-area-inset-top));
+  /* Side gutters of the page, never under a notch (landscape phone, installed app) */
+  --gutter: 1rem;
+  --gutter-left: max(var(--gutter), env(safe-area-inset-left));
+  --gutter-right: max(var(--gutter), env(safe-area-inset-right));
+}
+
+@media (width >= 40rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+@media (width >= 64rem) {
+  :root {
+    --gutter: 2rem;
+  }
 }
 
 .dark {
@@ -334,17 +349,18 @@
   margin-inline: auto;
   width: 100%;
   max-width: 80rem;
-  /* Never under a notch: a landscape phone or an installed app has side insets */
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
-  @media (width >= 40rem) {
-    padding-left: max(1.5rem, env(safe-area-inset-left));
-    padding-right: max(1.5rem, env(safe-area-inset-right));
-  }
-  @media (width >= 64rem) {
-    padding-left: max(2rem, env(safe-area-inset-left));
-    padding-right: max(2rem, env(safe-area-inset-right));
-  }
+  padding-left: var(--gutter-left);
+  padding-right: var(--gutter-right);
+}
+
+/* Reach the screen edges from inside page-width, keeping its gutter as padding */
+@utility page-bleed {
+  margin-left: calc(-1 * var(--gutter-left));
+  margin-right: calc(-1 * var(--gutter-right));
+  padding-left: var(--gutter-left);
+  padding-right: var(--gutter-right);
+  scroll-padding-left: var(--gutter-left);
+  scroll-padding-right: var(--gutter-right);
 }
 
 @keyframes loading-bar {
