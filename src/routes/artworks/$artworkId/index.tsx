@@ -1,5 +1,6 @@
 import { NotFound } from '@/components/layout/not-found';
 import { fetchPublishedArtwork } from '@/features/artworks/actions/artwork-queries';
+import { useNoticeReading } from '@/features/analytics/hooks/use-notice-reading';
 import { useNoticeViewTracking } from '@/features/analytics/hooks/use-notice-view-tracking';
 import { useRecordNoticeView } from '@/features/artworks/hooks/use-record-notice-view';
 import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
@@ -45,6 +46,7 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
 function ArtworkPage() {
   const artwork = Route.useLoaderData();
   useNoticeViewTracking(artwork.id);
+  useNoticeReading(artwork.id, artwork.title);
   useRecordNoticeView(artwork.id);
 
   return <ArtworkDetail artwork={artwork} />;
