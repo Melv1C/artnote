@@ -4,9 +4,26 @@ import { createPrismaClient } from '../src/lib/prisma-client';
 
 const SEED_PASSWORD = 'artnote-dev-password';
 
+// One account per kind of user QA needs. Staging has the same accounts with other passwords
+// (AGENTS.md, Environments and QA).
 const seedUsers = [
   { id: 'seed-user-admin', email: 'admin@example.com', name: 'Admin ArtNote', role: 'admin' },
+  // A second writer: the seed notices belong to the first, so this one sees none of them (ADR 0003)
+  {
+    id: 'seed-user-writer',
+    email: 'writer@example.com',
+    name: 'Rédactrice ArtNote',
+    role: 'admin',
+  },
   { id: 'seed-user-reader', email: 'user@example.com', name: 'Lecteur ArtNote', role: 'user' },
+  {
+    id: 'seed-user-banned',
+    email: 'banned@example.com',
+    name: 'Compte suspendu',
+    role: 'user',
+    banned: true,
+    banReason: 'Compte de test suspendu',
+  },
 ] as const;
 
 const prisma = createPrismaClient(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
@@ -157,7 +174,9 @@ async function main() {
   await seedCatalogue(seedUsers[0].id);
   console.log('Seeded local database. Sign in with:');
   for (const user of seedUsers)
-    console.log(`  ${user.role.padEnd(5)}  ${user.email} / ${SEED_PASSWORD}`);
+    console.log(
+      `  ${user.role.padEnd(5)}  ${user.email} / ${SEED_PASSWORD}${'banned' in user ? ' (banned)' : ''}`,
+    );
 }
 
 await main().finally(() => prisma.$disconnect());

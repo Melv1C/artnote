@@ -20,12 +20,14 @@ Each worktree gets its own database and dev port (ADR 0007). On its first run, `
 
 Seeded accounts (password `artnote-dev-password`):
 
-| Email               | Role                     |
-| ------------------- | ------------------------ |
-| `admin@example.com` | admin, sees `/dashboard` |
-| `user@example.com`  | user                     |
+| Email                | Role   | Use it to test                                                      |
+| -------------------- | ------ | ------------------------------------------------------------------- |
+| `admin@example.com`  | admin  | the dashboard, as writer of every seed notice                       |
+| `writer@example.com` | admin  | notice ownership: another writer's notices are not found (ADR 0003) |
+| `user@example.com`   | user   | a signed-in reader, refused from `/dashboard`                       |
+| `banned@example.com` | banned | a refused sign-in                                                   |
 
-The seed also creates 2 places, 3 artists and 3 notices (2 published, 1 draft).
+The seed also creates 2 places, 3 artists and 3 notices (2 published, 1 draft), all by `admin@example.com`.
 
 Image and avatar uploads go to the local MinIO that `db:setup` starts (`compose.yaml`, bucket `artnote` shared by every worktree). A `.env` written before MinIO was added lacks the `S3_*` variables: copy them from `.env.example`.
 
@@ -47,6 +49,30 @@ Image and avatar uploads go to the local MinIO that `db:setup` starts (`compose.
 `vp` comes with the dependencies (`node_modules/.bin/vp`); use `bunx vp` when it is not on your `PATH`. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `bun install`) runs `vp check --fix` on staged files.
 
 To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then run the app and check the change in a browser, signed in with a seeded account when needed.
+
+## Environments and QA
+
+| Environment | URL                             | Deploys                                                      | Data                                  |
+| ----------- | ------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| Local       | `BASE_URL` in `.env`            | `bun run dev`                                                | this worktree's database, local MinIO |
+| Preview     | a `*.artnote.melvyn.be` address | each push to a PR labelled `preview`; removed when it closes | staging's database and MinIO          |
+| Staging     | https://stg.artnote.melvyn.be   | each push to `main` (a merged PR), a few minutes later       | its own, seeded                       |
+| Production  | https://artnote.melvyn.be       | a `vX.Y.Z` tag on `main` (Release workflow)                  | real notices and readers              |
+
+Dokploy builds the `Dockerfile` for each one; the container migrates the database before it starts (ADR 0011). Deploys don't wait for CI. Dokploy posts a preview's address on its PR.
+
+**QA a change on staging or its preview, never on production.** Staging has the same four accounts as the local seed, with their own passwords. They live in `.env.qa` at the root of the main checkout (the first path `git worktree list` prints), not in this repository:
+
+```bash
+set -a; source "$(git worktree list | head -1 | cut -d' ' -f1)/.env.qa"; set +a
+# STAGING_URL, QA_ADMIN_EMAIL/PASSWORD, QA_WRITER_…, QA_USER_…, QA_BANNED_…
+```
+
+- Don't print the passwords, paste them into PRs or comments, or change them. If `.env.qa` or an account is missing, ask Melvyn instead of creating one.
+- A preview shares staging's database: a migration on a labelled PR reaches staging at once, and what you create in a preview shows on staging. Start the titles of test notices, artists and places with `[QA]` and delete them afterwards. Leave the seed content as it is.
+- Uploads on staging and previews are public files under `files.stg.artnote.melvyn.be`: upload only test images.
+- Better Auth limits sign-ins per IP: space out sign-ins (about 10 seconds) when switching accounts.
+- Umami does not measure staging or previews, so test page views and notice readings through the tests in `features/analytics`.
 
 ## Code layout
 
