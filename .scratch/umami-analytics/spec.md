@@ -1,6 +1,6 @@
 # Move audience measurement to Umami Cloud
 
-**Status:** qa
+**Status:** done
 
 Decided in ADR 0010, which supersedes ADR 0004. Terms follow `GLOSSARY.md`: visitor, visit, page view, notice reading, reading-time bracket, view count.
 
@@ -190,3 +190,5 @@ Audience measurement moves to Umami Cloud's free Hobby plan, hosted in the EU.
 ## Comments
 
 2026-11-21: Every ticket is `done` (#161 to #165, released as v1.2.0), so the spec moves to `qa`. It becomes `done` once Melvyn approves.
+
+2026-11-21: Melvyn approved the spec; it moves to `done`.
