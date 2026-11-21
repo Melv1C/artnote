@@ -3,7 +3,7 @@ import { isAuthorizedCronRequest } from './cron-auth';
 import { env } from './env';
 
 /**
- * Handler for a Vercel Cron endpoint: checks the `CRON_SECRET` bearer token, runs `job`, and
+ * Handler for a scheduled job endpoint: checks the `CRON_SECRET` bearer token, runs `job`, and
  * reports its result as JSON.
  */
 export const cronHandler =

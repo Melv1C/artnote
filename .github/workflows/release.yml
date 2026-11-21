@@ -24,6 +24,11 @@ jobs:
       - name: Require tagged commit to be on main
         run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
 
-      # Vercel's production branch is `production`; Vercel deploys on this push.
+      # The Dokploy production app deploys the `production` branch on every push to it
       - name: Push tagged commit to production
         run: git push --force origin "$GITHUB_SHA:refs/heads/production"
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes

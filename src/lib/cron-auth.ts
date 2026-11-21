@@ -3,7 +3,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 const digest = (value: string) => createHash('sha256').update(value).digest();
 
 /**
- * True when the request carries `Authorization: Bearer <secret>`, as Vercel Cron sends it.
+ * True when the request carries `Authorization: Bearer <secret>`, as the scheduled job sends it.
  * Fails closed: with no secret configured, every request is rejected.
  */
 export function isAuthorizedCronRequest(request: Request, secret: string | undefined): boolean {

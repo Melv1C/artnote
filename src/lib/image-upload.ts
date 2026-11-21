@@ -1,6 +1,7 @@
 import '@tanstack/react-start/server-only';
-import { put } from '@vercel/blob';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'node:crypto';
+import { env } from '@/lib/env';
 import { z } from '@/lib/zod';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -47,6 +48,34 @@ const EXTENSIONS: Record<string, string> = {
   'image/gif': 'gif',
 };
 
-/** Upload to Vercel Blob as `<folder>/<random>.<ext>`; the client's file name is not used. */
-export const uploadPublicImage = (folder: 'artworks' | 'avatars', file: File) =>
-  put(`${folder}/${randomUUID()}.${EXTENSIONS[file.type] ?? 'img'}`, file, { access: 'public' });
+const { storage } = env;
+
+// MinIO serves buckets by path (`<endpoint>/<bucket>/<key>`), not as subdomains
+const s3 =
+  storage &&
+  new S3Client({
+    endpoint: storage.endpoint,
+    region: 'us-east-1',
+    forcePathStyle: true,
+    credentials: { accessKeyId: storage.accessKeyId, secretAccessKey: storage.secretAccessKey },
+  });
+
+/**
+ * Upload to the object storage (MinIO) as `<folder>/<random>.<ext>`; the client's file name is
+ * not used. The bucket is publicly readable, so the returned URL is a plain link.
+ */
+export async function uploadPublicImage(folder: 'artworks' | 'avatars', file: File) {
+  if (!storage || !s3) throw new Error("Le stockage des images n'est pas configuré");
+  const key = `${folder}/${randomUUID()}.${EXTENSIONS[file.type] ?? 'img'}`;
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: storage.bucket,
+      Key: key,
+      Body: new Uint8Array(await file.arrayBuffer()),
+      ContentType: file.type,
+      // Keys are random and never rewritten
+      CacheControl: 'public, max-age=31536000, immutable',
+    }),
+  );
+  return { url: `${storage.publicUrl}/${key}` };
+}

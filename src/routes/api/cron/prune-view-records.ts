@@ -2,7 +2,7 @@ import { pruneViewRecords } from '@/features/artworks/actions/view-count';
 import { cronHandler } from '@/lib/cron-route';
 import { createFileRoute } from '@tanstack/react-router';
 
-// Scheduled nightly in vercel.json
+// Called nightly by a Dokploy schedule (README, Deployments)
 export const Route = createFileRoute('/api/cron/prune-view-records')({
   server: {
     handlers: {

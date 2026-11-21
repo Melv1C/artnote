@@ -7,4 +7,4 @@ import { parseEnv } from './env-schema';
  */
 export const env = parseEnv(process.env);
 
-export const isProduction = env.VERCEL_ENV === 'production';
+export const isProduction = env.NODE_ENV === 'production';
