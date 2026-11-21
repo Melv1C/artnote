@@ -32,9 +32,11 @@ async function seedAccounts() {
   const password = await hashPassword(SEED_PASSWORD);
   const now = new Date();
   for (const user of seedUsers) {
+    const { id: _id, email: _email, ...fields } = user;
     await prisma.user.upsert({
       where: { email: user.email },
-      update: { name: user.name, role: user.role },
+      // Re-seeding restores each account's role and ban, whatever QA changed
+      update: fields,
       create: { ...user, emailVerified: true, createdAt: now, updatedAt: now },
     });
     await prisma.account.upsert({
