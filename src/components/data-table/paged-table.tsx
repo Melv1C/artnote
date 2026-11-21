@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -58,18 +59,30 @@ export function PagedTable<TRow extends RowData>({
     },
   });
 
-  if (isLoading) return <div>Chargement...</div>;
-  if (isError) return <div>{messages.error}</div>;
+  if (isError) {
+    return (
+      <div
+        role="alert"
+        className="rounded-xl border border-destructive/30 bg-destructive/5 px-6 py-10 text-center text-sm"
+      >
+        <p className="font-medium text-destructive">{messages.error}</p>
+        <p className="mt-1 text-muted-foreground">Rechargez la page dans un instant.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-xl border bg-card shadow-xs" aria-busy={isLoading}>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40">
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map(header => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="h-10 px-4 text-xs font-medium text-muted-foreground"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -79,11 +92,21 @@ export function PagedTable<TRow extends RowData>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index} className="hover:bg-transparent">
+                  {columns.map((_, cell) => (
+                    <TableCell key={cell} className="h-14 px-4">
+                      <Skeleton className="h-4 w-3/4" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="h-14 px-4">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -91,7 +114,10 @@ export function PagedTable<TRow extends RowData>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center text-muted-foreground"
+                >
                   {messages.empty}
                 </TableCell>
               </TableRow>
@@ -100,13 +126,13 @@ export function PagedTable<TRow extends RowData>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <div className="flex items-center justify-end gap-2">
+        <div className="flex-1 text-sm text-muted-foreground tabular-nums">
           {page && page.totalCount > 0
             ? `Page ${page.page} sur ${page.totalPages} · ${page.totalCount} au total`
             : null}
         </div>
-        <div className="space-x-2">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"

@@ -1,27 +1,22 @@
 /**
- * StatCardSkeleton Component
- *
- * Loading skeleton for stat cards that maintains layout consistency during loading states.
+ * StatCardSkeleton: a stat card while its figure loads, the same size as the card.
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type StatCardSkeletonProps } from './types';
 
 export function StatCardSkeleton({ title, icon: Icon }: StatCardSkeletonProps) {
   return (
-    <Card>
-      {' '}
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="h-8 w-20 mb-1" />
-        <Skeleton className="h-3 w-16" />
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border bg-card p-5 shadow-xs" aria-busy="true">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        {Icon && (
+          <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <Icon className="size-4" aria-hidden="true" />
+          </span>
+        )}
+      </div>
+      <Skeleton className="mt-3 h-9 w-16" />
+    </div>
   );
 }

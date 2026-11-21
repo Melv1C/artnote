@@ -11,16 +11,18 @@ interface ArtworkSearchInputProps {
 export function ArtworkSearchInput({
   value,
   onChange,
-  placeholder = 'Rechercher par titre, matériaux et techniques, année...',
+  placeholder = 'Titre, technique, date…',
 }: ArtworkSearchInputProps) {
   return (
-    <div className="relative flex-1 max-w-md">
+    <div className="relative flex-1">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
+        type="search"
+        aria-label="Rechercher dans mes notices"
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="pl-9 pr-9"
+        className="pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden"
       />
       {value && (
         <Button

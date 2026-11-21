@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,6 +34,7 @@ interface UserRowActionsProps {
 export function UserRowActions({ user }: UserRowActionsProps) {
   // Get query client for invalidation
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
 
   const handleCopyId = async () => {
     try {
@@ -88,7 +90,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   };
 
   const handleImpersonateUser = async () => {
-    if (confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)) {
+    const confirmed = await confirm({
+      title: `Se connecter en tant que ${user.name} ?`,
+      description: 'Vous verrez le site comme cette personne, pendant une heure au plus.',
+      confirmLabel: 'Continuer',
+    });
+    if (confirmed) {
       try {
         await impersonateUser({ data: user.id });
         toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
@@ -104,7 +111,13 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   };
 
   const handleDeleteUser = async () => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)) {
+    const confirmed = await confirm({
+      title: `Supprimer le compte de ${user.name} ?`,
+      description: 'Le compte et ses sessions sont supprimés. Cette action est définitive.',
+      confirmLabel: 'Supprimer le compte',
+      destructive: true,
+    });
+    if (confirmed) {
       try {
         await deleteUser({ data: user.id });
         toast.success('Utilisateur supprimé avec succès');

@@ -1,8 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
+import { Button } from '@/components/ui/button';
 import { ArtworkForm } from '@/features/artworks/components/admin/artwork-form';
 import { updateArtwork } from '@/features/artworks/actions/artwork-mutations';
 import { fetchMyArtworkForEdit } from '@/features/artworks/actions/artwork-queries';
-import { createFileRoute } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
+import { Eye } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard/artworks/$artworkId/edit')({
   loader: ({ params }) => fetchMyArtworkForEdit({ data: params.artworkId }),
@@ -14,26 +16,26 @@ function EditArtworkPage() {
   const parsed = Route.useLoaderData();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Modifier la notice</h1>
-        <p className="text-muted-foreground">Mettez à jour les informations de l'œuvre d'art</p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Informations de l'œuvre</CardTitle>
-          <CardDescription>Modifiez les détails de l'œuvre d'art</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ArtworkForm
-            initialValues={parsed}
-            onSubmit={data => updateArtwork({ data: { artworkId, data } })}
-            submitLabel="Mettre à jour"
-            successMessage="Notice mise à jour avec succès !"
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <PageHeader
+        title="Modifier la notice"
+        description={parsed.title}
+        actions={
+          <Button asChild variant="outline">
+            <Link to="/artworks/$artworkId/preview" params={{ artworkId }} target="_blank">
+              <Eye />
+              Aperçu
+              <span className="sr-only">(nouvel onglet)</span>
+            </Link>
+          </Button>
+        }
+      />
+      <ArtworkForm
+        initialValues={parsed}
+        onSubmit={data => updateArtwork({ data: { artworkId, data } })}
+        submitLabel="Mettre à jour"
+        successMessage="Notice mise à jour avec succès !"
+      />
     </div>
   );
 }

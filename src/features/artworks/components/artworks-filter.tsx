@@ -1,5 +1,3 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -9,38 +7,41 @@ import {
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import type { ArtworksSearch } from '../lib/artwork-search';
-import { Search } from 'lucide-react';
+import { ArrowDownUp, Search, X } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SORT_OPTIONS = [
-  { value: 'title-asc', label: 'Titre (A-Z)' },
-  { value: 'title-desc', label: 'Titre (Z-A)' },
-  { value: 'artist-asc', label: 'Artiste (A-Z)' },
-  { value: 'artist-desc', label: 'Artiste (Z-A)' },
-  { value: 'year-desc', label: 'Année (Plus récent)' },
-  { value: 'year-asc', label: 'Année (Plus ancien)' },
-  { value: 'published-desc', label: 'Publication (Plus récent)' },
-  { value: 'published-asc', label: 'Publication (Plus ancien)' },
+  { value: 'title-asc', label: 'Titre, de A à Z' },
+  { value: 'title-desc', label: 'Titre, de Z à A' },
+  { value: 'artist-asc', label: 'Artiste, de A à Z' },
+  { value: 'artist-desc', label: 'Artiste, de Z à A' },
+  { value: 'year-desc', label: 'Œuvres les plus récentes' },
+  { value: 'year-asc', label: 'Œuvres les plus anciennes' },
+  { value: 'published-desc', label: 'Dernières publiées' },
+  { value: 'published-asc', label: 'Premières publiées' },
 ] as const;
 
+/** Search and sort of the public notices list, kept in the URL so a list can be shared. */
 export function ArtworksFilter() {
   const navigate = useNavigate();
   const searchParams = useSearch({ from: '/artworks/' });
+  const urlSearch = searchParams.search?.toString() ?? '';
 
-  const [search, setSearch] = useState(searchParams.search?.toString() || '');
-  const [sortBy, setSortBy] = useState(() => {
-    const sort = searchParams.sort || 'title';
-    const order = searchParams.order || 'asc';
-    return `${sort}-${order}`;
-  });
-
+  const [search, setSearch] = useState(urlSearch);
+  const sortBy = `${searchParams.sort ?? 'title'}-${searchParams.order ?? 'asc'}`;
   const debouncedSearch = useDebounce(search, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // The value this field last wrote to the URL: any other URL value came from elsewhere (a link,
+  // back and forward), and the field follows it
+  const pushed = useRef(urlSearch);
 
   const updateURL = useCallback(
     (newParams: { search?: string; sortBy?: string }) => {
       void navigate({
         to: '/artworks',
+        replace: true,
+        resetScroll: false,
         search: prev => {
           const params: ArtworksSearch = { ...prev };
           if ('search' in newParams) {
@@ -59,43 +60,80 @@ export function ArtworksFilter() {
   );
 
   useEffect(() => {
+    if (debouncedSearch === pushed.current) return;
+    pushed.current = debouncedSearch;
     updateURL({ search: debouncedSearch });
   }, [debouncedSearch, updateURL]);
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    updateURL({ sortBy: value });
-  };
+  useEffect(() => {
+    if (urlSearch !== pushed.current) {
+      pushed.current = urlSearch;
+      setSearch(urlSearch);
+    }
+  }, [urlSearch]);
 
   return (
-    <div className="space-y-6">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Rechercher par titre, artiste, ou mots-clés..."
+    <div className="flex items-center gap-2 sm:gap-3">
+      <form
+        role="search"
+        className="relative flex-1"
+        onSubmit={event => {
+          event.preventDefault();
+          // Close the phone keyboard; the list already follows the typing
+          inputRef.current?.blur();
+        }}
+      >
+        <label htmlFor="notice-search" className="sr-only">
+          Rechercher une notice
+        </label>
+        <Search
+          className="pointer-events-none absolute top-1/2 left-4 size-[1.1rem] -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <input
+          ref={inputRef}
+          id="notice-search"
+          type="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          placeholder="Une œuvre, un artiste, un musée…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="pl-10"
+          className="h-12 w-full rounded-full border border-input bg-card pr-12 pl-11 text-base shadow-xs transition-[box-shadow,border-color] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40 [&::-webkit-search-cancel-button]:hidden"
         />
-      </div>
+        {search && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearch('');
+              inputRef.current?.focus();
+            }}
+            className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            aria-label="Effacer la recherche"
+          >
+            <X className="size-4" />
+          </button>
+        )}
+      </form>
 
-      {/* Sort */}
-      <div className="flex items-center gap-2">
-        <Label>Trier par :</Label>
-        <Select value={sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-48">
+      <Select value={sortBy} onValueChange={value => updateURL({ sortBy: value })}>
+        <SelectTrigger
+          aria-label="Trier les notices"
+          className="h-12 w-12 shrink-0 justify-center rounded-full bg-card px-0 max-sm:[&>svg:last-child]:hidden sm:w-60 sm:justify-between sm:px-4 md:h-12"
+        >
+          <ArrowDownUp className="size-4" aria-hidden="true" />
+          <span className="flex-1 text-left max-sm:sr-only">
             <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          </span>
+        </SelectTrigger>
+        <SelectContent align="end">
+          {SORT_OPTIONS.map(option => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

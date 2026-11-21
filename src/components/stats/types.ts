@@ -9,6 +9,8 @@ export interface StatCardProps {
   value: string | number;
   icon?: LucideIcon;
   subtitle?: string;
+  /** Colours the icon: published notices are a success, drafts wait */
+  tone?: 'success' | 'warning';
 }
 
 export interface StatCardSkeletonProps {

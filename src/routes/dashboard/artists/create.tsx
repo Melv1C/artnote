@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { ArtistForm } from '@/features/artists/components/artist-form';
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -8,21 +8,14 @@ export const Route = createFileRoute('/dashboard/artists/create')({
 
 function CreateArtistPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Créer un nouvel artiste</h1>
-        <p className="text-muted-foreground mt-2">Ajoutez un nouvel artiste à la base de données</p>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHeader
+        title="Nouvel artiste"
+        description="Ses nom et dates, tels que les sources les donnent."
+      />
+      <div className="rounded-xl border bg-card p-6 shadow-xs sm:p-8">
+        <ArtistForm />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Informations de l'artiste</CardTitle>
-          <CardDescription>Renseignez les informations principales de l'artiste</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ArtistForm />
-        </CardContent>
-      </Card>
     </div>
   );
 }

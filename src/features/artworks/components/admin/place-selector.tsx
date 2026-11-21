@@ -60,14 +60,16 @@ export function PlaceSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between"
+            className="w-full justify-between font-normal"
             disabled={disabled}
           >
-            {selectedPlace ? formatPlaceName(selectedPlace) : placeholder}
+            <span className="truncate">
+              {selectedPlace ? formatPlaceName(selectedPlace) : placeholder}
+            </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
+        <PopoverContent className="w-(--radix-popover-trigger-width) min-w-72 p-0" align="start">
           <Command>
             <CommandInput
               placeholder="Rechercher un lieu..."

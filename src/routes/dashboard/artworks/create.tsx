@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { ArtworkForm } from '@/features/artworks/components/admin/artwork-form';
 import { createArtwork } from '@/features/artworks/actions/artwork-mutations';
 import { createFileRoute } from '@tanstack/react-router';
@@ -9,27 +9,16 @@ export const Route = createFileRoute('/dashboard/artworks/create')({
 
 function CreateArtworkPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Créer une nouvelle notice</h1>
-        <p className="text-muted-foreground">
-          Remplissez les informations sur l'œuvre d'art et sa notice explicative
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Informations de l'œuvre</CardTitle>
-          <CardDescription>Remplissez les détails de l'œuvre d'art</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ArtworkForm
-            onSubmit={data => createArtwork({ data })}
-            submitLabel="Créer la notice"
-            successMessage="Notice créée avec succès !"
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <PageHeader
+        title="Nouvelle notice"
+        description="Un titre suffit pour enregistrer un brouillon ; le reste peut attendre."
+      />
+      <ArtworkForm
+        onSubmit={data => createArtwork({ data })}
+        submitLabel="Créer la notice"
+        successMessage="Notice créée avec succès !"
+      />
     </div>
   );
 }

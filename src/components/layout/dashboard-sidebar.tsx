@@ -1,8 +1,28 @@
-import { ArrowLeft, Database, FileText, Home, MapPin, Palette, Users } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { useLocation } from '@tanstack/react-router';
+import {
+  ChevronsUpDown,
+  FileText,
+  Globe,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  Palette,
+  Plus,
+  UserRound,
+  Users,
+} from 'lucide-react';
+import { Link, useLocation, useRouter } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +37,8 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { signOut } from '@/lib/auth-client';
+import { initials } from '@/lib/initials';
 import { DASHBOARD_PERMISSIONS, hasRolePermission, type PermissionCheck } from '@/lib/permissions';
 import type { User } from '@/schemas/user';
 
@@ -25,85 +46,98 @@ const navigationItems = [
   {
     title: 'Tableau de bord',
     url: '/dashboard',
-    icon: Home,
-    description: "Vue d'ensemble",
+    icon: LayoutDashboard,
+    exact: true,
     permissions: DASHBOARD_PERMISSIONS,
   },
   {
-    title: 'Mes Notices',
+    title: 'Mes notices',
     url: '/dashboard/artworks',
     icon: FileText,
-    description: 'Gestion des notices',
     permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Artistes',
     url: '/dashboard/artists',
     icon: Palette,
-    description: 'Gestion des artistes',
     permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Lieux',
     url: '/dashboard/places',
     icon: MapPin,
-    description: 'Gestion des lieux',
     permissions: DASHBOARD_PERMISSIONS,
   },
   {
     title: 'Utilisateurs',
     url: '/dashboard/users',
     icon: Users,
-    description: 'Gestion des utilisateurs',
     permissions: { user: ['list'] },
   },
 ] satisfies {
   title: string;
   url: string;
   icon: unknown;
-  description: string;
+  exact?: boolean;
   permissions: PermissionCheck;
 }[];
 
+const isActive = (pathname: string, url: string, exact?: boolean) =>
+  exact ? pathname.replace(/\/$/, '') === url : pathname === url || pathname.startsWith(`${url}/`);
+
 export function DashboardSidebar({ user }: { user: User }) {
   const pathname = useLocation({ select: location => location.pathname });
-  const { state } = useSidebar();
+  const router = useRouter();
+  const { setOpenMobile } = useSidebar();
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  // On a phone the menu is a drawer: close it once a page is chosen
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      await router.navigate({ to: '/' });
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      toast.error('La déconnexion a échoué. Réessayez.');
+    }
   };
 
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-4 py-2">
-          <Database className="h-8 w-8 text-primary" />
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">ArtNote</span>
-            <span className="truncate text-xs text-muted-foreground">Tableau de bord</span>
-          </div>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild tooltip="ArtNote">
+              <Link to="/dashboard">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-serif text-lg text-primary-foreground">
+                  A
+                </span>
+                <span className="grid leading-tight">
+                  <span className="font-serif text-lg font-medium">ArtNote</span>
+                  <span className="text-xs text-muted-foreground">Rédaction</span>
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Retour au site">
-                  <Link to="/">
-                    <ArrowLeft className="h-4 w-4" />
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">Retour au site</span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        Quitter le tableau de bord
-                      </span>
-                    </div>
+                <SidebarMenuButton
+                  asChild
+                  tooltip="Nouvelle notice"
+                  className="bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+                >
+                  <Link to="/dashboard/artworks/create">
+                    <Plus />
+                    <span className="font-medium">Nouvelle notice</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -121,17 +155,12 @@ export function DashboardSidebar({ user }: { user: User }) {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.url}
+                      isActive={isActive(pathname, item.url, 'exact' in item && item.exact)}
                       tooltip={item.title}
                     >
                       <Link to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-medium">{item.title}</span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {item.description}
-                          </span>
-                        </div>
+                        <item.icon />
+                        <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -140,36 +169,59 @@ export function DashboardSidebar({ user }: { user: User }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        {/* User Information */}
-        <div className="flex items-center gap-2 p-2">
-          <div className="flex items-center gap-2 w-full group-data-[collapsible=icon]:justify-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Avatar className="h-8 w-8 shrink-0 cursor-pointer">
-                    <AvatarImage src={user.image || undefined} alt={user.name || 'User Avatar'} />
-                    <AvatarFallback>{getInitials(user.name || 'User')}</AvatarFallback>
-                  </Avatar>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center" hidden={state !== 'collapsed'}>
-                  <div className="text-sm">
-                    <div className="font-semibold">{user.name}</div>
-                    <div className="text-xs text-muted-foreground">{user.email}</div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-semibold">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="p-2 text-xs text-muted-foreground border-t group-data-[collapsible=icon]:hidden">
-          <div className="text-center">ArtNote v1.0</div>
-        </div>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  tooltip={user.name}
+                  className="data-[state=open]:bg-sidebar-accent"
+                >
+                  <Avatar className="size-8 rounded-lg">
+                    <AvatarImage src={user.image || undefined} alt="" />
+                    <AvatarFallback className="rounded-lg bg-accent text-xs font-semibold text-accent-foreground">
+                      {initials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="grid min-w-0 flex-1 leading-tight">
+                    <span className="truncate text-sm font-medium">{user.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                  </span>
+                  <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+              >
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  {user.email}
+                </DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">
+                    <UserRound />
+                    Mon profil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/">
+                    <Globe />
+                    Retour au site
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
+                  <LogOut />
+                  Se déconnecter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

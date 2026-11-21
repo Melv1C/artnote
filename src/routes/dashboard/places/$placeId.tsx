@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { PlaceForm } from '@/features/places/components/place-form';
 import { fetchPlace } from '@/features/places/actions/place-queries';
 import { createFileRoute } from '@tanstack/react-router';
@@ -10,25 +10,12 @@ export const Route = createFileRoute('/dashboard/places/$placeId')({
 
 function EditPlacePage() {
   const place = Route.useLoaderData();
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Modifier le lieu</h1>
-        <p className="text-muted-foreground mt-2">
-          Modifiez les informations du lieu "{place.name}"
-        </p>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHeader title={place.name} description="Modifier le lieu" />
+      <div className="rounded-xl border bg-card p-6 shadow-xs sm:p-8">
+        <PlaceForm place={place} />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Informations du lieu</CardTitle>
-          <CardDescription>Modifiez les informations principales du lieu</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PlaceForm place={place} />
-        </CardContent>
-      </Card>
     </div>
   );
 }

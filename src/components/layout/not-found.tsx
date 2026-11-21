@@ -1,25 +1,26 @@
 import { Button } from '@/components/ui/button';
-import { Home } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
 export function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center px-4">
-      <div className="max-w-md mx-auto text-center">
-        <div className="mb-8">
-          <h1 className="text-9xl font-bold text-primary/20">404</h1>
-          <h2 className="text-2xl font-bold tracking-tight mb-2">Page introuvable</h2>
-          <p className="text-muted-foreground mb-6">
-            Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
-          </p>
+    <div className="page-width flex min-h-[60svh] items-center justify-center py-16">
+      <div className="max-w-md text-center">
+        <div
+          className="mx-auto mb-8 flex aspect-[4/3] w-40 items-center justify-center rounded-xl bg-wall"
+          aria-hidden="true"
+        >
+          <div className="h-16 w-20 rounded-[3px] border-2 border-dashed border-muted-foreground/40" />
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button asChild>
-            <Link to="/">
-              <Home className="mr-2 h-4 w-4" />
-              Retour à l'accueil
-            </Link>
+        <h1 className="font-serif text-3xl font-medium tracking-tight">Page introuvable</h1>
+        <p className="mt-3 text-muted-foreground">
+          Ce mur est vide : la page a été déplacée, ou l’adresse contient une faute de frappe.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button asChild className="rounded-full">
+            <Link to="/artworks">Parcourir les notices</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link to="/">Retour à l’accueil</Link>
           </Button>
         </div>
       </div>

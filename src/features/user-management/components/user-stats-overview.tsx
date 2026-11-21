@@ -14,7 +14,7 @@ import type { UserStatsData } from '../actions/user-queries';
 // Individual components for each user stat
 function TotalUsersCard({ count }: { count: Promise<number> }) {
   const totalUsers = use(count);
-  return <StatCard title="Total Utilisateurs" value={totalUsers} icon={Users} />;
+  return <StatCard title="Comptes" value={totalUsers} icon={Users} />;
 }
 
 function AdminUsersCard({ count }: { count: Promise<number> }) {
@@ -34,11 +34,11 @@ function NewUsersThisWeekCard({ counts }: { counts: UserStatsData['newUsers'] })
       : Math.round(((newUsersThisWeek - newUsersLastWeek) / newUsersLastWeek) * 100);
 
   const trend = percentageChange > 0 ? '+' : '';
-  const subtitle = `${trend}${percentageChange}% vs semaine dernière`;
+  const subtitle = `${trend}${percentageChange} % par rapport à la semaine dernière`;
 
   return (
     <StatCard
-      title="Nouveaux Utilisateurs"
+      title="Nouveaux cette semaine"
       value={newUsersThisWeek}
       icon={Activity}
       subtitle={subtitle}
@@ -48,8 +48,8 @@ function NewUsersThisWeekCard({ counts }: { counts: UserStatsData['newUsers'] })
 
 export function UserStatsOverview({ data }: { data: UserStatsData }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <Suspense fallback={<StatCardSkeleton title="Total Utilisateurs" icon={Users} />}>
+    <div className="grid gap-4 sm:grid-cols-3">
+      <Suspense fallback={<StatCardSkeleton title="Comptes" icon={Users} />}>
         <TotalUsersCard count={data.totalUsers} />
       </Suspense>
 
@@ -57,7 +57,7 @@ export function UserStatsOverview({ data }: { data: UserStatsData }) {
         <AdminUsersCard count={data.adminCount} />
       </Suspense>
 
-      <Suspense fallback={<StatCardSkeleton title="Nouveaux Utilisateurs" icon={Activity} />}>
+      <Suspense fallback={<StatCardSkeleton title="Nouveaux cette semaine" icon={Activity} />}>
         <NewUsersThisWeekCard counts={data.newUsers} />
       </Suspense>
     </div>
