@@ -74,7 +74,8 @@ async function writeWorktreeEnv() {
     }),
     ...(!fromMain.CRON_SECRET && { CRON_SECRET: randomBytes(24).toString('base64url') }),
   });
-  writeFileSync(ENV_FILE, content);
+  // Owner-only: it can hold the staging QA passwords
+  writeFileSync(ENV_FILE, content, { mode: 0o600 });
 
   const source = mainEnv ? `.env.example and ${mainEnv.file}` : '.env.example';
   console.log(

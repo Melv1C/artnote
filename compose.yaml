@@ -36,7 +36,7 @@ services:
       timeout: 3s
       retries: 30
 
-  # Creates the shared `artnote` bucket, readable by anyone but not listable (`db:setup` runs it)
+  # Creates the shared `artnote` bucket, readable by anyone but not listable (`worktree:setup` runs it)
   storage-init:
     image: pgsty/mc:RELEASE.2026-11-12T00-00-00Z
     profiles: [setup]

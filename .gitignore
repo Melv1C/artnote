@@ -34,8 +34,6 @@ yarn-error.log*
 
 # env files
 .env
-# Staging QA credentials, in the main checkout only (AGENTS.md, Environments and QA)
-.env.qa
 
 # typescript
 *.tsbuildinfo
