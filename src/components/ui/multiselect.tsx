@@ -475,7 +475,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                       e.stopPropagation();
                     }}
                     onClick={() => handleUnselect(option)}
-                    aria-label="Remove"
+                    aria-label="Retirer"
                   >
                     <Cross2Icon width={14} height={14} strokeWidth={2} aria-hidden="true" />
                   </button>
@@ -530,7 +530,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                   selected.filter(s => s.fixed).length === selected.length) &&
                   'hidden',
               )}
-              aria-label="Clear all"
+              aria-label="Tout effacer"
             >
               <Cross2Icon width={16} height={16} strokeWidth={2} aria-hidden="true" />
             </button>

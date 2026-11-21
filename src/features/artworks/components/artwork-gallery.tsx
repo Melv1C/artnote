@@ -28,7 +28,14 @@ export function ArtworkGallery({ title, images, onOpen, className }: ArtworkGall
   };
 
   if (images.length === 0) {
-    return <Painting image={undefined} title={title} className={cn('aspect-[4/3]', className)} />;
+    // No height from the page: an empty wall keeps its 4:3 shape within the column
+    return (
+      <Painting
+        image={undefined}
+        title={title}
+        className="-mx-4 aspect-[4/3] min-w-0 sm:mx-0 sm:rounded-2xl"
+      />
+    );
   }
 
   return (

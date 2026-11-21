@@ -157,8 +157,8 @@ export function ArtworkImageViewer({
 
           {images.length > 1 && (
             <>
-              <CarouselPrevious className="left-4 hidden size-11 border-none bg-white/15 text-white hover:bg-white/30 hover:text-white md:flex" />
-              <CarouselNext className="right-4 hidden size-11 border-none bg-white/15 text-white hover:bg-white/30 hover:text-white md:flex" />
+              <CarouselPrevious className="left-2 size-11 border-none bg-white/15 text-white hover:bg-white/30 hover:text-white md:left-4" />
+              <CarouselNext className="right-2 size-11 border-none bg-white/15 text-white hover:bg-white/30 hover:text-white md:right-4" />
             </>
           )}
         </Carousel>

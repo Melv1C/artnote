@@ -31,10 +31,10 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
   const openViewer = (index: number) => setViewer({ open: true, index });
 
   return (
-    <article className="pb-12">
+    <article className="pb-24 md:pb-12">
       <BackLink />
 
-      <div className="page-width lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-12 lg:pt-4 xl:gap-16">
+      <div className="page-width lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] [&>*]:min-w-0 lg:gap-12 lg:pt-4 xl:gap-16">
         <GalleryColumn onReopen={images.length > 0 ? () => openViewer(0) : undefined}>
           {galleryRef => (
             <div ref={galleryRef}>

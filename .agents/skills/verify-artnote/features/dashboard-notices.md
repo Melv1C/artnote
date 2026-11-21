@@ -7,7 +7,7 @@ A writer (an admin) manages their own notices in "Mes notices": creates one in t
 - `notices-list` "Mes notices" shows the writer's notices as a table (role `table` "Mes notices") with counts ("Notices", "Publiées", "Brouillons", "Vues"), status views ("En cours", "Brouillons", "Publiées", "Archivées") and a search box.
 - `notices-create` "Nouvelle notice" opens the editor; "Créer la notice" saves and returns to the list.
 - `notices-edit` the title link or "Modifier" on a row opens `/dashboard/artworks/<id>/edit` with the saved values.
-- `notices-status` the row menu "Plus d’actions" changes the status ("Publier", "Repasser en brouillon", "Archiver"); the status views and "Filtres & Tri" choose which statuses the list shows.
+- `notices-status` the row menu "Plus d’actions" changes the status ("Publier", "Repasser en brouillon", "Archiver"); the status views and "Filtres et tri" choose which statuses the list shows.
 - `notices-delete` the row menu "Supprimer", confirmed in the in-page dialog, removes the notice.
 - `notices-ownership` a second writer sees none of these notices.
 

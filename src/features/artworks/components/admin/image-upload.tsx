@@ -246,6 +246,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                               size="sm"
                               onClick={() => removeImage(index)}
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              aria-label={`Retirer l’image ${index + 1}`}
                             >
                               <X className="h-4 w-4" />
                             </Button>

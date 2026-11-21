@@ -74,7 +74,7 @@ export function ArtworkFiltersDropdown({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Filter className="h-4 w-4" />
-          Filtres & Tri
+          Filtres et tri
           {activeFiltersCount > 0 && (
             <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
               {activeFiltersCount}
