@@ -4,7 +4,7 @@
 
 **Blocked by:** None
 
-**Status:** ready
+**Status:** done
 
 - [ ] The env schema accepts an optional Umami website id (a UUID). The env schema test covers it present, absent and invalid.
 - [ ] A public server function exposes the website id to the root layout, and it is listed in the server function test's public list.

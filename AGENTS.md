@@ -14,7 +14,7 @@ bun run worktree:setup  # write .env, start Postgres and MinIO, create this work
 bun run dev             # the URL worktree:setup printed (BASE_URL in .env)
 ```
 
-In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions.
+In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions. That hook does not always run: when `bun run dev` or `bun run check` stops with "This checkout is not set up" (`scripts/preflight.ts`), run `bun install && bun run worktree:setup` and try again.
 
 Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
@@ -39,6 +39,7 @@ Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`co
 | `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
 | `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
 | `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
+| `bun run test:e2e`                     | Playwright end-to-end tests (`e2e/`) on a throwaway database; needs the Docker Postgres (End-to-end tests below)                   |
 | `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
 | `bun run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
 | `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
@@ -48,7 +49,17 @@ Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`co
 
 `vp` comes with the dependencies (`node_modules/.bin/vp`); use `bunx vp` when it is not on your `PATH`. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `bun install`) runs `vp check --fix` on staged files.
 
-To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then run the app and check the change in a browser, signed in with a seeded account when needed.
+To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then `bun run test:e2e`. When a change alters what a reader or writer can see or do, add or update a test in `e2e/` for it. For UI details no test covers, also run the app and check the change in a browser, signed in with a seeded account when needed.
+
+### End-to-end tests
+
+`e2e/*.spec.ts` drive the real app in Chromium through Playwright (`playwright.config.ts`): sign-ins, access to the dashboard, notice ownership (ADR 0003), publishing and reading. Each run recreates a database of its own, `<this worktree's database>_e2e` (`scripts/e2e-database.ts`: drop, create, `migrate deploy`, seed), and starts `vp dev` on the dev port plus 1000 (`scripts/e2e-env.ts`), so tests may create and change data freely without touching the worktree's database or its dev server.
+
+- Import `test` and `expect` from `e2e/fixtures.ts`, not `@playwright/test`. Its `signIn('admin' | 'writer' | 'user' | 'banned')` fixture signs in through Better Auth's endpoint; `notices` names the seed notices.
+- Find elements by role, label or the French text a reader sees. Before typing into a form, `await page.waitForLoadState('networkidle')`: text typed before React hydrates the page is lost.
+- An assertion that something is absent (`toHaveCount(0)`) proves nothing until the page has loaded: assert something visible first, such as an empty state.
+- Chromium comes from `bunx playwright install chromium`, once per machine.
+- A failure leaves a trace and a screenshot in `test-results/`. In CI, the "E2E" job uploads them as the `playwright-report` artifact.
 
 ## Environments and QA
 
@@ -93,6 +104,8 @@ src/
   hooks/               Cross-feature React hooks (useDebounce, useIsMobile).
   components/ui/       shadcn components and the rich text editor. components/layout/: app shell;
                        components/data-table/: PagedTable.
+e2e/                   Playwright end-to-end tests and their fixtures (fixtures.ts).
+scripts/               Setup scripts: worktree setup, the e2e database, preflight checks.
 ```
 
 Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (the Umami tracker: which pages are measured, page views and notice readings), `admin-dashboard` (the dashboard home: content figures and the link to Umami), `user-management`, `profile`, `auth`.
@@ -175,10 +188,10 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 
 - User-facing text is French; code, identifiers and commits are English.
 - Commits follow Conventional Commits (`feat:`, `fix(scope):`, `chore:`).
-- New pure logic gets a unit test next to it. Tests do not need a database; keep Prisma calls in `actions/` and the logic they feed in `lib/`.
+- New pure logic gets a unit test next to it. Unit tests do not need a database; keep Prisma calls in `actions/` and the logic they feed in `lib/`. Behaviour that needs the database, the server and the UI together is tested in `e2e/`.
 
 ## Branches and releases
 
 - Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging; the `preview` label on a PR gives it a Dokploy preview.
-- CI (`.github/workflows/ci.yml`) is one job, "Check", the required check on `main`: it runs `bun run check`, fails if the build changed committed files, and runs `bun audit --audit-level=critical`.
+- CI (`.github/workflows/ci.yml`) has two jobs. "Check", the required check on `main`, runs `bun run check`, fails if the build changed committed files, and runs `bun audit --audit-level=critical`. "E2E" runs `bun run test:e2e` against a Postgres service.
 - Releases push a `vX.Y.Z` tag on a `main` commit; the Release workflow moves `production` to it (ADR 0009). See the README's Deployments section.

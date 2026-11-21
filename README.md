@@ -46,6 +46,7 @@ ArtNote is a [TanStack Start](https://tanstack.com/start) application that publi
 - `docker build .` – the production image Dokploy builds; the container runs `prisma migrate deploy`, then the server on port 3000.
 - `bun run check` – everything CI runs: Prisma generate, validate and format check, `vp check` (Oxfmt, Oxlint and the TypeScript type check), `vp test` (Vitest), knip and the build (regenerates `src/routeTree.gen.ts`).
 - `bun run fix` – format and apply lint fixes.
+- `bun run test:e2e` – Playwright end-to-end tests (`e2e/`) on a throwaway copy of the seeded database (AGENTS.md, End-to-end tests). Install Chromium once with `bunx playwright install chromium`.
 - `bun run worktree:setup` – set up this checkout: `.env`, Postgres and MinIO, its database, migrations, Prisma client and seed.
 - `bun run db:seed` / `db:reset` / `db:down` – re-seed, recreate this checkout's database, stop the shared containers.
 

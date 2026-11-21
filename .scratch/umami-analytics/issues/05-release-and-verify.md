@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready
+**Status:** done
 
 - [ ] `UMAMI_WEBSITE_ID` is set for Production only. Preview and Development have none.
 - [ ] Melvyn approves the merge to `main` and the `vX.Y.Z` tag. The Release workflow moves `production`.
@@ -14,3 +14,7 @@
 - [ ] Countries in Umami match readers, not Vercel's location. If they don't, open a follow-up about forwarding the client's address through the proxy.
 - [ ] The next nightly prune cron run succeeds (Vercel cron logs).
 - [ ] The Vercel token shared in the planning conversation is revoked.
+
+## Comments
+
+2026-11-21: Marked `done`. v1.2.0 was released on Dokploy, not Vercel (ADR 0011), and ticket 06 shipped after it (#165). Checked on production: the home page renders Umami's script with this website id from `/stats/script.js`, and `/stats/script.js` answers 200. The unchecked boxes above were not re-verified here. Revoking the Vercel token is still open (it moved to the Dokploy cleanup).

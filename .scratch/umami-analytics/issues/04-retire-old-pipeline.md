@@ -4,7 +4,7 @@
 
 **Blocked by:** 01, 02, 03
 
-**Status:** ready
+**Status:** done
 
 - [ ] The dashboard home keeps the content figures (users, published notices) and replaces the analytics section with a link that opens Umami's dashboard in a new tab. Its loader no longer reads analytics.
 - [ ] Deleted:

@@ -4,7 +4,7 @@
 
 **Blocked by:** 05
 
-**Status:** ready
+**Status:** done
 
 - [ ] Before the migration, Melvyn has exported the daily notice summaries and daily site summaries from production to CSV.
 - [ ] A migration drops `AnalyticsEvent`, `NoticeDailySummary`, `NoticeWeeklySummary`, `SiteDailySummary` and `SiteWeeklySummary`, and the schema no longer declares them.
