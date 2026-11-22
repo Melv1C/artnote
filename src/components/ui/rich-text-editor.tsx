@@ -38,6 +38,7 @@ import {
   Undo,
   Unlink,
 } from 'lucide-react';
+import { shortenAddressLinks } from '@/lib/rich-text-links';
 import { useEffect } from 'react';
 import { Footnote, FootnoteReference, Footnotes } from 'tiptap-footnotes';
 
@@ -841,8 +842,9 @@ interface RichTextViewerProps {
   config?: Partial<RichTextEditorConfig>;
 }
 
-export function RichTextViewer({ content, className, config }: RichTextViewerProps) {
+export function RichTextViewer({ content: written, className, config }: RichTextViewerProps) {
   const finalConfig = config || defaultConfig;
+  const content = written ? shortenAddressLinks(written) : written;
 
   const editor = useEditor({
     extensions: getEditorExtensions(true, finalConfig),
@@ -876,7 +878,7 @@ export function RichTextViewer({ content, className, config }: RichTextViewerPro
   }
 
   return (
-    <div className={cn('prose prose-sm max-w-none', className)}>
+    <div className={cn('prose prose-sm max-w-none wrap-anywhere', className)}>
       <EditorContent editor={editor} className={headingsClass} />
     </div>
   );

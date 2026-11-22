@@ -107,9 +107,10 @@ export function ArtworkGallery({ title, images, onOpen, className }: ArtworkGall
           )}
           {current?.legend && <RichTextViewer content={current.legend} className="reading-sm" />}
           {current?.source && (
-            <div className="flex gap-1 text-xs">
-              <span>Source :</span>
-              <RichTextViewer content={current.source} />
+            // One flowing line: the label, then the citation, wrapping as text does
+            <div className="text-xs [&_div]:inline [&_p]:inline">
+              <span className="font-medium text-foreground/80">Source : </span>
+              <RichTextViewer content={current.source} className="text-xs" />
             </div>
           )}
         </figcaption>

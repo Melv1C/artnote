@@ -25,12 +25,16 @@ An uploaded picture of a painting, reusable across notices.
 _Avoid_: Photo, media
 
 **Image attachment**:
-An image placed on a notice, with its position, whether it is the main image, its legend and its source credit.
+An image placed on a notice, with its position, whether it is the main image, its legend and its image source.
 _Avoid_: Notice image, gallery item
 
 **Legend**:
 The caption an image attachment carries on one notice. Distinct from the image's own alternative text.
 _Avoid_: Caption (for the attachment)
+
+**Image source**:
+The reference to where an image attachment's picture was taken from, written as a citation (author, title, address, date consulted).
+_Avoid_: Credit, source credit, photo credit
 
 ## Publication
 
