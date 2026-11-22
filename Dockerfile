@@ -1,33 +1,32 @@
 # syntax=docker/dockerfile:1
 # Production image, built by Dokploy for staging, previews and production (README, Deployments).
 # The container applies pending migrations, then starts the Nitro server on port 3000.
+# Vite+ installs and builds; Node's own image runs. Keep its tag at package.json's devEngines.runtime.
 
-FROM oven/bun:1.4.4 AS bun
+# Vite+ resolves Node from devEngines.runtime and Bun from packageManager (package.json)
+FROM ghcr.io/voidzero-dev/vite-plus:1.7.0 AS vp
 
-FROM node:24-slim AS base
-# Prisma's migration engine needs OpenSSL
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
-COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
-WORKDIR /app
-
-FROM base AS build
-COPY package.json bun.lock ./
+FROM vp AS build
+COPY --chown=vp:vp package.json bun.lock ./
 # No lifecycle scripts: `prepare` installs git hooks, and the Prisma client is generated below
-RUN bun install --frozen-lockfile --ignore-scripts
-COPY . .
+RUN vp install --frozen-lockfile --ignore-scripts
+COPY --chown=vp:vp . .
 # Prisma reads the datasource URL to generate the client; it never connects here
-RUN PRISMA_DATABASE_URL=postgresql://build:build@localhost:5432/build node_modules/.bin/prisma generate \
-  && node_modules/.bin/vp build
+RUN PRISMA_DATABASE_URL=postgresql://build:build@localhost:5432/build vp exec prisma generate \
+  && vp build
 
 # Runtime dependencies only, for `prisma migrate deploy`; the server bundle in .output is
 # self-contained. `prisma version` downloads the schema engine that the skipped postinstall would.
-FROM base AS deps
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --ignore-scripts --production \
-  && PRISMA_DATABASE_URL=postgresql://build:build@localhost:5432/build node_modules/.bin/prisma version
+FROM vp AS deps
+COPY --chown=vp:vp package.json bun.lock ./
+RUN vp install --frozen-lockfile --ignore-scripts --prod \
+  && PRISMA_DATABASE_URL=postgresql://build:build@localhost:5432/build vp exec prisma version
 
-FROM base
+FROM node:26.13.1-slim
+# Prisma's migration engine needs OpenSSL
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 ENV NODE_ENV=production PORT=3000
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.output ./.output

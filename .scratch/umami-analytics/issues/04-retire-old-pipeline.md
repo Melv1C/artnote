@@ -16,4 +16,4 @@
 - [ ] `ua-parser-js` is removed if nothing else uses it, and knip reports nothing.
 - [ ] `AGENTS.md` describes the new measurement: the Analytics section, the feature list, and the cron and env notes.
 - [ ] No Prisma migration. The models stay.
-- [ ] `bun run check` passes. In the local app, signed in as `admin@example.com`, the dashboard home renders without errors.
+- [ ] `vp run check` passes. In the local app, signed in as `admin@example.com`, the dashboard home renders without errors.

@@ -14,4 +14,4 @@
 - [ ] A new pure module in the analytics feature's `lib/` holds `isMeasuredPath`, `readingTimeBracket` and `noticeReadingEvent` (spec, "New pure module"), all unit-tested, including `/confidentialite` as a measured path and the exact bracket boundaries.
 - [ ] On the PR's preview deployment, `/stats/script.js` returns Umami's script.
 - [ ] Only if Melvyn approves the short preview test: with the id set on the preview deployment, page views appear in Umami and the dashboard sends none.
-- [ ] `bun run check` passes.
+- [ ] `vp run check` passes.

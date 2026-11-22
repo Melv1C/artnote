@@ -5,19 +5,26 @@
   "type": "module",
   "packageManager": "bun@1.4.4",
   "engines": {
-    "node": ">=24"
+    "node": ">=26"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.13.1",
+      "onFail": "download"
+    }
   },
   "scripts": {
-    "dev": "bun scripts/preflight.ts dev && vp dev",
+    "dev": "vpx scripts/preflight.ts dev && vp dev",
     "build": "vp build",
     "start": "node .output/server/index.mjs",
     "preview": "vp preview",
-    "check": "bun scripts/preflight.ts check && prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
+    "check": "vpx scripts/preflight.ts check && prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
     "fix": "vp check --fix",
     "test:e2e": "playwright test",
-    "worktree:setup": "bun scripts/worktree-setup.ts",
+    "worktree:setup": "vpx scripts/worktree-setup.ts",
     "db:seed": "prisma db seed",
-    "db:reset": "bun scripts/worktree-setup.ts --reset",
+    "db:reset": "vpx scripts/worktree-setup.ts --reset",
     "db:down": "docker compose down",
     "prisma:migrate": "prisma migrate dev",
     "prepare": "vp config"

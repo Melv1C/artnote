@@ -1,6 +1,6 @@
-// Runs first in `bun run dev` and `bun run check` (package.json): stop with the fix when this
+// Runs first in `vp run dev` and `vp run check` (package.json): stop with the fix when this
 // worktree was never set up, instead of a cryptic `prisma: command not found`. It imports nothing
-// from node_modules, so it runs before `bun install`.
+// from node_modules, so it runs before `vp install`.
 import { existsSync } from 'node:fs';
 
 type Command = 'dev' | 'check';
@@ -26,7 +26,7 @@ export function missingSetup(command: Command, state: SetupState): string[] {
 if (import.meta.main) {
   const command = process.argv[2];
   if (command !== 'dev' && command !== 'check') {
-    throw new Error('Usage: bun scripts/preflight.ts <dev|check>');
+    throw new Error('Usage: vpx scripts/preflight.ts <dev|check>');
   }
   const missing = missingSetup(command, {
     dependencies: existsSync('node_modules/.bin/prisma'),
@@ -37,7 +37,7 @@ if (import.meta.main) {
   if (missing.length > 0) {
     console.error(
       `This checkout is not set up (missing ${missing.join(', ')}).\n` +
-        'Run `bun install && bun run worktree:setup`, then try again.',
+        'Run `vp install && vp run worktree:setup`, then try again.',
     );
     process.exit(1);
   }

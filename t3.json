@@ -5,25 +5,25 @@
   "scripts": [
     {
       "name": "Setup worktree",
-      "command": "bun install && bun run worktree:setup",
+      "command": "vp install && vp run worktree:setup",
       "icon": "configure",
       "runOnWorktreeCreate": true,
       "async": false
     },
     {
       "name": "Dev",
-      "command": "bun run dev",
+      "command": "vp run dev",
       "icon": "play",
       "stopOnSettle": true
     },
     {
       "name": "Check",
-      "command": "bun run check",
+      "command": "vp run check",
       "icon": "test"
     },
     {
       "name": "E2E",
-      "command": "bun run test:e2e",
+      "command": "vp run test:e2e",
       "icon": "test"
     }
   ]

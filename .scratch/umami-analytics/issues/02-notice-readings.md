@@ -10,4 +10,4 @@
 - [ ] The event's URL is the notice's path, even when it is sent after navigation to another page.
 - [ ] Previews send no `notice_read`.
 - [ ] Nothing throws when Umami is blocked or missing.
-- [ ] `bun run check` passes.
+- [ ] `vp run check` passes.

@@ -9,4 +9,4 @@
 - [ ] Before the migration, Melvyn has exported the daily notice summaries and daily site summaries from production to CSV.
 - [ ] A migration drops `AnalyticsEvent`, `NoticeDailySummary`, `NoticeWeeklySummary`, `SiteDailySummary` and `SiteWeeklySummary`, and the schema no longer declares them.
 - [ ] No deployed branch still reads those tables when the migration reaches the shared preview database (ADR 0006).
-- [ ] `bun run check` passes, and `bun run db:reset` works locally.
+- [ ] `vp run check` passes, and `vp run db:reset` works locally.

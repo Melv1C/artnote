@@ -2,21 +2,21 @@
 
 ArtNote publishes scholarly notices about paintings for a French-speaking (Belgian) audience. Readers browse and read notices; admins write them in `/dashboard`. Use the domain terms of `GLOSSARY.md` (notice, writer, author, view count…), and read the decisions in `docs/adr/` before changing an area they cover.
 
-Stack: TanStack Start (React 19, Vite, Nitro), TanStack Router (file routes), Prisma 7 on PostgreSQL, Better Auth, Tailwind 4 + shadcn, Tiptap, Zod 4. Toolchain: Vite+ (`vp`: Vite, Vitest, Oxlint, Oxfmt) plus knip, configured in `vite.config.ts` (ADR 0008). Self-hosted on Dokploy with MinIO for uploads (ADR 0011). Single app, not a monorepo.
+Stack: TanStack Start (React 19, Vite, Nitro), TanStack Router (file routes), Prisma 7 on PostgreSQL, Better Auth, Tailwind 4 + shadcn, Tiptap, Zod 4. Toolchain: Vite+ (`vp`: Node.js and package manager, Vite, Vitest, Oxlint, Oxfmt) plus knip, configured in `vite.config.ts` and `package.json` (ADR 0008). Self-hosted on Dokploy with MinIO for uploads (ADR 0011). Single app, not a monorepo.
 
 ## Local setup
 
-Needs Bun (package manager and script runner), Node 24 (runtime) and Docker.
+Needs the global Vite+ CLI (`vp`, https://viteplus.dev/guide/) and Docker. `vp` provides Node 26 (`devEngines.runtime`) and Bun, the package manager under it (`packageManager`), from `package.json`; there is no nvm or `.nvmrc`.
 
 ```bash
-bun install
-bun run worktree:setup  # write .env, start Postgres and MinIO, create this worktree's database, migrate, generate, seed
-bun run dev             # the URL worktree:setup printed (BASE_URL in .env)
+vp install
+vp run worktree:setup   # write .env, start Postgres and MinIO, create this worktree's database, migrate, generate, seed
+vp run dev              # the URL worktree:setup printed (BASE_URL in .env)
 ```
 
-In T3 Code, `t3.json` runs `bun install && bun run worktree:setup` when a worktree is created, and offers Dev and Check actions. That hook does not always run: when `bun run dev` or `bun run check` stops with "This checkout is not set up" (`scripts/preflight.ts`), run `bun install && bun run worktree:setup` and try again.
+In T3 Code, `t3.json` runs `vp install && vp run worktree:setup` when a worktree is created, and offers Dev and Check actions. That hook does not always run: when `vp run dev` or `vp run check` stops with "This checkout is not set up" (`scripts/preflight.ts`), run `vp install && vp run worktree:setup` and try again.
 
-Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `bun run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
+Each worktree gets its own database and dev port (ADR 0007). On its first run, `worktree:setup` writes `.env` in three layers, each overriding the last: `.env.example`, the main checkout's `.env` (the first path `git worktree list` prints), then this worktree's own database, named after its folder (`artnote_<folder>`) in the shared Docker Postgres, and a free port in 3100–3999 as `BASE_URL` (`scripts/worktree-env.ts`). An existing `.env` is never overwritten: to pick up later changes to the main `.env`, stop the dev server, delete this `.env` and run `vp run worktree:setup` again; the database and port stay the same. The dev server listens on `BASE_URL`'s port and fails rather than move to another one, because Better Auth rejects sign-ins from any other origin.
 
 Seeded accounts (password `artnote-dev-password`):
 
@@ -33,23 +33,23 @@ Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`co
 
 ## Commands
 
-| Command                                | Use                                                                                                                                |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `bun run check`                        | Everything CI runs: Prisma generate, validate and format check, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
-| `bun run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
-| `vp check`                             | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
-| `vp test` / `vp test watch`            | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
-| `bun run test:e2e`                     | Playwright end-to-end tests (`e2e/`) on a throwaway database; needs the Docker Postgres (End-to-end tests below)                   |
-| `bunx knip`                            | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
-| `bun run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
-| `bun run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
-| `bun run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                              |
-| `bun run db:down`                      | Stop the Postgres and MinIO containers, for every worktree                                                                         |
-| `bun run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                                            |
+| Command                               | Use                                                                                                                                |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `vp run check`                        | Everything CI runs: Prisma generate, validate and format check, `vp check` (format, lint, type check), `vp test`, knip, `vp build` |
+| `vp run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
+| `vp check`                            | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
+| `vp test` / `vp test watch`           | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
+| `vp run test:e2e`                     | Playwright end-to-end tests (`e2e/`) on a throwaway database; needs the Docker Postgres (End-to-end tests below)                   |
+| `vp exec knip`                        | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
+| `vp run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
+| `vp run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |
+| `vp run db:reset`                     | Drop this worktree's database and set it up from scratch; other worktrees keep theirs                                              |
+| `vp run db:down`                      | Stop the Postgres and MinIO containers, for every worktree                                                                         |
+| `vp run prisma:migrate --name <name>` | Create a migration after editing `prisma/schema.prisma`                                                                            |
 
-`vp` comes with the dependencies (`node_modules/.bin/vp`); use `bunx vp` when it is not on your `PATH`. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `bun install`) runs `vp check --fix` on staged files.
+Use `vp` for everything: `vp run <script>` runs a `package.json` script (`vp dev`, `vp build`, `vp test` and `vp check` are Vite+ built-ins, so the `dev` script with its setup check is `vp run dev`), `vp exec <bin>` a dependency's binary, `vpx <file.ts>` a TypeScript script, `vp add` / `vp remove` / `vp update` change dependencies, and `vp pm <command>` forwards anything else to Bun. Never call `bun`, `bunx`, `npx` or `nvm` directly. A pre-commit hook (`.vite-hooks/pre-commit`, installed by `vp install`) runs `vp check --fix` on staged files.
 
-To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then `bun run test:e2e`. When a change alters what a reader or writer can see or do, add or update a test in `e2e/` for it. For UI details no test covers, also run the app and check the change in a browser, signed in with a seeded account when needed.
+To verify a change: run `vp run check` and commit any `src/routeTree.gen.ts` change it makes (CI fails on an uncommitted one), then `vp run test:e2e`. When a change alters what a reader or writer can see or do, add or update a test in `e2e/` for it. For UI details no test covers, also run the app and check the change in a browser, signed in with a seeded account when needed.
 
 ### End-to-end tests
 
@@ -58,14 +58,14 @@ To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` ch
 - Import `test` and `expect` from `e2e/fixtures.ts`, not `@playwright/test`. Its `signIn('admin' | 'writer' | 'user' | 'banned')` fixture signs in through Better Auth's endpoint; `notices` names the seed notices.
 - Find elements by role, label or the French text a reader sees. Before typing into a form, `await page.waitForLoadState('networkidle')`: text typed before React hydrates the page is lost.
 - An assertion that something is absent (`toHaveCount(0)`) proves nothing until the page has loaded: assert something visible first, such as an empty state.
-- Chromium comes from `bunx playwright install chromium`, once per machine.
+- Chromium comes from `vp exec playwright install chromium`, once per machine.
 - A failure leaves a trace and a screenshot in `test-results/`. In CI, the "E2E" job uploads them as the `playwright-report` artifact.
 
 ## Environments and QA
 
 | Environment | URL                             | Deploys                                                      | Data                                  |
 | ----------- | ------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
-| Local       | `BASE_URL` in `.env`            | `bun run dev`                                                | this worktree's database, local MinIO |
+| Local       | `BASE_URL` in `.env`            | `vp run dev`                                                 | this worktree's database, local MinIO |
 | Preview     | a `*.artnote.melvyn.be` address | each push to a PR labelled `preview`; removed when it closes | staging's database and MinIO          |
 | Staging     | https://stg.artnote.melvyn.be   | each push to `main` (a merged PR), a few minutes later       | its own, seeded                       |
 | Production  | https://artnote.melvyn.be       | a push to `production`, moved by the Release workflow        | real notices and readers              |
@@ -78,7 +78,7 @@ Dokploy builds the `Dockerfile` for each one; the container migrates the databas
 set -a; source .env; set +a
 ```
 
-- Don't print the passwords, paste them into PRs or comments, or change them. If the `QA_*` variables are missing from this worktree's `.env` (it predates them), delete it and run `bun run worktree:setup` again. If they are missing from the main checkout's `.env` too, or an account doesn't work, ask Melvyn instead of creating one.
+- Don't print the passwords, paste them into PRs or comments, or change them. If the `QA_*` variables are missing from this worktree's `.env` (it predates them), delete it and run `vp run worktree:setup` again. If they are missing from the main checkout's `.env` too, or an account doesn't work, ask Melvyn instead of creating one.
 - A preview shares staging's database: a migration on a labelled PR reaches staging at once, and what you create in a preview shows on staging. Start the titles of test notices, artists and places with `[QA]` and delete them afterwards. Leave the seed content as it is.
 - Uploads on staging and previews are public files under `files.stg.artnote.melvyn.be`: upload only test images.
 - Better Auth limits sign-ins per IP: space out sign-ins (about 10 seconds) when switching accounts.
@@ -193,5 +193,5 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 ## Branches and releases
 
 - Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging; the `preview` label on a PR gives it a Dokploy preview.
-- CI (`.github/workflows/ci.yml`) has two jobs. "Check", the required check on `main`, runs `bun run check`, fails if the build changed committed files, and runs `bun audit --audit-level=critical`. "E2E" runs `bun run test:e2e` against a Postgres service.
+- CI (`.github/workflows/ci.yml`) has two jobs. "Check", the required check on `main`, runs `vp run check`, fails if the build changed committed files, and runs `vp pm audit -- --audit-level=critical`. "E2E" runs `vp run test:e2e` against a Postgres service.
 - Nobody pushes to `main`, `v*` tags or `production`. A release is the Release workflow (`workflow_dispatch` with `patch`, `minor` or `major`): it bumps `package.json`, tags, creates the GitHub Release and moves `production`; Rollback moves `production` to an earlier tag (ADR 0012). See the README's Deployments section.
