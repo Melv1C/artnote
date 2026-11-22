@@ -66,14 +66,11 @@ Dokploy, on our own server, builds the `Dockerfile` from GitHub (ADR 0011):
 
 Uploaded files are served from https://files.artnote.melvyn.be (production) and https://files.stg.artnote.melvyn.be (staging and previews). Every container runs `prisma migrate deploy` before it starts, so a preview's migration reaches the staging database (ADR 0006). Deploys don't wait for CI.
 
-To release, tag a commit that is on `main` and push the tag:
+Nobody pushes to `main`, `v*` tags or `production`: rulesets allow it only to the release workflows' deploy key (ADR 0012).
 
-```bash
-git tag v1.2.0 origin/main
-git push origin v1.2.0
-```
+To release, run the **Release** workflow from the Actions tab on `main` and pick `patch`, `minor` or `major` (or `gh workflow run release.yml -f bump=minor`). It requires a passing Check on `main`'s HEAD, commits `chore(release): vX.Y.Z` bumping `package.json`, pushes it with its tag, creates the GitHub Release and moves `production`, which Dokploy deploys.
 
-`.github/workflows/release.yml` force-pushes the tagged commit to `production`, which Dokploy deploys, and creates the GitHub Release. To roll back, push a tag on an older commit, or redeploy an earlier deployment in Dokploy.
+To roll back, run the **Rollback** workflow with an earlier tag (`gh workflow run rollback.yml -f tag=v1.2.0`). It moves `production` to that tag and changes nothing else.
 
 Each Dokploy app sets these variables (`src/lib/env-schema.ts`): `BASE_URL`, `PRISMA_DATABASE_URL`, `BETTER_AUTH_SECRET`, `CRON_SECRET`, `CLIENT_IP_HEADER=x-real-ip`, the five `S3_*` variables, and `UMAMI_WEBSITE_ID` in production only. Previews get staging's values; Dokploy adds `DOKPLOY_DEPLOY_URL`, which replaces `BASE_URL`. A Dokploy schedule on production and staging calls the nightly cron from inside the container:
 

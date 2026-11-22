@@ -68,7 +68,7 @@ To verify a change: run `bun run check` and commit any `src/routeTree.gen.ts` ch
 | Local       | `BASE_URL` in `.env`            | `bun run dev`                                                | this worktree's database, local MinIO |
 | Preview     | a `*.artnote.melvyn.be` address | each push to a PR labelled `preview`; removed when it closes | staging's database and MinIO          |
 | Staging     | https://stg.artnote.melvyn.be   | each push to `main` (a merged PR), a few minutes later       | its own, seeded                       |
-| Production  | https://artnote.melvyn.be       | a `vX.Y.Z` tag on `main` (Release workflow)                  | real notices and readers              |
+| Production  | https://artnote.melvyn.be       | a push to `production`, moved by the Release workflow        | real notices and readers              |
 
 Dokploy builds the `Dockerfile` for each one; the container migrates the database before it starts (ADR 0011). Deploys don't wait for CI. Dokploy posts a preview's address on its PR.
 
@@ -194,4 +194,4 @@ Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint
 
 - Branch from `main` as `feat/*` or `fix/*` and open the PR against `main`. `main` deploys to staging; the `preview` label on a PR gives it a Dokploy preview.
 - CI (`.github/workflows/ci.yml`) has two jobs. "Check", the required check on `main`, runs `bun run check`, fails if the build changed committed files, and runs `bun audit --audit-level=critical`. "E2E" runs `bun run test:e2e` against a Postgres service.
-- Releases push a `vX.Y.Z` tag on a `main` commit; the Release workflow moves `production` to it (ADR 0009). See the README's Deployments section.
+- Nobody pushes to `main`, `v*` tags or `production`. A release is the Release workflow (`workflow_dispatch` with `patch`, `minor` or `major`): it bumps `package.json`, tags, creates the GitHub Release and moves `production`; Rollback moves `production` to an earlier tag (ADR 0012). See the README's Deployments section.

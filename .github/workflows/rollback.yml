@@ -1,0 +1,57 @@
+name: Rollback
+
+# Run from the Actions tab: moves `production` back to an earlier release tag, which Dokploy
+# deploys. Changes no version, tag or Release; migrations stay, as they are backward compatible
+# (ADR 0006, ADR 0012).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to deploy again, like v1.2.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Move production to a tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Holds RELEASE_DEPLOY_KEY; only main may deploy to it, so run Rollback from main
+    environment: release
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+
+      - name: Check the tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$TAG' is not a release tag like v1.2.0."
+            exit 1
+          fi
+          if ! sha=$(git rev-parse -q --verify "refs/tags/$TAG^{commit}"); then
+            echo "::error::Tag $TAG does not exist."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::Tag $TAG is not on main."
+            exit 1
+          fi
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+
+      - name: Move production to the tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          git push --force origin "$SHA:refs/heads/production"
+          echo "production now at $TAG ($SHA)"
