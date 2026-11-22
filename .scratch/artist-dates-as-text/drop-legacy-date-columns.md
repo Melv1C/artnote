@@ -7,6 +7,6 @@ Artist birth and death dates became free text in the `birthDateText` and `deathD
 
 Once production runs that release:
 
-- Remove `legacyBirthDate` and `legacyDeathDate` from `prisma/schema.prisma` and create the migration that drops the two columns (`bun run prisma:migrate --name drop_artist_legacy_dates`).
+- Remove `legacyBirthDate` and `legacyDeathDate` from `prisma/schema.prisma` and create the migration that drops the two columns (`vp run prisma:migrate --name drop_artist_legacy_dates`).
 - Before dropping, compare the old and text columns on staging: while a preview had migrated staging but `main` still ran the old code, artists it created or edited got only the old dates. Re-run the backfill's `UPDATE` for rows whose text columns are empty if needed.
 - Keep the `birthDateText` / `deathDateText` column names: `@map` already hides them, and renaming them is another two-step migration (ADR 0006).

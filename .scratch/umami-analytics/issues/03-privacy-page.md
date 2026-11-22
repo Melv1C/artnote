@@ -12,4 +12,4 @@
   - the sign-in cookies, for signed-in accounts only.
 - [ ] The footer of every public page links to it.
 - [ ] The cookie banner is no longer rendered. Nothing sets the consent or visitor-id cookie.
-- [ ] `bun run check` passes, including the routeTree change.
+- [ ] `vp run check` passes, including the routeTree change.

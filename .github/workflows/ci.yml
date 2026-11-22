@@ -19,19 +19,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Installs Vite+, Node from .nvmrc and Bun, then runs `vp install`
+      # Installs Vite+, Node from devEngines.runtime and Bun from packageManager (package.json),
+      # then runs `vp install`
       - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          node-version-file: .nvmrc
           cache: true
+          cache-toolchain: true
 
       # Prisma, format, lint, type check, tests, knip and build
-      - run: bun run check
+      - run: vp run check
 
       - name: Fail if the build changed committed files (route tree)
         run: git diff --exit-code
 
-      - run: bun audit --audit-level=critical
+      - run: vp pm audit -- --audit-level=critical
 
   # Playwright against the dev server on a throwaway, seeded database (e2e/, playwright.config.ts)
   e2e:
@@ -57,14 +58,14 @@ jobs:
 
       - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          node-version-file: .nvmrc
           cache: true
+          cache-toolchain: true
 
-      - run: bunx prisma generate
+      - run: vp exec prisma generate
 
-      - run: bunx playwright install --with-deps chromium
+      - run: vp exec playwright install --with-deps chromium
 
-      - run: bun run test:e2e
+      - run: vp run test:e2e
 
       - uses: actions/upload-artifact@v7
         if: failure()

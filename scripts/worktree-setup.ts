@@ -1,4 +1,4 @@
-// Set up this git worktree (`bun run worktree:setup`, run by t3.json after `bun install`): write
+// Set up this git worktree (`vp run worktree:setup`, run by t3.json after `vp install`): write
 // its .env, start Postgres and MinIO, create its database, migrate, generate and seed (ADR 0007).
 import { config, parse } from 'dotenv';
 import { execFileSync } from 'node:child_process';
@@ -136,4 +136,4 @@ run('prisma', 'migrate', 'deploy');
 run('prisma', 'generate');
 run('prisma', 'db', 'seed');
 
-console.log(`\nReady. Run \`bun run dev\` and open ${process.env.BASE_URL}`);
+console.log(`\nReady. Run \`vp run dev\` and open ${process.env.BASE_URL}`);

@@ -52,9 +52,10 @@ jobs:
             exit 1
           fi
 
-      - uses: oven-sh/setup-bun@v2
+      # Vite+, Node and Bun from package.json; the bump needs no dependencies
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          bun-version-file: package.json
+          run-install: false
 
       - name: Bump the version and tag it
         env:
@@ -62,7 +63,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          bun pm version "$BUMP" --message "chore(release): v%s"
+          vp pm version "$BUMP" -- --message "chore(release): v%s"
           changed=$(git diff --name-only HEAD~1 HEAD)
           if [[ "$changed" != "package.json" ]]; then
             echo "::error::The release commit changed more than package.json: $changed"

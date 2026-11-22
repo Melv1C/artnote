@@ -50,11 +50,11 @@ ready() { # usable = home page renders and Better Auth answers
 }
 
 cmd_launch() {
-  command -v bun >/dev/null || die "bun not on PATH"
+  command -v vp >/dev/null || die "vp not on PATH (https://viteplus.dev/guide/)"
   command -v playwright-cli >/dev/null || die "playwright-cli not on PATH"
-  [ -d node_modules ] || bun install
+  [ -d node_modules ] || vp install
   # Idempotent: writes .env if missing, starts Postgres + MinIO, creates DB, migrates, generates, seeds
-  bun run worktree:setup
+  vp run worktree:setup
   mkdir -p "$STATE"
   local pid; pid=$(listener_pid || true)
   if [ -n "$pid" ]; then
@@ -67,7 +67,7 @@ cmd_launch() {
       die "port $(port) is held by pid $pid, which is not this worktree's server. Not driving it."
     fi
   else
-    setsid bun run dev >"$STATE/dev.log" 2>&1 < /dev/null &
+    setsid vp run dev >"$STATE/dev.log" 2>&1 < /dev/null &
     echo $! >"$STATE/dev.pgid"   # setsid: the pid is the process group id
     echo "Started dev server (pgid $(cat "$STATE/dev.pgid")), log $STATE/dev.log"
   fi

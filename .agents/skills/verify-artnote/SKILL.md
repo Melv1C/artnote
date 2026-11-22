@@ -21,7 +21,7 @@ C=.agents/skills/verify-artnote/control.sh
 $C launch     # ends with: READY http://localhost:<port>
 ```
 
-It runs `bun install` if `node_modules` is missing, then `bun run worktree:setup` (writes `.env` if missing, starts the `db` and `storage` containers, creates this worktree's database, migrates, generates the Prisma client, re-seeds), then starts `bun run dev` in its own process group and waits until the home page renders **and** Better Auth answers `/api/auth/ok`. It then warms `/artworks` so Vite's first dependency optimization does not reload the page mid-drive. From an empty database this reaches a usable, seeded app in about a minute.
+It runs `vp install` if `node_modules` is missing, then `vp run worktree:setup` (writes `.env` if missing, starts the `db` and `storage` containers, creates this worktree's database, migrates, generates the Prisma client, re-seeds), then starts `vp run dev` in its own process group and waits until the home page renders **and** Better Auth answers `/api/auth/ok`. It then warms `/artworks` so Vite's first dependency optimization does not reload the page mid-drive. From an empty database this reaches a usable, seeded app in about a minute.
 
 If this worktree's dev server is already running (Melvyn's T3 "Dev" action, say), `launch` reuses it and records that it did not start it, so cleanup will leave it alone. If the port is held by anything else, it refuses.
 
@@ -96,4 +96,4 @@ $C cleanup
 
 Closes this worktree's `artnote-<port>-*` browser sessions, stops the dev server only if `launch` started it (by its process group id, never by name), copies its log to `.verify/evidence/last-dev.log`, and deletes local rows titled `[QA]…` (notices, artists, and places no notice still uses). It never touches `.verify/evidence/`. Name every record you create `[QA] …` so cleanup can find it, and do not credit a `[QA]` artist on a seed notice (deleting the artist removes that credit); uploaded test images stay in the shared local MinIO bucket (harmless, local only).
 
-Run cleanup after every attempt, failed ones included. To leave the database exactly as seeded instead, `bun run db:reset` (this worktree's database only).
+Run cleanup after every attempt, failed ones included. To leave the database exactly as seeded instead, `vp run db:reset` (this worktree's database only).

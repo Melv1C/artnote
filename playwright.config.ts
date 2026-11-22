@@ -25,7 +25,7 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'bun scripts/e2e-database.ts && vp dev',
+    command: 'vpx scripts/e2e-database.ts && vp dev',
     url: env.BASE_URL,
     env,
     // Never reuse a server: it would run on data this run did not seed
