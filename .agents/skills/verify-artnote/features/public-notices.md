@@ -23,11 +23,11 @@ Preconditions:
 
 - Baseline from the README. No sign-in needed: `S=$($C session reader)`, `playwright-cli -s=$S open "$U/"`. `E=$($C evidence public-notices)`.
 
-- **Open the list.** `click "getByRole('link', { name: 'Voir toutes les notices' })"`. `heading "Toutes les notices"` and "2 œuvres trouvées"; links for "L’Adoration de l’Agneau mystique" and "Paysage avec la chute d’Icare", not "L’Empire des lumières".
-- **Search.** `fill "getByRole('textbox', { name: /Rechercher par titre, artiste/ })" "icare"`. The URL becomes `/artworks?search=icare` and the count "1 œuvre trouvée"; only the Icarus card remains. Search "Magritte" gives zero results (the only Magritte notice is a draft); snapshot the empty state.
-- **Sort.** Clear the search, `click` the combobox next to "Trier par :", choose another option, and check the card order and URL change.
-- **Notice page.** `click "getByRole('link', { name: /Paysage avec la chute d’Icare/ })"`. URL `/artworks/seed-artwork-icarus`; `heading "Paysage avec la chute d’Icare"` level 1, "Pieter Bruegel l’Ancien (peintre)", "vers 1560", "Musées royaux des Beaux-Arts de Belgique", the paragraph "Au premier plan, un laboureur…", "Notice rédigée par Admin ArtNote". Save snapshot and screenshot.
-- **Draft hidden.** `goto "$U/artworks/seed-artwork-empire"`: `heading "404"`, "Page introuvable", `link "Retour à l'accueil"`.
+- **Open the list.** `click "getByRole('link', { name: 'Parcourir les notices' })"` (or the "Notices" tab on a phone). `heading "Notices"` and "2 notices"; links for "L’Adoration de l’Agneau mystique" and "Paysage avec la chute d’Icare", not "L’Empire des lumières".
+- **Search.** `fill "getByRole('searchbox', { name: 'Rechercher une notice' })" "icare"`. The URL becomes `/artworks?search=icare` and the count "1 notice"; only the Icarus card remains. Search "Magritte" gives zero results (the only Magritte notice is a draft): "Aucune notice ne correspond" with `link "Voir toutes les notices"`.
+- **Sort.** Clear the search, `click "getByRole('combobox', { name: 'Trier les notices' })"`, choose another option, and check the card order and URL change.
+- **Notice page.** `click "getByRole('link', { name: /Paysage avec la chute d’Icare/ })"`. URL `/artworks/seed-artwork-icarus`; `heading "Paysage avec la chute d’Icare"` level 1, "Pieter Bruegel l’Ancien", "vers 1560", the paragraph "Au premier plan, un laboureur…", `region "Où voir l’œuvre"` with "Musées royaux des Beaux-Arts de Belgique" and `link "Itinéraire"`, "Notice rédigée par Admin ArtNote". Save snapshot and screenshot.
+- **Draft hidden.** `goto "$U/artworks/seed-artwork-empire"`: `heading "Page introuvable"`, `link "Retour à l’accueil"`.
 - **Proof.** Snapshots of the list, the search result and the notice page, plus the 404, in `$E`.
 
 ## Gotchas

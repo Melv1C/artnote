@@ -27,7 +27,7 @@ interface ArtistSelectorProps {
 export function ArtistSelector({
   selectedArtists,
   onSelectionChange,
-  placeholder = 'Sélectionner des artistes...',
+  placeholder = 'Sélectionner des artistes…',
   className,
   disabled = false,
 }: ArtistSelectorProps) {
@@ -67,7 +67,7 @@ export function ArtistSelector({
             disabled={disabled}
           >
             {selectedArtists.length > 0
-              ? `${selectedArtists.length} artiste(s) sélectionné(s)`
+              ? `${selectedArtists.length} artiste${selectedArtists.length > 1 ? 's' : ''}`
               : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -75,12 +75,12 @@ export function ArtistSelector({
         <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput
-              placeholder="Rechercher un artiste..."
+              placeholder="Rechercher un artiste…"
               value={searchValue}
               onValueChange={setSearchValue}
             />
             <CommandList>
-              <CommandEmpty>{isLoading ? 'Chargement...' : 'Aucun artiste trouvé.'}</CommandEmpty>
+              <CommandEmpty>{isLoading ? 'Chargement…' : 'Aucun artiste trouvé.'}</CommandEmpty>
               <CommandGroup>
                 {artists.map(artist => {
                   const isSelected = selectedArtists.some(a => a.id === artist.id);

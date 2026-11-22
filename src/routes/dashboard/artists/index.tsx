@@ -1,41 +1,30 @@
+import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArtistsTable } from '@/features/artists/components/artists-table';
 import { Plus } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { createFileRoute } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/')({
+  head: () => ({ meta: [{ title: 'ArtNote - Artistes' }] }),
   component: ArtistsPage,
 });
 
 function ArtistsPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gestion des Artistes</h1>
-          <p className="text-muted-foreground mt-2">
-            Gérez les artistes et leurs informations biographiques
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/dashboard/artists/create">
-            <Plus className="mr-2 h-4 w-4" />
-            Nouvel artiste
-          </Link>
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Tous les artistes</CardTitle>
-          <CardDescription>Liste des artistes enregistrés dans la base de données</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ArtistsTable />
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <PageHeader
+        title="Artistes"
+        description="Les artistes que les notices citent, avec leurs dates."
+        actions={
+          <Button asChild>
+            <Link to="/dashboard/artists/create">
+              <Plus />
+              Nouvel artiste
+            </Link>
+          </Button>
+        }
+      />
+      <ArtistsTable />
     </div>
   );
 }

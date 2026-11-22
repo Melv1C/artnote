@@ -62,7 +62,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.avif', '.gif'],
     },
-    maxSize: 10 * 1024 * 1024, // 10MB (matching API route limit)
+    maxSize: 10 * 1024 * 1024, // 10 Mo (matching API route limit)
     disabled: isUploading,
   });
 
@@ -140,7 +140,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
             ou <span className="text-primary">cliquez pour parcourir</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            PNG, JPG, WEBP jusqu'à 10MB ({images.length}/{maxImages})
+            PNG, JPG, WEBP jusqu’à 10 Mo ({images.length}/{maxImages})
           </p>
         </div>
       </div>
@@ -246,6 +246,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                               size="sm"
                               onClick={() => removeImage(index)}
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              aria-label={`Retirer l’image ${index + 1}`}
                             >
                               <X className="h-4 w-4" />
                             </Button>

@@ -81,7 +81,7 @@ export function UsersList() {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>Gestion des utilisateurs</CardTitle>
+            <CardTitle>Tous les comptes</CardTitle>
             <CardDescription>
               {!isLoading && !error && (
                 <>
@@ -90,7 +90,7 @@ export function UsersList() {
                   {filteredUsers.length !== totalCount && ` sur ${totalCount}`}
                 </>
               )}
-              {isLoading && 'Chargement des utilisateurs...'}
+              {isLoading && 'Chargement des comptes…'}
               {error && 'Erreur lors du chargement'}
             </CardDescription>
           </div>

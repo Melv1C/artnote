@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { initials } from '@/lib/initials';
 import { UserRoleSchema } from '@/schemas/common';
 import { type User } from '@/schemas/user';
 import { type DataTableFeatures } from '@/lib/data-table';
@@ -19,14 +20,14 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
           table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label="Tout sélectionner"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={value => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label="Sélectionner la ligne"
       />
     ),
     enableSorting: false,
@@ -50,13 +51,9 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.image || undefined} alt={user.name} />
-            <AvatarFallback>
-              {user.name
-                .split(' ')
-                .map(n => n[0])
-                .join('')
-                .toUpperCase()}
+            <AvatarImage src={user.image || undefined} alt="" />
+            <AvatarFallback className="bg-accent text-xs font-semibold text-accent-foreground">
+              {initials(user.name)}
             </AvatarFallback>
           </Avatar>
           <div className="font-medium">{user.name}</div>
@@ -84,12 +81,15 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
     header: 'Rôle',
     cell: ({ row }) => {
       const role = row.original.role;
-      const roleColors = {
-        [UserRoleSchema.enum.admin]: 'destructive',
-        [UserRoleSchema.enum.user]: 'secondary',
-      } as const;
-
-      return <Badge variant={roleColors[role]}>{USER_ROLE_LABELS[role]}</Badge>;
+      // Quiet badges: colour is kept for what needs attention, a suspension
+      return (
+        <Badge
+          variant="outline"
+          className={role === UserRoleSchema.enum.admin ? 'border-primary/30 text-primary' : ''}
+        >
+          {USER_ROLE_LABELS[role]}
+        </Badge>
+      );
     },
   },
   {
@@ -98,9 +98,9 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
     cell: ({ row }) => {
       const isVerified = row.getValue('emailVerified') as boolean;
       return (
-        <Badge variant={isVerified ? 'default' : 'secondary'}>
+        <span className={isVerified ? 'text-sm' : 'text-sm text-muted-foreground'}>
           {isVerified ? 'Vérifié' : 'Non vérifié'}
-        </Badge>
+        </span>
       );
     },
   },
@@ -117,7 +117,7 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
         return <Badge variant="destructive">{isExpired ? 'Suspendu (expiré)' : 'Suspendu'}</Badge>;
       }
 
-      return <Badge variant="default">Actif</Badge>;
+      return <span className="text-sm">Actif</span>;
     },
   },
   {
@@ -128,7 +128,7 @@ export const columns: ColumnDef<DataTableFeatures, User>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Date d'inscription
+          Date d’inscription
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );

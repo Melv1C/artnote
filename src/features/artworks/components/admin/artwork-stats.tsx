@@ -1,34 +1,34 @@
 import { StatCard } from '@/components/stats/stat-card';
 import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
 import type { ArtworkStatsData } from '../../actions/artwork-queries';
-import { Archive, FileText, NotebookPen, TrendingUp } from 'lucide-react';
+import { Eye, FileText, NotebookPen, PencilLine } from 'lucide-react';
 import { Suspense, use } from 'react';
 
 // Individual components for each artwork stat
 function TotalArtworksCard({ count }: { count: Promise<number> }) {
   const totalArtworks = use(count);
-  return <StatCard title="Total Notices" value={totalArtworks} icon={FileText} />;
+  return <StatCard title="Notices" value={totalArtworks} icon={FileText} />;
 }
 
 function PublishedArtworksCard({ count }: { count: Promise<number> }) {
   const publishedCount = use(count);
-  return <StatCard title="Publiées" value={publishedCount} icon={NotebookPen} />;
+  return <StatCard title="Publiées" value={publishedCount} icon={NotebookPen} tone="success" />;
 }
 
 function DraftArtworksCard({ count }: { count: Promise<number> }) {
   const draftCount = use(count);
-  return <StatCard title="Brouillons" value={draftCount} icon={Archive} />;
+  return <StatCard title="Brouillons" value={draftCount} icon={PencilLine} tone="warning" />;
 }
 
 function TotalViewsCard({ count }: { count: Promise<number> }) {
   const totalViews = use(count);
-  return <StatCard title="Vues Totales" value={totalViews} icon={TrendingUp} />;
+  return <StatCard title="Vues" value={totalViews} icon={Eye} />;
 }
 
 export function ArtworkStats({ data }: { data: ArtworkStatsData }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Suspense fallback={<StatCardSkeleton title="Total Notices" icon={FileText} />}>
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <Suspense fallback={<StatCardSkeleton title="Notices" icon={FileText} />}>
         <TotalArtworksCard count={data.total} />
       </Suspense>
 
@@ -36,11 +36,11 @@ export function ArtworkStats({ data }: { data: ArtworkStatsData }) {
         <PublishedArtworksCard count={data.published} />
       </Suspense>
 
-      <Suspense fallback={<StatCardSkeleton title="Brouillons" icon={Archive} />}>
+      <Suspense fallback={<StatCardSkeleton title="Brouillons" icon={PencilLine} />}>
         <DraftArtworksCard count={data.drafts} />
       </Suspense>
 
-      <Suspense fallback={<StatCardSkeleton title="Vues Totales" icon={TrendingUp} />}>
+      <Suspense fallback={<StatCardSkeleton title="Vues" icon={Eye} />}>
         <TotalViewsCard count={data.views} />
       </Suspense>
     </div>

@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute('/dashboard/users')({
   // Not awaited: each stat card streams in behind its own Suspense boundary
   loader: () => loadUserStats(),
+  head: () => ({ meta: [{ title: 'ArtNote - Utilisateurs' }] }),
   component: AdminUsersPage,
 });
 

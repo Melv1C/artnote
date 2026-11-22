@@ -1,4 +1,5 @@
-import { ArtworkHeader } from '@/features/artworks/components/admin/artwork-header';
+import { PageHeader } from '@/components/layout/page-header';
+import { Button } from '@/components/ui/button';
 import {
   ArtworkListAdmin,
   ArtworkListSkeleton,
@@ -7,7 +8,8 @@ import { ArtworkStats } from '@/features/artworks/components/admin/artwork-stats
 import { changeArtworkStatus, deleteArtwork } from '@/features/artworks/actions/artwork-mutations';
 import { fetchMyArtworks, loadArtworkStats } from '@/features/artworks/actions/artwork-queries';
 import type { ArtworkStatus } from '@/schemas/common';
-import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router';
+import { Plus } from 'lucide-react';
 import { Suspense, use } from 'react';
 
 export const Route = createFileRoute('/dashboard/artworks/')({
@@ -16,6 +18,7 @@ export const Route = createFileRoute('/dashboard/artworks/')({
     stats: loadArtworkStats(),
     artworks: fetchMyArtworks(),
   }),
+  head: () => ({ meta: [{ title: 'ArtNote - Mes notices' }] }),
   component: ArtworksPage,
 });
 
@@ -23,19 +26,23 @@ function ArtworksPage() {
   const { stats, artworks } = Route.useLoaderData();
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <ArtworkHeader />
-
-      {/* Stats Cards */}
+    <div className="space-y-8">
+      <PageHeader
+        title="Mes notices"
+        description="Les notices que vous rédigez, de la première ébauche à la publication."
+        actions={
+          <Button asChild>
+            <Link to="/dashboard/artworks/create">
+              <Plus />
+              Nouvelle notice
+            </Link>
+          </Button>
+        }
+      />
       <ArtworkStats data={stats} />
-
-      {/* Main Content with ArtworkList */}
-      <div>
-        <Suspense fallback={<ArtworkListSkeleton />}>
-          <ArtworkListWrapper artworksPromise={artworks} />
-        </Suspense>
-      </div>
+      <Suspense fallback={<ArtworkListSkeleton />}>
+        <ArtworkListWrapper artworksPromise={artworks} />
+      </Suspense>
     </div>
   );
 }

@@ -75,9 +75,9 @@ export function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-[60svh] items-center justify-center" aria-busy="true">
         <div className="text-center">
-          <p>Chargement...</p>
+          <p className="text-muted-foreground">Chargement du profil…</p>
         </div>
       </div>
     );
@@ -85,11 +85,12 @@ export function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-[60svh] items-center justify-center px-4">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Accès non autorisé</h2>
-          <p className="text-muted-foreground">
-            Vous devez être connecté pour accéder à cette page.
+          <h1 className="font-serif text-3xl font-medium tracking-tight">Connectez-vous</h1>
+          <p className="mt-2 text-muted-foreground">
+            Votre profil s’affiche une fois connecté, avec le bouton « Se connecter » en haut de la
+            page.
           </p>
         </div>
       </div>
@@ -97,12 +98,12 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
+      <div className="mx-auto max-w-4xl px-4 pt-6 pb-10 sm:px-6 md:pt-12 lg:px-8">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Mon Profil</h1>
+              <h1 className="font-serif text-4xl font-medium tracking-tight">Mon profil</h1>
               <p className="text-muted-foreground mt-2">
                 Gérez vos informations personnelles et votre profil public
               </p>
@@ -146,7 +147,7 @@ export function ProfilePage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Email vérifié</span>
-                    <span className="text-sm">{user.emailVerified ? '✅ Oui' : '❌ Non'}</span>
+                    <span className="text-sm">{user.emailVerified ? 'Oui' : 'Non'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -204,7 +205,7 @@ export function ProfilePage() {
                           </Button>
                           <Button type="submit" disabled={isSubmitting || !isDirty}>
                             <Save className="mr-2 h-4 w-4" />
-                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+                            {isSubmitting ? 'Enregistrement…' : 'Enregistrer'}
                           </Button>
                         </div>
                       )}
@@ -239,7 +240,7 @@ export function ProfilePage() {
                     <div className="space-y-2">
                       <Label htmlFor="bio">Biographie</Label>
                       <p className="text-sm text-muted-foreground">
-                        Parlez de votre expertise en art et histoire de l'art
+                        Parlez de votre expertise en art et histoire de l’art
                       </p>
                       {isEditing ? (
                         <div>
@@ -250,7 +251,7 @@ export function ProfilePage() {
                                 shouldDirty: true,
                               })
                             }
-                            placeholder="Décrivez votre parcours, vos spécialisations, votre passion pour l'art..."
+                            placeholder="Décrivez votre parcours, vos spécialisations, votre passion pour l’art…"
                             className="min-h-[200px]"
                           />
                           {errors.bio && (

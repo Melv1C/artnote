@@ -9,5 +9,6 @@ export const Route = createFileRoute('/dashboard/')({
 });
 
 function AdminPage() {
-  return <AdminDashboard data={Route.useLoaderData()} />;
+  const { user } = Route.useRouteContext();
+  return <AdminDashboard data={Route.useLoaderData()} name={user.name} />;
 }

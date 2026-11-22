@@ -36,7 +36,7 @@ export function TableControls({
         <SearchInput
           value={searchValue}
           onChange={onSearchChange}
-          placeholder="Rechercher par nom, email..."
+          placeholder="Rechercher par nom, email…"
         />
 
         <FiltersDropdown

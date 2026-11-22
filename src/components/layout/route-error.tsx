@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
-import { Home, RotateCw } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
 import { useEffect } from 'react';
 
 /**
@@ -15,22 +15,22 @@ export function RouteError({ error }: ErrorComponentProps) {
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
-      <div className="max-w-md mx-auto text-center">
-        <h1 className="text-2xl font-bold tracking-tight mb-2">Une erreur est survenue</h1>
-        <p className="text-muted-foreground mb-6">
-          La page n'a pas pu être chargée. Réessayez dans un instant.
+    <div className="page-width flex min-h-[60svh] items-center justify-center py-16">
+      <div className="max-w-md text-center">
+        <h1 className="font-serif text-3xl font-medium tracking-tight">
+          La page n’a pas pu être chargée
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          Vérifiez votre connexion, puis réessayez. Si le problème persiste, revenez dans quelques
+          minutes.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button onClick={() => router.invalidate()}>
-            <RotateCw className="mr-2 h-4 w-4" />
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button onClick={() => router.invalidate()} className="rounded-full">
+            <RotateCw />
             Réessayer
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/">
-              <Home className="mr-2 h-4 w-4" />
-              Retour à l'accueil
-            </Link>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link to="/">Retour à l’accueil</Link>
           </Button>
         </div>
       </div>

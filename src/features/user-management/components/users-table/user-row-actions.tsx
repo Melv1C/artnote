@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,6 +34,7 @@ interface UserRowActionsProps {
 export function UserRowActions({ user }: UserRowActionsProps) {
   // Get query client for invalidation
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
 
   const handleCopyId = async () => {
     try {
@@ -42,7 +44,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       });
     } catch (error) {
       console.error('Copying user id failed:', error);
-      toast.error("Impossible de copier l'ID");
+      toast.error('Impossible de copier l’ID');
     }
   };
 
@@ -72,7 +74,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       await queryClient.invalidateQueries({ queryKey: userKeys.all });
     } catch (error) {
       console.error('Error banning user:', error);
-      toast.error("Erreur lors de la suspension de l'utilisateur");
+      toast.error('Erreur lors de la suspension de l’utilisateur');
     }
   };
 
@@ -88,7 +90,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
   };
 
   const handleImpersonateUser = async () => {
-    if (confirm(`Êtes-vous sûr de vouloir vous faire passer pour ${user.name} ?`)) {
+    const confirmed = await confirm({
+      title: `Se connecter en tant que ${user.name} ?`,
+      description: 'Vous verrez le site comme cette personne, pendant une heure au plus.',
+      confirmLabel: 'Continuer',
+    });
+    if (confirmed) {
       try {
         await impersonateUser({ data: user.id });
         toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
@@ -98,20 +105,26 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         window.location.reload();
       } catch (error) {
         console.error('Error impersonating user:', error);
-        toast.error("Erreur lors de l'impersonation");
+        toast.error('Erreur lors de la connexion en tant que cet utilisateur');
       }
     }
   };
 
   const handleDeleteUser = async () => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.name} ?`)) {
+    const confirmed = await confirm({
+      title: `Supprimer le compte de ${user.name} ?`,
+      description: 'Le compte et ses sessions sont supprimés. Cette action est définitive.',
+      confirmLabel: 'Supprimer le compte',
+      destructive: true,
+    });
+    if (confirmed) {
       try {
         await deleteUser({ data: user.id });
         toast.success('Utilisateur supprimé avec succès');
         await queryClient.invalidateQueries({ queryKey: userKeys.all });
       } catch (error) {
         console.error('Error deleting user:', error);
-        toast.error("Erreur lors de la suppression de l'utilisateur");
+        toast.error('Erreur lors de la suppression de l’utilisateur');
       }
     }
   };
@@ -130,7 +143,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCopyId}>Copier l'ID utilisateur</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleCopyId}>Copier l’ID utilisateur</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
@@ -163,12 +176,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         ) : (
           <DropdownMenuItem onClick={handleBanUser}>
             <Ban className="mr-2 h-4 w-4" />
-            Suspendre l'utilisateur
+            Suspendre l’utilisateur
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive" onClick={handleDeleteUser}>
-          Supprimer l'utilisateur
+          Supprimer l’utilisateur
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

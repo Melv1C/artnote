@@ -27,16 +27,18 @@ export function ArtistsTable() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un artiste..."
+            placeholder="Rechercher un artiste…"
+            aria-label="Rechercher un artiste"
             value={filters.search}
             onChange={setFilter('search')}
             className="pl-10"
           />
         </div>
         <Input
-          placeholder="Nom"
+          placeholder="Filtrer par nom"
+          aria-label="Filtrer par nom"
           value={filters.name}
           onChange={setFilter('name')}
           className="w-48"

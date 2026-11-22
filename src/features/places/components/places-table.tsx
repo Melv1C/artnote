@@ -38,16 +38,17 @@ export function PlacesTable() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un lieu..."
+            placeholder="Rechercher un lieu…"
+            aria-label="Rechercher un lieu"
             value={filters.search}
             onChange={event => setFilter('search', event.target.value)}
             className="pl-10"
           />
         </div>
         <Select value={filters.type} onValueChange={value => setFilter('type', value)}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48" aria-label="Type de lieu">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -61,12 +62,14 @@ export function PlacesTable() {
         </Select>
         <Input
           placeholder="Ville"
+          aria-label="Filtrer par ville"
           value={filters.city}
           onChange={event => setFilter('city', event.target.value)}
           className="w-32"
         />
         <Input
           placeholder="Pays"
+          aria-label="Filtrer par pays"
           value={filters.country}
           onChange={event => setFilter('country', event.target.value)}
           className="w-32"

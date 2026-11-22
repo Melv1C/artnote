@@ -3,11 +3,13 @@ import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-li
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
 import { pageMeta } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { Suspense, use } from 'react';
 
 export const Route = createFileRoute('/whats-new')({
   // Not awaited: the list streams in behind its Suspense skeleton
-  loader: () => ({ latestArtworks: fetchLatestPublishedArtworks({ data: 3 }) }),
+  loader: () => ({ latestArtworks: fetchLatestPublishedArtworks({ data: 12 }) }),
   head: () => ({
     meta: pageMeta('ArtNote - Nouveautés', 'Découvrez les dernières notices publiées sur ArtNote.'),
   }),
@@ -18,20 +20,22 @@ function WhatsNewPage() {
   const { latestArtworks } = Route.useLoaderData();
 
   return (
-    <div className="container py-8">
-      {/* Page Header */}
-      <div className="max-w-2xl mb-12">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Nouveautés</h1>
-      </div>
+    <div className="page-width pt-6 pb-10 md:pt-12">
+      <header className="mb-8 max-w-2xl md:mb-12">
+        <h1 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">Nouveautés</h1>
+        <p className="mt-2 text-muted-foreground md:text-lg">
+          Les dernières notices publiées, de la plus récente à la plus ancienne.
+        </p>
+      </header>
 
-      <Suspense fallback={<ArtworksListSkeleton />}>
-        <ArtworksList artworksPromise={latestArtworks} />
+      <Suspense fallback={<ArtworksListSkeleton count={3} />}>
+        <LatestList artworksPromise={latestArtworks} />
       </Suspense>
     </div>
   );
 }
 
-function ArtworksList({
+function LatestList({
   artworksPromise,
 }: {
   artworksPromise: ReturnType<typeof fetchLatestPublishedArtworks>;
@@ -40,17 +44,27 @@ function ArtworksList({
 
   if (latestArtworks.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-lg text-muted-foreground">Aucune notice publiée récemment.</p>
-      </div>
+      <p className="py-16 text-center text-lg text-muted-foreground">
+        Aucune notice publiée pour l’instant. Revenez bientôt.
+      </p>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {latestArtworks.map(artwork => (
-        <ArtworkCard key={artwork.id} artwork={artwork} />
+    <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+      {latestArtworks.map((artwork, index) => (
+        <li key={artwork.id} className="flex flex-col gap-3">
+          {artwork.publishedAt && (
+            <p className="text-xs font-medium text-muted-foreground">
+              Publiée le{' '}
+              <time dateTime={new Date(artwork.publishedAt).toISOString()}>
+                {format(new Date(artwork.publishedAt), 'd MMMM yyyy', { locale: fr })}
+              </time>
+            </p>
+          )}
+          <ArtworkCard artwork={artwork} priority={index < 2} />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

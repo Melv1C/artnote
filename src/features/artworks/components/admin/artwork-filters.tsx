@@ -33,22 +33,14 @@ export function ArtworkFilters({ filters, onFilterChange }: ArtworkFiltersProps)
   const activeFiltersCount = countActiveFilters(filters);
 
   return (
-    <div className="space-y-4">
-      {/* Main filter controls */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 gap-2">
-          <ArtworkSearchInput value={filters.search || ''} onChange={handleSearchChange} />
-          {/* Desktop filters dropdown */}
-          <div className="">
-            <ArtworkFiltersDropdown
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-              activeFiltersCount={activeFiltersCount}
-            />
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-1 gap-2 lg:max-w-xl">
+      <ArtworkSearchInput value={filters.search || ''} onChange={handleSearchChange} />
+      <ArtworkFiltersDropdown
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onClearFilters={handleClearFilters}
+        activeFiltersCount={activeFiltersCount}
+      />
     </div>
   );
 }

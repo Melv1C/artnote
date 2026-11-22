@@ -7,14 +7,14 @@ test.describe('notice ownership', () => {
     await signIn('admin');
     await page.goto(`/dashboard/artworks/${notices.empire.id}/edit`);
     await expect(page.getByRole('heading', { name: 'Modifier la notice' })).toBeVisible();
-    await expect(page.getByPlaceholder("Titre de l'œuvre")).toHaveValue(notices.empire.title);
+    await expect(page.getByLabel('Titre *', { exact: true })).toHaveValue(notices.empire.title);
   });
 
   test('another writer finds no such notice to edit', async ({ page, signIn }) => {
     await signIn('writer');
     await page.goto(`/dashboard/artworks/${notices.empire.id}/edit`);
     await expect(page.getByText('Page introuvable')).toBeVisible();
-    await expect(page.getByPlaceholder("Titre de l'œuvre")).toHaveCount(0);
+    await expect(page.getByLabel('Titre *', { exact: true })).toHaveCount(0);
   });
 
   test("another writer's notice list leaves it out", async ({ page, signIn }) => {

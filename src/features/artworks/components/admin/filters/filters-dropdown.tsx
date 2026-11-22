@@ -74,7 +74,7 @@ export function ArtworkFiltersDropdown({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Filter className="h-4 w-4" />
-          Filtres & Tri
+          Filtres et tri
           {activeFiltersCount > 0 && (
             <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
               {activeFiltersCount}
@@ -96,7 +96,7 @@ export function ArtworkFiltersDropdown({
             value={getSelectedStatusOptions()}
             onChange={handleStatusChange}
             defaultOptions={statusOptions}
-            placeholder="Sélectionner les statuts..."
+            placeholder="Sélectionner les statuts…"
             emptyIndicator={
               <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                 Aucun statut trouvé.
@@ -138,8 +138,8 @@ export function ArtworkFiltersDropdown({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="desc">Plus récent d'abord</SelectItem>
-                <SelectItem value="asc">Plus ancien d'abord</SelectItem>
+                <SelectItem value="desc">Plus récent d’abord</SelectItem>
+                <SelectItem value="asc">Plus ancien d’abord</SelectItem>
               </SelectContent>
             </Select>
           </div>

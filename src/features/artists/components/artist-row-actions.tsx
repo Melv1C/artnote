@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,17 +18,24 @@ import { artistKeys } from '../hooks/use-artists';
 
 export function ArtistRowActions({ artist }: { artist: Artist }) {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const fullName = `${artist.firstName} ${artist.lastName}`;
 
   const handleDelete = async () => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${fullName}" ?`)) return;
+    const confirmed = await confirm({
+      title: `Supprimer ${fullName} ?`,
+      description: 'L’artiste sera retiré des notices qui le citent. Cette action est définitive.',
+      confirmLabel: 'Supprimer',
+      destructive: true,
+    });
+    if (!confirmed) return;
     try {
       await deleteArtist({ data: artist.id });
       await queryClient.invalidateQueries({ queryKey: artistKeys.all });
       toast.success('Artiste supprimé');
     } catch (error) {
       console.error('Deleting artist failed:', error);
-      toast.error("Erreur lors de la suppression de l'artiste");
+      toast.error('Erreur lors de la suppression de l’artiste');
     }
   };
 

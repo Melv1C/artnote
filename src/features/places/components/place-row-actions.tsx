@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,10 +18,18 @@ import { placeKeys } from '../hooks/use-places';
 
 export function PlaceRowActions({ place }: { place: Place }) {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const fullName = place.name;
 
   const handleDelete = async () => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${fullName}" ?`)) return;
+    const confirmed = await confirm({
+      title: `Supprimer ${fullName} ?`,
+      description:
+        'Les notices conservées dans ce lieu n’auront plus de lieu. Cette action est définitive.',
+      confirmLabel: 'Supprimer',
+      destructive: true,
+    });
+    if (!confirmed) return;
     try {
       await deletePlace({ data: place.id });
       await queryClient.invalidateQueries({ queryKey: placeKeys.all });

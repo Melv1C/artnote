@@ -15,7 +15,7 @@ export const Route = createFileRoute('/artworks/')({
   head: () => ({
     meta: pageMeta(
       'ArtNote - Toutes les notices',
-      "Explorez toutes les notices sur l'histoire de la peinture disponibles sur ArtNote.",
+      'Explorez toutes les notices sur l’histoire de la peinture disponibles sur ArtNote.',
     ),
   }),
   component: ArtworksPage,
@@ -23,22 +23,25 @@ export const Route = createFileRoute('/artworks/')({
 
 function ArtworksPage() {
   const { artworks } = Route.useLoaderData();
+  const { search, artist, place, medium, year } = Route.useLoaderDeps();
+  const isFiltered = Boolean(search || artist || place || medium || year);
 
   return (
-    <div className="container py-8">
-      {/* Page Header */}
-      <div className="max-w-2xl mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Toutes les notices</h1>
-      </div>
+    <div className="page-width pt-6 pb-10 md:pt-12">
+      <header className="mb-6 max-w-2xl md:mb-8">
+        <h1 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">Notices</h1>
+        <p className="mt-2 text-muted-foreground md:text-lg">
+          Chaque notice raconte une œuvre : son sujet, son histoire, et où la voir.
+        </p>
+      </header>
 
-      {/* Filters */}
-      <div className="mb-8">
+      {/* Stays at hand while scrolling the list */}
+      <div className="sticky top-(--header-total) page-bleed z-30 mb-8 bg-background py-3">
         <ArtworksFilter />
       </div>
 
-      {/* Artworks List */}
       <Suspense fallback={<ArtworksListSkeleton />}>
-        <ArtworksList artworksPromise={artworks} />
+        <ArtworksList artworksPromise={artworks} isFiltered={isFiltered} />
       </Suspense>
     </div>
   );
