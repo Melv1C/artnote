@@ -1,34 +1,84 @@
 name: Release
 
+# Run from the Actions tab on main: bumps package.json, tags the bump commit,
+# creates the GitHub Release and moves `production`, which Dokploy deploys (ADR 0012).
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to increase
+        required: true
+        type: choice
+        options: [patch, minor, major]
 
 permissions:
   contents: write
+  checks: read
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  promote:
-    name: Move production branch to tag
+  release:
+    name: Bump, tag and deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Holds RELEASE_DEPLOY_KEY; only main may deploy to it, so no other branch's workflow can read the key
+    environment: release
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - name: Release only from main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run the release from main."
+          exit 1
+
+      # The deploy key is the rulesets' only bypass actor: it may push to main, v* tags and production
+      - uses: actions/checkout@v7
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
 
-      - name: Require tagged commit to be on main
-        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Require a passing Check on the commit being released
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs?check_name=Check" \
+            --jq '[.check_runs[] | select(.status == "completed")][0].conclusion // "none"')
+          echo "Check on $GITHUB_SHA: $conclusion"
+          if [[ "$conclusion" != "success" ]]; then
+            echo "::error::Release needs a passing Check on main's HEAD."
+            exit 1
+          fi
 
-      # The Dokploy production app deploys the `production` branch on every push to it
-      - name: Push tagged commit to production
-        run: git push --force origin "$GITHUB_SHA:refs/heads/production"
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Bump the version and tag it
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bun pm version "$BUMP" --message "chore(release): v%s"
+          changed=$(git diff --name-only HEAD~1 HEAD)
+          if [[ "$changed" != "package.json" ]]; then
+            echo "::error::The release commit changed more than package.json: $changed"
+            exit 1
+          fi
+          echo "TAG=v$(node -p 'require("./package.json").version')" >> "$GITHUB_ENV"
+
+      # Atomic: main and the tag move together or not at all (fails if main moved since the run started)
+      - name: Push the release commit and its tag
+        run: git push --atomic origin HEAD:refs/heads/main "refs/tags/$TAG"
 
       - name: Create the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
+        run: gh release create "$TAG" --verify-tag --generate-notes --title "ArtNote $TAG"
+
+      # The Dokploy production app deploys the `production` branch on every push to it
+      - name: Move production to the release
+        run: git push --force origin HEAD:refs/heads/production

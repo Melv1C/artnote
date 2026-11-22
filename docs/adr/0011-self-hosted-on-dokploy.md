@@ -6,11 +6,11 @@ status: accepted
 
 ArtNote ran on Vercel, with Prisma Postgres behind Prisma Accelerate and uploads in Vercel Blob. It now runs on our own Dokploy server: Dokploy builds the `Dockerfile` for each environment, Traefik serves it, and each environment has its own Postgres and its own MinIO. Previews share staging's database and MinIO, as they shared the preview database before (ADR 0006).
 
-| Environment | Address                      | Deploys on                                         |
-| ----------- | ---------------------------- | -------------------------------------------------- |
-| Production  | `artnote.melvyn.be`          | a push to `production`, moved by a `vX.Y.Z` tag    |
-| Staging     | `stg.artnote.melvyn.be`      | a push to `main`                                   |
-| Preview     | `*.artnote.melvyn.be` per PR | a PR from this repository with the `preview` label |
+| Environment | Address                      | Deploys on                                            |
+| ----------- | ---------------------------- | ----------------------------------------------------- |
+| Production  | `artnote.melvyn.be`          | a push to `production`, moved by a release (ADR 0012) |
+| Staging     | `stg.artnote.melvyn.be`      | a push to `main`                                      |
+| Preview     | `*.artnote.melvyn.be` per PR | a PR from this repository with the `preview` label    |
 
 ## Considered options
 
