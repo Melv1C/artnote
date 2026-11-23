@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { shortenAddressLinks } from './rich-text-links';
+import { linkHref, shortenAddressLinks } from './rich-text-links';
 
 describe('shortenAddressLinks', () => {
   it('shows a link whose text is its address as the site it points to', () => {
@@ -26,5 +26,22 @@ describe('shortenAddressLinks', () => {
   it('keeps a link whose address cannot be read', () => {
     const html = '<a href="not a url">https://broken</a>';
     expect(shortenAddressLinks(html)).toBe(html);
+  });
+});
+
+describe('linkHref', () => {
+  it('opens an address typed without its protocol over https', () => {
+    expect(linkHref('  kikirpa.be/fr ')).toBe('https://kikirpa.be/fr');
+  });
+
+  it('keeps a web or mail address as written', () => {
+    expect(linkHref('http://www.fine-arts-museum.be')).toBe('http://www.fine-arts-museum.be');
+    expect(linkHref('mailto:info@kikirpa.be')).toBe('mailto:info@kikirpa.be');
+  });
+
+  it('refuses an empty address or one that would run code', () => {
+    expect(linkHref('   ')).toBeNull();
+    expect(linkHref('javascript:alert(1)')).toBeNull();
+    expect(linkHref('data:text/html,<script>alert(1)</script>')).toBeNull();
   });
 });

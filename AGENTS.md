@@ -39,7 +39,7 @@ Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`co
 | `vp run fix`                          | Format and apply lint fixes (`vp check --fix`)                                                                                     |
 | `vp check`                            | Format check, type-aware lint and TypeScript type check in one pass; needs a generated Prisma client                               |
 | `vp test` / `vp test watch`           | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`); tests import from `vite-plus/test`                                 |
-| `vp run test:e2e`                     | Playwright end-to-end tests (`e2e/`) on a throwaway database; needs the Docker Postgres (End-to-end tests below)                   |
+| `vp run test:e2e`                     | Playwright end-to-end tests (`e2e/`) on a throwaway database; needs the Docker Postgres and MinIO (End-to-end tests below)         |
 | `vp exec knip`                        | Unused files, exports and dependencies. Delete what it reports rather than ignoring it                                             |
 | `vp run worktree:setup`               | Write `.env` if missing, start Postgres and MinIO, create this worktree's database, migrate, generate, seed. Safe to re-run.       |
 | `vp run db:seed`                      | Re-run the seed (idempotent)                                                                                                       |

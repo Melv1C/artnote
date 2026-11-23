@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
+import { RichTextLineEditor } from '@/components/ui/rich-text-line-editor';
 import { type ArtworkImage } from '@/schemas/artwork-image';
 import { uploadArtworkImage } from '../../actions/artwork-mutations';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
@@ -162,7 +161,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                           ${imageData.isMain ? 'ring-2 ring-primary' : ''}
                         `}
                       >
-                        <CardContent className="p-4">
+                        <CardContent className="space-y-3 p-4">
                           <div className="flex items-center gap-4">
                             {/* Drag Handle */}
                             <div {...provided.dragHandleProps} className="cursor-grab">
@@ -180,63 +179,23 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                               />
                             </div>
 
-                            {/* Image Info */}
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleMainImage(index)}
-                                  className="h-8 px-2"
-                                >
-                                  {imageData.isMain ? (
-                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                  ) : (
-                                    <StarOff className="h-4 w-4" />
-                                  )}
-                                  <span className="ml-1 text-xs">
-                                    {imageData.isMain ? 'Principale' : 'Définir comme principale'}
-                                  </span>
-                                </Button>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <Label htmlFor={`legend-${index}`} className="text-xs min-w-14">
-                                  Légende:
-                                </Label>
-                                <RichTextEditor
-                                  value={imageData.legend || ''}
-                                  onChange={value => updateLegend(index, value || '')}
-                                  config={{
-                                    ...editorPresets.singleLine,
-                                    toolbar: {
-                                      ...editorPresets.singleLine.toolbar,
-                                      alignment: {
-                                        left: true,
-                                        center: true,
-                                        right: true,
-                                        justify: true,
-                                      },
-                                    },
-                                  }}
-                                  placeholder="Ajouter une légende (optionnel)"
-                                  className="flex-1"
-                                />
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <Label htmlFor={`source-${index}`} className="text-xs min-w-14">
-                                  Source:
-                                </Label>
-                                <RichTextEditor
-                                  value={imageData.source || ''}
-                                  onChange={value => updateSource(index, value || '')}
-                                  config={editorPresets.singleLine}
-                                  placeholder="Ajouter une source (optionnel)"
-                                  className="flex-1"
-                                />
-                              </div>
+                            <div className="flex-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleMainImage(index)}
+                                className="h-8 px-2"
+                              >
+                                {imageData.isMain ? (
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                ) : (
+                                  <StarOff className="h-4 w-4" />
+                                )}
+                                <span className="ml-1 text-xs">
+                                  {imageData.isMain ? 'Principale' : 'Définir comme principale'}
+                                </span>
+                              </Button>
                             </div>
 
                             {/* Remove Button */}
@@ -251,6 +210,34 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
                               <X className="h-4 w-4" />
                             </Button>
                           </div>
+
+                          {/* Legend and source, at full width: a legend is often long */}
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium" aria-hidden>
+                              Légende
+                            </p>
+                            <RichTextLineEditor
+                              label={`Légende de l’image ${index + 1}`}
+                              value={imageData.legend}
+                              onChange={value => updateLegend(index, value ?? '')}
+                              placeholder="Ajouter une légende (optionnel)"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium" aria-hidden>
+                              Source
+                            </p>
+                            <RichTextLineEditor
+                              label={`Source de l’image ${index + 1}`}
+                              value={imageData.source}
+                              onChange={value => updateSource(index, value ?? '')}
+                              placeholder="Ajouter une source (optionnel)"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Sélectionnez des mots pour les mettre en italique ou en gras, ou pour en
+                            faire un lien.
+                          </p>
                         </CardContent>
                       </Card>
                     )}
