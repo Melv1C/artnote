@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input';
 import { linkHref } from '@/lib/rich-text-links';
 import { cn } from '@/lib/utils';
 import Document from '@tiptap/extension-document';
+import { PluginKey } from '@tiptap/pm/state';
 import { type Editor, EditorContent, useEditor } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
@@ -103,11 +104,14 @@ export function RichTextLineEditor({
     }
   }, [value, editor]);
 
+  // The bubble only checks whether to show when the selection or text changes: opening the
+  // address for an empty selection, or dropping it, tells it directly
+  const [bubbleKey] = useState(() => new PluginKey('richTextLineBubble'));
   const showLinkDraft = (draft: string | null) => {
     editingLink.current = draft !== null;
     setLinkDraft(draft);
-    // Let the bubble decide again, now that it may have to show for an empty selection
-    if (editor) editor.view.dispatch(editor.state.tr);
+    if (editor)
+      editor.view.dispatch(editor.state.tr.setMeta(bubbleKey, draft === null ? 'hide' : 'show'));
   };
 
   useEffect(() => {
@@ -123,6 +127,23 @@ export function RichTextLineEditor({
       editingLink.current || (editor.isFocused && (from !== to || editor.isActive('link'))),
     [],
   );
+
+  // A press anywhere but the address bubble or this field drops the draft: the bubble itself
+  // only hides on its own editor's events, and would stay open over the form
+  const linkDraftRef = useRef<HTMLDivElement>(null);
+  const draftOpen = linkDraft !== null;
+  useEffect(() => {
+    if (!draftOpen || !editor) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (linkDraftRef.current?.contains(target) || editor.view.dom.contains(target)) return;
+      editingLink.current = false;
+      setLinkDraft(null);
+      editor.view.dispatch(editor.state.tr.setMeta(bubbleKey, 'hide'));
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [draftOpen, editor, bubbleKey]);
 
   if (!editor) {
     return (
@@ -145,6 +166,8 @@ export function RichTextLineEditor({
           text: (linkDraft ?? '').trim(),
           marks: [{ type: 'link', attrs: { href: target } }],
         })
+        // What the writer types next is not part of the link
+        .unsetMark('link')
         .run();
     } else {
       chain.extendMarkRange('link').setLink({ href: target }).run();
@@ -170,6 +193,7 @@ export function RichTextLineEditor({
 
       <BubbleMenu
         editor={editor}
+        pluginKey={bubbleKey}
         options={bubbleOptions}
         shouldShow={shouldShow}
         role="toolbar"
@@ -178,7 +202,7 @@ export function RichTextLineEditor({
       >
         {linkDraft !== null ? (
           // No <form>: it would submit the notice form around this field
-          <div className="flex items-center gap-1">
+          <div ref={linkDraftRef} className="flex items-center gap-1">
             <Input
               autoFocus
               aria-label="Adresse du lien"
