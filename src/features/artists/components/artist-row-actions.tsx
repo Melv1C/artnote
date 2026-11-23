@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +20,7 @@ import { artistKeys } from '../hooks/use-artists';
 export function ArtistRowActions({ artist }: { artist: Artist }) {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
-  const fullName = `${artist.firstName} ${artist.lastName}`;
+  const fullName = artistFullName(artist);
 
   const handleDelete = async () => {
     const confirmed = await confirm({

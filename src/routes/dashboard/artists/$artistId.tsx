@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { PageHeader } from '@/components/layout/page-header';
 import { ArtistForm } from '@/features/artists/components/artist-form';
 import { fetchArtist } from '@/features/artists/actions/artist-queries';
@@ -13,10 +14,7 @@ function EditArtistPage() {
   const artist = Route.useLoaderData();
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader
-        title={`${artist.firstName} ${artist.lastName}`}
-        description="Modifier l’artiste"
-      />
+      <PageHeader title={artistFullName(artist)} description="Modifier l’artiste" />
       <div className="rounded-xl border bg-card p-6 shadow-xs sm:p-8">
         <ArtistForm artist={artist} />
       </div>

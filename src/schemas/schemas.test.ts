@@ -146,6 +146,11 @@ describe('ArtistFormSchema', () => {
     expect(ArtistFormSchema.parse({ ...artist, deathDate: ' 1569 ' }).deathDate).toBe('1569');
   });
 
+  it('takes an artist known by a single name, without a last name', () => {
+    expect(ArtistFormSchema.parse({ firstName: 'Giotto', lastName: '' }).lastName).toBe('');
+    expect(ArtistFormSchema.safeParse({ firstName: '', lastName: 'Giotto' }).success).toBe(false);
+  });
+
   it('bounds a date’s length', () => {
     expect(ArtistFormSchema.safeParse({ ...artist, birthDate: 'x'.repeat(101) }).success).toBe(
       false,

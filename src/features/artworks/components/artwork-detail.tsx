@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
@@ -66,7 +67,7 @@ export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
               {dimensions && <Fact label="Dimensions">{dimensions}</Fact>}
               {roles.map(({ artist: a, role }) => (
                 <Fact key={a.id} label={capitalize(role ?? '')}>
-                  {a.firstName} {a.lastName}
+                  {artistFullName(a)}
                 </Fact>
               ))}
             </dl>
