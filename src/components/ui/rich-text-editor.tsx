@@ -12,7 +12,6 @@ import { Superscript } from '@tiptap/extension-superscript';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
-import { type EditorView } from '@tiptap/pm/view';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import {
@@ -94,7 +93,6 @@ export interface RichTextEditorToolbarConfig {
 export interface RichTextEditorConfig {
   toolbar?: RichTextEditorToolbarConfig;
   // Editor behavior
-  singleLine?: boolean;
   minHeight?: string;
   maxHeight?: string;
   // Extensions to disable
@@ -119,7 +117,6 @@ const defaultConfig: RichTextEditorConfig = {
     links: { enabled: true },
     footnotes: { enabled: true },
   },
-  singleLine: false,
   minHeight: '150px',
 };
 
@@ -130,15 +127,6 @@ export const editorPresets = {
     toolbar: {
       formatting: { bold: true, italic: true },
     },
-  } as RichTextEditorConfig,
-
-  // Single line editor (no headings, lists, etc.)
-  singleLine: {
-    toolbar: {
-      formatting: { bold: true, italic: true, underline: true },
-      links: { enabled: true },
-    },
-    singleLine: true,
   } as RichTextEditorConfig,
 
   // Full featured editor
@@ -216,17 +204,6 @@ const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = de
     bold: config.toolbar?.formatting?.bold !== false,
     italic: config.toolbar?.formatting?.italic !== false,
     strike: config.toolbar?.formatting?.strikethrough !== false,
-    // Disable hard breaks in single line mode
-    hardBreak: !config.singleLine,
-    // Disable enter key in single line mode
-    ...(config.singleLine
-      ? {
-          heading: false,
-          blockquote: false,
-          bulletList: false,
-          orderedList: false,
-        }
-      : {}),
   };
 
   extensions.push(StarterKit.configure(starterKitConfig));
@@ -291,7 +268,7 @@ const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = de
     );
   }
 
-  if (config.toolbar?.footnotes?.enabled !== false && !config.singleLine) {
+  if (config.toolbar?.footnotes?.enabled !== false) {
     extensions.push(
       Document.extend({
         content: 'block+ footnotes?',
@@ -313,22 +290,8 @@ const getEditorProps = (isViewer = false, config: RichTextEditorConfig = default
     attributes: {
       class: `prose prose-sm max-w-none ${
         isViewer ? '' : `min-h-[${minHeight}]`
-      } ${maxHeight ? `max-h-[${maxHeight}] overflow-y-auto` : ''} ${
-        config.singleLine ? 'prose-p:my-0 prose-p:leading-normal' : ''
-      } prose-headings:font-bold prose-headings:leading-tight prose-h1:text-2xl prose-h1:mt-6 prose-h1:mb-4 prose-h2:text-xl prose-h2:mt-5 prose-h2:mb-3 prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 focus:outline-none`,
+      } ${maxHeight ? `max-h-[${maxHeight}] overflow-y-auto` : ''} prose-headings:font-bold prose-headings:leading-tight prose-h1:text-2xl prose-h1:mt-6 prose-h1:mb-4 prose-h2:text-xl prose-h2:mt-5 prose-h2:mb-3 prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 focus:outline-none`,
     },
-    ...(config.singleLine
-      ? {
-          handleKeyDown: (view: EditorView, event: KeyboardEvent) => {
-            // Prevent Enter key in single line mode
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              return true;
-            }
-            return false;
-          },
-        }
-      : {}),
   };
 };
 
@@ -371,14 +334,14 @@ export function RichTextEditor({
   }, [value, editor]);
 
   if (!editor) {
-    const minHeight = finalConfig.singleLine ? '80px' : '200px';
     return (
-      <div className={cn('border rounded-lg animate-pulse', className)} style={{ minHeight }}>
-        {!finalConfig.singleLine && (
-          <div className="border-b p-3">
-            <div className="h-8 bg-muted rounded w-full"></div>
-          </div>
-        )}
+      <div
+        className={cn('border rounded-lg animate-pulse', className)}
+        style={{ minHeight: '200px' }}
+      >
+        <div className="border-b p-3">
+          <div className="h-8 bg-muted rounded w-full"></div>
+        </div>
         <div className="p-4 space-y-3">
           <div className="h-4 bg-muted rounded w-3/4"></div>
           <div className="h-4 bg-muted rounded w-1/2"></div>
@@ -391,11 +354,10 @@ export function RichTextEditor({
   // Helper functions to check if toolbar sections should be shown
   const showHistory = finalConfig.toolbar?.history?.undo || finalConfig.toolbar?.history?.redo;
   const showHeadings =
-    !finalConfig.singleLine &&
-    (finalConfig.toolbar?.headings?.h1 ||
-      finalConfig.toolbar?.headings?.h2 ||
-      finalConfig.toolbar?.headings?.h3 ||
-      finalConfig.toolbar?.headings?.paragraph);
+    finalConfig.toolbar?.headings?.h1 ||
+    finalConfig.toolbar?.headings?.h2 ||
+    finalConfig.toolbar?.headings?.h3 ||
+    finalConfig.toolbar?.headings?.paragraph;
   const showFormatting =
     finalConfig.toolbar?.formatting?.bold ||
     finalConfig.toolbar?.formatting?.italic ||
@@ -409,12 +371,11 @@ export function RichTextEditor({
     finalConfig.toolbar?.alignment?.right ||
     finalConfig.toolbar?.alignment?.justify;
   const showBlocks =
-    !finalConfig.singleLine &&
-    (finalConfig.toolbar?.blocks?.bulletList ||
-      finalConfig.toolbar?.blocks?.orderedList ||
-      finalConfig.toolbar?.blocks?.blockquote);
+    finalConfig.toolbar?.blocks?.bulletList ||
+    finalConfig.toolbar?.blocks?.orderedList ||
+    finalConfig.toolbar?.blocks?.blockquote;
   const showLinks = finalConfig.toolbar?.links?.enabled;
-  const showFootnotes = !finalConfig.singleLine && finalConfig.toolbar?.footnotes?.enabled;
+  const showFootnotes = finalConfig.toolbar?.footnotes?.enabled;
 
   // Count visible sections for conditional separators
   const visibleSections = [
@@ -816,12 +777,7 @@ export function RichTextEditor({
       <div className="relative p-4">
         <EditorContent
           editor={editor}
-          className={cn(
-            finalConfig.singleLine
-              ? '[&_.ProseMirror]:min-h-[40px]'
-              : '[&_.ProseMirror]:min-h-[150px]',
-            headingsClass,
-          )}
+          className={cn('[&_.ProseMirror]:min-h-[150px]', headingsClass)}
         />
 
         {/* Placeholder */}

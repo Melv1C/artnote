@@ -53,6 +53,12 @@ jobs:
       # The run uses artnote_e2e on port 4000 (scripts/e2e-env.ts)
       PRISMA_DATABASE_URL: postgresql://artnote:artnote@localhost:5432/artnote
       BASE_URL: http://localhost:3000
+      # Image uploads go to the MinIO of compose.yaml, as locally (.env.example)
+      S3_ENDPOINT: http://localhost:9000
+      S3_BUCKET: artnote
+      S3_ACCESS_KEY_ID: artnote
+      S3_SECRET_ACCESS_KEY: artnote-dev-storage
+      S3_PUBLIC_URL: http://localhost:9000/artnote
     steps:
       - uses: actions/checkout@v7
 
@@ -64,6 +70,9 @@ jobs:
       - run: vp exec prisma generate
 
       - run: vp exec playwright install --with-deps chromium
+
+      # MinIO and its bucket, started as worktree:setup does: a job service cannot take MinIO's command
+      - run: docker compose up -d --wait storage && docker compose run --rm storage-init
 
       - run: vp run test:e2e
 
