@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { NotFound } from '@/components/layout/not-found';
 import { fetchPublishedArtwork } from '@/features/artworks/actions/artwork-queries';
 import { useNoticeReading } from '@/features/analytics/hooks/use-notice-reading';
@@ -22,7 +23,7 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
       meta: [
         ...pageMeta(
           `ArtNote - ${artwork.title}`,
-          `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(artist => `${artist.artist.firstName} ${artist.artist.lastName}`).join(', ')}.`,
+          `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(({ artist }) => artistFullName(artist)).join(', ')}.`,
         ),
         ...ogImageMeta(
           siteUrl,

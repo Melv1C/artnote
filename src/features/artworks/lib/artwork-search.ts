@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import type { Prisma } from '@/generated/prisma/client';
 import { containsInsensitive as contains } from '@/lib/prisma-filters';
 import { SearchTextSchema } from '@/schemas/common';
@@ -117,7 +118,7 @@ type WithArtists = { artists: { artist: { firstName: string; lastName: string } 
 export function sortByFirstArtist<T extends WithArtists>(artworks: T[], order: 'asc' | 'desc') {
   const name = (artwork: T) => {
     const first = artwork.artists[0]?.artist;
-    return first ? `${first.firstName} ${first.lastName}` : '';
+    return first ? artistFullName(first) : '';
   };
   const direction = order === 'desc' ? -1 : 1;
   return artworks.toSorted(

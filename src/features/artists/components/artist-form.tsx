@@ -53,8 +53,8 @@ export function ArtistForm({ artist }: ArtistFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName">Nom *</Label>
-          <Input id="lastName" name="lastName" defaultValue={artist?.lastName} required />
+          <Label htmlFor="lastName">Nom</Label>
+          <Input id="lastName" name="lastName" defaultValue={artist?.lastName} />
         </div>
 
         <div className="space-y-2">

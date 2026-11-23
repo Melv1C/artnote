@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import type { ArtworkImage } from '@/schemas/artwork-image';
 
 interface NamedArtist {
@@ -7,7 +8,7 @@ interface NamedArtist {
 
 /** "Pieter Bruegel l’Ancien", or "Hubert van Eyck et Jan van Eyck" for two, "A, B et C" for more. */
 export function artistNames(artists: NamedArtist[]): string {
-  const names = artists.map(({ artist }) => `${artist.firstName} ${artist.lastName}`.trim());
+  const names = artists.map(({ artist }) => artistFullName(artist));
   if (names.length <= 1) return names[0] ?? '';
   return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`;
 }

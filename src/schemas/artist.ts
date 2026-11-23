@@ -44,10 +44,13 @@ export const ArtistFiltersSchema = PaginationSchema.extend({
 /** A birth or death date as the sources give it: "1950", "01/01/1950", "vers 1525", "XIXe siècle". */
 const artistDate = z.string().trim().max(100);
 
-/** What the artist form submits. Empty strings mean "not set". */
+/**
+ * What the artist form submits. Empty strings mean "not set". An artist known by a single name
+ * (Giotto) has only a first name.
+ */
 export const ArtistFormSchema = z.object({
   firstName: z.string().trim().min(1, 'Le prénom est requis').max(100, 'Le prénom est trop long'),
-  lastName: z.string().trim().min(1, 'Le nom est requis').max(100, 'Le nom est trop long'),
+  lastName: z.string().trim().max(100, 'Le nom est trop long').optional(),
   birthDate: artistDate.optional(),
   deathDate: artistDate.optional(),
   biography: z.string().max(100_000).optional(),

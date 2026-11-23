@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { Badge } from '@/components/ui/badge';
 import type { ArtistWithRelations } from '@/schemas/artist';
 import type { DataTableFeatures } from '@/lib/data-table';
@@ -11,7 +12,7 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
     header: 'Nom',
     cell: ({ row }) => {
       const artist = row.original;
-      const fullName = `${artist.firstName} ${artist.lastName}`;
+      const fullName = artistFullName(artist);
       return (
         <Link
           to="/dashboard/artists/$artistId"

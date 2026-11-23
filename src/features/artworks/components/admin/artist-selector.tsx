@@ -1,3 +1,4 @@
+import { artistFullName } from '@/features/artists/lib/artist-name';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,7 +53,7 @@ export function ArtistSelector({
   };
 
   const formatArtistName = (artist: Artist) => {
-    return `${artist.firstName} ${artist.lastName}`;
+    return artistFullName(artist);
   };
 
   return (
@@ -87,7 +88,7 @@ export function ArtistSelector({
                   return (
                     <CommandItem
                       key={artist.id}
-                      value={`${artist.firstName} ${artist.lastName}`}
+                      value={artistFullName(artist)}
                       onSelect={() => handleSelect(artist)}
                     >
                       <Check
