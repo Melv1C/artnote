@@ -138,12 +138,14 @@ Once every place on staging and production has a position, the database makes it
 A good test checks behaviour a reader or writer can see, or a pure function's input and output. It never checks MapLibre internals, the DOM structure of the map, or calls to Nominatim. No test touches the network: Nominatim is never called, and OpenFreeMap tiles failing to load in tests must not fail them.
 
 **Unit tests (Vitest, next to the code in `lib/`)**
+
 - `buildPlaceWhere` with the missing-position flag, alone and combined with search and type. Prior art: `place-filters.test.ts`.
 - The Nominatim response transformation: full address; city from town or village; missing house number; missing fields; an empty list. It uses a recorded sample response as a fixture.
 - Applying a result to the form: fills only empty fields and always sets the position.
 - The place form schema: refuses a missing latitude or longitude with the French message, accepts a full position, and keeps the range checks. Prior art: `schemas.test.ts`.
 
 **End-to-end tests (Playwright, `e2e/`)**
+
 - Place form: saving a place without a position shows the error. Typing a latitude and longitude saves it, and the places list no longer shows "Sans position" for it.
 - Places list: the "Sans position" filter shows only places without a position. The seed needs at least one place without a position for this.
 - Map: `/carte` shows the seed's published places with the right number of notices. A place whose only notice is a draft doesn't appear. Opening a place shows its notices, and one link opens the notice page. A phone-sized test checks that the details open as a bottom panel. Prior art: `reading.spec.ts`, `phone.spec.ts`.
