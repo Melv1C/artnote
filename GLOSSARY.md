@@ -20,6 +20,14 @@ _Avoid_: Author (reserved for the writer's public face), painter
 Where a painting can be seen: a museum, a church, a public space or another site.
 _Avoid_: Location, venue, museum (a museum is one kind of place)
 
+**Position**:
+The point on the map where a place is, given by its latitude and longitude. Every place has one.
+_Avoid_: Coordinates, location, geo
+
+**Map**:
+The public page that shows each place with at least one published notice at its position, with how many published notices it has.
+_Avoid_: Plan, carte (in code)
+
 **Image**:
 An uploaded picture of a painting, reusable across notices.
 _Avoid_: Photo, media
