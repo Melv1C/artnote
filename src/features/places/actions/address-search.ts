@@ -36,17 +36,16 @@ export const searchAddress = createServerFn({ method: 'GET' })
       'accept-language': 'fr',
     }).toString();
 
-    let places;
     try {
       const response = await fetch(url, {
         headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (!response.ok) throw new Error(`Nominatim answered ${response.status}`);
-      places = NominatimResponseSchema.parse(await response.json());
+      const places = NominatimResponseSchema.parse(await response.json());
+      return z.array(AddressResultSchema).parse(toAddressResults(places));
     } catch (error) {
       console.error('Address search failed:', error);
       throw new Error('La recherche d’adresse a échoué. Réessayez ou placez le repère à la main.');
     }
-    return z.array(AddressResultSchema).parse(toAddressResults(places));
   });
