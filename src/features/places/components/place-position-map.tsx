@@ -15,6 +15,8 @@ interface PlacePositionMapProps {
   position: PlacePosition | null;
   /** Called when the writer drags the marker or clicks the map. */
   onChange: (position: PlacePosition) => void;
+  /** A position to fly to and zoom in on, such as an address search result; each new one moves the map. */
+  focus?: PlacePosition | null;
 }
 
 /**
@@ -22,7 +24,7 @@ interface PlacePositionMapProps {
  * clicks the map) to move. Without a position it opens on Belgium and shows no marker until the
  * writer clicks. Loaded on demand and in the browser only (`place-form.tsx`), as MapLibre is.
  */
-export default function PlacePositionMap({ position, onChange }: PlacePositionMapProps) {
+export default function PlacePositionMap({ position, onChange, focus }: PlacePositionMapProps) {
   return (
     <Map
       className="h-72 overflow-hidden rounded-md border sm:h-80"
@@ -35,6 +37,7 @@ export default function PlacePositionMap({ position, onChange }: PlacePositionMa
     >
       <ClickToPlace onChange={onChange} />
       <FollowPosition position={position} />
+      <FlyToFocus focus={focus} />
       {position && (
         <MapMarker
           draggable
@@ -96,6 +99,18 @@ function FollowPosition({ position }: Pick<PlacePositionMapProps, 'position'>) {
     if (x >= EDGE && x <= width - EDGE && y >= PIN_HEIGHT + EDGE && y <= height - EDGE) return;
     map.easeTo({ center: [longitude, latitude], zoom: Math.max(map.getZoom(), 10) });
   }, [map, latitude, longitude]);
+
+  return null;
+}
+
+/** Fly to each new focus, at the zoom a place opens at, so the writer checks the spot. */
+function FlyToFocus({ focus }: Pick<PlacePositionMapProps, 'focus'>) {
+  const { map } = useMap();
+
+  useEffect(() => {
+    if (!map || !focus) return;
+    map.flyTo({ center: [focus.longitude, focus.latitude], zoom: POSITION_ZOOM });
+  }, [map, focus]);
 
   return null;
 }

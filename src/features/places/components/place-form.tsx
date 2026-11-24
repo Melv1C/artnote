@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceTypeSchema } from '@/schemas/common';
-import { PlaceFormSchema, type Place } from '@/schemas/place';
+import { PlaceFormSchema, type AddressResult, type Place } from '@/schemas/place';
 import { useQueryClient } from '@tanstack/react-query';
 import { ClientOnly, useNavigate } from '@tanstack/react-router';
 import {
@@ -24,7 +24,9 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { createPlace, updatePlace } from '../actions/place-mutations';
+import { PlaceAddressSearch } from './place-address-search';
 import { placeKeys } from '../hooks/use-places';
+import { applyAddressResult, type AddressFields } from '../lib/address-search';
 import { formatCoordinate, parsePosition, type PlacePosition } from '../lib/place-position';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
@@ -41,14 +43,31 @@ export function PlaceForm({ place }: PlaceFormProps) {
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   // The fields hold what the writer typed; the map shows it once it is a valid position
-  const [latitude, setLatitude] = useState(place?.latitude?.toString() ?? '');
-  const [longitude, setLongitude] = useState(place?.longitude?.toString() ?? '');
-  const position = parsePosition(latitude, longitude);
+  const [fields, setFields] = useState<AddressFields>({
+    latitude: place?.latitude?.toString() ?? '',
+    longitude: place?.longitude?.toString() ?? '',
+    address: place?.address ?? '',
+    city: place?.city ?? '',
+    country: place?.country ?? '',
+  });
+  const position = parsePosition(fields.latitude, fields.longitude);
+  const setField = (name: keyof AddressFields) => (value: string) =>
+    setFields(current => ({ ...current, [name]: value }));
 
   const handleMapChange = useCallback((next: PlacePosition) => {
-    setLatitude(formatCoordinate(next.latitude));
-    setLongitude(formatCoordinate(next.longitude));
+    setFields(current => ({
+      ...current,
+      latitude: formatCoordinate(next.latitude),
+      longitude: formatCoordinate(next.longitude),
+    }));
   }, []);
+
+  // A picked result moves the map to it, not only the marker
+  const [focus, setFocus] = useState<PlacePosition | null>(null);
+  const handleAddressPick = (result: AddressResult) => {
+    setFields(current => applyAddressResult(current, result));
+    setFocus({ latitude: result.latitude, longitude: result.longitude });
+  };
 
   const handleSubmit = (formData: FormData) => {
     const parsed = PlaceFormSchema.safeParse(Object.fromEntries(formData));
@@ -100,17 +119,32 @@ export function PlaceForm({ place }: PlaceFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="address">Adresse</Label>
-          <Input id="address" name="address" defaultValue={place?.address || ''} />
+          <Input
+            id="address"
+            name="address"
+            value={fields.address}
+            onChange={event => setField('address')(event.target.value)}
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="city">Ville</Label>
-          <Input id="city" name="city" defaultValue={place?.city || ''} />
+          <Input
+            id="city"
+            name="city"
+            value={fields.city}
+            onChange={event => setField('city')(event.target.value)}
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="country">Pays</Label>
-          <Input id="country" name="country" defaultValue={place?.country || ''} />
+          <Input
+            id="country"
+            name="country"
+            value={fields.country}
+            onChange={event => setField('country')(event.target.value)}
+          />
         </div>
 
         <div className="space-y-2">
@@ -128,13 +162,14 @@ export function PlaceForm({ place }: PlaceFormProps) {
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium leading-none">Position *</legend>
         <p className="text-sm text-muted-foreground">
-          Cliquez sur la carte ou faites glisser le repère, ou saisissez la latitude et la
-          longitude.
+          Recherchez une adresse, cliquez sur la carte ou faites glisser le repère, ou saisissez la
+          latitude et la longitude.
         </p>
+        <PlaceAddressSearch onPick={handleAddressPick} />
         <ClientOnly fallback={<MapPlaceholder />}>
           <MapErrorBoundary>
             <Suspense fallback={<MapPlaceholder />}>
-              <PlacePositionMap position={position} onChange={handleMapChange} />
+              <PlacePositionMap position={position} onChange={handleMapChange} focus={focus} />
             </Suspense>
           </MapErrorBoundary>
         </ClientOnly>
@@ -146,8 +181,8 @@ export function PlaceForm({ place }: PlaceFormProps) {
               name="latitude"
               type="number"
               step="any"
-              value={latitude}
-              onChange={event => setLatitude(event.target.value)}
+              value={fields.latitude}
+              onChange={event => setField('latitude')(event.target.value)}
               placeholder="50.8467"
             />
           </div>
@@ -159,8 +194,8 @@ export function PlaceForm({ place }: PlaceFormProps) {
               name="longitude"
               type="number"
               step="any"
-              value={longitude}
-              onChange={event => setLongitude(event.target.value)}
+              value={fields.longitude}
+              onChange={event => setField('longitude')(event.target.value)}
               placeholder="4.3525"
             />
           </div>
