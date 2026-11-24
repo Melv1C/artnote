@@ -1,5 +1,6 @@
 import { PagedTable } from '@/components/data-table/paged-table';
 import { Input } from '@/components/ui/input';
+import { Toggle } from '@/components/ui/toggle';
 import {
   Select,
   SelectContent,
@@ -9,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PlaceTypeSchema } from '@/schemas/common';
-import { Search } from 'lucide-react';
+import { MapPinOff, Search } from 'lucide-react';
 import { useState } from 'react';
 import { usePlaces } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
@@ -18,6 +19,7 @@ import { columns } from './places-table-columns';
 export function PlacesTable() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', type: 'all', city: '', country: '' });
+  const [missingPosition, setMissingPosition] = useState(false);
   const debounced = useDebounce(filters, 300);
 
   const { data, isLoading, isError } = usePlaces({
@@ -26,6 +28,7 @@ export function PlacesTable() {
     type: PlaceTypeSchema.safeParse(debounced.type).data,
     city: debounced.city || undefined,
     country: debounced.country || undefined,
+    missingPosition: missingPosition || undefined,
   });
 
   // A new filter starts again from the first page
@@ -74,6 +77,17 @@ export function PlacesTable() {
           onChange={event => setFilter('country', event.target.value)}
           className="w-32"
         />
+        <Toggle
+          variant="outline"
+          pressed={missingPosition}
+          onPressedChange={pressed => {
+            setMissingPosition(pressed);
+            setPage(1);
+          }}
+        >
+          <MapPinOff />
+          Sans position
+        </Toggle>
       </div>
 
       <PagedTable

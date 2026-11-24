@@ -39,13 +39,24 @@ export const PlaceFiltersSchema = PaginationSchema.extend({
   type: PlaceTypeSchema.optional(),
   city: SearchTextSchema.optional(),
   country: SearchTextSchema.optional(),
+  /** Only places that lack a latitude or a longitude. */
+  missingPosition: z.boolean().optional(),
 });
 
-// Form inputs send strings; empty means "not set"
-const optionalNumber = (min: number, max: number) =>
+// Form inputs send strings; empty means "not set", which the position refuses
+const requiredCoordinate = (name: 'latitude' | 'longitude', min: number, max: number) =>
   z.preprocess(
-    value => (value === '' || value === null ? undefined : value),
-    z.coerce.number().min(min).max(max).optional(),
+    value => {
+      if (value === '' || value === null) return undefined;
+      return typeof value === 'string' ? Number(value) : value;
+    },
+    z
+      .number({
+        error: issue =>
+          issue.input === undefined ? `Position manquante : indiquez la ${name}` : undefined,
+      })
+      .min(min)
+      .max(max),
   );
 
 /** What the place form submits. */
@@ -55,8 +66,8 @@ export const PlaceFormSchema = z.object({
   address: z.string().max(500).optional(),
   city: z.string().max(255).optional(),
   country: z.string().max(255).optional(),
-  latitude: optionalNumber(-90, 90),
-  longitude: optionalNumber(-180, 180),
+  latitude: requiredCoordinate('latitude', -90, 90),
+  longitude: requiredCoordinate('longitude', -180, 180),
   website: z.union([z.literal(''), z.url('URL invalide')]).optional(),
   description: z.string().max(100_000).optional(),
 });

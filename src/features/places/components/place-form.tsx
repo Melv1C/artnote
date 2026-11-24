@@ -104,7 +104,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="latitude">Latitude</Label>
+          <Label htmlFor="latitude">Latitude *</Label>
           <Input
             id="latitude"
             name="latitude"
@@ -116,7 +116,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="longitude">Longitude</Label>
+          <Label htmlFor="longitude">Longitude *</Label>
           <Input
             id="longitude"
             name="longitude"

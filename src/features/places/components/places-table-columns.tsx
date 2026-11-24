@@ -11,13 +11,18 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
     accessorKey: 'name',
     header: 'Nom',
     cell: ({ row }) => (
-      <Link
-        to="/dashboard/places/$placeId"
-        params={{ placeId: row.original.id }}
-        className="font-medium hover:underline"
-      >
-        {row.getValue('name')}
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          to="/dashboard/places/$placeId"
+          params={{ placeId: row.original.id }}
+          className="font-medium hover:underline"
+        >
+          {row.getValue('name')}
+        </Link>
+        {(row.original.latitude === null || row.original.longitude === null) && (
+          <Badge variant="secondary">Sans position</Badge>
+        )}
+      </div>
     ),
   },
   {
