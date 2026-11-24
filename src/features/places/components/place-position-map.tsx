@@ -2,13 +2,8 @@ import { Map, MapMarker, MarkerContent, useMap } from '@/components/ui/map';
 import { MapPin } from 'lucide-react';
 import type { MapMouseEvent } from 'maplibre-gl';
 import { useEffect } from 'react';
+import { OPENFREEMAP_STYLES } from '../lib/place-map';
 import { BELGIUM_VIEW, POSITION_ZOOM, type PlacePosition } from '../lib/place-position';
-
-/** OpenFreeMap's styles, following the app theme (ADR 0013). */
-const OPENFREEMAP_STYLES = {
-  light: 'https://tiles.openfreemap.org/styles/positron',
-  dark: 'https://tiles.openfreemap.org/styles/fiord',
-};
 
 interface PlacePositionMapProps {
   /** The position the latitude and longitude fields hold, or null when they hold none. */

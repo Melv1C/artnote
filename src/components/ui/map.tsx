@@ -649,7 +649,7 @@ function PopupCloseButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      aria-label="Close popup"
+      aria-label="Fermer"
       className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
       <X className="size-3.5" />
@@ -953,10 +953,10 @@ function MapControls({
     >
       {showZoom && (
         <ControlGroup>
-          <ControlButton onClick={handleZoomIn} label="Zoom in">
+          <ControlButton onClick={handleZoomIn} label="Zoomer">
             <Plus className="size-4" />
           </ControlButton>
-          <ControlButton onClick={handleZoomOut} label="Zoom out">
+          <ControlButton onClick={handleZoomOut} label="Dézoomer">
             <Minus className="size-4" />
           </ControlButton>
         </ControlGroup>
@@ -968,11 +968,7 @@ function MapControls({
       )}
       {showLocate && (
         <ControlGroup>
-          <ControlButton
-            onClick={handleLocate}
-            label="Find my location"
-            disabled={waitingForLocation}
-          >
+          <ControlButton onClick={handleLocate} label="Me localiser" disabled={waitingForLocation}>
             {waitingForLocation ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
@@ -983,7 +979,7 @@ function MapControls({
       )}
       {showFullscreen && (
         <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
+          <ControlButton onClick={handleFullscreen} label="Plein écran">
             <Maximize className="size-4" />
           </ControlButton>
         </ControlGroup>
@@ -1018,7 +1014,7 @@ function CompassButton({ onClick }: { onClick: () => void }) {
   }, [map]);
 
   return (
-    <ControlButton onClick={onClick} label="Reset bearing to north">
+    <ControlButton onClick={onClick} label="Réorienter vers le nord">
       <svg
         ref={compassRef}
         viewBox="0 0 24 24"

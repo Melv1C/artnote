@@ -12,6 +12,7 @@ const PUBLIC_SERVER_FUNCTIONS = new Set([
   'fetchFilteredArtworks', // public notices list
   'fetchLatestPublishedArtworks', // home and "what's new"
   'fetchPublishedArtwork', // public notice page
+  'fetchMapPlaces', // public map: places with published notices, public fields only
   'recordNoticeView', // view counter, published notices only
   'getDashboardAccess', // the caller's own session and whether it may open the dashboard
   'getSiteUrl', // Open Graph base URL

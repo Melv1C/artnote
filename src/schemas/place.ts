@@ -27,6 +27,13 @@ export const PlaceSchema = z.object({
 /** A place as public pages show it: no audit columns. */
 export const PublicPlaceSchema = PlaceSchema.omit({ createdById: true, updatedById: true });
 
+/** A place on the public map: its public fields, a position, and its number of published notices. */
+export const MapPlaceSchema = PublicPlaceSchema.extend({
+  latitude: z.number(),
+  longitude: z.number(),
+  noticeCount: z.number().int().positive(),
+});
+
 /** A place with who created and last edited it, and the notices located there (dashboard). */
 export const PlaceWithRelationsSchema = PlaceSchema.extend({
   createdBy: UserRefSchema,
@@ -90,6 +97,7 @@ export const AddressResultSchema = z.object({
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
+export type MapPlace = z.infer<typeof MapPlaceSchema>;
 export type PlaceWithRelations = z.infer<typeof PlaceWithRelationsSchema>;
 export type PlaceFilters = z.input<typeof PlaceFiltersSchema>;
 export type PlaceForm = z.infer<typeof PlaceFormSchema>;

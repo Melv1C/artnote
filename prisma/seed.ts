@@ -78,6 +78,16 @@ async function seedCatalogue(adminId: string) {
       latitude: 51.0531,
       longitude: 3.7272,
     },
+    // Its only notice is a draft: the public map leaves it out
+    {
+      id: 'seed-place-magritte',
+      name: 'Musée Magritte Museum',
+      type: 'MUSEUM',
+      city: 'Bruxelles',
+      country: 'Belgique',
+      latitude: 50.8428,
+      longitude: 4.3586,
+    },
     // No position yet, as places written before positions were required
     {
       id: 'seed-place-groeninge',
@@ -144,6 +154,19 @@ async function seedCatalogue(adminId: string) {
         '<p>Au premier plan, un laboureur poursuit son travail. Icare, lui, disparaît presque dans un coin de la mer.</p>',
     },
     {
+      id: 'seed-artwork-census',
+      title: 'Le Dénombrement de Bethléem',
+      creationYear: '1566',
+      medium: 'Huile sur panneau',
+      dimensions: '115,5 × 164,5 cm',
+      status: 'PUBLISHED',
+      publishedAt: new Date('2026-01-20'),
+      placeId: 'seed-place-fine-arts',
+      artistId: 'seed-artist-bruegel',
+      notice:
+        '<p>Sous la neige, un village flamand se presse devant l’auberge où l’on se fait recenser ; Marie et Joseph passent presque inaperçus.</p>',
+    },
+    {
       id: 'seed-artwork-lamb',
       title: 'L’Adoration de l’Agneau mystique',
       creationYear: '1432',
@@ -164,7 +187,7 @@ async function seedCatalogue(adminId: string) {
       dimensions: '146 × 114 cm',
       status: 'DRAFT',
       publishedAt: null,
-      placeId: 'seed-place-fine-arts',
+      placeId: 'seed-place-magritte',
       artistId: 'seed-artist-magritte',
       notice: '<p>Brouillon : une rue nocturne sous un ciel de plein jour.</p>',
     },
