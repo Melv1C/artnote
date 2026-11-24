@@ -81,6 +81,29 @@ function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
+          <h2 className="font-serif text-2xl font-medium">Carte des lieux</h2>
+          <p>
+            La{' '}
+            <Link to="/carte" className="text-primary underline underline-offset-4">
+              carte
+            </Link>{' '}
+            charge ses images depuis{' '}
+            <a
+              href="https://openfreemap.org"
+              className="text-primary underline underline-offset-4"
+              target="_blank"
+              rel="noreferrer"
+            >
+              OpenFreeMap
+            </a>
+            , un service de cartes libre construit sur les données d’OpenStreetMap. Comme tout site
+            que votre navigateur contacte, OpenFreeMap reçoit alors votre adresse réseau (IP). Parmi
+            les pages publiques, seule la carte le contacte : la lecture des notices n’en dépend
+            pas.
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="font-serif text-2xl font-medium">Cookies</h2>
           <p>
             La lecture du site ne dépose aucun cookie. Seuls les comptes connectés reçoivent des

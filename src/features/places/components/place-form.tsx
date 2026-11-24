@@ -13,17 +13,10 @@ import { PlaceTypeSchema } from '@/schemas/common';
 import { PlaceFormSchema, type AddressResult, type Place } from '@/schemas/place';
 import { useQueryClient } from '@tanstack/react-query';
 import { ClientOnly, useNavigate } from '@tanstack/react-router';
-import {
-  Component,
-  lazy,
-  Suspense,
-  useCallback,
-  useState,
-  useTransition,
-  type ReactNode,
-} from 'react';
+import { lazy, Suspense, useCallback, useState, useTransition, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { createPlace, updatePlace } from '../actions/place-mutations';
+import { MapErrorBoundary } from './map-error-boundary';
 import { PlaceAddressSearch } from './place-address-search';
 import { placeKeys } from '../hooks/use-places';
 import { applyAddressResult, type AddressFields } from '../lib/address-search';
@@ -167,7 +160,13 @@ export function PlaceForm({ place }: PlaceFormProps) {
         </p>
         <PlaceAddressSearch onPick={handleAddressPick} />
         <ClientOnly fallback={<MapPlaceholder />}>
-          <MapErrorBoundary>
+          <MapErrorBoundary
+            fallback={
+              <MapPlaceholder>
+                Carte indisponible : saisissez la latitude et la longitude.
+              </MapPlaceholder>
+            }
+          >
             <Suspense fallback={<MapPlaceholder />}>
               <PlacePositionMap position={position} onChange={handleMapChange} focus={focus} />
             </Suspense>
@@ -235,27 +234,4 @@ function MapPlaceholder({ children }: { children?: ReactNode }) {
       {children}
     </div>
   );
-}
-
-/**
- * Without WebGL, or when the map's code fails to load (a deploy since the page opened), the
- * fields still set the position: the form must not fall with the map.
- */
-class MapErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch(error: unknown) {
-    console.error('Loading the position map failed:', error);
-  }
-
-  render() {
-    if (!this.state.failed) return this.props.children;
-    return (
-      <MapPlaceholder>Carte indisponible : saisissez la latitude et la longitude.</MapPlaceholder>
-    );
-  }
 }
