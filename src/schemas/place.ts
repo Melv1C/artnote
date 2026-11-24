@@ -1,4 +1,5 @@
 import { z } from '@/lib/zod';
+import { ImageSchema } from './image';
 import {
   IdSchema,
   PaginationSchema,
@@ -27,11 +28,22 @@ export const PlaceSchema = z.object({
 /** A place as public pages show it: no audit columns. */
 export const PublicPlaceSchema = PlaceSchema.omit({ createdById: true, updatedById: true });
 
-/** A place on the public map: its public fields, a position, and its number of published notices. */
+/** A published notice in a place's details on the map: its title and main image. */
+const MapNoticeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  image: ImageSchema.nullable(),
+});
+
+/**
+ * A place on the public map: its public fields, a position, its number of published notices and
+ * the first of them, newest first.
+ */
 export const MapPlaceSchema = PublicPlaceSchema.extend({
   latitude: z.number(),
   longitude: z.number(),
   noticeCount: z.number().int().positive(),
+  notices: MapNoticeSchema.array(),
 });
 
 /** A place with who created and last edited it, and the notices located there (dashboard). */

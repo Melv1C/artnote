@@ -35,6 +35,14 @@ export function noticeCountLabel(count: number): string {
   return `${count} ${count === 1 ? 'notice' : 'notices'}`;
 }
 
+/** How many of a place's published notices its details list; the rest are behind a link. */
+export const MAP_NOTICES_SHOWN = 3;
+
+/** "Voir les N notices" when a place has more notices than its details list, else null. */
+export function moreNoticesLabel(count: number): string | null {
+  return count > MAP_NOTICES_SHOWN ? `Voir les ${count} notices` : null;
+}
+
 /** The places as the GeoJSON source MapLibre clusters. */
 export function placesToGeoJSON(
   places: MapPoint[],

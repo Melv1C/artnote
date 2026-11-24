@@ -8,6 +8,7 @@ import { MapPlaceSchema, PlaceFiltersSchema, PlaceWithRelationsSchema } from '@/
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { buildPlaceWhere } from '../lib/place-filters';
+import { MAP_NOTICES_SHOWN } from '../lib/place-map';
 
 const placeInclude = {
   createdBy: { select: { id: true, name: true } },
@@ -48,7 +49,7 @@ export const fetchPlace = createServerFn({ method: 'GET' })
 
 /**
  * The places of the public map: those with a position and at least one published notice, each
- * with its number of published notices.
+ * with its number of published notices and its first ones, newest first.
  */
 export const fetchMapPlaces = createServerFn({ method: 'GET' }).handler(async () => {
   const places = await prisma.place.findMany({
@@ -57,11 +58,35 @@ export const fetchMapPlaces = createServerFn({ method: 'GET' }).handler(async ()
       longitude: { not: null },
       artworks: { some: publishedWhere },
     },
-    include: { _count: { select: { artworks: { where: publishedWhere } } } },
+    include: {
+      _count: { select: { artworks: { where: publishedWhere } } },
+      artworks: {
+        where: publishedWhere,
+        orderBy: [{ publishedAt: 'desc' }, { id: 'asc' }],
+        take: MAP_NOTICES_SHOWN,
+        select: {
+          id: true,
+          title: true,
+          // The main image, else the first
+          images: {
+            select: { image: true },
+            orderBy: [{ isMain: 'desc' }, { sortOrder: 'asc' }],
+            take: 1,
+          },
+        },
+      },
+    },
     orderBy: { name: 'asc' },
   });
 
   return MapPlaceSchema.array().parse(
-    places.map(({ _count, ...place }) => ({ ...place, noticeCount: _count.artworks })),
+    places.map(({ _count, artworks, ...place }) => ({
+      ...place,
+      noticeCount: _count.artworks,
+      notices: artworks.map(({ images, ...notice }) => ({
+        ...notice,
+        image: images[0]?.image ?? null,
+      })),
+    })),
   );
 });

@@ -1,4 +1,12 @@
-import { Map as MapView, MapControls, MapMarker, MarkerContent, useMap } from '@/components/ui/map';
+import {
+  Map as MapView,
+  MapControls,
+  MapMarker,
+  MapPopup,
+  MarkerContent,
+  useMap,
+} from '@/components/ui/map';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { MapPlace } from '@/schemas/place';
 import type { GeoJSONSource } from 'maplibre-gl';
 import { useEffect, useId, useMemo, useState } from 'react';
@@ -13,6 +21,7 @@ import {
   type MapMarker as Marker,
 } from '../lib/place-map';
 import { BELGIUM_VIEW } from '../lib/place-position';
+import { PlaceDetails } from './place-details';
 
 interface PlacesMapProps {
   places: MapPlace[];
@@ -20,23 +29,51 @@ interface PlacesMapProps {
 
 /**
  * The public map of places: one marker per place with its number of published notices, nearby
- * places grouped when zoomed out. Opens fitted to every place. Loaded on demand and in the
- * browser only (`routes/carte.tsx`), as MapLibre is.
+ * places grouped when zoomed out. Opens fitted to every place. Clicking a place shows its details,
+ * in a bubble next to it, or in a panel at the bottom of the screen on phones. Loaded on demand
+ * and in the browser only (`routes/carte.tsx`), as MapLibre is.
  */
 export default function PlacesMap({ places }: PlacesMapProps) {
   const bounds = placesBounds(places);
+  const isMobile = useIsMobile();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = places.find(place => place.id === selectedId);
+  const close = () => setSelectedId(null);
 
   return (
-    <MapView
-      className="h-full"
-      styles={OPENFREEMAP_STYLES}
-      // Credits stay expanded: OpenFreeMap and OpenStreetMap must stay visible
-      attributionControl={{ compact: false }}
-      {...(bounds ? { bounds, fitBoundsOptions: MAP_FIT } : BELGIUM_VIEW)}
-    >
-      <MapControls position="top-right" />
-      <PlaceMarkers places={places} />
-    </MapView>
+    <div className="relative h-full">
+      <MapView
+        className="h-full"
+        styles={OPENFREEMAP_STYLES}
+        // Credits stay expanded: OpenFreeMap and OpenStreetMap must stay visible
+        attributionControl={{ compact: false }}
+        {...(bounds ? { bounds, fitBoundsOptions: MAP_FIT } : BELGIUM_VIEW)}
+      >
+        <MapControls position="top-right" />
+        <PlaceMarkers places={places} selectedId={selectedId} onSelect={setSelectedId} />
+        {selected && !isMobile && (
+          <MapPopup
+            // A new bubble for each place, so closing one never closes the next
+            key={selected.id}
+            longitude={selected.longitude}
+            latitude={selected.latitude}
+            offset={22}
+            closeOnClick={false}
+            onClose={close}
+            className="w-72 max-w-72 p-0"
+          >
+            <PlaceDetails place={selected} onClose={close} />
+          </MapPopup>
+        )}
+      </MapView>
+      {selected && isMobile && (
+        <PlaceDetails
+          place={selected}
+          onClose={close}
+          className="absolute inset-x-0 bottom-0 z-10 max-h-[70%] overflow-y-auto rounded-t-xl border-t bg-popover text-popover-foreground shadow-[0_-8px_24px_-12px_oklch(0.2_0.02_288/0.35)] animate-in fade-in-0 slide-in-from-bottom-4"
+        />
+      )}
+    </div>
   );
 }
 
@@ -44,7 +81,11 @@ export default function PlacesMap({ places }: PlacesMapProps) {
  * Markers drawn as HTML over the map, from MapLibre's clustered source: at each zoom, the
  * source says which places stand alone and which merge into a group with their notices added up.
  */
-function PlaceMarkers({ places }: PlacesMapProps) {
+function PlaceMarkers({
+  places,
+  selectedId,
+  onSelect,
+}: PlacesMapProps & { selectedId: string | null; onSelect: (placeId: string) => void }) {
   const { map, isLoaded } = useMap();
   const sourceId = `places-${useId()}`;
   const data = useMemo(() => placesToGeoJSON(places), [places]);
@@ -112,13 +153,15 @@ function PlaceMarkers({ places }: PlacesMapProps) {
             {marker.noticeCount}
           </button>
         ) : (
-          <span
-            role="img"
+          <button
+            type="button"
             aria-label={`${names.get(marker.placeId) ?? 'Lieu'} : ${noticeCountLabel(marker.noticeCount)}`}
-            className="flex size-8 cursor-default items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground shadow-md"
+            aria-expanded={marker.placeId === selectedId}
+            onClick={() => onSelect(marker.placeId)}
+            className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground shadow-md transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-expanded:scale-125 aria-expanded:ring-4 aria-expanded:ring-primary/30"
           >
             {marker.noticeCount}
-          </span>
+          </button>
         )}
       </MarkerContent>
     </MapMarker>
