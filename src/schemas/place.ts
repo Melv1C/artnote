@@ -81,7 +81,8 @@ const requiredCoordinate = (name: 'latitude' | 'longitude', min: number, max: nu
 /** What the place form submits. */
 export const PlaceFormSchema = z.object({
   name: z.string().trim().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
-  type: PlaceTypeSchema,
+  // The default message lists the enum's codes, which a writer never sees
+  type: z.enum(PlaceTypeSchema.options, 'Le type est requis'),
   address: z.string().max(500).optional(),
   city: z.string().max(255).optional(),
   country: z.string().max(255).optional(),

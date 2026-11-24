@@ -138,6 +138,12 @@ describe('PlaceFormSchema', () => {
     expect(issues({ longitude: '3.72' })).toEqual(['Position manquante : indiquez la latitude']);
   });
 
+  it('asks for a type when none is chosen', () => {
+    expect(issues({ type: undefined, latitude: '51.04', longitude: '3.72' })).toEqual([
+      'Le type est requis',
+    ]);
+  });
+
   it('keeps latitude and longitude within their ranges', () => {
     expect(issues({ latitude: '120', longitude: '3.72' })).toHaveLength(1);
     expect(issues({ latitude: '-91', longitude: '3.72' })).toHaveLength(1);
