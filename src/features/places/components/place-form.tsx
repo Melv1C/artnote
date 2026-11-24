@@ -12,12 +12,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { PlaceTypeSchema } from '@/schemas/common';
 import { PlaceFormSchema, type Place } from '@/schemas/place';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
-import { useTransition } from 'react';
+import { ClientOnly, useNavigate } from '@tanstack/react-router';
+import { lazy, Suspense, useCallback, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { createPlace, updatePlace } from '../actions/place-mutations';
 import { placeKeys } from '../hooks/use-places';
+import { formatCoordinate, parsePosition, type PlacePosition } from '../lib/place-position';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
+
+// MapLibre runs in the browser only and is heavy: the map loads on demand, after hydration
+const PlacePositionMap = lazy(() => import('./place-position-map'));
 
 interface PlaceFormProps {
   /** The place to edit; omit to create one. */
@@ -28,6 +32,15 @@ export function PlaceForm({ place }: PlaceFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
+  // The fields hold what the writer typed; the map shows it once it is a valid position
+  const [latitude, setLatitude] = useState(place?.latitude?.toString() ?? '');
+  const [longitude, setLongitude] = useState(place?.longitude?.toString() ?? '');
+  const position = parsePosition(latitude, longitude);
+
+  const handleMapChange = useCallback((next: PlacePosition) => {
+    setLatitude(formatCoordinate(next.latitude));
+    setLongitude(formatCoordinate(next.longitude));
+  }, []);
 
   const handleSubmit = (formData: FormData) => {
     const parsed = PlaceFormSchema.safeParse(Object.fromEntries(formData));
@@ -102,31 +115,47 @@ export function PlaceForm({ place }: PlaceFormProps) {
             placeholder="https://example.com"
           />
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="latitude">Latitude *</Label>
-          <Input
-            id="latitude"
-            name="latitude"
-            type="number"
-            step="any"
-            defaultValue={place?.latitude ?? ''}
-            placeholder="48.8566"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="longitude">Longitude *</Label>
-          <Input
-            id="longitude"
-            name="longitude"
-            type="number"
-            step="any"
-            defaultValue={place?.longitude ?? ''}
-            placeholder="2.3522"
-          />
-        </div>
       </div>
+
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium leading-none">Position *</legend>
+        <p className="text-sm text-muted-foreground">
+          Cliquez sur la carte ou faites glisser le repère, ou saisissez la latitude et la
+          longitude.
+        </p>
+        <ClientOnly fallback={<MapPlaceholder />}>
+          <Suspense fallback={<MapPlaceholder />}>
+            <PlacePositionMap position={position} onChange={handleMapChange} />
+          </Suspense>
+        </ClientOnly>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="latitude">Latitude *</Label>
+            <Input
+              id="latitude"
+              name="latitude"
+              type="number"
+              step="any"
+              value={latitude}
+              onChange={event => setLatitude(event.target.value)}
+              placeholder="50.8467"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="longitude">Longitude *</Label>
+            <Input
+              id="longitude"
+              name="longitude"
+              type="number"
+              step="any"
+              value={longitude}
+              onChange={event => setLongitude(event.target.value)}
+              placeholder="4.3525"
+            />
+          </div>
+        </div>
+      </fieldset>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
@@ -152,4 +181,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
       </div>
     </form>
   );
+}
+
+/** The map's space while MapLibre loads, so the form below doesn't jump. */
+function MapPlaceholder() {
+  return <div className="h-72 rounded-md border bg-muted sm:h-80" />;
 }

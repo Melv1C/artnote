@@ -134,6 +134,8 @@ export default defineConfig(({ mode }) => {
             'typescript/no-redundant-type-constituents': 'off',
             'typescript/no-base-to-string': 'off',
             'typescript/no-misused-spread': 'off',
+            // mapcn's map keeps its latest props in refs during render
+            'react/refs': 'off',
           },
         },
         {
