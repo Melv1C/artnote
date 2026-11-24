@@ -21,4 +21,18 @@ describe('buildPlaceWhere', () => {
   it('searches name, address and city', () => {
     expect(where({ search: 'MSK' }).OR).toHaveLength(3);
   });
+
+  it('keeps only places missing a latitude or a longitude', () => {
+    expect(where({ missingPosition: true })).toEqual({
+      AND: [{ OR: [{ latitude: null }, { longitude: null }] }],
+    });
+    expect(where({ missingPosition: false })).toEqual({});
+  });
+
+  it('combines the missing position with search and type', () => {
+    const combined = where({ missingPosition: true, search: 'gand', type: 'CHURCH' });
+    expect(combined.type).toBe('CHURCH');
+    expect(combined.OR).toHaveLength(3);
+    expect(combined.AND).toEqual([{ OR: [{ latitude: null }, { longitude: null }] }]);
+  });
 });

@@ -13,8 +13,8 @@ const toPlaceData = (form: PlaceForm) => ({
   address: emptyToNull(form.address),
   city: emptyToNull(form.city),
   country: emptyToNull(form.country),
-  latitude: form.latitude ?? null,
-  longitude: form.longitude ?? null,
+  latitude: form.latitude,
+  longitude: form.longitude,
   website: emptyToNull(form.website),
   description: emptyToNull(form.description),
 });

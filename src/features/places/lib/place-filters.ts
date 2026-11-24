@@ -7,7 +7,7 @@ import type { PlaceFiltersSchema } from '@/schemas/place';
 export function buildPlaceWhere(
   filters: z.output<typeof PlaceFiltersSchema>,
 ): Prisma.PlaceWhereInput {
-  const { search, type, city, country } = filters;
+  const { search, type, city, country, missingPosition } = filters;
   return {
     ...(search && {
       OR: [{ name: contains(search) }, { address: contains(search) }, { city: contains(search) }],
@@ -15,5 +15,7 @@ export function buildPlaceWhere(
     ...(type && { type }),
     ...(city && { city: contains(city) }),
     ...(country && { country: contains(country) }),
+    // In AND, so it never replaces the search's OR
+    ...(missingPosition && { AND: [{ OR: [{ latitude: null }, { longitude: null }] }] }),
   };
 }

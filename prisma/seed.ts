@@ -66,12 +66,24 @@ async function seedCatalogue(adminId: string) {
       city: 'Bruxelles',
       country: 'Belgique',
       website: 'https://fine-arts-museum.be',
+      latitude: 50.8417,
+      longitude: 4.3579,
     },
     {
       id: 'seed-place-saint-bavo',
       name: 'Cathédrale Saint-Bavon',
       type: 'CHURCH',
       city: 'Gand',
+      country: 'Belgique',
+      latitude: 51.0531,
+      longitude: 3.7272,
+    },
+    // No position yet, as places written before positions were required
+    {
+      id: 'seed-place-groeninge',
+      name: 'Musée Groeninge',
+      type: 'MUSEUM',
+      city: 'Bruges',
       country: 'Belgique',
     },
   ];

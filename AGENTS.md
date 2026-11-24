@@ -27,7 +27,7 @@ Seeded accounts (password `artnote-dev-password`):
 | `user@example.com`   | user   | a signed-in reader, refused from `/dashboard`                       |
 | `banned@example.com` | banned | a refused sign-in                                                   |
 
-The seed also creates 2 places, 3 artists and 3 notices (2 published, 1 draft), all by `admin@example.com`.
+The seed also creates 3 places (one without a position), 3 artists and 3 notices (2 published, 1 draft), all by `admin@example.com`.
 
 Image and avatar uploads go to the local MinIO that `worktree:setup` starts (`compose.yaml`, bucket `artnote` shared by every worktree). A `.env` written before MinIO was added lacks the `S3_*` variables: copy them from `.env.example`.
 

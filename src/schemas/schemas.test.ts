@@ -121,18 +121,28 @@ describe('UserProfileFormSchema', () => {
 });
 
 describe('PlaceFormSchema', () => {
-  it('reads coordinates from form strings, empty meaning unset', () => {
-    const place = PlaceFormSchema.parse({
-      name: 'MSK Gent',
-      type: 'MUSEUM',
-      latitude: '51.04',
-      longitude: '',
-    });
-    expect(place.latitude).toBe(51.04);
-    expect(place.longitude).toBeUndefined();
-    expect(PlaceFormSchema.safeParse({ name: 'X', type: 'MUSEUM', latitude: '120' }).success).toBe(
-      false,
-    );
+  const place = { name: 'MSK Gent', type: 'MUSEUM' };
+  const issues = (input: object) =>
+    PlaceFormSchema.safeParse({ ...place, ...input }).error?.issues.map(issue => issue.message);
+
+  it('reads a full position from form strings', () => {
+    const parsed = PlaceFormSchema.parse({ ...place, latitude: '51.04', longitude: '3.72' });
+    expect(parsed.latitude).toBe(51.04);
+    expect(parsed.longitude).toBe(3.72);
+  });
+
+  it('refuses a missing latitude or longitude, saying the position is missing', () => {
+    expect(issues({ latitude: '51.04', longitude: '' })).toEqual([
+      'Position manquante : indiquez la longitude',
+    ]);
+    expect(issues({ longitude: '3.72' })).toEqual(['Position manquante : indiquez la latitude']);
+  });
+
+  it('keeps latitude and longitude within their ranges', () => {
+    expect(issues({ latitude: '120', longitude: '3.72' })).toHaveLength(1);
+    expect(issues({ latitude: '-91', longitude: '3.72' })).toHaveLength(1);
+    expect(issues({ latitude: '51.04', longitude: '181' })).toHaveLength(1);
+    expect(issues({ latitude: '90', longitude: '-180' })).toBeUndefined();
   });
 });
 
