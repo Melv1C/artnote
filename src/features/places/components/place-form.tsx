@@ -11,9 +11,18 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceTypeSchema } from '@/schemas/common';
 import { PlaceFormSchema, type AddressResult, type Place } from '@/schemas/place';
+import { z } from '@/lib/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { ClientOnly, useNavigate } from '@tanstack/react-router';
-import { lazy, Suspense, useCallback, useState, useTransition, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useState,
+  useTransition,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import { toast } from 'sonner';
 import { createPlace, updatePlace } from '../actions/place-mutations';
 import { MapErrorBoundary } from './map-error-boundary';
@@ -25,6 +34,8 @@ import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
 // MapLibre runs in the browser only and is heavy: the map loads on demand, after hydration
 const PlacePositionMap = lazy(() => import('./place-position-map'));
+
+type FieldErrors = Partial<Record<keyof z.infer<typeof PlaceFormSchema>, string[]>>;
 
 interface PlaceFormProps {
   /** The place to edit; omit to create one. */
@@ -62,12 +73,25 @@ export function PlaceForm({ place }: PlaceFormProps) {
     setFocus({ latitude: result.latitude, longitude: result.longitude });
   };
 
-  const handleSubmit = (formData: FormData) => {
-    const parsed = PlaceFormSchema.safeParse(Object.fromEntries(formData));
+  const [errors, setErrors] = useState<FieldErrors>({});
+
+  // onSubmit, not a form action: React resets a form after its action runs, which would empty
+  // the fields of a refused save or bring back the saved values
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const parsed = PlaceFormSchema.safeParse(Object.fromEntries(new FormData(form)));
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? 'Formulaire invalide');
+      const fieldErrors: FieldErrors = z.flattenError(parsed.error).fieldErrors;
+      setErrors(fieldErrors);
+      // The first field at fault, in the form's order, so the writer sees what to fix
+      const first = Array.from(form.elements).find(element =>
+        Object.hasOwn(fieldErrors, element.id),
+      );
+      if (first instanceof HTMLElement) first.focus();
       return;
     }
+    setErrors({});
 
     startTransition(async () => {
       try {
@@ -86,18 +110,22 @@ export function PlaceForm({ place }: PlaceFormProps) {
     });
   };
 
+  const invalid = (name: keyof FieldErrors) =>
+    errors[name] ? { 'aria-invalid': true, 'aria-describedby': `${name}-error` } : {};
+
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="name">Nom *</Label>
-          <Input id="name" name="name" defaultValue={place?.name} required />
+          <Input id="name" name="name" defaultValue={place?.name} required {...invalid('name')} />
+          <FieldError name="name" errors={errors} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="type">Type *</Label>
           <Select name="type" defaultValue={place?.type} required>
-            <SelectTrigger>
+            <SelectTrigger id="type" {...invalid('type')}>
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
             <SelectContent>
@@ -108,6 +136,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
               ))}
             </SelectContent>
           </Select>
+          <FieldError name="type" errors={errors} />
         </div>
 
         <div className="space-y-2">
@@ -117,7 +146,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
             name="address"
             value={fields.address}
             onChange={event => setField('address')(event.target.value)}
+            {...invalid('address')}
           />
+          <FieldError name="address" errors={errors} />
         </div>
 
         <div className="space-y-2">
@@ -127,7 +158,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
             name="city"
             value={fields.city}
             onChange={event => setField('city')(event.target.value)}
+            {...invalid('city')}
           />
+          <FieldError name="city" errors={errors} />
         </div>
 
         <div className="space-y-2">
@@ -137,7 +170,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
             name="country"
             value={fields.country}
             onChange={event => setField('country')(event.target.value)}
+            {...invalid('country')}
           />
+          <FieldError name="country" errors={errors} />
         </div>
 
         <div className="space-y-2">
@@ -148,7 +183,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
             type="url"
             defaultValue={place?.website || ''}
             placeholder="https://example.com"
+            {...invalid('website')}
           />
+          <FieldError name="website" errors={errors} />
         </div>
       </div>
 
@@ -183,7 +220,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
               value={fields.latitude}
               onChange={event => setField('latitude')(event.target.value)}
               placeholder="50.8467"
+              {...invalid('latitude')}
             />
+            <FieldError name="latitude" errors={errors} />
           </div>
 
           <div className="space-y-2">
@@ -196,7 +235,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
               value={fields.longitude}
               onChange={event => setField('longitude')(event.target.value)}
               placeholder="4.3525"
+              {...invalid('longitude')}
             />
+            <FieldError name="longitude" errors={errors} />
           </div>
         </div>
       </fieldset>
@@ -208,7 +249,9 @@ export function PlaceForm({ place }: PlaceFormProps) {
           name="description"
           defaultValue={place?.description || ''}
           rows={4}
+          {...invalid('description')}
         />
+        <FieldError name="description" errors={errors} />
       </div>
 
       <div className="flex justify-end space-x-4">
@@ -233,5 +276,16 @@ function MapPlaceholder({ children }: { children?: ReactNode }) {
     <div className="flex h-72 items-center justify-center rounded-md border bg-muted p-4 text-center text-sm text-muted-foreground sm:h-80">
       {children}
     </div>
+  );
+}
+
+/** A field's first validation message, beside it; `aria-describedby` points to its id. */
+function FieldError({ name, errors }: { name: keyof FieldErrors; errors: FieldErrors }) {
+  const message = errors[name]?.[0];
+  if (!message) return null;
+  return (
+    <p id={`${name}-error`} className="text-sm text-destructive">
+      {message}
+    </p>
   );
 }
