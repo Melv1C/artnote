@@ -86,15 +86,17 @@ test.describe('the map of places on a phone', () => {
       details.getByRole('link', { name: 'L’Adoration de l’Agneau mystique' }),
     ).toBeVisible();
 
-    // The whole width of the screen, down to the tab bar
-    const panel = await details.boundingBox();
+    // The whole width of the screen, down to the tab bar, once it has slid in
     const tabBar = await page
       .getByRole('navigation', { name: 'Navigation principale' })
       .boundingBox();
-    expect(panel?.x).toBe(0);
-    expect(panel?.width).toBe(390);
-    // Within the tab bar's top border
-    expect(Math.abs((panel?.y ?? 0) + (panel?.height ?? 0) - (tabBar?.y ?? 0))).toBeLessThan(4);
+    await expect
+      .poll(async () => {
+        const panel = await details.boundingBox();
+        return panel && [panel.x, panel.width, Math.round(panel.y + panel.height)];
+      })
+      // Within the tab bar's top border
+      .toEqual([0, 390, expect.closeTo(tabBar?.y ?? 0, -1)]);
 
     await details.getByRole('button', { name: 'Fermer' }).click();
     await expect(details).toHaveCount(0);
