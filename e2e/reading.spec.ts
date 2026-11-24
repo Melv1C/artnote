@@ -25,3 +25,21 @@ test.describe('a reader', () => {
     await expect(page.getByText(notices.empire.title)).toHaveCount(0);
   });
 });
+
+// "Voir les N notices" on the map opens the list filtered by the place's name
+test.describe('the notices list filtered by a place', () => {
+  test('shows the place filter and lets the reader remove it', async ({ page }) => {
+    await page.goto(`/artworks?place=${encodeURIComponent('Cathédrale Saint-Bavon')}`);
+    await expect(page.getByRole('status').getByText('1 notice')).toBeAttached();
+    const filter = page.getByRole('button', {
+      name: 'Retirer le filtre Lieu : Cathédrale Saint-Bavon',
+    });
+    await expect(filter).toBeVisible();
+
+    await page.waitForLoadState('networkidle');
+    await filter.click();
+    await expect(page).toHaveURL(/\/artworks$/);
+    await expect(filter).toHaveCount(0);
+    await expect(page.getByText(notices.icarus.title).first()).toBeVisible();
+  });
+});

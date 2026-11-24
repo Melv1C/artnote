@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
 import {
+  hiddenInGroup,
   mapMarkers,
   moreNoticesLabel,
   noticeCountLabel,
   placesBounds,
   placesToGeoJSON,
+  type MapMarker,
 } from './place-map';
 
 const brussels = { id: 'brussels', latitude: 50.8417, longitude: 4.3579, noticeCount: 2 };
@@ -95,5 +97,48 @@ describe('mapMarkers', () => {
   it('keeps one marker for a feature repeated across tiles', () => {
     const brusselsFeature = point([4.3579, 50.8417], { placeId: 'brussels', noticeCount: 2 });
     expect(mapMarkers([brusselsFeature, brusselsFeature])).toHaveLength(1);
+  });
+});
+
+describe('hiddenInGroup', () => {
+  const view: [[number, number], [number, number]] = [
+    [2.5, 49.5],
+    [6.4, 51.5],
+  ];
+  const placeMarker = (placeId: string): MapMarker => ({
+    key: `place-${placeId}`,
+    kind: 'place',
+    placeId,
+    noticeCount: 1,
+    longitude: 0,
+    latitude: 0,
+  });
+  const group: MapMarker = {
+    key: 'cluster-1',
+    kind: 'cluster',
+    clusterId: 1,
+    noticeCount: 3,
+    longitude: 4,
+    latitude: 51,
+  };
+
+  it('is true when the place is in view but has no marker of its own: a group holds it', () => {
+    expect(hiddenInGroup(ghent, [group], view)).toBe(true);
+  });
+
+  it('is false while the place has its own marker', () => {
+    expect(hiddenInGroup(ghent, [placeMarker('ghent'), group], view)).toBe(false);
+  });
+
+  it('is false when the place is out of view, where the map holds no marker for it', () => {
+    const elsewhere: typeof view = [
+      [10, 40],
+      [12, 42],
+    ];
+    expect(hiddenInGroup(ghent, [group], elsewhere)).toBe(false);
+  });
+
+  it('is false before the map has drawn any marker', () => {
+    expect(hiddenInGroup(ghent, [], view)).toBe(false);
   });
 });

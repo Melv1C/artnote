@@ -9,8 +9,9 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { MapPlace } from '@/schemas/place';
 import type { GeoJSONSource } from 'maplibre-gl';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
+  hiddenInGroup,
   MAP_FIT,
   NOTICE_COUNT_CLUSTER_PROPERTIES,
   OPENFREEMAP_STYLES,
@@ -38,7 +39,29 @@ export default function PlacesMap({ places }: PlacesMapProps) {
   const isMobile = useIsMobile();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = places.find(place => place.id === selectedId);
-  const close = () => setSelectedId(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  // Closing the details gives focus back to the place's marker, as a dialog would
+  const close = () => {
+    setSelectedId(null);
+    if (selectedId) markerButton(selectedId)?.focus();
+  };
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      setSelectedId(null);
+      markerButton(selectedId)?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [selectedId]);
+
+  // On phones the panel covers the bottom of the map: focus moves into it
+  useEffect(() => {
+    if (selectedId && isMobile) panelRef.current?.focus();
+  }, [selectedId, isMobile]);
 
   return (
     <div className="relative h-full">
@@ -50,7 +73,13 @@ export default function PlacesMap({ places }: PlacesMapProps) {
         {...(bounds ? { bounds, fitBoundsOptions: MAP_FIT } : BELGIUM_VIEW)}
       >
         <MapControls position="top-right" />
-        <PlaceMarkers places={places} selectedId={selectedId} onSelect={setSelectedId} />
+        <PlaceMarkers
+          places={places}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          // Its marker has gone into a group: no bubble left pointing at nothing
+          onSelectedHidden={() => setSelectedId(null)}
+        />
         {selected && !isMobile && (
           <MapPopup
             // A new bubble for each place, so closing one never closes the next
@@ -68,6 +97,7 @@ export default function PlacesMap({ places }: PlacesMapProps) {
       </MapView>
       {selected && isMobile && (
         <PlaceDetails
+          ref={panelRef}
           place={selected}
           onClose={close}
           className="absolute inset-x-0 bottom-0 z-10 max-h-[70%] overflow-y-auto rounded-t-xl border-t bg-popover text-popover-foreground shadow-[0_-8px_24px_-12px_oklch(0.2_0.02_288/0.35)] animate-in fade-in-0 slide-in-from-bottom-4"
@@ -75,6 +105,11 @@ export default function PlacesMap({ places }: PlacesMapProps) {
       )}
     </div>
   );
+}
+
+/** A place's marker button, to give it focus back. */
+function markerButton(placeId: string) {
+  return document.querySelector<HTMLElement>(`[data-place-id="${CSS.escape(placeId)}"]`);
 }
 
 /**
@@ -85,7 +120,12 @@ function PlaceMarkers({
   places,
   selectedId,
   onSelect,
-}: PlacesMapProps & { selectedId: string | null; onSelect: (placeId: string) => void }) {
+  onSelectedHidden,
+}: PlacesMapProps & {
+  selectedId: string | null;
+  onSelect: (placeId: string) => void;
+  onSelectedHidden: () => void;
+}) {
   const { map, isLoaded } = useMap();
   const sourceId = `places-${useId()}`;
   const data = useMemo(() => placesToGeoJSON(places), [places]);
@@ -133,6 +173,13 @@ function PlaceMarkers({
     };
   }, [map, isLoaded, sourceId, data]);
 
+  const selected = places.find(place => place.id === selectedId);
+  useEffect(() => {
+    if (!map || !selected) return;
+    const view = map.getBounds().toArray() as [[number, number], [number, number]];
+    if (hiddenInGroup(selected, markers, view)) onSelectedHidden();
+  }, [map, selected, markers, onSelectedHidden]);
+
   const zoomIntoGroup = async (marker: Extract<Marker, { kind: 'cluster' }>) => {
     const source = map?.getSource<GeoJSONSource>(sourceId);
     if (!map || !source) return;
@@ -157,6 +204,7 @@ function PlaceMarkers({
             type="button"
             aria-label={`${names.get(marker.placeId) ?? 'Lieu'} : ${noticeCountLabel(marker.noticeCount)}`}
             aria-expanded={marker.placeId === selectedId}
+            data-place-id={marker.placeId}
             onClick={() => onSelect(marker.placeId)}
             className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground shadow-md transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-expanded:scale-125 aria-expanded:ring-4 aria-expanded:ring-primary/30"
           >

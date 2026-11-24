@@ -9,6 +9,8 @@ const PlacesMap = lazy(() => import('@/features/places/components/places-map'));
 
 export const Route = createFileRoute('/carte')({
   loader: () => fetchMapPlaces(),
+  // The map fills the phone screen: no footer to scroll down to below it
+  staticData: { fillsPhoneScreen: true },
   head: () => ({
     meta: pageMeta(
       'ArtNote - Carte',
@@ -22,8 +24,9 @@ function MapPage() {
   const places = Route.useLoaderData();
 
   return (
-    // Below the header, down to the tab bar on phones and to the bottom of the screen elsewhere
-    <div className="relative h-[calc(100dvh-var(--header-total)-var(--tabbar-height)-env(safe-area-inset-bottom))] md:h-[calc(100dvh-var(--header-total))]">
+    // Below the header and its 1px border, down to the tab bar on phones and to the bottom of
+    // the screen elsewhere
+    <div className="relative h-[calc(100dvh-var(--header-total)-1px-var(--tabbar-height)-env(safe-area-inset-bottom))] md:h-[calc(100dvh-var(--header-total)-1px)]">
       <h1 className="sr-only">Carte des lieux</h1>
       <ClientOnly fallback={<MapPlaceholder />}>
         <MapErrorBoundary

@@ -24,6 +24,7 @@ import { createPortal } from 'react-dom';
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { MAPLIBRE_FRENCH_LOCALE, withFrenchLabels } from '@/lib/map-french';
 
 type MapLibreModule = typeof MapLibreGL;
 
@@ -347,6 +348,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
           attributionControl: {
             compact: true,
           },
+          // French for the map's own words and, where the tiles have them, its place names
+          locale: MAPLIBRE_FRENCH_LOCALE,
+          transformStyle: (_previous, next) => withFrenchLabels(next),
           ...props,
           ...viewport,
         });

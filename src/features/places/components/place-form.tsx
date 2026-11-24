@@ -219,7 +219,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
               step="any"
               value={fields.latitude}
               onChange={event => setField('latitude')(event.target.value)}
-              placeholder="50.8467"
+              placeholder="Entre −90 et 90"
               {...invalid('latitude')}
             />
             <FieldError name="latitude" errors={errors} />
@@ -234,7 +234,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
               step="any"
               value={fields.longitude}
               onChange={event => setField('longitude')(event.target.value)}
-              placeholder="4.3525"
+              placeholder="Entre −180 et 180"
               {...invalid('longitude')}
             />
             <FieldError name="longitude" errors={errors} />

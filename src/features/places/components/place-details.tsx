@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import type { MapPlace } from '@/schemas/place';
 import { Link } from '@tanstack/react-router';
 import { X } from 'lucide-react';
-import { useId } from 'react';
+import { useId, type Ref } from 'react';
 import { moreNoticesLabel, noticeCountLabel } from '../lib/place-map';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
@@ -11,18 +11,25 @@ interface PlaceDetailsProps {
   place: MapPlace;
   onClose: () => void;
   className?: string;
+  /** Focused when the details open as a panel on phones. */
+  ref?: Ref<HTMLElement>;
 }
 
 /**
  * What a reader sees of a place on the map: what it is, its number of published notices, the
  * newest of them, and a link to all of them when the list stops short.
  */
-export function PlaceDetails({ place, onClose, className }: PlaceDetailsProps) {
+export function PlaceDetails({ place, onClose, className, ref }: PlaceDetailsProps) {
   const headingId = useId();
   const more = moreNoticesLabel(place.noticeCount);
 
   return (
-    <section aria-labelledby={headingId} className={cn('relative p-4', className)}>
+    <section
+      ref={ref}
+      tabIndex={-1}
+      aria-labelledby={headingId}
+      className={cn('relative p-4 outline-none', className)}
+    >
       <button
         type="button"
         onClick={onClose}
