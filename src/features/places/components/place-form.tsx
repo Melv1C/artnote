@@ -13,7 +13,15 @@ import { PlaceTypeSchema } from '@/schemas/common';
 import { PlaceFormSchema, type Place } from '@/schemas/place';
 import { useQueryClient } from '@tanstack/react-query';
 import { ClientOnly, useNavigate } from '@tanstack/react-router';
-import { lazy, Suspense, useCallback, useState, useTransition } from 'react';
+import {
+  Component,
+  lazy,
+  Suspense,
+  useCallback,
+  useState,
+  useTransition,
+  type ReactNode,
+} from 'react';
 import { toast } from 'sonner';
 import { createPlace, updatePlace } from '../actions/place-mutations';
 import { placeKeys } from '../hooks/use-places';
@@ -124,9 +132,11 @@ export function PlaceForm({ place }: PlaceFormProps) {
           longitude.
         </p>
         <ClientOnly fallback={<MapPlaceholder />}>
-          <Suspense fallback={<MapPlaceholder />}>
-            <PlacePositionMap position={position} onChange={handleMapChange} />
-          </Suspense>
+          <MapErrorBoundary>
+            <Suspense fallback={<MapPlaceholder />}>
+              <PlacePositionMap position={position} onChange={handleMapChange} />
+            </Suspense>
+          </MapErrorBoundary>
         </ClientOnly>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-2">
@@ -184,6 +194,33 @@ export function PlaceForm({ place }: PlaceFormProps) {
 }
 
 /** The map's space while MapLibre loads, so the form below doesn't jump. */
-function MapPlaceholder() {
-  return <div className="h-72 rounded-md border bg-muted sm:h-80" />;
+function MapPlaceholder({ children }: { children?: ReactNode }) {
+  return (
+    <div className="flex h-72 items-center justify-center rounded-md border bg-muted p-4 text-center text-sm text-muted-foreground sm:h-80">
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Without WebGL, or when the map's code fails to load (a deploy since the page opened), the
+ * fields still set the position: the form must not fall with the map.
+ */
+class MapErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error('Loading the position map failed:', error);
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <MapPlaceholder>Carte indisponible : saisissez la latitude et la longitude.</MapPlaceholder>
+    );
+  }
 }
