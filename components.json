@@ -19,5 +19,8 @@
     "schemas": "@/schemas",
     "features": "@/features"
   },
-  "iconLibrary": "lucide"
+  "iconLibrary": "lucide",
+  "registries": {
+    "@mapcn": "https://mapcn.dev/r/{name}.json"
+  }
 }
