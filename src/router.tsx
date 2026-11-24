@@ -21,4 +21,8 @@ declare module '@tanstack/react-router' {
   interface Register {
     router: ReturnType<typeof getRouter>;
   }
+  interface StaticDataRouteOption {
+    /** The page fills the phone screen: no footer below it on phones (`MainLayout`). */
+    fillsPhoneScreen?: boolean;
+  }
 }

@@ -18,6 +18,15 @@ test.describe('the map of places', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Carte des lieux' })).toBeAttached();
   });
 
+  test('opens from the footer', async ({ page }) => {
+    await page.goto('/about');
+    await page
+      .getByRole('navigation', { name: 'Pied de page' })
+      .getByRole('link', { name: 'Carte' })
+      .click();
+    await expect(page).toHaveURL(/\/carte$/);
+  });
+
   test('shows each place with published notices and their number', async ({ page }) => {
     await page.goto('/carte');
     await expect(
@@ -46,6 +55,38 @@ test.describe('the map of places', () => {
 
     await group.click();
     await expect(saintBavo).toBeVisible();
+  });
+
+  test('closes a place’s bubble with Escape, back on its marker', async ({ page }) => {
+    await page.goto('/carte');
+    const marker = page.getByRole('button', { name: 'Cathédrale Saint-Bavon : 1 notice' });
+    await marker.click();
+    const details = page.getByRole('region', { name: 'Cathédrale Saint-Bavon' });
+    await expect(details).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(details).toHaveCount(0);
+    await expect(marker).toBeFocused();
+  });
+
+  test('closes a place’s details when zooming out merges it into a group', async ({ page }) => {
+    await page.goto('/carte');
+    await page.getByRole('button', { name: 'Cathédrale Saint-Bavon : 1 notice' }).click();
+    const details = page.getByRole('region', { name: 'Cathédrale Saint-Bavon' });
+    await expect(details).toBeVisible();
+
+    const group = page.getByRole('button', { name: /^3 notices dans ce groupe/ });
+    const zoomOut = page.getByRole('button', { name: 'Dézoomer' });
+    await expect(async () => {
+      await zoomOut.click();
+      await expect(group).toBeVisible({ timeout: 1_000 });
+    }).toPass();
+    await expect(details).toHaveCount(0);
+  });
+
+  test('names the map in French', async ({ page }) => {
+    await page.goto('/carte');
+    await expect(page.getByRole('region', { name: 'Carte' })).toBeVisible();
   });
 
   test('shows a place’s details and opens one of its notices', async ({ page }) => {
@@ -100,5 +141,26 @@ test.describe('the map of places on a phone', () => {
 
     await details.getByRole('button', { name: 'Fermer' }).click();
     await expect(details).toHaveCount(0);
+  });
+
+  test('moves focus into the panel and back to the marker when it closes', async ({ page }) => {
+    await page.goto('/carte');
+    const marker = page.getByRole('button', { name: 'Cathédrale Saint-Bavon : 1 notice' });
+    await marker.click();
+    const details = page.getByRole('region', { name: 'Cathédrale Saint-Bavon' });
+    await expect(details).toBeFocused();
+
+    await details.getByRole('button', { name: 'Fermer' }).click();
+    await expect(details).toHaveCount(0);
+    await expect(marker).toBeFocused();
+  });
+
+  test('has no page scroll below the map', async ({ page }) => {
+    await page.goto('/carte');
+    await expect(page.getByRole('button', { name: /Cathédrale Saint-Bavon/ })).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
   });
 });

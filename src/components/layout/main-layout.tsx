@@ -1,3 +1,4 @@
+import { useMatches } from '@tanstack/react-router';
 import { Footer } from './footer';
 import { Header } from './header';
 import { MobileTabBar } from './mobile-tab-bar';
@@ -8,6 +9,10 @@ interface MainLayoutProps {
 
 /** The reader's shell: header, page, footer, and the tab bar on phones. */
 export function MainLayout({ children }: MainLayoutProps) {
+  const fillsPhoneScreen = useMatches({
+    select: matches => matches.some(match => match.staticData.fillsPhoneScreen),
+  });
+
   return (
     <div className="flex min-h-dvh flex-col pb-[calc(var(--tabbar-height)+env(safe-area-inset-bottom))] md:pb-0">
       <a
@@ -20,7 +25,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <main id="contenu" tabIndex={-1} className="w-full flex-1 outline-none">
         {children}
       </main>
-      <Footer />
+      <Footer className={fillsPhoneScreen ? 'max-md:hidden' : undefined} />
       <MobileTabBar />
     </div>
   );

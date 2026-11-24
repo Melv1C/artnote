@@ -106,3 +106,24 @@ export function mapMarkers(features: SourceFeature[]): MapMarker[] {
   }
   return [...markers.values()];
 }
+
+/**
+ * Whether zooming out has merged a place into a group: it lies in view, where the map has drawn
+ * its markers, but none of them is its own. Out of view, the map holds no marker to tell.
+ */
+export function hiddenInGroup(
+  place: Pick<MapPoint, 'id' | 'latitude' | 'longitude'>,
+  markers: MapMarker[],
+  [[west, south], [east, north]]: [[number, number], [number, number]],
+): boolean {
+  const inView =
+    place.longitude >= west &&
+    place.longitude <= east &&
+    place.latitude >= south &&
+    place.latitude <= north;
+  return (
+    inView &&
+    markers.length > 0 &&
+    !markers.some(marker => marker.kind === 'place' && marker.placeId === place.id)
+  );
+}
