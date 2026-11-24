@@ -1,0 +1,63 @@
+[
+  {
+    "place_id": 101693991,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+    "osm_type": "way",
+    "osm_id": 108043033,
+    "lat": "51.0379751",
+    "lon": "3.7242437",
+    "category": "tourism",
+    "type": "museum",
+    "place_rank": 30,
+    "importance": 0.4737228590799341,
+    "addresstype": "tourism",
+    "name": "Musée des Beaux-Arts de Gand",
+    "display_name": "Musée des Beaux-Arts de Gand, 1, Fernand Scribedreef, Strop, Muinkparkwijk, Gand, Flandre-Orientale, Flandre, 9000, Belgique",
+    "address": {
+      "tourism": "Musée des Beaux-Arts de Gand",
+      "house_number": "1",
+      "road": "Fernand Scribedreef",
+      "neighbourhood": "Strop",
+      "quarter": "Muinkparkwijk",
+      "city_district": "Gand",
+      "city": "Gand",
+      "county": "Gand",
+      "state": "Flandre-Orientale",
+      "ISO3166-2-lvl6": "BE-VOV",
+      "ISO3166-2-lvl4": "BE-VLG",
+      "postcode": "9000",
+      "country": "Belgique",
+      "country_code": "be"
+    }
+  },
+  {
+    "place_id": 106192307,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+    "osm_type": "way",
+    "osm_id": 203764995,
+    "lat": "50.7367614",
+    "lon": "4.2374004",
+    "category": "amenity",
+    "type": "place_of_worship",
+    "place_rank": 30,
+    "importance": 0.3704139248106284,
+    "addresstype": "amenity",
+    "name": "Basilique Saint-Martin",
+    "display_name": "Basilique Saint-Martin, Klinkaert, Nederhem, Stroppen, Hal, Hal-Vilvorde, Brabant flamand, Flandre, 1500, Belgique",
+    "address": {
+      "amenity": "Basilique Saint-Martin",
+      "road": "Klinkaert",
+      "neighbourhood": "Nederhem",
+      "hamlet": "Stroppen",
+      "city_district": "Hal",
+      "town": "Hal",
+      "county": "Hal-Vilvorde",
+      "state": "Brabant flamand",
+      "ISO3166-2-lvl6": "BE-VBR",
+      "ISO3166-2-lvl4": "BE-VLG",
+      "postcode": "1500",
+      "country": "Belgique",
+      "country_code": "be"
+    }
+  }
+]

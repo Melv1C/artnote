@@ -74,7 +74,23 @@ export const PlaceFormSchema = z.object({
 
 export const UpdatePlaceSchema = PlaceFormSchema.extend({ id: IdSchema });
 
+/** What the place form's address search sends: an address or a place name. */
+export const AddressSearchSchema = z.object({
+  query: SearchTextSchema.min(1, 'Saisissez une adresse ou un nom de lieu'),
+});
+
+/** One address search result: its full label, its position and what it knows of its address. */
+export const AddressResultSchema = z.object({
+  label: z.string(),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+});
+
 export type Place = z.infer<typeof PlaceSchema>;
 export type PlaceWithRelations = z.infer<typeof PlaceWithRelationsSchema>;
 export type PlaceFilters = z.input<typeof PlaceFiltersSchema>;
 export type PlaceForm = z.infer<typeof PlaceFormSchema>;
+export type AddressResult = z.infer<typeof AddressResultSchema>;
