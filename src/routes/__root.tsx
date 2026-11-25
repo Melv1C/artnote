@@ -22,12 +22,17 @@ import { Toaster } from '@/components/ui/sonner';
 import { THEME_COLORS, ThemeColor } from '@/components/theme/theme-color';
 import appCss from '../styles.css?url';
 
+/** What the root loads once for every page; child routes' `head` read it from `matches[0]`. */
+export type RootLoaderData = Awaited<ReturnType<typeof loadRoot>>;
+
+async function loadRoot() {
+  const [siteUrl, umamiWebsiteId] = await Promise.all([getSiteUrl(), getUmamiWebsiteId()]);
+  return { siteUrl, umamiWebsiteId };
+}
+
 export const Route = createRootRoute({
   // Resolved once during SSR and reused on the client
-  loader: async () => {
-    const [siteUrl, umamiWebsiteId] = await Promise.all([getSiteUrl(), getUmamiWebsiteId()]);
-    return { siteUrl, umamiWebsiteId };
-  },
+  loader: loadRoot,
   staleTime: Infinity,
   head: ({ loaderData: { siteUrl, umamiWebsiteId } = { siteUrl: '', umamiWebsiteId: null } }) => ({
     meta: [

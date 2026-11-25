@@ -48,6 +48,13 @@ export const e2eDatabaseName = (name: string) =>
 export const isE2eDatabaseName = (name: string) =>
   name.length > E2E_SUFFIX.length && name.endsWith(E2E_SUFFIX);
 
+/** `url` with its database replaced by `name`: same server, login and options. */
+export function withDatabase(url: string, name: string) {
+  const database = new URL(url);
+  database.pathname = `/${name}`;
+  return database.toString();
+}
+
 /** The database a URL names. Scripts quote it into SQL, so it must match [a-z0-9_]+. */
 export function databaseName(url: string) {
   const name = decodeURIComponent(new URL(url).pathname.slice(1));

@@ -3,6 +3,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig, loadEnv } from 'vite-plus';
+import { DEFAULT_BASE_URL, portOf } from './src/lib/base-url';
 
 // Vite+ config: dev server and build (Vite), tests (`test`, Vitest), lint (`lint`, Oxlint),
 // format (`fmt`, Oxfmt) and the pre-commit hook (`staged`). `vp check` runs fmt, lint and the
@@ -32,9 +33,9 @@ const SHADCN_RELAXED_RULES = [
 ];
 
 export default defineConfig(({ mode }) => {
-  const { BASE_URL = 'http://localhost:3000' } = loadEnv(mode, process.cwd(), '');
+  const { BASE_URL = DEFAULT_BASE_URL } = loadEnv(mode, process.cwd(), '');
   // Better Auth rejects sign-ins from any origin other than BASE_URL, so never fall back to another port
-  const listen = { port: Number(new URL(BASE_URL).port) || 3000, strictPort: true };
+  const listen = { port: portOf(BASE_URL), strictPort: true };
 
   return {
     server: listen,

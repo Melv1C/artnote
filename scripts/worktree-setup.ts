@@ -9,7 +9,7 @@ import { createServer } from 'node:net';
 import { basename, join, resolve } from 'node:path';
 import { assertLocalDatabase } from './assert-local-db';
 import { loadEnvFiles } from './env-files';
-import { buildWorktreeEnv, databaseName, worktreeDatabaseName } from './worktree-env';
+import { buildWorktreeEnv, databaseName, withDatabase, worktreeDatabaseName } from './worktree-env';
 
 const ENV_FILE = '.env';
 const FIRST_DEV_PORT = 3100;
@@ -69,9 +69,11 @@ async function writeWorktreeEnv() {
   const mainEnv = readMainEnv();
   const fromMain = parse(mainEnv?.content ?? '');
 
-  const content = buildWorktreeEnv(readFileSync('.env.example', 'utf8'), mainEnv?.content ?? null, {
+  const example = readFileSync('.env.example', 'utf8');
+  const content = buildWorktreeEnv(example, mainEnv?.content ?? null, {
     BASE_URL: `http://localhost:${port}`,
-    PRISMA_DATABASE_URL: `postgresql://artnote:artnote@localhost:5432/${database}`,
+    // The Docker Postgres of .env.example (compose.yaml), with this worktree's own database
+    PRISMA_DATABASE_URL: withDatabase(parse(example).PRISMA_DATABASE_URL ?? '', database),
     // Secrets of its own, unless the main checkout's .env sets them
     ...(!fromMain.BETTER_AUTH_SECRET && {
       BETTER_AUTH_SECRET: randomBytes(32).toString('base64url'),

@@ -1,5 +1,6 @@
 // What the seed writes (prisma/seed.ts) and the end-to-end tests read back (e2e/fixtures.ts).
-// Plain data, no imports: Playwright loads it outside the app.
+// Plain data and type imports only: Playwright loads it outside the app.
+import type { ArtworkStatus, PlaceType, UserRole } from '../src/schemas/common';
 
 export const SEED_PASSWORD = 'artnote-dev-password';
 
@@ -33,7 +34,7 @@ export const seedUsers = {
     banned: true,
     banReason: 'Compte de test suspendu',
   },
-} as const;
+} as const satisfies Record<string, { role: UserRole; [field: string]: unknown }>;
 
 export const seedPlaces = {
   fineArts: {
@@ -73,7 +74,7 @@ export const seedPlaces = {
     city: 'Bruges',
     country: 'Belgique',
   },
-};
+} satisfies Record<string, { type: PlaceType; [field: string]: unknown }>;
 
 export const seedArtists = {
   bruegel: {
@@ -155,4 +156,4 @@ export const seedNotices = {
     artistId: seedArtists.magritte.id,
     notice: '<p>Brouillon : une rue nocturne sous un ciel de plein jour.</p>',
   },
-};
+} satisfies Record<string, { status: ArtworkStatus; [field: string]: unknown }>;
