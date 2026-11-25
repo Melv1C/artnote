@@ -38,8 +38,9 @@ import { Fragment, type ReactNode, useEffect } from 'react';
 import { Footnote, FootnoteReference, Footnotes } from 'tiptap-footnotes';
 
 /**
- * What an editor offers: each feature loads its extension and shows its toolbar buttons, so text
- * pasted with a feature the editor lacks loses it. Undo and redo are always there.
+ * The formatting a rich text field keeps. Every editor loads all of it, so saving never drops
+ * formatting a stored text already has; `features` only chooses the toolbar's buttons. Undo and
+ * redo are always there.
  */
 const ALL_FEATURES = [
   'headings',
@@ -70,44 +71,33 @@ const headingsClass =
 export const richTextLinkClass =
   'text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50';
 
-function editorExtensions(features: readonly RichTextFeature[]): AnyExtension[] {
-  const has = (feature: RichTextFeature) => features.includes(feature);
+function editorExtensions(): AnyExtension[] {
   return [
     StarterKit.configure({
       // tiptap-footnotes needs a document that ends with the footnotes, added below
-      document: has('footnotes') ? false : undefined,
-      heading: has('headings') && { levels: [1, 2, 3] },
-      bold: has('bold') && {},
-      italic: has('italic') && {},
-      strike: has('strike') && {},
-      underline: has('underline') && { HTMLAttributes: { class: 'underline decoration-2' } },
-      bulletList: has('lists') && { HTMLAttributes: { class: 'list-disc pl-6 space-y-1' } },
-      orderedList: has('lists') && { HTMLAttributes: { class: 'list-decimal pl-6 space-y-1' } },
+      document: false,
+      heading: { levels: [1, 2, 3] },
+      underline: { HTMLAttributes: { class: 'underline decoration-2' } },
+      bulletList: { HTMLAttributes: { class: 'list-disc pl-6 space-y-1' } },
+      orderedList: { HTMLAttributes: { class: 'list-decimal pl-6 space-y-1' } },
       listItem: { HTMLAttributes: { class: 'leading-relaxed' } },
-      blockquote: has('blockquote') && {
+      blockquote: {
         HTMLAttributes: {
           class: 'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
         },
       },
       paragraph: { HTMLAttributes: { class: 'leading-relaxed' } },
-      link: has('link') && { HTMLAttributes: { class: richTextLinkClass } },
+      link: { HTMLAttributes: { class: richTextLinkClass } },
     }),
-    ...(has('superscript')
-      ? [Superscript.configure({ HTMLAttributes: { class: 'text-xs align-super' } })]
-      : []),
-    ...(has('highlight')
-      ? [
-          Highlight.configure({
-            HTMLAttributes: {
-              class: 'bg-yellow-200 text-inherit dark:bg-yellow-900/50 rounded px-1',
-            },
-          }),
-        ]
-      : []),
-    ...(has('alignment') ? [TextAlign.configure({ types: ['heading', 'paragraph'] })] : []),
-    ...(has('footnotes')
-      ? [Document.extend({ content: 'block+ footnotes?' }), Footnotes, Footnote, FootnoteReference]
-      : []),
+    Superscript.configure({ HTMLAttributes: { class: 'text-xs align-super' } }),
+    Highlight.configure({
+      HTMLAttributes: { class: 'bg-yellow-200 text-inherit dark:bg-yellow-900/50 rounded px-1' },
+    }),
+    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    Document.extend({ content: 'block+ footnotes?' }),
+    Footnotes,
+    Footnote,
+    FootnoteReference,
   ];
 }
 
@@ -403,7 +393,7 @@ export function RichTextEditor({
   features = ALL_FEATURES,
 }: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: editorExtensions(features),
+    extensions: editorExtensions(),
     content: value || '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => onChange(editor.isEmpty ? null : editor.getHTML()),
@@ -457,7 +447,7 @@ export function RichTextViewer({
 }) {
   const html = content ? shortenAddressLinks(content) : '';
   const editor = useEditor({
-    extensions: editorExtensions(ALL_FEATURES),
+    extensions: editorExtensions(),
     content: html,
     immediatelyRender: false,
     editable: false,

@@ -30,6 +30,8 @@ ENV NODE_ENV=production PORT=3000
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.output ./.output
 COPY package.json prisma.config.ts ./
+# prisma.config.ts loads the env files through it
+COPY scripts/env-files.ts ./scripts/
 COPY prisma ./prisma
 USER node
 EXPOSE 3000
