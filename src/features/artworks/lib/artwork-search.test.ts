@@ -27,6 +27,20 @@ describe('public notice search', () => {
     expect(where).toMatchObject({ status: 'PUBLISHED', publishedAt: { not: null } });
   });
 
+  it('searches the title, artists, place, medium and text of a notice', () => {
+    const text = { contains: 'Beaux-Arts', mode: 'insensitive' };
+    const where = buildArtworkWhere(filters({ search: 'Beaux-Arts' }));
+    expect(where.AND).toContainEqual({
+      OR: expect.arrayContaining([
+        { title: text },
+        { place: { name: text } },
+        { medium: text },
+        { notice: text },
+        expect.objectContaining({ artists: expect.anything() }),
+      ]),
+    });
+  });
+
   it('rejects oversized search text', () => {
     expect(ArtworkFiltersSchema.safeParse({ search: 'x'.repeat(201) }).success).toBe(false);
   });

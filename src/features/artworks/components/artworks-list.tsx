@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import type { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
+import { plural } from '@/lib/format';
 import { Link } from '@tanstack/react-router';
 import { SearchX } from 'lucide-react';
 import { use, useDeferredValue, useMemo } from 'react';
-import { ArtworkCard } from './artwork-card';
+import { ArtworkGrid } from './artwork-grid';
 
 interface ArtworksListProps {
   artworksPromise: ReturnType<typeof fetchFilteredArtworks>;
@@ -19,7 +20,7 @@ export function ArtworksList({ artworksPromise, isFiltered }: ArtworksListProps)
   const deferred = useDeferredValue(current);
   const artworks = use(deferred.artworksPromise);
   const isUpdating = deferred.artworksPromise !== artworksPromise;
-  const count = `${artworks.length} notice${artworks.length > 1 ? 's' : ''}`;
+  const count = plural(artworks.length, 'notice');
 
   return (
     <>
@@ -38,13 +39,7 @@ export function ArtworksList({ artworksPromise, isFiltered }: ArtworksListProps)
             <p className="mb-6 text-sm text-muted-foreground" aria-hidden="true">
               {count}
             </p>
-            <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-              {artworks.map((artwork, index) => (
-                <li key={artwork.id}>
-                  <ArtworkCard artwork={artwork} priority={index < 2} />
-                </li>
-              ))}
-            </ul>
+            <ArtworkGrid artworks={artworks} />
           </>
         )}
       </div>

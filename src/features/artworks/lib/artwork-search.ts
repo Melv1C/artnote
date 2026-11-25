@@ -5,8 +5,17 @@ import { SearchTextSchema } from '@/schemas/common';
 import { publishedWhere } from './artwork-status';
 import { z } from '@/lib/zod';
 
-const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
-const SortOrderSchema = z.enum(['asc', 'desc']);
+export const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
+export const SortOrderSchema = z.enum(['asc', 'desc']);
+
+export type ArtworkSort = z.infer<typeof ArtworkSortSchema>;
+export type SortOrder = z.infer<typeof SortOrderSchema>;
+
+/** The public list's order when the URL gives none. */
+export const DEFAULT_ARTWORK_SORT = { sort: 'title', order: 'asc' } as const satisfies {
+  sort: ArtworkSort;
+  order: SortOrder;
+};
 
 // Default search parsing turns numeric values (e.g. `?year=1890`) into numbers, so accept both
 // and keep the parsed value to avoid rewriting the URL. Over-long values are dropped, not errors.
@@ -35,8 +44,8 @@ export const ArtworkFiltersSchema = z.object({
   place: SearchTextSchema.optional(),
   medium: SearchTextSchema.optional(),
   year: SearchTextSchema.optional(),
-  sort: ArtworkSortSchema.default('title'),
-  order: SortOrderSchema.default('asc'),
+  sort: ArtworkSortSchema.default(DEFAULT_ARTWORK_SORT.sort),
+  order: SortOrderSchema.default(DEFAULT_ARTWORK_SORT.order),
 });
 
 export type ArtworkFilters = z.input<typeof ArtworkFiltersSchema>;
@@ -63,6 +72,10 @@ const artistNamed = (name: string): Prisma.ArtworkWhereInput => ({
   },
 });
 
+const placeNamed = (name: string): Prisma.ArtworkWhereInput => ({
+  place: { name: contains(name) },
+});
+
 /** Prisma `where` for published notices matching `filters`. */
 export function buildArtworkWhere(
   filters: z.output<typeof ArtworkFiltersSchema>,
@@ -76,13 +89,14 @@ export function buildArtworkWhere(
             OR: [
               { title: contains(search) },
               artistNamed(search),
+              placeNamed(search),
               { medium: contains(search) },
               { notice: contains(search) },
             ],
           }
         : {},
       artist ? artistNamed(artist) : {},
-      place ? { place: { name: contains(place) } } : {},
+      place ? placeNamed(place) : {},
       medium ? { medium: contains(medium) } : {},
       year ? { creationYear: contains(year) } : {},
     ],
@@ -115,7 +129,7 @@ export function buildArtworkOrderBy(
 type WithArtists = { artists: { artist: { firstName: string; lastName: string } }[] };
 
 /** Sort notices by their first artist's full name, French collation. Stable for ties. */
-export function sortByFirstArtist<T extends WithArtists>(artworks: T[], order: 'asc' | 'desc') {
+export function sortByFirstArtist<T extends WithArtists>(artworks: T[], order: SortOrder) {
   const name = (artwork: T) => {
     const first = artwork.artists[0]?.artist;
     return first ? artistFullName(first) : '';

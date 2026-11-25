@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { ArtistFormSchema } from './artist';
-import { ArtworkFormSchema, PublicArtworkSchema } from './artwork';
+import { ArtworkFormSchema, PublicArtworkSchema, toArtworkForm } from './artwork';
+import { MAX_IMAGES_PER_NOTICE } from './image';
 import { PlaceFormSchema } from './place';
 import { UserProfileFormSchema } from './user';
 
@@ -107,6 +108,35 @@ describe('ArtworkFormSchema', () => {
       images: [{ ...attachment, imageId: 'x'.repeat(65) }],
     });
     expect(result.success).toBe(false);
+  });
+
+  it('accepts no more images than the editor lets a writer attach', () => {
+    const images = (count: number) =>
+      Array.from({ length: count }, (_, sortOrder) => ({ ...attachment, sortOrder }));
+    const parse = (count: number) =>
+      ArtworkFormSchema.safeParse({ ...form, images: images(count) }).success;
+    expect(parse(MAX_IMAGES_PER_NOTICE)).toBe(true);
+    expect(parse(MAX_IMAGES_PER_NOTICE + 1)).toBe(false);
+  });
+
+  it('submits the editor’s chosen artists and place as ids', () => {
+    const { placeId: _placeId, artistIds: _artistIds, ...values } = form;
+    const submitted = toArtworkForm({
+      ...values,
+      status: 'DRAFT',
+      images: [],
+      artists: [
+        { id: 'ar1', firstName: 'Hubert', lastName: 'van Eyck' },
+        { id: 'ar2', firstName: 'Jan', lastName: 'van Eyck' },
+      ],
+      place: { id: 'p1', name: 'Cathédrale Saint-Bavon', city: 'Gand', country: 'Belgique' },
+    });
+    expect(submitted).toMatchObject({ artistIds: ['ar1', 'ar2'], placeId: 'p1' });
+    expect(submitted).not.toHaveProperty('artists');
+    expect(submitted).not.toHaveProperty('place');
+    expect(
+      toArtworkForm({ ...values, status: 'DRAFT', images: [], artists: [], place: null }),
+    ).toMatchObject({ artistIds: [], placeId: null });
   });
 });
 

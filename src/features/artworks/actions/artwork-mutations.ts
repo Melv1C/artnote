@@ -113,7 +113,7 @@ export const changeArtworkStatus = createServerFn({ method: 'POST' })
 
 const ImageUploadSchema = z.instanceof(FormData);
 
-/** Upload an image to Vercel Blob and record it. Attach it to a notice through `updateArtwork`. */
+/** Upload an image to the object storage and record it. Attach it to a notice through `updateArtwork`. */
 export const uploadArtworkImage = createServerFn({ method: 'POST' })
   .middleware([dashboardAccessMiddleware])
   .validator(ImageUploadSchema)

@@ -3,11 +3,12 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'node:crypto';
 import { env } from '@/lib/env';
 import { z } from '@/lib/zod';
-
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-
-// Raster formats only: SVG can carry scripts and is served from a public origin
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
+import {
+  IMAGE_FORMAT_NAMES,
+  IMAGE_FORMATS,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_MEGABYTES,
+} from '@/schemas/image';
 
 const optionalText = z
   .string()
@@ -18,12 +19,12 @@ const optionalText = z
 const ImageUploadSchema = z.object({
   file: z
     .instanceof(File, { message: 'Aucun fichier fourni' })
-    .refine(file => ALLOWED_IMAGE_TYPES.includes(file.type), {
-      message: 'Formats acceptés : JPEG, PNG, WebP, AVIF ou GIF',
+    .refine(file => Object.hasOwn(IMAGE_FORMATS, file.type), {
+      message: `Formats acceptés : ${IMAGE_FORMAT_NAMES}`,
     })
     .refine(file => file.size > 0, { message: 'Le fichier est vide' })
     .refine(file => file.size <= MAX_IMAGE_BYTES, {
-      message: 'Le fichier est trop volumineux (max 10 Mo)',
+      message: `Le fichier est trop volumineux (max ${MAX_IMAGE_MEGABYTES} Mo)`,
     }),
   alt: optionalText,
   caption: optionalText,
@@ -39,14 +40,6 @@ export function readImageUpload(formData: FormData) {
   if (!result.success) throw new Error(result.error.issues[0]?.message ?? 'Image invalide');
   return result.data;
 }
-
-const EXTENSIONS: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-  'image/avif': 'avif',
-  'image/gif': 'gif',
-};
 
 const { storage } = env;
 
@@ -66,7 +59,8 @@ const s3 =
  */
 export async function uploadPublicImage(folder: 'artworks' | 'avatars', file: File) {
   if (!storage || !s3) throw new Error("Le stockage des images n'est pas configuré");
-  const key = `${folder}/${randomUUID()}.${EXTENSIONS[file.type] ?? 'img'}`;
+  const extension = IMAGE_FORMATS[file.type]?.extensions[0] ?? '.img';
+  const key = `${folder}/${randomUUID()}${extension}`;
   await s3.send(
     new PutObjectCommand({
       Bucket: storage.bucket,

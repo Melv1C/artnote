@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { fetchArtworkPreview } from '@/features/artworks/actions/artwork-queries';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
-import { ARTWORK_STATUS_LABELS } from '@/features/artworks/lib/artwork-status';
+import { ARTWORK_STATUS } from '@/features/artworks/lib/artwork-status';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { EyeOff, Pencil } from 'lucide-react';
 
@@ -33,7 +33,7 @@ function ArtworkPreviewPage() {
               <strong className="font-semibold">Mode Aperçu</strong>
               <span className="text-muted-foreground">
                 {' '}
-                · {ARTWORK_STATUS_LABELS[artwork.status]}
+                · {ARTWORK_STATUS[artwork.status].label}
                 {isPublished ? ', visible par les lecteurs' : ', invisible pour les lecteurs'}
               </span>
             </span>

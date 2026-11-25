@@ -1,6 +1,6 @@
 import { ArtworksFilter } from '@/features/artworks/components/artworks-filter';
 import { ArtworksList } from '@/features/artworks/components/artworks-list';
-import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
+import { ArtworkGridSkeleton } from '@/features/artworks/components/artwork-grid';
 import { ArtworksSearchSchema, toArtworkFilters } from '@/features/artworks/lib/artwork-search';
 import { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
 import { pageMeta } from '@/lib/seo';
@@ -40,7 +40,7 @@ function ArtworksPage() {
         <ArtworksFilter />
       </div>
 
-      <Suspense fallback={<ArtworksListSkeleton />}>
+      <Suspense fallback={<ArtworkGridSkeleton />}>
         <ArtworksList artworksPromise={artworks} isFiltered={isFiltered} />
       </Suspense>
     </div>

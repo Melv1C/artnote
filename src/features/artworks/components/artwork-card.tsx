@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link } from '@tanstack/react-router';
-import { artistNames, mainImage } from '../lib/artwork-display';
+import { artistNames, cartelLine, mainImage } from '../lib/artwork-display';
 import { Painting } from '@/components/painting';
 
 interface ArtworkCardProps {
@@ -19,8 +19,9 @@ interface ArtworkCardProps {
  */
 export function ArtworkCard({ artwork, priority, className, headingLevel = 2 }: ArtworkCardProps) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
-  const { id, title, creationYear, images, place, artists } = artwork;
+  const { id, title, images, artists } = artwork;
   const artist = artistNames(artists);
+  const dateAndPlace = cartelLine(artwork, ['year', 'place']);
 
   return (
     <Link
@@ -44,11 +45,7 @@ export function ArtworkCard({ artwork, priority, className, headingLevel = 2 }: 
         <Heading className="work-title text-[1.375rem] leading-snug text-foreground decoration-primary/40 decoration-1 underline-offset-4 group-hover:underline">
           {title}
         </Heading>
-        {(creationYear || place) && (
-          <p className="text-sm text-muted-foreground">
-            {[creationYear, place?.name].filter(Boolean).join(', ')}
-          </p>
-        )}
+        {dateAndPlace && <p className="text-sm text-muted-foreground">{dateAndPlace}</p>}
       </div>
     </Link>
   );

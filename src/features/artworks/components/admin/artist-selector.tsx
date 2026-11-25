@@ -12,52 +12,33 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { type Artist } from '@/schemas/artist';
+import type { ArtworkEditorValues } from '@/schemas/artwork';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
 import { useArtistOptions } from '@/features/artists/hooks/use-artists';
 
+type SelectedArtist = ArtworkEditorValues['artists'][number];
+
 interface ArtistSelectorProps {
-  selectedArtists: Artist[];
-  onSelectionChange: (artists: Artist[]) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
+  selectedArtists: SelectedArtist[];
+  onChange: (artists: SelectedArtist[]) => void;
 }
 
-export function ArtistSelector({
-  selectedArtists,
-  onSelectionChange,
-  placeholder = 'Sélectionner des artistes…',
-  className,
-  disabled = false,
-}: ArtistSelectorProps) {
+/** The notice editor's artist picker: search the artists, then pick or drop any number. */
+export function ArtistSelector({ selectedArtists, onChange }: ArtistSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const debouncedSearch = useDebounce(searchValue, 300);
 
   const { data: artists = [], isLoading } = useArtistOptions(debouncedSearch);
 
-  const handleSelect = (artist: Artist) => {
-    const isSelected = selectedArtists.some(a => a.id === artist.id);
-
-    if (isSelected) {
-      onSelectionChange(selectedArtists.filter(a => a.id !== artist.id));
-    } else {
-      onSelectionChange([...selectedArtists, artist]);
-    }
-  };
-
-  const handleRemove = (artistId: string) => {
-    onSelectionChange(selectedArtists.filter(a => a.id !== artistId));
-  };
-
-  const formatArtistName = (artist: Artist) => {
-    return artistFullName(artist);
-  };
+  const isSelected = (artistId: string) => selectedArtists.some(a => a.id === artistId);
+  const remove = (artistId: string) => onChange(selectedArtists.filter(a => a.id !== artistId));
+  const toggle = (artist: SelectedArtist) =>
+    isSelected(artist.id) ? remove(artist.id) : onChange([...selectedArtists, artist]);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className="space-y-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -65,11 +46,10 @@ export function ArtistSelector({
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between"
-            disabled={disabled}
           >
             {selectedArtists.length > 0
               ? `${selectedArtists.length} artiste${selectedArtists.length > 1 ? 's' : ''}`
-              : placeholder}
+              : 'Sélectionner des artistes…'}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -83,42 +63,40 @@ export function ArtistSelector({
             <CommandList>
               <CommandEmpty>{isLoading ? 'Chargement…' : 'Aucun artiste trouvé.'}</CommandEmpty>
               <CommandGroup>
-                {artists.map(artist => {
-                  const isSelected = selectedArtists.some(a => a.id === artist.id);
-                  return (
-                    <CommandItem
-                      key={artist.id}
-                      value={artistFullName(artist)}
-                      onSelect={() => handleSelect(artist)}
-                    >
-                      <Check
-                        className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
-                      />
-                      {formatArtistName(artist)}
-                    </CommandItem>
-                  );
-                })}
+                {artists.map(artist => (
+                  <CommandItem
+                    key={artist.id}
+                    value={artistFullName(artist)}
+                    onSelect={() => toggle(artist)}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        isSelected(artist.id) ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {artistFullName(artist)}
+                  </CommandItem>
+                ))}
               </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
 
-      {/* Selected artists badges */}
       {selectedArtists.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedArtists.map(artist => (
             <Badge key={artist.id} variant="secondary" className="pr-1">
-              {formatArtistName(artist)}
+              {artistFullName(artist)}
               <Button
                 variant="ghost"
                 size="sm"
                 className="ml-1 h-auto p-0 text-muted-foreground hover:text-foreground"
-                onClick={() => handleRemove(artist.id)}
-                disabled={disabled}
+                onClick={() => remove(artist.id)}
               >
                 <X className="h-3 w-3" />
-                <span className="sr-only">Supprimer {formatArtistName(artist)}</span>
+                <span className="sr-only">Supprimer {artistFullName(artist)}</span>
               </Button>
             </Badge>
           ))}
