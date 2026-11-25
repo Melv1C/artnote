@@ -1,8 +1,4 @@
-/** OpenFreeMap's styles, following the app theme (ADR 0013). */
-export const OPENFREEMAP_STYLES = {
-  light: 'https://tiles.openfreemap.org/styles/positron',
-  dark: 'https://tiles.openfreemap.org/styles/fiord',
-};
+import type * as GeoJSON from 'geojson';
 
 /** What the map needs of a place: where it is and how many published notices it has. */
 interface MapPoint {

@@ -22,6 +22,15 @@ const SERVER_ONLY_IMPORTS = [
   { name: '@/lib/env', message: 'Server-only. Pass the value from a server function.' },
 ];
 
+// Type-aware rules that shadcn components, kept close to upstream, break
+const SHADCN_RELAXED_RULES = [
+  'typescript/no-floating-promises',
+  'typescript/restrict-template-expressions',
+  'typescript/no-redundant-type-constituents',
+  'typescript/no-base-to-string',
+  'typescript/no-misused-spread',
+];
+
 export default defineConfig(({ mode }) => {
   const { BASE_URL = 'http://localhost:3000' } = loadEnv(mode, process.cwd(), '');
   // Better Auth rejects sign-ins from any origin other than BASE_URL, so never fall back to another port
@@ -128,15 +137,12 @@ export default defineConfig(({ mode }) => {
         {
           // shadcn components, copied from upstream: keep them close to the original
           files: ['src/components/ui/**'],
-          rules: {
-            'typescript/no-floating-promises': 'off',
-            'typescript/restrict-template-expressions': 'off',
-            'typescript/no-redundant-type-constituents': 'off',
-            'typescript/no-base-to-string': 'off',
-            'typescript/no-misused-spread': 'off',
-            // mapcn's map keeps its latest props in refs during render
-            'react/refs': 'off',
-          },
+          rules: Object.fromEntries(SHADCN_RELAXED_RULES.map(rule => [rule, 'off'] as const)),
+        },
+        {
+          // The map started from mapcn but is the app's own code now: no exemption
+          files: ['src/components/ui/map.tsx'],
+          rules: Object.fromEntries(SHADCN_RELAXED_RULES.map(rule => [rule, 'error'] as const)),
         },
         {
           files: ['src/lib/zod.ts'],

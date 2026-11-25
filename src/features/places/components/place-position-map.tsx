@@ -2,7 +2,6 @@ import { Map, MapMarker, MarkerContent, useMap } from '@/components/ui/map';
 import { MapPin } from 'lucide-react';
 import type { MapMouseEvent } from 'maplibre-gl';
 import { useEffect } from 'react';
-import { OPENFREEMAP_STYLES } from '../lib/place-map';
 import { BELGIUM_VIEW, POSITION_ZOOM, type PlacePosition } from '../lib/place-position';
 
 interface PlacePositionMapProps {
@@ -14,6 +13,16 @@ interface PlacePositionMapProps {
   focus?: PlacePosition | null;
 }
 
+/** The pin's width and height, in pixels. */
+const PIN_HEIGHT = 32;
+/** The margin, in pixels, a followed marker keeps from the map's edges. */
+const EDGE = 16;
+/**
+ * The least zoom the map comes to when it follows typed numbers: the town around the position,
+ * not yet the streets of POSITION_ZOOM, as each digit typed moves the marker.
+ */
+const FOLLOW_ZOOM = 10;
+
 /**
  * The map of the place form: one marker on the place's position, which the writer drags (or
  * clicks the map) to move. Without a position it opens on Belgium and shows no marker until the
@@ -23,9 +32,6 @@ export default function PlacePositionMap({ position, onChange, focus }: PlacePos
   return (
     <Map
       className="h-72 overflow-hidden rounded-md border sm:h-80"
-      styles={OPENFREEMAP_STYLES}
-      // Credits stay expanded: OpenFreeMap and OpenStreetMap must stay visible
-      attributionControl={{ compact: false }}
       {...(position
         ? { center: [position.longitude, position.latitude], zoom: POSITION_ZOOM }
         : BELGIUM_VIEW)}
@@ -44,7 +50,8 @@ export default function PlacePositionMap({ position, onChange, focus }: PlacePos
           <MarkerContent className="cursor-grab active:cursor-grabbing">
             <MapPin
               aria-hidden
-              className="size-8 fill-primary stroke-primary-foreground drop-shadow-md"
+              size={PIN_HEIGHT}
+              className="fill-primary stroke-primary-foreground drop-shadow-md"
             />
           </MarkerContent>
         </MapMarker>
@@ -77,9 +84,6 @@ function ClickToPlace({ onChange }: Pick<PlacePositionMapProps, 'onChange'>) {
   return null;
 }
 
-const EDGE = 16;
-const PIN_HEIGHT = 32;
-
 /** When typed numbers put the marker out of view or against an edge, bring it to the middle. */
 function FollowPosition({ position }: Pick<PlacePositionMapProps, 'position'>) {
   const { map } = useMap();
@@ -92,7 +96,7 @@ function FollowPosition({ position }: Pick<PlacePositionMapProps, 'position'>) {
     const { x, y } = map.project([longitude, latitude]);
     const { clientWidth: width, clientHeight: height } = map.getContainer();
     if (x >= EDGE && x <= width - EDGE && y >= PIN_HEIGHT + EDGE && y <= height - EDGE) return;
-    map.easeTo({ center: [longitude, latitude], zoom: Math.max(map.getZoom(), 10) });
+    map.easeTo({ center: [longitude, latitude], zoom: Math.max(map.getZoom(), FOLLOW_ZOOM) });
   }, [map, latitude, longitude]);
 
   return null;
