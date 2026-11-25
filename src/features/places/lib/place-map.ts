@@ -27,10 +27,6 @@ export const NOTICE_COUNT_CLUSTER_PROPERTIES = {
   noticeCount: ['+', ['get', 'noticeCount']],
 } as const;
 
-export function noticeCountLabel(count: number): string {
-  return `${count} ${count === 1 ? 'notice' : 'notices'}`;
-}
-
 /** How many of a place's published notices its details list; the rest are behind a link. */
 export const MAP_NOTICES_SHOWN = 3;
 

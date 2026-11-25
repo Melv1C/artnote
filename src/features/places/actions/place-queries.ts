@@ -11,8 +11,6 @@ import { buildPlaceWhere } from '../lib/place-filters';
 import { MAP_NOTICES_SHOWN } from '../lib/place-map';
 
 const placeInclude = {
-  createdBy: { select: { id: true, name: true } },
-  updatedBy: { select: { id: true, name: true } },
   artworks: { select: { id: true, title: true } },
 } satisfies Prisma.PlaceInclude;
 

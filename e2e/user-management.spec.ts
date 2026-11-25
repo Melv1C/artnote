@@ -6,7 +6,7 @@ async function setReaderRole(page: Page, roleLabel: string) {
   await page.goto('/dashboard/users');
   await page.waitForLoadState('networkidle');
   const row = page.getByRole('row').filter({ hasText: accounts.user });
-  await row.getByRole('button', { name: 'Ouvrir le menu' }).click();
+  await row.getByRole('button', { name: 'Plus d’actions' }).click();
   await page.getByRole('menuitem', { name: 'Modifier le rôle' }).hover();
   await page.getByRole('menuitem', { name: roleLabel, exact: true }).click();
   await expect(page.getByText(`Rôle mis à jour vers ${roleLabel}`)).toBeVisible();

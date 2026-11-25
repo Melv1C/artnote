@@ -28,9 +28,6 @@ export const ogImageMeta = (siteUrl: string, images: OgImage[]) =>
     ...(image.alt ? [{ property: 'og:image:alt', content: image.alt }] : []),
   ]);
 
-/**
- * Title and description tags for a page.
- */
 export const pageMeta = (title: string, description: string) => [
   { title },
   { name: 'description', content: description },

@@ -3,7 +3,6 @@ import {
   hiddenInGroup,
   mapMarkers,
   moreNoticesLabel,
-  noticeCountLabel,
   placesBounds,
   placesToGeoJSON,
   type MapMarker,
@@ -11,13 +10,6 @@ import {
 
 const brussels = { id: 'brussels', latitude: 50.8417, longitude: 4.3579, noticeCount: 2 };
 const ghent = { id: 'ghent', latitude: 51.0531, longitude: 3.7272, noticeCount: 1 };
-
-describe('noticeCountLabel', () => {
-  it('says "notice" for one and "notices" for more', () => {
-    expect(noticeCountLabel(1)).toBe('1 notice');
-    expect(noticeCountLabel(3)).toBe('3 notices');
-  });
-});
 
 describe('moreNoticesLabel', () => {
   it('links to every notice only above the three the details list', () => {

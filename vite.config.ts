@@ -104,7 +104,7 @@ export default defineConfig(({ mode }) => {
         'react/rules-of-hooks': 'error',
         'react/exhaustive-deps': 'error',
         'react/jsx-key': 'error',
-        'react/no-unknown-property': ['error', { ignore: ['cmdk-empty'] }],
+        'react/no-unknown-property': 'error',
         // React Compiler rules existing components break; new code should still follow them
         'react/set-state-in-effect': 'off',
         'react/purity': 'off',

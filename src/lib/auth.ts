@@ -5,7 +5,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import { env } from './env';
-import { ac, admin as adminRole, user } from './permissions';
+import { ac, roles } from './permissions';
 import { prisma } from './prisma';
 
 export const auth = betterAuth({
@@ -37,17 +37,14 @@ export const auth = betterAuth({
   plugins: [
     admin({
       ac,
-      roles: {
-        admin: adminRole,
-        user,
-      },
+      roles,
       adminRoles: [UserRoleSchema.enum.admin],
       defaultRole: UserRoleSchema.enum.user,
       defaultBanReason: "Violation des conditions d'utilisation",
       bannedUserMessage:
         "Votre compte a été suspendu. Veuillez contacter le support si vous pensez qu'il s'agit d'une erreur.",
-      impersonationSessionDuration: 60 * 60, // 1 hour
-      defaultBanExpiresIn: 60 * 60 * 24 * 7, // 1 week default ban
+      impersonationSessionDuration: 60 * 60,
+      defaultBanExpiresIn: 60 * 60 * 24 * 7,
     }),
     // Must stay last so auth cookies are set through TanStack Start's cookie helpers
     tanstackStartCookies(),

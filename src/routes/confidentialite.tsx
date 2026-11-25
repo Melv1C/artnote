@@ -84,10 +84,10 @@ function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-medium">Nombre de vues des notices</h2>
           <p>
-            Chaque notice affiche son nombre de vues. Pour ne compter qu’une fois un même lecteur
-            qui recharge la page, ArtNote compte au plus une vue toutes les{' '}
-            {formatDuration(VIEW_DEDUPLICATION_WINDOW_MS)} pour une même notice et une même adresse
-            réseau (IP).
+            ArtNote compte les vues de chaque notice, que voient ses rédacteurs. Pour ne compter
+            qu’une fois un même lecteur qui recharge la page, ArtNote compte au plus une vue toutes
+            les {formatDuration(VIEW_DEDUPLICATION_WINDOW_MS)} pour une même notice et une même
+            adresse réseau (IP).
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>

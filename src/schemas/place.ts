@@ -1,11 +1,11 @@
 import { z } from '@/lib/zod';
 import { ImageSchema } from './image';
 import {
+  WebLinkSchema,
   IdSchema,
   PaginationSchema,
   PlaceTypeSchema,
   SearchTextSchema,
-  UserRefSchema,
 } from './common';
 
 export const PlaceSchema = z.object({
@@ -46,10 +46,8 @@ export const MapPlaceSchema = PublicPlaceSchema.extend({
   notices: MapNoticeSchema.array(),
 });
 
-/** A place with who created and last edited it, and the notices located there (dashboard). */
+/** A place with the notices located there (dashboard). */
 export const PlaceWithRelationsSchema = PlaceSchema.extend({
-  createdBy: UserRefSchema,
-  updatedBy: UserRefSchema,
   artworks: z.array(z.object({ id: z.string(), title: z.string() })),
 });
 
@@ -62,21 +60,24 @@ export const PlaceFiltersSchema = PaginationSchema.extend({
   missingPosition: z.boolean().optional(),
 });
 
+/** The largest latitude and longitude, either side of zero. */
+export const COORDINATE_LIMITS = { latitude: 90, longitude: 180 } as const;
+
+const coordinate = (name: keyof typeof COORDINATE_LIMITS) =>
+  z
+    .number({
+      error: issue =>
+        issue.input === undefined ? `Position manquante : indiquez la ${name}` : undefined,
+    })
+    .min(-COORDINATE_LIMITS[name])
+    .max(COORDINATE_LIMITS[name]);
+
 // Form inputs send strings; empty means "not set", which the position refuses
-const requiredCoordinate = (name: 'latitude' | 'longitude', min: number, max: number) =>
-  z.preprocess(
-    value => {
-      if (value === '' || value === null) return undefined;
-      return typeof value === 'string' ? Number(value) : value;
-    },
-    z
-      .number({
-        error: issue =>
-          issue.input === undefined ? `Position manquante : indiquez la ${name}` : undefined,
-      })
-      .min(min)
-      .max(max),
-  );
+const requiredCoordinate = (name: keyof typeof COORDINATE_LIMITS) =>
+  z.preprocess(value => {
+    if (value === '' || value === null) return undefined;
+    return typeof value === 'string' ? Number(value) : value;
+  }, coordinate(name));
 
 /** What the place form submits. */
 export const PlaceFormSchema = z.object({
@@ -86,9 +87,9 @@ export const PlaceFormSchema = z.object({
   address: z.string().max(500).optional(),
   city: z.string().max(255).optional(),
   country: z.string().max(255).optional(),
-  latitude: requiredCoordinate('latitude', -90, 90),
-  longitude: requiredCoordinate('longitude', -180, 180),
-  website: z.union([z.literal(''), z.url('URL invalide')]).optional(),
+  latitude: requiredCoordinate('latitude'),
+  longitude: requiredCoordinate('longitude'),
+  website: z.union([z.literal(''), WebLinkSchema]).optional(),
   description: z.string().max(100_000).optional(),
 });
 
@@ -102,8 +103,8 @@ export const AddressSearchSchema = z.object({
 /** One address search result: its full label, its position and what it knows of its address. */
 export const AddressResultSchema = z.object({
   label: z.string(),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  latitude: coordinate('latitude'),
+  longitude: coordinate('longitude'),
   address: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),

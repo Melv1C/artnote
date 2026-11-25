@@ -46,7 +46,7 @@ export function ArtworksFilter() {
     sort: searchParams.sort ?? DEFAULT_ARTWORK_SORT.sort,
     order: searchParams.order ?? DEFAULT_ARTWORK_SORT.order,
   });
-  const debouncedSearch = useDebounce(search, 300);
+  const debouncedSearch = useDebounce(search);
   const inputRef = useRef<HTMLInputElement>(null);
   // The value this field last wrote to the URL: any other URL value came from elsewhere (a link,
   // back and forward), and the field follows it

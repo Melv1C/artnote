@@ -15,13 +15,16 @@ export const IdSchema = z.string().trim().min(1).max(64);
 /** Free-text search as received from a client. */
 export const SearchTextSchema = z.string().trim().max(200);
 
+/**
+ * A web address an admin types, such as a place's website: http(s) only, so it is safe as a link's
+ * `href` (no `javascript:`). Pages check stored addresses with it too, as older rows were not.
+ */
+export const WebLinkSchema = z.url({ protocol: /^https?$/, message: 'URL invalide' });
+
 export const PaginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });
-
-/** Who created or last edited a record, as dashboard lists show it. */
-export const UserRefSchema = z.object({ id: z.string(), name: z.string() });
 
 /** Turn an empty or whitespace-only form value into null. */
 export const emptyToNull = (value: string | null | undefined) => value?.trim() || null;

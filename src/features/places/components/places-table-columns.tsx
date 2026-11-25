@@ -1,4 +1,4 @@
-import { RowActions } from '@/components/data-table/row-actions';
+import { DeleteMenuItem, EditMenuItem, RowMenu } from '@/components/data-table/row-actions';
 import type { PagedColumnDef } from '@/components/data-table/paged-table';
 import { Badge } from '@/components/ui/badge';
 import { formatShortDate, plural } from '@/lib/format';
@@ -66,15 +66,19 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
 function PlaceRowActions({ place }: { place: PlaceWithRelations }) {
   const queryClient = useQueryClient();
   return (
-    <RowActions
-      editLink={<Link to="/dashboard/places/$placeId" params={{ placeId: place.id }} />}
-      name={place.name}
-      deleteConsequence="Les notices conservées dans ce lieu n’auront plus de lieu."
-      onDelete={async () => {
-        await deletePlace({ data: place.id });
-        await queryClient.invalidateQueries({ queryKey: placeKeys.all });
-      }}
-      messages={{ deleted: 'Lieu supprimé', failed: 'Le lieu n’a pas pu être supprimé.' }}
-    />
+    <RowMenu>
+      <EditMenuItem
+        link={<Link to="/dashboard/places/$placeId" params={{ placeId: place.id }} />}
+      />
+      <DeleteMenuItem
+        title={`Supprimer ${place.name} ?`}
+        consequence="Les notices conservées dans ce lieu n’auront plus de lieu."
+        onDelete={async () => {
+          await deletePlace({ data: place.id });
+          await queryClient.invalidateQueries({ queryKey: placeKeys.all });
+        }}
+        messages={{ deleted: 'Lieu supprimé', failed: 'Le lieu n’a pas pu être supprimé.' }}
+      />
+    </RowMenu>
   );
 }

@@ -38,9 +38,12 @@ export function useValidatedForm<S extends z.ZodObject>(
     });
   };
 
-  /** The invalid state of the field whose id is `name`, pointing to its message. */
-  const invalid = (name: Field) =>
-    errors[name] ? { 'aria-invalid': true, 'aria-describedby': `${name}-error` } : {};
+  /** A field's `id` and `name`, the schema key, and its invalid state pointing to its message. */
+  const field = (name: Field) => ({
+    id: name,
+    name,
+    ...(errors[name] && { 'aria-invalid': true, 'aria-describedby': `${name}-error` }),
+  });
 
   /** The field's first message, placed beside it. */
   const fieldError = (name: Field) => {
@@ -52,5 +55,5 @@ export function useValidatedForm<S extends z.ZodObject>(
     ) : null;
   };
 
-  return { onSubmit, isPending, invalid, fieldError };
+  return { onSubmit, isPending, field, fieldError };
 }

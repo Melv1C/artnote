@@ -1,4 +1,4 @@
-import { RowActions } from '@/components/data-table/row-actions';
+import { DeleteMenuItem, EditMenuItem, RowMenu } from '@/components/data-table/row-actions';
 import type { PagedColumnDef } from '@/components/data-table/paged-table';
 import { Badge } from '@/components/ui/badge';
 import { artistFullName } from '@/features/artists/lib/artist-name';
@@ -73,15 +73,19 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
 function ArtistRowActions({ artist }: { artist: ArtistWithRelations }) {
   const queryClient = useQueryClient();
   return (
-    <RowActions
-      editLink={<Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }} />}
-      name={artistFullName(artist)}
-      deleteConsequence="L’artiste sera retiré des notices qui le citent."
-      onDelete={async () => {
-        await deleteArtist({ data: artist.id });
-        await queryClient.invalidateQueries({ queryKey: artistKeys.all });
-      }}
-      messages={{ deleted: 'Artiste supprimé', failed: 'L’artiste n’a pas pu être supprimé.' }}
-    />
+    <RowMenu>
+      <EditMenuItem
+        link={<Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }} />}
+      />
+      <DeleteMenuItem
+        title={`Supprimer ${artistFullName(artist)} ?`}
+        consequence="L’artiste sera retiré des notices qui le citent."
+        onDelete={async () => {
+          await deleteArtist({ data: artist.id });
+          await queryClient.invalidateQueries({ queryKey: artistKeys.all });
+        }}
+        messages={{ deleted: 'Artiste supprimé', failed: 'L’artiste n’a pas pu être supprimé.' }}
+      />
+    </RowMenu>
   );
 }

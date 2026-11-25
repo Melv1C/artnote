@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { Map, MapMarker, MarkerContent, useMap } from '@/components/ui/map';
 import { MapPin } from 'lucide-react';
 import type { MapMouseEvent } from 'maplibre-gl';
@@ -11,6 +12,8 @@ interface PlacePositionMapProps {
   onChange: (position: PlacePosition) => void;
   /** A position to fly to and zoom in on, such as an address search result; each new one moves the map. */
   focus?: PlacePosition | null;
+  /** The map's size and shape, the same as its placeholder's */
+  className: string;
 }
 
 /** The pin's width and height, in pixels. */
@@ -28,10 +31,15 @@ const FOLLOW_ZOOM = 10;
  * clicks the map) to move. Without a position it opens on Belgium and shows no marker until the
  * writer clicks. Loaded on demand and in the browser only (`place-form.tsx`), as MapLibre is.
  */
-export default function PlacePositionMap({ position, onChange, focus }: PlacePositionMapProps) {
+export default function PlacePositionMap({
+  position,
+  onChange,
+  focus,
+  className,
+}: PlacePositionMapProps) {
   return (
     <Map
-      className="h-72 overflow-hidden rounded-md border sm:h-80"
+      className={cn('overflow-hidden', className)}
       {...(position
         ? { center: [position.longitude, position.latitude], zoom: POSITION_ZOOM }
         : BELGIUM_VIEW)}

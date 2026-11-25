@@ -1,13 +1,10 @@
-import { useConfirm } from '@/components/confirm-dialog';
+import { DeleteMenuItem, EditMenuItem, RowMenu } from '@/components/data-table/row-actions';
 import { Painting } from '@/components/painting';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatAgo, formatCount, formatLongDate } from '@/lib/format';
@@ -16,7 +13,7 @@ import { cn } from '@/lib/utils';
 import type { Artwork } from '@/schemas/artwork';
 import { ArtworkStatusSchema, type ArtworkStatus } from '@/schemas/common';
 import { Link, useRouter } from '@tanstack/react-router';
-import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil } from 'lucide-react';
 import { useTransition } from 'react';
 import { changeArtworkStatus, deleteArtwork } from '../../actions/artwork-mutations';
 import { cartelLine, mainImage } from '../../lib/artwork-display';
@@ -58,27 +55,6 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
   const { id, title, status, viewCount, updatedAt, images } = artwork;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const confirm = useConfirm();
-
-  const handleDelete = async () => {
-    const confirmed = await confirm({
-      title: `Supprimer « ${title} » ?`,
-      description:
-        'La notice, ses images et ses vues seront supprimées. Cette action est définitive.',
-      confirmLabel: 'Supprimer la notice',
-      destructive: true,
-    });
-    if (!confirmed) return;
-    startTransition(async () => {
-      await runMutation(
-        async () => {
-          await deleteArtwork({ data: id });
-          await router.invalidate();
-        },
-        { success: 'Notice supprimée', failure: 'La notice n’a pas pu être supprimée' },
-      );
-    });
-  };
 
   const handleStatusChange = (next: ArtworkStatus) => {
     startTransition(async () => {
@@ -162,38 +138,37 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           </TooltipTrigger>
           <TooltipContent>Aperçu</TooltipContent>
         </Tooltip>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8 md:size-8" disabled={isPending}>
-              <MoreHorizontal />
-              <span className="sr-only">Plus d’actions</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem asChild className="lg:hidden">
-              <Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }}>
-                <Pencil />
-                Modifier
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-              Statut
-            </DropdownMenuLabel>
-            {ArtworkStatusSchema.options
-              .filter(s => s !== status)
-              .map(next => (
-                <DropdownMenuItem key={next} onClick={() => handleStatusChange(next)}>
-                  <StatusDot status={next} className="mx-1 size-2" />
-                  {ARTWORK_STATUS[next].action}
-                </DropdownMenuItem>
-              ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={handleDelete}>
-              <Trash2 />
-              Supprimer
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <RowMenu disabled={isPending}>
+          <EditMenuItem
+            className="lg:hidden"
+            link={<Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }} />}
+          />
+          <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+            Statut
+          </DropdownMenuLabel>
+          {ArtworkStatusSchema.options
+            .filter(s => s !== status)
+            .map(next => (
+              <DropdownMenuItem key={next} onClick={() => handleStatusChange(next)}>
+                <StatusDot status={next} className="mx-1 size-2" />
+                {ARTWORK_STATUS[next].action}
+              </DropdownMenuItem>
+            ))}
+          <DropdownMenuSeparator />
+          <DeleteMenuItem
+            title={`Supprimer « ${title} » ?`}
+            consequence="La notice, ses images et ses vues seront supprimées."
+            confirmLabel="Supprimer la notice"
+            onDelete={async () => {
+              await deleteArtwork({ data: id });
+              await router.invalidate();
+            }}
+            messages={{
+              deleted: 'Notice supprimée',
+              failed: 'La notice n’a pas pu être supprimée.',
+            }}
+          />
+        </RowMenu>
       </div>
     </div>
   );

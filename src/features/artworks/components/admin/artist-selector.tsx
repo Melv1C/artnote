@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
+import { plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { ArtworkEditorValues } from '@/schemas/artwork';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
@@ -28,7 +29,7 @@ interface ArtistSelectorProps {
 export function ArtistSelector({ selectedArtists, onChange }: ArtistSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const debouncedSearch = useDebounce(searchValue, 300);
+  const debouncedSearch = useDebounce(searchValue);
 
   const { data: artists = [], isLoading } = useArtistOptions(debouncedSearch);
 
@@ -48,7 +49,7 @@ export function ArtistSelector({ selectedArtists, onChange }: ArtistSelectorProp
             className="w-full justify-between"
           >
             {selectedArtists.length > 0
-              ? `${selectedArtists.length} artiste${selectedArtists.length > 1 ? 's' : ''}`
+              ? plural(selectedArtists.length, 'artiste')
               : 'Sélectionner des artistes…'}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>

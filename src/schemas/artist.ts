@@ -1,11 +1,5 @@
 import { z } from '@/lib/zod';
-import {
-  ArtworkStatusSchema,
-  IdSchema,
-  PaginationSchema,
-  SearchTextSchema,
-  UserRefSchema,
-} from './common';
+import { ArtworkStatusSchema, IdSchema, PaginationSchema, SearchTextSchema } from './common';
 
 export const ArtistSchema = z.object({
   id: z.string(),
@@ -23,10 +17,8 @@ export const ArtistSchema = z.object({
 /** An artist as public pages show it: no audit columns. */
 export const PublicArtistSchema = ArtistSchema.omit({ createdById: true, updatedById: true });
 
-/** An artist with who created and last edited it, and the notices it appears in (dashboard). */
+/** An artist with the notices it appears in (dashboard). */
 export const ArtistWithRelationsSchema = ArtistSchema.extend({
-  createdBy: UserRefSchema,
-  updatedBy: UserRefSchema,
   artworks: z.array(
     z.object({
       id: z.string(),
@@ -38,7 +30,6 @@ export const ArtistWithRelationsSchema = ArtistSchema.extend({
 
 export const ArtistFiltersSchema = PaginationSchema.extend({
   search: SearchTextSchema.optional(),
-  name: SearchTextSchema.optional(),
 });
 
 /** A birth or death date as the sources give it: "1950", "01/01/1950", "vers 1525", "XIXe siècle". */

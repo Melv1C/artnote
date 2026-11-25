@@ -1,3 +1,4 @@
+import { plural } from '@/lib/format';
 import {
   Map as MapView,
   MapControls,
@@ -15,7 +16,6 @@ import {
   MAP_FIT,
   NOTICE_COUNT_CLUSTER_PROPERTIES,
   mapMarkers,
-  noticeCountLabel,
   placesBounds,
   placesToGeoJSON,
   type MapMarker as Marker,
@@ -174,7 +174,7 @@ function PlaceMarkers({
         {marker.kind === 'cluster' ? (
           <button
             type="button"
-            aria-label={`${noticeCountLabel(marker.noticeCount)} dans ce groupe de lieux, zoomer`}
+            aria-label={`${plural(marker.noticeCount, 'notice')} dans ce groupe de lieux, zoomer`}
             onClick={() => void zoomIntoGroup(marker)}
             className="flex size-11 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-md ring-4 ring-primary/30 transition-transform hover:scale-110 focus-visible:ring-ring focus-visible:outline-none"
           >
@@ -183,7 +183,7 @@ function PlaceMarkers({
         ) : (
           <button
             type="button"
-            aria-label={`${names.get(marker.placeId) ?? 'Lieu'} : ${noticeCountLabel(marker.noticeCount)}`}
+            aria-label={`${names.get(marker.placeId) ?? 'Lieu'} : ${plural(marker.noticeCount, 'notice')}`}
             aria-expanded={marker.placeId === selected?.id}
             data-place-id={marker.placeId}
             onClick={() => onSelect(marker.placeId)}

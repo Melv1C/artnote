@@ -1,23 +1,19 @@
 import { useConfirm } from '@/components/confirm-dialog';
-import { Button } from '@/components/ui/button';
+import { DeleteMenuItem, RowMenu } from '@/components/data-table/row-actions';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { runMutation } from '@/lib/run-mutation';
 import { UserRoleSchema, type UserRole } from '@/schemas/common';
 import type { User } from '@/schemas/user';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
-import { Ban, MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
+import { Ban, ShieldCheck, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   banUser,
@@ -34,14 +30,14 @@ export function UserRowActions({ user }: { user: User }) {
   const router = useRouter();
   const confirm = useConfirm();
 
-  /** Run a change to the account, then refresh the list and the page's figures. */
+  /** Refresh the account list and the page's figures after a change. */
+  const refresh = () =>
+    Promise.all([queryClient.invalidateQueries({ queryKey: userKeys.all }), router.invalidate()]);
+
   const change = (mutate: () => Promise<unknown>, messages: { success: string; failure: string }) =>
     runMutation(async () => {
       await mutate();
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: userKeys.all }),
-        router.invalidate(),
-      ]);
+      await refresh();
     }, messages);
 
   const handleCopyId = async () => {
@@ -94,72 +90,58 @@ export function UserRowActions({ user }: { user: User }) {
     );
   };
 
-  const handleDeleteUser = async () => {
-    const confirmed = await confirm({
-      title: `Supprimer le compte de ${user.name} ?`,
-      description: 'Le compte et ses sessions sont supprimés. Cette action est définitive.',
-      confirmLabel: 'Supprimer le compte',
-      destructive: true,
-    });
-    if (!confirmed) return;
-    await change(() => deleteUser({ data: user.id }), {
-      success: 'Utilisateur supprimé',
-      failure: 'L’utilisateur n’a pas pu être supprimé.',
-    });
-  };
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Ouvrir le menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCopyId}>Copier l’ID utilisateur</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              {UserRoleSchema.options.map(role => (
-                <DropdownMenuItem
-                  key={role}
-                  onClick={() => handleEditRole(role)}
-                  disabled={user.role === role}
-                >
-                  {USER_ROLE_LABELS[role]}
-                  {user.role === role && ' (actuel)'}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleImpersonateUser}>
-          <UserCheck className="mr-2 h-4 w-4" />
-          Se faire passer pour
+    <RowMenu>
+      <DropdownMenuItem onClick={handleCopyId}>Copier l’ID utilisateur</DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>Modifier le rôle</DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {UserRoleSchema.options.map(role => (
+              <DropdownMenuItem
+                key={role}
+                onClick={() => handleEditRole(role)}
+                disabled={user.role === role}
+              >
+                {USER_ROLE_LABELS[role]}
+                {user.role === role && ' (actuel)'}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onClick={handleImpersonateUser}>
+        <UserCheck />
+        Se faire passer pour
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      {accountStatus(user) === 'suspended' ? (
+        <DropdownMenuItem onClick={handleUnbanUser}>
+          <ShieldCheck />
+          Lever la suspension
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {accountStatus(user) === 'suspended' ? (
-          <DropdownMenuItem onClick={handleUnbanUser}>
-            <ShieldCheck className="mr-2 h-4 w-4" />
-            Lever la suspension
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={handleBanUser}>
-            <Ban className="mr-2 h-4 w-4" />
-            Suspendre l’utilisateur
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive" onClick={handleDeleteUser}>
-          Supprimer l’utilisateur
+      ) : (
+        <DropdownMenuItem onClick={handleBanUser}>
+          <Ban />
+          Suspendre l’utilisateur
         </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+      <DropdownMenuSeparator />
+      <DeleteMenuItem
+        title={`Supprimer le compte de ${user.name} ?`}
+        consequence="Le compte et ses sessions sont supprimés."
+        confirmLabel="Supprimer le compte"
+        onDelete={async () => {
+          await deleteUser({ data: user.id });
+          await refresh();
+        }}
+        messages={{
+          deleted: 'Utilisateur supprimé',
+          failed: 'L’utilisateur n’a pas pu être supprimé.',
+        }}
+      />
+    </RowMenu>
   );
 }

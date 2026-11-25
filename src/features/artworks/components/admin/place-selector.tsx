@@ -31,7 +31,7 @@ const placeLabel = (place: NonNullable<SelectedPlace>) =>
 export function PlaceSelector({ selectedPlace, onChange }: PlaceSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const debouncedSearch = useDebounce(searchValue, 300);
+  const debouncedSearch = useDebounce(searchValue);
 
   const { data: places = [], isLoading } = usePlaceOptions(debouncedSearch);
 

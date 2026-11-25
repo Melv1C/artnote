@@ -4,73 +4,82 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { runMutation } from '@/lib/run-mutation';
-import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
-import { cloneElement, type ReactElement } from 'react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { cloneElement, type ReactElement, type ReactNode } from 'react';
 
-interface RowActionsProps {
-  /** A `<Link>` to the row's edit page; its text is set here */
-  editLink: ReactElement;
-  /** What to delete, as the confirmation names it: "Supprimer <name> ?" */
-  name: string;
+/** A dashboard row's menu of actions, behind a "…" button. */
+export function RowMenu({ children, disabled }: { children: ReactNode; disabled?: boolean }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="size-8 md:size-8" disabled={disabled}>
+          <MoreHorizontal />
+          <span className="sr-only">Plus d’actions</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/** A menu item that opens the row's edit page, given as a `<Link>` with no text. */
+export function EditMenuItem({ link, className }: { link: ReactElement; className?: string }) {
+  return (
+    <DropdownMenuItem asChild className={className}>
+      {cloneElement(
+        link,
+        {},
+        <>
+          <Pencil />
+          Modifier
+        </>,
+      )}
+    </DropdownMenuItem>
+  );
+}
+
+interface DeleteMenuItemProps {
+  /** The confirmation's question, such as "Supprimer Giotto ?" */
+  title: string;
   /** What deleting it does to the rest of the content */
-  deleteConsequence: string;
-  /** Deletes the row and refreshes the table */
+  consequence: string;
+  confirmLabel?: string;
+  /** Deletes the row and refreshes what shows it */
   onDelete: () => Promise<unknown>;
   messages: { deleted: string; failed: string };
 }
 
-/** A dashboard row's menu: edit it, or delete it once confirmed. */
-export function RowActions({
-  editLink,
-  name,
-  deleteConsequence,
+/** A menu item that deletes the row once the writer confirms it. */
+export function DeleteMenuItem({
+  title,
+  consequence,
+  confirmLabel = 'Supprimer',
   onDelete,
   messages,
-}: RowActionsProps) {
+}: DeleteMenuItemProps) {
   const confirm = useConfirm();
 
   const handleDelete = async () => {
     const confirmed = await confirm({
-      title: `Supprimer ${name} ?`,
-      description: `${deleteConsequence} Cette action est définitive.`,
-      confirmLabel: 'Supprimer',
+      title,
+      description: `${consequence} Cette action est définitive.`,
+      confirmLabel,
       destructive: true,
     });
-    if (confirmed)
+    if (confirmed) {
       await runMutation(onDelete, { success: messages.deleted, failure: messages.failed });
+    }
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Ouvrir le menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          {cloneElement(
-            editLink,
-            {},
-            <>
-              <Edit className="mr-2 h-4 w-4" />
-              Modifier
-            </>,
-          )}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-red-600 hover:text-red-700">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Supprimer
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+      <Trash2 />
+      Supprimer
+    </DropdownMenuItem>
   );
 }

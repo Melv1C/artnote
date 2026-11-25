@@ -1,10 +1,11 @@
+import { plural } from '@/lib/format';
 import { Painting } from '@/components/painting';
 import { cn } from '@/lib/utils';
 import type { MapPlace } from '@/schemas/place';
 import { Link } from '@tanstack/react-router';
 import { X } from 'lucide-react';
 import { useId, type Ref } from 'react';
-import { moreNoticesLabel, noticeCountLabel } from '../lib/place-map';
+import { moreNoticesLabel } from '../lib/place-map';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
 interface PlaceDetailsProps {
@@ -45,7 +46,7 @@ export function PlaceDetails({ place, onClose, className, ref }: PlaceDetailsPro
         {[PLACE_TYPE_LABELS[place.type], place.city].filter(Boolean).join(' · ')}
       </p>
       <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-        {noticeCountLabel(place.noticeCount)}
+        {plural(place.noticeCount, 'notice')}
       </p>
       <ul className="mt-1.5 space-y-1">
         {place.notices.map(notice => (

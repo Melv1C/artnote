@@ -20,7 +20,7 @@ import { ArtworkRowAdmin, ArtworkTableHeader } from './artwork-row-admin';
 export function ArtworkListAdmin(props: { artworks: ReturnType<typeof fetchMyArtworks> }) {
   const artworks = use(props.artworks);
   const [filters, setFilters] = useState(DEFAULT_ADMIN_ARTWORK_FILTER);
-  const debouncedSearch = useDebounce(filters.search, 300);
+  const debouncedSearch = useDebounce(filters.search);
   const shown = useMemo(
     () => filterAdminArtworks(artworks, { ...filters, search: debouncedSearch }),
     [artworks, filters, debouncedSearch],

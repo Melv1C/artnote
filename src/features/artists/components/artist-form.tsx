@@ -18,7 +18,7 @@ interface ArtistFormProps {
 export function ArtistForm({ artist }: ArtistFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { onSubmit, isPending, invalid, fieldError } = useValidatedForm(
+  const { onSubmit, isPending, field, fieldError } = useValidatedForm(
     ArtistFormSchema,
     async data => {
       const saved = await runMutation(
@@ -42,35 +42,22 @@ export function ArtistForm({ artist }: ArtistFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="firstName">Prénom *</Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            defaultValue={artist?.firstName}
-            required
-            {...invalid('firstName')}
-          />
+          <Input defaultValue={artist?.firstName} required {...field('firstName')} />
           {fieldError('firstName')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="lastName">Nom</Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            defaultValue={artist?.lastName}
-            {...invalid('lastName')}
-          />
+          <Input defaultValue={artist?.lastName} {...field('lastName')} />
           {fieldError('lastName')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="birthDate">Date de naissance</Label>
           <Input
-            id="birthDate"
-            name="birthDate"
             placeholder="1525, 01/01/1950, XIXe siècle…"
             defaultValue={artist?.birthDate ?? ''}
-            {...invalid('birthDate')}
+            {...field('birthDate')}
           />
           {fieldError('birthDate')}
         </div>
@@ -78,11 +65,9 @@ export function ArtistForm({ artist }: ArtistFormProps) {
         <div className="space-y-2">
           <Label htmlFor="deathDate">Date de décès</Label>
           <Input
-            id="deathDate"
-            name="deathDate"
             placeholder="1569, vers 1600…"
             defaultValue={artist?.deathDate ?? ''}
-            {...invalid('deathDate')}
+            {...field('deathDate')}
           />
           {fieldError('deathDate')}
         </div>
@@ -91,12 +76,10 @@ export function ArtistForm({ artist }: ArtistFormProps) {
       <div className="space-y-2">
         <Label htmlFor="biography">Biographie</Label>
         <Textarea
-          id="biography"
-          name="biography"
           defaultValue={artist?.biography ?? ''}
           rows={8}
           placeholder="Décrivez la vie et l’œuvre de l’artiste…"
-          {...invalid('biography')}
+          {...field('biography')}
         />
         {fieldError('biography')}
       </div>
