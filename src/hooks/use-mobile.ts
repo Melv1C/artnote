@@ -1,19 +1,19 @@
-import * as React from 'react';
+import { useSyncExternalStore } from 'react';
 
-const MOBILE_BREAKPOINT = 768;
+// Below Tailwind's `md` breakpoint (48rem unless styles.css sets --breakpoint-md), as `max-md:`
+const MOBILE_QUERY = '(width < 48rem)';
 
+function subscribe(onChange: () => void) {
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener('change', onChange);
+  return () => mql.removeEventListener('change', onChange);
+}
+
+/** Whether the screen is phone-sized; false on the server and during hydration. */
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
-    mql.addEventListener('change', onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    return () => mql.removeEventListener('change', onChange);
-  }, []);
-
-  return !!isMobile;
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false,
+  );
 }

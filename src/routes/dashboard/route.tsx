@@ -14,7 +14,6 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
-    // Check if user is authenticated and has permission to view the dashboard
     const { user, canViewDashboard } = await getDashboardAccess();
 
     if (!user || !canViewDashboard) {
@@ -25,6 +24,7 @@ export const Route = createFileRoute('/dashboard')({
     return { user };
   },
   head: () => ({ meta: [{ title: 'ArtNote - Tableau de bord' }] }),
+  staticData: { hasOwnLayout: true, measured: false },
   errorComponent: UnauthorizedOrError,
   component: DashboardLayout,
 });

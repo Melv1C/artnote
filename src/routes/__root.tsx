@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { ConfirmProvider } from '@/components/confirm-dialog';
-import { ConditionalLayout } from '@/components/layout/conditional-layout';
+import { MainLayout } from '@/components/layout/main-layout';
 import { getUmamiWebsiteId } from '@/features/analytics/actions/umami-config';
 import { useUmamiPageViews } from '@/features/analytics/hooks/use-umami-page-views';
 import { NotFound } from '@/components/layout/not-found';
@@ -15,11 +15,11 @@ import {
   pageMeta,
 } from '@/lib/seo';
 import { cn } from '@/lib/utils';
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+import { HeadContent, Scripts, createRootRoute, useMatches } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
 import { type PropsWithChildren } from 'react';
 import { Toaster } from '@/components/ui/sonner';
-import { ThemeColor } from '@/components/theme/theme-color';
+import { THEME_COLORS, ThemeColor } from '@/components/theme/theme-color';
 import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
@@ -34,8 +34,8 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       // viewport-fit=cover lets the layout reach under a notch; padding uses the safe-area insets
       { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-      { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#fafafc' },
-      { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#121016' },
+      { name: 'theme-color', media: '(prefers-color-scheme: light)', content: THEME_COLORS.light },
+      { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: THEME_COLORS.dark },
       { name: 'color-scheme', content: 'light dark' },
       { name: 'application-name', content: SITE_NAME },
       { name: 'apple-mobile-web-app-title', content: SITE_NAME },
@@ -58,7 +58,7 @@ export const Route = createRootRoute({
     ],
     // Umami (ADR 0010), only where its website id is set. Served and sending through /stats/ on
     // our own domain (Nitro route rules in vite.config.ts). Page views are sent by
-    // useUmamiPageViews, so dashboard pages and previews can be left out.
+    // useUmamiPageViews, so routes declared `measured: false` can be left out.
     scripts: umamiWebsiteId
       ? [
           {
@@ -79,6 +79,10 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: PropsWithChildren) {
   useUmamiPageViews();
+  // A page not found anywhere matches only this root, so it gets the reader's shell
+  const hasOwnLayout = useMatches({
+    select: matches => matches.some(match => match.staticData.hasOwnLayout),
+  });
   return (
     <html suppressHydrationWarning lang="fr" className="h-full">
       <head>
@@ -93,7 +97,7 @@ function RootDocument({ children }: PropsWithChildren) {
         >
           <QueryProvider>
             <ConfirmProvider>
-              <ConditionalLayout>{children}</ConditionalLayout>
+              {hasOwnLayout ? children : <MainLayout>{children}</MainLayout>}
             </ConfirmProvider>
             <Toaster
               // On a phone, toasts sit above the tab bar

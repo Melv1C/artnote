@@ -7,5 +7,6 @@ export function useProfileStats({ enabled }: { enabled: boolean }) {
     queryKey: ['profile', 'stats'],
     queryFn: () => fetchMyArtworkStats(),
     enabled,
+    staleTime: 60 * 1000,
   });
 }

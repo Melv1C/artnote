@@ -1,14 +1,12 @@
 import { Logo } from '@/components/brand/logo';
 import { cn } from '@/lib/utils';
 import { Link } from '@tanstack/react-router';
+import { SITE_NAV } from './site-navigation';
 
 const FOOTER_LINKS = [
-  { label: 'Toutes les notices', to: '/artworks' },
-  { label: 'Carte', to: '/carte' },
-  { label: 'Nouveautés', to: '/whats-new' },
-  { label: 'À propos', to: '/about' },
-  { label: 'Confidentialité', to: '/confidentialite' },
-] as const;
+  ...SITE_NAV.filter(item => !item.tabBarOnly),
+  { label: 'Confidentialité', to: '/confidentialite' } as const,
+];
 
 export function Footer({ className }: { className?: string }) {
   const currentYear = new Date().getFullYear();

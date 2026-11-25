@@ -1,8 +1,12 @@
 import { useTheme } from 'next-themes';
 import { useEffect } from 'react';
 
-/** The browser bar's colour for each theme; the same values as the manifest and the head. */
-const THEME_COLORS = { light: '#fafafc', dark: '#121016' } as const;
+/**
+ * The browser bar's colour for each theme, also in the root route's head. The static
+ * public/manifest.webmanifest repeats the light one (`theme_color`, `background_color`): JSON
+ * cannot import it, so change both together.
+ */
+export const THEME_COLORS = { light: '#fafafc', dark: '#121016' } as const;
 
 /**
  * Keep the browser bar (and an installed app's status bar) in the theme the reader chose, not
