@@ -192,7 +192,7 @@ export function RichTextLineEditor({
         options={bubbleOptions}
         shouldShow={shouldShow}
         role="toolbar"
-        aria-label="Mise en forme"
+        aria-label={`Mise en forme : ${label}`}
         className="z-50 flex items-center gap-0.5 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md"
       >
         {linkDraft !== null ? (
