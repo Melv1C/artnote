@@ -2,7 +2,11 @@ import { createServerFn } from '@tanstack/react-start';
 import { env } from './env';
 
 export const SITE_NAME = 'ArtNote';
-export const SITE_TITLE = 'ArtNote - La peinture dans tout son art';
+
+/** A page's `<title>`: "ArtNote - <page>". */
+export const pageTitle = (page: string) => `${SITE_NAME} - ${page}`;
+
+export const SITE_TITLE = pageTitle('La peinture dans tout son art');
 export const SITE_DESCRIPTION =
   "(Re)découvrez l'histoire de la peinture à travers des notices scientifiques. Visitez les musées belges autrement grâce à cette plateforme accessible et didactique.";
 
@@ -28,9 +32,6 @@ export const ogImageMeta = (siteUrl: string, images: OgImage[]) =>
     ...(image.alt ? [{ property: 'og:image:alt', content: image.alt }] : []),
   ]);
 
-/**
- * Title and description tags for a page.
- */
 export const pageMeta = (title: string, description: string) => [
   { title },
   { name: 'description', content: description },

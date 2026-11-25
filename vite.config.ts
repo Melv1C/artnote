@@ -3,6 +3,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig, loadEnv } from 'vite-plus';
+import { DEFAULT_BASE_URL, portOf } from './src/lib/base-url';
 
 // Vite+ config: dev server and build (Vite), tests (`test`, Vitest), lint (`lint`, Oxlint),
 // format (`fmt`, Oxfmt) and the pre-commit hook (`staged`). `vp check` runs fmt, lint and the
@@ -22,10 +23,19 @@ const SERVER_ONLY_IMPORTS = [
   { name: '@/lib/env', message: 'Server-only. Pass the value from a server function.' },
 ];
 
+// Type-aware rules that shadcn components, kept close to upstream, break
+const SHADCN_RELAXED_RULES = [
+  'typescript/no-floating-promises',
+  'typescript/restrict-template-expressions',
+  'typescript/no-redundant-type-constituents',
+  'typescript/no-base-to-string',
+  'typescript/no-misused-spread',
+];
+
 export default defineConfig(({ mode }) => {
-  const { BASE_URL = 'http://localhost:3000' } = loadEnv(mode, process.cwd(), '');
+  const { BASE_URL = DEFAULT_BASE_URL } = loadEnv(mode, process.cwd(), '');
   // Better Auth rejects sign-ins from any origin other than BASE_URL, so never fall back to another port
-  const listen = { port: Number(new URL(BASE_URL).port) || 3000, strictPort: true };
+  const listen = { port: portOf(BASE_URL), strictPort: true };
 
   return {
     server: listen,
@@ -67,7 +77,6 @@ export default defineConfig(({ mode }) => {
         correctness: 'error',
       },
       options: {
-        // Type-aware rules and the TypeScript type check run as part of `vp check`
         typeAware: true,
         typeCheck: true,
       },
@@ -95,7 +104,7 @@ export default defineConfig(({ mode }) => {
         'react/rules-of-hooks': 'error',
         'react/exhaustive-deps': 'error',
         'react/jsx-key': 'error',
-        'react/no-unknown-property': ['error', { ignore: ['cmdk-empty'] }],
+        'react/no-unknown-property': 'error',
         // React Compiler rules existing components break; new code should still follow them
         'react/set-state-in-effect': 'off',
         'react/purity': 'off',
@@ -128,15 +137,12 @@ export default defineConfig(({ mode }) => {
         {
           // shadcn components, copied from upstream: keep them close to the original
           files: ['src/components/ui/**'],
-          rules: {
-            'typescript/no-floating-promises': 'off',
-            'typescript/restrict-template-expressions': 'off',
-            'typescript/no-redundant-type-constituents': 'off',
-            'typescript/no-base-to-string': 'off',
-            'typescript/no-misused-spread': 'off',
-            // mapcn's map keeps its latest props in refs during render
-            'react/refs': 'off',
-          },
+          rules: Object.fromEntries(SHADCN_RELAXED_RULES.map(rule => [rule, 'off'] as const)),
+        },
+        {
+          // The map started from mapcn but is the app's own code now: no exemption
+          files: ['src/components/ui/map.tsx'],
+          rules: Object.fromEntries(SHADCN_RELAXED_RULES.map(rule => [rule, 'error'] as const)),
         },
         {
           files: ['src/lib/zod.ts'],

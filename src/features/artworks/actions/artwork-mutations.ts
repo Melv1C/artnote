@@ -75,7 +75,6 @@ export const updateArtwork = createServerFn({ method: 'POST' })
   .handler(async ({ data: { artworkId, data: form }, context: { user } }) => {
     const existing = await findOwnArtwork(artworkId, user.id);
 
-    // Images and artists are replaced as a whole
     await prisma.$transaction(async tx => {
       await tx.artwork.update({
         where: { id: artworkId },
@@ -113,15 +112,15 @@ export const changeArtworkStatus = createServerFn({ method: 'POST' })
 
 const ImageUploadSchema = z.instanceof(FormData);
 
-/** Upload an image to Vercel Blob and record it. Attach it to a notice through `updateArtwork`. */
+/** Upload an image to the object storage and record it. Attach it to a notice through `updateArtwork`. */
 export const uploadArtworkImage = createServerFn({ method: 'POST' })
   .middleware([dashboardAccessMiddleware])
   .validator(ImageUploadSchema)
   .handler(async ({ data: formData }) => {
-    const { file, alt, caption } = readImageUpload(formData);
+    const { file } = readImageUpload(formData);
     const upload = await uploadPublicImage('artworks', file);
     const image = await prisma.image.create({
-      data: { url: upload.url, alt, caption, size: file.size, mimeType: file.type },
+      data: { url: upload.url, size: file.size, mimeType: file.type },
     });
     return ImageSchema.parse(image);
   });

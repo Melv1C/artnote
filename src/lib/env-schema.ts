@@ -1,7 +1,7 @@
 import { z } from '@/lib/zod';
+import { DEFAULT_BASE_URL } from './base-url';
 
 const DEV_AUTH_SECRET = 'dev-only-better-auth-secret';
-const DEV_BASE_URL = 'http://localhost:3000';
 const STORAGE_KEYS = [
   'S3_ENDPOINT',
   'S3_BUCKET',
@@ -72,7 +72,7 @@ const envSchema = z
       ...env,
       BASE_URL: DOKPLOY_DEPLOY_URL
         ? withProtocol(DOKPLOY_DEPLOY_URL)
-        : (env.BASE_URL ?? DEV_BASE_URL),
+        : (env.BASE_URL ?? DEFAULT_BASE_URL),
       BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET ?? DEV_AUTH_SECRET,
       storage:
         S3_ENDPOINT && S3_BUCKET && S3_ACCESS_KEY_ID && S3_SECRET_ACCESS_KEY && S3_PUBLIC_URL

@@ -18,37 +18,33 @@ export function mainImage<T extends Pick<ArtworkImage, 'isMain'>>(images: T[]): 
   return images.find(image => image.isMain) ?? images[0];
 }
 
-/** The images in the writer's order, the main one first. */
-export function orderedImages<T extends Pick<ArtworkImage, 'isMain' | 'sortOrder'>>(
-  images: T[],
-): T[] {
-  return [...images].sort(
-    (a, b) => Number(b.isMain) - Number(a.isMain) || a.sortOrder - b.sortOrder,
-  );
+/** The notice page's gallery: the main image first, then the others in the writer's order. */
+export function galleryOrder<T extends Pick<ArtworkImage, 'isMain'>>(images: T[]): T[] {
+  const main = mainImage(images);
+  return main ? [main, ...images.filter(image => image !== main)] : images;
 }
 
-interface LocatedPlace {
-  name: string;
-  address: string | null;
-  city: string | null;
-  country: string | null;
-  latitude: number | null;
-  longitude: number | null;
+interface CartelSource {
+  artists: NamedArtist[];
+  creationYear: string | null;
+  place?: { name: string } | null;
 }
 
-/** "Bruxelles, Belgique": the place's city and country, whichever are known. */
-export function placeLocality(place: Pick<LocatedPlace, 'city' | 'country'>): string {
-  return [place.city, place.country].filter(Boolean).join(', ');
-}
+type CartelFact = 'artist' | 'year' | 'place';
 
 /**
- * A maps link for the place: its coordinates when known, else its name and address. Phones open it
- * in their maps app.
+ * A line of a notice's cartel (the museum label): the chosen facts among its artists, date and
+ * place, in that order, leaving out the unknown ones. "Pieter Bruegel l’Ancien, vers 1560".
  */
-export function placeMapUrl(place: LocatedPlace): string {
-  const query =
-    place.latitude != null && place.longitude != null
-      ? `${place.latitude},${place.longitude}`
-      : [place.name, place.address, place.city, place.country].filter(Boolean).join(', ');
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+export function cartelLine(artwork: CartelSource, facts: CartelFact[]): string {
+  const values: Record<CartelFact, string | null | undefined> = {
+    artist: artistNames(artwork.artists),
+    year: artwork.creationYear,
+    place: artwork.place?.name,
+  };
+  return (['artist', 'year', 'place'] as const)
+    .filter(fact => facts.includes(fact))
+    .map(fact => values[fact])
+    .filter(Boolean)
+    .join(', ');
 }

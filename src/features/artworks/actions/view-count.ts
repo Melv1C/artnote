@@ -5,9 +5,6 @@ import { createHash } from 'node:crypto';
 import { publishedWhere } from '../lib/artwork-status';
 import { VIEW_DEDUPLICATION_WINDOW_MS, viewRecordsExpireBefore } from '../lib/view-count';
 
-// The view count module: records views of published notices once per client IP per window, and
-// prunes the records it keeps for deduplication. Only salted IP hashes are stored.
-
 /** Keep the client IP only as a salted hash, so stored rows can't be traced back to an address. */
 const hashIp = (ip: string) =>
   createHash('sha256').update(`${env.BETTER_AUTH_SECRET}:${ip}`).digest('hex');

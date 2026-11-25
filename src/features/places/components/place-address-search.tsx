@@ -6,7 +6,6 @@ import { useState, useTransition, type KeyboardEvent } from 'react';
 import { searchAddress } from '../actions/address-search';
 
 interface PlaceAddressSearchProps {
-  /** Called when the writer picks a result. */
   onPick: (result: AddressResult) => void;
 }
 

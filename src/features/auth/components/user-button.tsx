@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,34 +7,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { UserAvatar } from '@/components/user-avatar';
 import { LayoutDashboard, LogOut, UserRound } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { signOut } from '@/lib/auth-client';
-import { initials } from '@/lib/initials';
 import { DASHBOARD_PERMISSIONS } from '@/lib/permissions';
-import { toast } from 'sonner';
+import type { User } from '@/schemas/user';
+import { useSignOut } from '../hooks/use-sign-out';
 import { PermissionGate } from './permission-gate';
 
-interface UserButtonProps {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    image?: string | null;
-  };
-}
-
-export function UserButton({ user }: UserButtonProps) {
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast.success('Vous êtes déconnecté');
-    } catch (error) {
-      console.error('Sign out failed:', error);
-      toast.error('La déconnexion a échoué. Réessayez.');
-    }
-  };
+export function UserButton({ user }: { user: Pick<User, 'name' | 'email' | 'image'> }) {
+  const signOut = useSignOut();
 
   return (
     <DropdownMenu>
@@ -45,12 +26,7 @@ export function UserButton({ user }: UserButtonProps) {
           className="relative size-9 rounded-full p-0"
           aria-label={`Compte de ${user.name}`}
         >
-          <Avatar className="size-9 ring-1 ring-border">
-            <AvatarImage src={user.image || undefined} alt="" />
-            <AvatarFallback className="bg-accent text-xs font-semibold text-accent-foreground">
-              {initials(user.name)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} className="size-9 ring-1 ring-border" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" align="end">
@@ -76,7 +52,7 @@ export function UserButton({ user }: UserButtonProps) {
           </DropdownMenuItem>
         </PermissionGate>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
+        <DropdownMenuItem variant="destructive" onClick={signOut}>
           <LogOut />
           Se déconnecter
         </DropdownMenuItem>

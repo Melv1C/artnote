@@ -1,9 +1,9 @@
 import { ArtworksFilter } from '@/features/artworks/components/artworks-filter';
 import { ArtworksList } from '@/features/artworks/components/artworks-list';
-import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
+import { ArtworkGridSkeleton } from '@/features/artworks/components/artwork-grid';
 import { ArtworksSearchSchema, toArtworkFilters } from '@/features/artworks/lib/artwork-search';
 import { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense } from 'react';
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/artworks/')({
   loader: ({ deps }) => ({ artworks: fetchFilteredArtworks({ data: deps }) }),
   head: () => ({
     meta: pageMeta(
-      'ArtNote - Toutes les notices',
+      pageTitle('Toutes les notices'),
       'Explorez toutes les notices sur l’histoire de la peinture disponibles sur ArtNote.',
     ),
   }),
@@ -23,8 +23,8 @@ export const Route = createFileRoute('/artworks/')({
 
 function ArtworksPage() {
   const { artworks } = Route.useLoaderData();
-  const { search, artist, place, medium, year } = Route.useLoaderDeps();
-  const isFiltered = Boolean(search || artist || place || medium || year);
+  const { search, place } = Route.useLoaderDeps();
+  const isFiltered = Boolean(search || place);
 
   return (
     <div className="page-width pt-6 pb-10 md:pt-12">
@@ -35,12 +35,11 @@ function ArtworksPage() {
         </p>
       </header>
 
-      {/* Stays at hand while scrolling the list */}
       <div className="sticky top-(--header-total) page-bleed z-30 mb-8 bg-background py-3">
         <ArtworksFilter />
       </div>
 
-      <Suspense fallback={<ArtworksListSkeleton />}>
+      <Suspense fallback={<ArtworkGridSkeleton />}>
         <ArtworksList artworksPromise={artworks} isFiltered={isFiltered} />
       </Suspense>
     </div>

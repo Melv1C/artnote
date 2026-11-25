@@ -1,14 +1,15 @@
 import { artistFullName } from '@/features/artists/lib/artist-name';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { RichTextViewer } from '@/components/ui/rich-text-editor';
-import { initials } from '@/lib/initials';
+import { UserAvatar } from '@/components/user-avatar';
+import { WebLinkSchema } from '@/schemas/common';
 import { cn } from '@/lib/utils';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link, useCanGoBack, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, ExternalLink, Images, MapPin, Navigation } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { artistNames, orderedImages, placeLocality, placeMapUrl } from '../lib/artwork-display';
+import { placeLocality, placeMapUrl } from '@/features/places/lib/place-display';
+import { artistNames, galleryOrder } from '../lib/artwork-display';
 import { ArtworkGallery } from './artwork-gallery';
 import { ArtworkImageViewer } from './artwork-image-viewer';
 import { ShareButton } from './share-button';
@@ -26,7 +27,7 @@ interface ArtworkDetailProps {
 export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
   const { title, creationYear, medium, dimensions, notice, sources, writer, place, artists } =
     artwork;
-  const images = orderedImages(artwork.images);
+  const images = galleryOrder(artwork.images);
   const artist = artistNames(artists);
   const roles = artists.filter(a => a.role && a.role !== 'peintre');
 
@@ -147,12 +148,7 @@ export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
           )}
 
           <footer className="mt-10 flex items-center gap-3 border-t pt-6">
-            <Avatar className="size-11">
-              <AvatarImage src={writer.image || undefined} alt="" />
-              <AvatarFallback className="bg-accent text-sm font-semibold text-accent-foreground">
-                {initials(writer.name)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar user={writer} className="size-11" />
             <p className="text-sm text-muted-foreground">
               Notice rédigée par
               <span className="block text-base font-medium text-foreground">{writer.name}</span>
@@ -181,9 +177,8 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-/** Only http(s) addresses become links: a place's website is typed by an admin */
 function isWebLink(url: string | null): url is string {
-  return url != null && /^https?:\/\//i.test(url);
+  return WebLinkSchema.safeParse(url).success;
 }
 
 function capitalize(text: string) {

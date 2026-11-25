@@ -16,41 +16,18 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from '@/lib/zod';
+import { SignUpSchema, type SignUpInput } from '@/schemas/user';
 
-const signUpSchema = z
-  .object({
-    name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-    email: z.email('Adresse email invalide'),
-    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-    confirmPassword: z.string(),
-  })
-  .refine(data => data.password === data.confirmPassword, {
-    message: 'Les mots de passe ne correspondent pas',
-    path: ['confirmPassword'],
-  });
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
-
-interface SignUpFormProps {
-  onSuccess?: () => void;
-}
-
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
+export function SignUpForm({ onSuccess }: { onSuccess: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
+  const form = useForm<SignUpInput>({
+    resolver: zodResolver(SignUpSchema),
+    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
   });
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const onSubmit = async (data: SignUpInput) => {
     setIsLoading(true);
     setError(null);
 
@@ -62,6 +39,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       });
 
       if (result.error) {
+        // Better Auth's error codes USER_ALREADY_EXISTS and USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
         if (result.error.code?.startsWith('USER_ALREADY_EXISTS')) {
           setError('Cette adresse email est déjà utilisée');
         } else {
@@ -71,7 +49,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       }
 
       toast.success('Compte créé avec succès !');
-      onSuccess?.();
+      onSuccess();
     } catch (err) {
       console.error('Sign up error:', err);
       setError('Une erreur est survenue lors de la création du compte');

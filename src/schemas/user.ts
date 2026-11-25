@@ -19,6 +19,17 @@ export const UserSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
+/**
+ * The signed-in user of a Better Auth session, on the server or in the browser, or null. A user
+ * whose row does not fit the schema (e.g. an unknown role) is treated as signed out.
+ */
+export function parseSessionUser(sessionUser: unknown): User | null {
+  if (!sessionUser) return null;
+  const user = UserSchema.safeParse(sessionUser);
+  if (!user.success) console.error('Session user does not match UserSchema:', user.error.issues);
+  return user.data ?? null;
+}
+
 /** The public face of a user, e.g. a notice's writer. Safe for public server functions. */
 export const AuthorSchema = z.object({
   id: z.string(),
@@ -29,16 +40,48 @@ export const AuthorSchema = z.object({
 /** Prisma `select` that matches `AuthorSchema`. */
 export const authorSelect = { id: true, name: true, image: true } as const;
 
+/** A CV link: https only, so it can be rendered as a link (no `javascript:` hrefs). */
+export const CvLinkSchema = z.url({
+  protocol: /^https$/,
+  message: 'Le lien doit être une URL https',
+});
+
 export const UserProfileFormSchema = z.object({
   name: z.string().trim().min(1, 'Le nom est requis').max(255, 'Le nom est trop long'),
   bio: z.string().max(20_000).optional(),
-  cv: z
-    .union([
-      z.literal(''),
-      z.url({ protocol: /^https$/, message: 'Le lien doit être une URL https' }),
-    ])
-    .optional(),
+  cv: z.union([z.literal(''), CvLinkSchema]).optional(),
 });
+
+export const SignInSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1, 'Le mot de passe est requis'),
+});
+
+/** How long an admin may act as another account. */
+export const IMPERSONATION_SECONDS = 60 * 60;
+
+/** How long a suspension lasts: Better Auth lifts it after that. */
+export const SUSPENSION_SECONDS = 7 * 24 * 60 * 60;
+
+/** The shortest password an account may have: Better Auth enforces it, the form says it first. */
+export const MIN_PASSWORD_LENGTH = 8;
+
+export const SignUpSchema = z
+  .object({
+    name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+    email: z.email(),
+    password: z
+      .string()
+      .min(
+        MIN_PASSWORD_LENGTH,
+        `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`,
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Les mots de passe ne correspondent pas',
+    path: ['confirmPassword'],
+  });
 
 export const UserIdSchema = z.object({ userId: IdSchema });
 
@@ -46,8 +89,9 @@ export const SetUserRoleSchema = UserIdSchema.extend({ role: UserRoleSchema });
 
 export const BanUserSchema = UserIdSchema.extend({
   banReason: z.string().max(500).optional(),
-  banExpiresIn: z.number().int().positive().optional(), // seconds
 });
 
 export type User = z.infer<typeof UserSchema>;
 export type UserProfileForm = z.infer<typeof UserProfileFormSchema>;
+export type SignInInput = z.infer<typeof SignInSchema>;
+export type SignUpInput = z.infer<typeof SignUpSchema>;

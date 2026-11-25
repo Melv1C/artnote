@@ -1,6 +1,6 @@
-import { useLocation } from '@tanstack/react-router';
+import { useRouterState } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { isMeasuredPath } from '../lib/umami';
+import { measuredPagePath } from '../lib/umami';
 
 type UmamiPayload = Record<string, unknown> & { url?: string };
 type Umami = { track: (payload: (props: UmamiPayload) => UmamiPayload) => unknown };
@@ -35,14 +35,15 @@ export function withUmami(send: (umami: Umami) => void): () => void {
 }
 
 /**
- * Sends one Umami page view for each public path the reader opens (`isMeasuredPath`). The tracker's
- * own automatic page views are off. It follows pushState navigation for the referrer, but not back
- * and forward, so the URL is set from the router's path (which carries no query string).
+ * Sends one Umami page view for each page the reader opens, unless one of its routes declares
+ * `measured: false` (`measuredPagePath`). The tracker's own automatic page views are off. It
+ * follows pushState navigation for the referrer, but not back and forward, so the URL is set from
+ * the router's path (which carries no query string).
  */
 export function useUmamiPageViews() {
-  const path = useLocation({ select: location => location.pathname });
+  const path = useRouterState({ select: measuredPagePath });
   useEffect(() => {
-    if (!isMeasuredPath(path)) return;
+    if (!path) return;
     return withUmami(umami =>
       umami.track(props => ({ ...props, url: new URL(path, window.location.origin).href })),
     );

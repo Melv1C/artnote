@@ -1,19 +1,7 @@
-import {
-  ChevronsUpDown,
-  FileText,
-  Globe,
-  LayoutDashboard,
-  LogOut,
-  MapPin,
-  Palette,
-  UserRound,
-  Users,
-} from 'lucide-react';
-import { Link, useLocation, useRouter } from '@tanstack/react-router';
+import { ChevronsUpDown, Globe, LogOut, UserRound } from 'lucide-react';
+import { Link, useLocation } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,73 +24,21 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { signOut } from '@/lib/auth-client';
-import { initials } from '@/lib/initials';
-import { DASHBOARD_PERMISSIONS, hasRolePermission, type PermissionCheck } from '@/lib/permissions';
+import { UserAvatar } from '@/components/user-avatar';
+import { useSignOut } from '@/features/auth/hooks/use-sign-out';
+import { hasRolePermission } from '@/lib/permissions';
 import type { User } from '@/schemas/user';
-
-const navigationItems = [
-  {
-    title: 'Tableau de bord',
-    url: '/dashboard',
-    icon: LayoutDashboard,
-    exact: true,
-    permissions: DASHBOARD_PERMISSIONS,
-  },
-  {
-    title: 'Mes notices',
-    url: '/dashboard/artworks',
-    icon: FileText,
-    permissions: DASHBOARD_PERMISSIONS,
-  },
-  {
-    title: 'Artistes',
-    url: '/dashboard/artists',
-    icon: Palette,
-    permissions: DASHBOARD_PERMISSIONS,
-  },
-  {
-    title: 'Lieux',
-    url: '/dashboard/places',
-    icon: MapPin,
-    permissions: DASHBOARD_PERMISSIONS,
-  },
-  {
-    title: 'Utilisateurs',
-    url: '/dashboard/users',
-    icon: Users,
-    permissions: { user: ['list'] },
-  },
-] satisfies {
-  title: string;
-  url: string;
-  icon: unknown;
-  exact?: boolean;
-  permissions: PermissionCheck;
-}[];
-
-const isActive = (pathname: string, url: string, exact?: boolean) =>
-  exact ? pathname.replace(/\/$/, '') === url : pathname === url || pathname.startsWith(`${url}/`);
+import { DASHBOARD_HOME, DASHBOARD_NAV } from './dashboard-navigation';
 
 export function DashboardSidebar({ user }: { user: User }) {
   const pathname = useLocation({ select: location => location.pathname });
-  const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const signOut = useSignOut();
 
   // On a phone the menu is a drawer: close it once a page is chosen
   useEffect(() => {
     setOpenMobile(false);
   }, [pathname, setOpenMobile]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      await router.navigate({ to: '/' });
-    } catch (error) {
-      console.error('Sign out failed:', error);
-      toast.error('La déconnexion a échoué. Réessayez.');
-    }
-  };
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -110,7 +46,7 @@ export function DashboardSidebar({ user }: { user: User }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip="ArtNote">
-              <Link to="/dashboard">
+              <Link to={DASHBOARD_HOME.to}>
                 <img
                   src="/logo-96.png"
                   alt=""
@@ -132,24 +68,27 @@ export function DashboardSidebar({ user }: { user: User }) {
         <SidebarGroup>
           <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems
-                .filter(item => hasRolePermission(user.role, item.permissions))
-                .map(item => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive(pathname, item.url, 'exact' in item && item.exact)}
-                      tooltip={item.title}
-                    >
-                      <Link to={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
+            <nav aria-label="Gestion">
+              <SidebarMenu>
+                {DASHBOARD_NAV.filter(item => hasRolePermission(user.role, item.permissions)).map(
+                  item => (
+                    <SidebarMenuItem key={item.to}>
+                      <SidebarMenuButton asChild tooltip={item.label}>
+                        <Link
+                          to={item.to}
+                          activeOptions={{ exact: item.exact }}
+                          // SidebarMenuButton styles the current page from `data-active`
+                          activeProps={{ 'data-active': true }}
+                        >
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ),
+                )}
+              </SidebarMenu>
+            </nav>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
@@ -164,12 +103,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                   tooltip={user.name}
                   className="data-[state=open]:bg-sidebar-accent"
                 >
-                  <Avatar className="size-8 rounded-lg">
-                    <AvatarImage src={user.image || undefined} alt="" />
-                    <AvatarFallback className="rounded-lg bg-accent text-xs font-semibold text-accent-foreground">
-                      {initials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar user={user} className="rounded-lg *:rounded-lg" />
                   <span className="grid min-w-0 flex-1 leading-tight">
                     <span className="truncate text-sm font-medium">{user.name}</span>
                     <span className="truncate text-xs text-muted-foreground">{user.email}</span>
@@ -198,7 +132,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
+                <DropdownMenuItem variant="destructive" onClick={signOut}>
                   <LogOut />
                   Se déconnecter
                 </DropdownMenuItem>

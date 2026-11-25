@@ -1,22 +1,20 @@
-import { PageHeader } from '@/components/layout/page-header';
+import { FormPage } from '@/components/layout/form-page';
 import { ArtistForm } from '@/features/artists/components/artist-form';
+import { pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/create')({
-  head: () => ({ meta: [{ title: 'ArtNote - Nouvel artiste' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Nouvel artiste') }] }),
   component: CreateArtistPage,
 });
 
 function CreateArtistPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader
-        title="Nouvel artiste"
-        description="Ses nom et dates, tels que les sources les donnent."
-      />
-      <div className="rounded-xl border bg-card p-6 shadow-xs sm:p-8">
-        <ArtistForm />
-      </div>
-    </div>
+    <FormPage
+      title="Nouvel artiste"
+      description="Ses nom et dates, tels que les sources les donnent."
+    >
+      <ArtistForm />
+    </FormPage>
   );
 }

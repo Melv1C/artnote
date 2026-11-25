@@ -9,8 +9,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { buildArtistWhere } from '../lib/artist-filters';
 
 const artistInclude = {
-  createdBy: { select: { id: true, name: true } },
-  updatedBy: { select: { id: true, name: true } },
   artworks: {
     select: {
       id: true,

@@ -26,7 +26,6 @@ jobs:
           cache: true
           cache-toolchain: true
 
-      # Prisma, format, lint, type check, tests, knip and build
       - run: vp run check
 
       - name: Fail if the build changed committed files (route tree)
@@ -34,7 +33,6 @@ jobs:
 
       - run: vp pm audit -- --audit-level=critical
 
-  # Playwright against the dev server on a throwaway, seeded database (e2e/, playwright.config.ts)
   e2e:
     name: E2E
     runs-on: ubuntu-latest

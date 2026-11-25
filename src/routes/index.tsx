@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
 import { ArtworkCard } from '@/features/artworks/components/artwork-card';
-import { Painting } from '@/features/artworks/components/painting';
-import { artistNames, mainImage } from '@/features/artworks/lib/artwork-display';
+import { Painting } from '@/components/painting';
+import { cartelLine, mainImage } from '@/features/artworks/lib/artwork-display';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
@@ -64,7 +64,7 @@ function Featured({ latest }: { latest: Latest }) {
 }
 
 function FeaturedNotice({ artwork }: { artwork: PublicArtwork }) {
-  const artist = artistNames(artwork.artists);
+  const artistAndDate = cartelLine(artwork, ['artist', 'year']);
   return (
     <Link
       to="/artworks/$artworkId"
@@ -83,11 +83,7 @@ function FeaturedNotice({ artwork }: { artwork: PublicArtwork }) {
         <div className="min-w-0">
           <p className="text-sm font-medium text-primary">Dernière notice</p>
           <p className="work-title mt-1 text-2xl leading-snug sm:text-3xl">{artwork.title}</p>
-          {artist && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {[artist, artwork.creationYear].filter(Boolean).join(', ')}
-            </p>
-          )}
+          {artistAndDate && <p className="mt-1 text-sm text-muted-foreground">{artistAndDate}</p>}
         </div>
         <span className="mb-1 flex size-11 shrink-0 items-center justify-center rounded-full border bg-card transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
           <ArrowRight className="size-5" aria-hidden="true" />
@@ -127,7 +123,6 @@ function Recent({ latest }: { latest: Latest }) {
           Tout voir
         </Link>
       </div>
-      {/* A swipeable rail on phones, a grid on wider screens */}
       <ul className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 max-sm:page-bleed sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible lg:grid-cols-3">
         {recent.map(artwork => (
           <li key={artwork.id} className="w-[78%] shrink-0 snap-start sm:w-auto">

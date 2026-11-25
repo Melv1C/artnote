@@ -4,33 +4,30 @@ import { adminAc, defaultStatements } from 'better-auth/plugins/admin/access';
 
 /**
  * Resources and the actions a role can be granted on them. `user` and `session` come from
- * Better Auth's admin plugin (list, ban, set-role, impersonate, …).
+ * Better Auth's admin plugin (list, ban, set-role, impersonate, …). Reading published content
+ * needs no permission: public server functions have no guard.
  */
 const statement = {
   ...defaultStatements,
-  artwork: ['read', 'manage'],
-  artist: ['read', 'manage'],
-  place: ['read', 'manage'],
+  artwork: ['manage'],
+  artist: ['manage'],
+  place: ['manage'],
 } as const;
 
 export const ac = createAccessControl(statement);
 
-/** Admins write notices, manage artists and places, and administer users. */
-export const admin = ac.newRole({
-  artwork: ['read', 'manage'],
-  artist: ['read', 'manage'],
-  place: ['read', 'manage'],
-  ...adminAc.statements,
-});
-
-/** Signed-in readers: published content only. */
-export const user = ac.newRole({
-  artwork: ['read'],
-  artist: ['read'],
-  place: ['read'],
-});
-
-const roles = { admin, user } satisfies Record<UserRole, unknown>;
+/** Every role and what it grants, for the guards and for Better Auth's admin plugin. */
+export const roles = {
+  /** Admins write notices, manage artists and places, and administer users. */
+  admin: ac.newRole({
+    artwork: ['manage'],
+    artist: ['manage'],
+    place: ['manage'],
+    ...adminAc.statements,
+  }),
+  /** Signed-in readers: nothing beyond what anyone may read. */
+  user: ac.newRole({}),
+} satisfies Record<UserRole, unknown>;
 
 type Resource = keyof typeof statement;
 
@@ -46,3 +43,7 @@ export function hasRolePermission(role: UserRole, permissions: PermissionCheck):
 
 /** What the dashboard requires: managing notices. */
 export const DASHBOARD_PERMISSIONS = { artwork: ['manage'] } satisfies PermissionCheck;
+
+/** Whether `user` is signed in and may use the dashboard. */
+export const canViewDashboard = (user: { role: UserRole } | null) =>
+  !!user && hasRolePermission(user.role, DASHBOARD_PERMISSIONS);

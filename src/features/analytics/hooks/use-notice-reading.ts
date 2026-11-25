@@ -4,8 +4,8 @@ import { withUmami } from './use-umami-page-views';
 
 /**
  * Sends one Umami `notice_read` when the reader leaves the notice's page or hides the tab, whichever
- * comes first, timed from arrival. The URL is set to the notice's own path: on leaving, the browser
- * already shows the next page.
+ * comes first, timed from arrival. The URL is the page's when the reading starts: on leaving, the
+ * browser already shows the next page.
  */
 export function useNoticeReading(noticeId: string, title: string) {
   // A reading is keyed on the notice only; the title is read when it starts
@@ -13,8 +13,7 @@ export function useNoticeReading(noticeId: string, title: string) {
 
   useEffect(() => {
     const noticeTitle = readTitle();
-    // The URL of src/routes/artworks/$artworkId/index.tsx; update both together
-    const url = new URL(`/artworks/${noticeId}`, window.location.origin).href;
+    const url = new URL(window.location.pathname, window.location.origin).href;
     const startedAt = Date.now();
     let ended = false;
     const finish = () => {

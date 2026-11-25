@@ -6,7 +6,6 @@ import { UserProfileFormSchema, UserSchema } from '@/schemas/user';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from '@/lib/zod';
 
-/** Update the signed-in user's name, bio and CV link. */
 export const updateProfile = createServerFn({ method: 'POST' })
   .middleware([requireAuth])
   .validator(UserProfileFormSchema)
@@ -19,7 +18,6 @@ export const updateProfile = createServerFn({ method: 'POST' })
     ),
   );
 
-/** Upload a new avatar for the signed-in user. */
 export const uploadAvatar = createServerFn({ method: 'POST' })
   .middleware([requireAuth])
   .validator(z.instanceof(FormData))

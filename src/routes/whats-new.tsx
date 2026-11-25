@@ -1,17 +1,18 @@
-import { ArtworkCard } from '@/features/artworks/components/artwork-card';
-import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
+import { ArtworkGrid, ArtworkGridSkeleton } from '@/features/artworks/components/artwork-grid';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
-import { pageMeta } from '@/lib/seo';
+import { formatLongDate } from '@/lib/format';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Suspense, use } from 'react';
 
 export const Route = createFileRoute('/whats-new')({
   // Not awaited: the list streams in behind its Suspense skeleton
   loader: () => ({ latestArtworks: fetchLatestPublishedArtworks({ data: 12 }) }),
   head: () => ({
-    meta: pageMeta('ArtNote - Nouveautés', 'Découvrez les dernières notices publiées sur ArtNote.'),
+    meta: pageMeta(
+      pageTitle('Nouveautés'),
+      'Découvrez les dernières notices publiées sur ArtNote.',
+    ),
   }),
   component: WhatsNewPage,
 });
@@ -28,7 +29,7 @@ function WhatsNewPage() {
         </p>
       </header>
 
-      <Suspense fallback={<ArtworksListSkeleton count={3} />}>
+      <Suspense fallback={<ArtworkGridSkeleton count={3} />}>
         <LatestList artworksPromise={latestArtworks} />
       </Suspense>
     </div>
@@ -51,20 +52,16 @@ function LatestList({
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-      {latestArtworks.map((artwork, index) => (
-        <li key={artwork.id} className="flex flex-col gap-3">
-          {artwork.publishedAt && (
-            <p className="text-xs font-medium text-muted-foreground">
-              Publiée le{' '}
-              <time dateTime={new Date(artwork.publishedAt).toISOString()}>
-                {format(new Date(artwork.publishedAt), 'd MMMM yyyy', { locale: fr })}
-              </time>
-            </p>
-          )}
-          <ArtworkCard artwork={artwork} priority={index < 2} />
-        </li>
-      ))}
-    </ul>
+    <ArtworkGrid
+      artworks={latestArtworks}
+      above={({ publishedAt }) =>
+        publishedAt && (
+          <p className="text-xs font-medium text-muted-foreground">
+            Publiée le{' '}
+            <time dateTime={publishedAt.toISOString()}>{formatLongDate(publishedAt)}</time>
+          </p>
+        )
+      }
+    />
   );
 }

@@ -31,10 +31,10 @@ export const deleteUser = createServerFn({ method: 'POST' })
 export const banUser = createServerFn({ method: 'POST' })
   .middleware([requirePermission({ user: ['ban'] })])
   .validator(BanUserSchema)
-  .handler(async ({ data: { userId, banReason, banExpiresIn }, context: { user } }) => {
+  .handler(async ({ data: { userId, banReason }, context: { user } }) => {
     assertNotSelf(user.id, userId);
     await auth.api.banUser({
-      body: { userId, banReason, banExpiresIn },
+      body: { userId, banReason },
       headers: getRequestHeaders(),
     });
   });

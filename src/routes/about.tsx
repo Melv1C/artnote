@@ -1,11 +1,11 @@
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Mail } from 'lucide-react';
 
 export const Route = createFileRoute('/about')({
   head: () => ({
     meta: pageMeta(
-      'ArtNote - À propos',
+      pageTitle('À propos'),
       'Découvrez l’équipe derrière ArtNote, notre mission et nos valeurs.',
     ),
   }),

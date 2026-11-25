@@ -18,16 +18,11 @@ export const fetchUsers = createServerFn({ method: 'GET' })
     return { users: UserSchema.array().parse(result.users), total: result.total };
   });
 
-export const fetchTotalUserCount = createServerFn({ method: 'GET' })
-  .middleware([dashboardAccessMiddleware])
-  .handler(() => prisma.user.count());
-
-const fetchAdminUserCount = createServerFn({ method: 'GET' })
-  .middleware([dashboardAccessMiddleware])
-  .handler(() => prisma.user.count({ where: { role: UserRoleSchema.enum.admin } }));
-
-/** Sign-ups since the start of this week (Sunday, server time) and during the week before. */
-const fetchNewUsersThisWeek = createServerFn({ method: 'GET' })
+/**
+ * Accounts, admins among them, and sign-ups since the start of this week (Sunday, server time) and
+ * during the week before.
+ */
+export const fetchUserStats = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .handler(async () => {
     const startOfThisWeek = new Date();
@@ -36,18 +31,11 @@ const fetchNewUsersThisWeek = createServerFn({ method: 'GET' })
     const startOfLastWeek = new Date(startOfThisWeek);
     startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
 
-    const [newUsersThisWeek, newUsersLastWeek] = await Promise.all([
+    const [total, admins, newThisWeek, newLastWeek] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { role: UserRoleSchema.enum.admin } }),
       prisma.user.count({ where: { createdAt: { gte: startOfThisWeek } } }),
       prisma.user.count({ where: { createdAt: { gte: startOfLastWeek, lt: startOfThisWeek } } }),
     ]);
-    return { newUsersThisWeek, newUsersLastWeek };
+    return { total, admins, newThisWeek, newLastWeek };
   });
-
-/** Start every user stat query without awaiting, so each card streams in independently. */
-export const loadUserStats = () => ({
-  totalUsers: fetchTotalUserCount(),
-  adminCount: fetchAdminUserCount(),
-  newUsers: fetchNewUsersThisWeek(),
-});
-
-export type UserStatsData = ReturnType<typeof loadUserStats>;

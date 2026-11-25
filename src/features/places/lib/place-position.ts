@@ -1,3 +1,5 @@
+import { COORDINATE_LIMITS } from '@/schemas/place';
+
 /** A place's position, as the place form schema accepts it. */
 export interface PlacePosition {
   latitude: number;
@@ -10,10 +12,12 @@ export const BELGIUM_VIEW = { center: [4.47, 50.5] as [number, number], zoom: 6.
 /** The zoom the position picker opens at on a place's position: a few streets around it. */
 export const POSITION_ZOOM = 15;
 
-function parseCoordinate(value: string, limit: number): number | null {
+function parseCoordinate(value: string, name: keyof typeof COORDINATE_LIMITS): number | null {
   if (value.trim() === '') return null;
   const coordinate = Number(value);
-  return Number.isFinite(coordinate) && Math.abs(coordinate) <= limit ? coordinate : null;
+  return Number.isFinite(coordinate) && Math.abs(coordinate) <= COORDINATE_LIMITS[name]
+    ? coordinate
+    : null;
 }
 
 /**
@@ -21,8 +25,8 @@ function parseCoordinate(value: string, limit: number): number | null {
  * number or out of range (the map then shows no marker).
  */
 export function parsePosition(latitude: string, longitude: string): PlacePosition | null {
-  const lat = parseCoordinate(latitude, 90);
-  const lng = parseCoordinate(longitude, 180);
+  const lat = parseCoordinate(latitude, 'latitude');
+  const lng = parseCoordinate(longitude, 'longitude');
   return lat === null || lng === null ? null : { latitude: lat, longitude: lng };
 }
 

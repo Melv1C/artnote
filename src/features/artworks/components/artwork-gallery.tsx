@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import type { ArtworkImage } from '@/schemas/artwork-image';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { Painting } from './painting';
+import { Painting } from '@/components/painting';
 
 interface ArtworkGalleryProps {
   title: string;

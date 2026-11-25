@@ -18,7 +18,7 @@ export function Header() {
           {/* Wide screens: sections in the bar. Phones use the tab bar at the bottom. */}
           <nav aria-label="Navigation principale" className="hidden md:block">
             <ul className="flex items-center gap-1">
-              {SITE_NAV.filter(item => item.to !== '/').map(item => (
+              {SITE_NAV.filter(item => !item.tabBarOnly).map(item => (
                 <li key={item.to}>
                   <Link
                     to={item.to}

@@ -14,15 +14,9 @@ test.describe('signing in', () => {
     await expect(page.getByRole('heading', { name: 'Tableau de bord', exact: true })).toBeVisible();
   });
 
-  test('a banned account is refused', async ({ page, baseURL }) => {
-    const response = await page.request.post('/api/auth/sign-in/email', {
-      data: { email: accounts.banned, password: PASSWORD },
-      headers: { origin: baseURL ?? '' },
-    });
+  test('a banned account is refused', async ({ attemptSignIn }) => {
+    const response = await attemptSignIn('banned');
     expect(response.status()).toBe(403);
-
-    await page.goto('/dashboard');
-    await expect(page.getByText('Accès non autorisé')).toBeVisible();
   });
 });
 

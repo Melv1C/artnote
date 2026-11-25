@@ -1,136 +1,60 @@
-import { Button } from '@/components/ui/button';
+import { SearchInput } from '@/components/data-table/search-input';
+import { TablePager, TableView } from '@/components/data-table/table-view';
+import { useTableFilters } from '@/components/data-table/use-table-filters';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDebounce } from '@/hooks/use-debounce';
-import { RefreshCw } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { useUsers } from '@/features/user-management/hooks/use-users';
-import { UsersDataTable } from '@/features/user-management/components/users-table/data-table';
-import { columns } from '@/features/user-management/components/users-table/columns';
-import { UserBulkActions } from './users-table/user-bulk-actions';
-import { UsersTableSkeleton } from './users-table/users-table-skeleton';
+import { plural } from '@/lib/format';
+import { useMemo } from 'react';
+import { useUsers } from '../hooks/use-users';
+import { DEFAULT_USER_FILTER, filterUsers } from '../lib/user-accounts';
+import { UserFilters } from './user-filters';
+import { useUsersTable } from './users-table';
 
+/**
+ * Every account, filtered and sorted in the browser: `fetchUsers` returns at most 100. Past that,
+ * move search and paging to the server, as `PagedTable` does for artists and places.
+ */
 export function UsersList() {
-  const [searchValue, setSearchValue] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [emailVerifiedFilter, setEmailVerifiedFilter] = useState('all');
-  const [banStatusFilter, setBanStatusFilter] = useState('all');
-  const [selectedRowCount, setSelectedRowCount] = useState(0);
-
-  // fetchUsers returns at most USER_LIST_LIMIT (100) users, filtered here in the browser. Past that,
-  // move search and paging to the server, as PagedTable does for artists and places.
-  const debouncedSearch = useDebounce(searchValue, 300);
-
-  const { data, isLoading, error, refetch } = useUsers();
-
-  const totalCount = data?.total || 0;
-
-  // Client-side filtering for better UX
-  const filteredUsers = useMemo(() => {
-    return (data?.users ?? []).filter(user => {
-      // Search filter using debounced search
-      const matchesSearch =
-        !debouncedSearch.trim() ||
-        user.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.email.toLowerCase().includes(debouncedSearch.toLowerCase());
-
-      // Role filter
-      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-
-      // Email verified filter
-      const matchesEmailVerified =
-        emailVerifiedFilter === 'all' || user.emailVerified.toString() === emailVerifiedFilter;
-
-      // Ban status filter
-      const matchesBanStatus = (() => {
-        if (banStatusFilter === 'all') return true;
-        if (banStatusFilter === 'active') return !user.banned;
-        if (banStatusFilter === 'banned') return user.banned;
-        return true;
-      })();
-
-      return matchesSearch && matchesRole && matchesEmailVerified && matchesBanStatus;
-    });
-  }, [data?.users, debouncedSearch, roleFilter, emailVerifiedFilter, banStatusFilter]);
-
-  const handleClearFilters = () => {
-    setSearchValue('');
-    setRoleFilter('all');
-    setEmailVerifiedFilter('all');
-    setBanStatusFilter('all');
-  };
-
-  const handleExportAllUsers = () => {
-    toast.warning('Exportation de tous les utilisateurs à venir !', {
-      description: `Nous travaillons actuellement sur cette fonctionnalité. ${filteredUsers.length} utilisateurs seraient exportés.`,
-    });
-  };
-
-  const handleExportSelectedUsers = () => {
-    toast.warning('Exportation de la sélection à venir !', {
-      description: `Nous travaillons actuellement sur cette fonctionnalité. ${selectedRowCount} utilisateurs sélectionnés seraient exportés.`,
-    });
-  };
-
-  const handleRefresh = () => {
-    void refetch();
-  };
+  const { data, isLoading, isError } = useUsers();
+  const { page, setPage, filters, debounced, setFilter, reset } =
+    useTableFilters(DEFAULT_USER_FILTER);
+  const users = useMemo(() => filterUsers(data?.users ?? [], debounced), [data, debounced]);
+  const table = useUsersTable(users, page);
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle>Tous les comptes</CardTitle>
-            <CardDescription>
-              {!isLoading && !error && (
-                <>
-                  {filteredUsers.length} utilisateur
-                  {filteredUsers.length > 1 ? 's' : ''}
-                  {filteredUsers.length !== totalCount && ` sur ${totalCount}`}
-                </>
-              )}
-              {isLoading && 'Chargement des comptes…'}
-              {error && 'Erreur lors du chargement'}
-            </CardDescription>
-          </div>
-          <UserBulkActions
-            selectedCount={selectedRowCount}
-            onExportAllUsers={handleExportAllUsers}
-            onExportSelectedUsers={handleExportSelectedUsers}
-            isLoading={isLoading}
-          />
-        </div>
+        <CardTitle>Tous les comptes</CardTitle>
+        <CardDescription>
+          {isLoading && 'Chargement des comptes…'}
+          {isError && 'Erreur lors du chargement'}
+          {data &&
+            `${plural(users.length, 'compte')}${users.length !== data.total ? ` sur ${data.total}` : ''}`}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        {error ? (
-          <div className="flex flex-col items-center justify-center h-32 gap-4">
-            <div className="text-destructive text-center">
-              Erreur lors du chargement des utilisateurs
-            </div>
-            <Button onClick={handleRefresh} variant="outline" className="gap-2">
-              <RefreshCw className="h-4 w-4" />
-              Réessayer
-            </Button>
-          </div>
-        ) : isLoading ? (
-          <UsersTableSkeleton />
-        ) : (
-          <UsersDataTable
-            columns={columns}
-            data={filteredUsers}
-            onSelectionChange={setSelectedRowCount}
-            searchValue={searchValue}
-            onSearchChange={setSearchValue}
-            roleFilter={roleFilter}
-            onRoleFilterChange={setRoleFilter}
-            emailVerifiedFilter={emailVerifiedFilter}
-            onEmailVerifiedFilterChange={setEmailVerifiedFilter}
-            banStatusFilter={banStatusFilter}
-            onBanStatusFilterChange={setBanStatusFilter}
-            onClearFilters={handleClearFilters}
+      <CardContent className="space-y-4">
+        <div className="flex gap-2">
+          <SearchInput
+            label="Rechercher par nom, email"
+            value={filters.search}
+            onChange={value => setFilter('search', value)}
           />
-        )}
+          <UserFilters filter={filters} onChange={setFilter} onClear={reset} />
+        </div>
+        <TableView
+          table={table}
+          isLoading={isLoading}
+          isError={isError}
+          messages={{
+            empty: 'Aucun compte trouvé.',
+            error: 'Erreur lors du chargement des utilisateurs',
+          }}
+        />
+        <TablePager
+          page={page}
+          pageCount={table.getPageCount()}
+          totalCount={users.length}
+          onPageChange={setPage}
+        />
       </CardContent>
     </Card>
   );

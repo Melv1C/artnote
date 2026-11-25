@@ -10,32 +10,28 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceTypeSchema } from '@/schemas/common';
-import { PlaceFormSchema, type AddressResult, type Place } from '@/schemas/place';
-import { z } from '@/lib/zod';
-import { useQueryClient } from '@tanstack/react-query';
-import { ClientOnly, useNavigate } from '@tanstack/react-router';
 import {
-  lazy,
-  Suspense,
-  useCallback,
-  useState,
-  useTransition,
-  type FormEvent,
-  type ReactNode,
-} from 'react';
-import { toast } from 'sonner';
+  COORDINATE_LIMITS,
+  PlaceFormSchema,
+  type AddressResult,
+  type Place,
+} from '@/schemas/place';
+import { useValidatedForm } from '@/components/validated-form';
+import { runMutation } from '@/lib/run-mutation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { lazy, useCallback, useState } from 'react';
 import { createPlace, updatePlace } from '../actions/place-mutations';
-import { MapErrorBoundary } from './map-error-boundary';
+import { MapSlot } from './map-slot';
 import { PlaceAddressSearch } from './place-address-search';
 import { placeKeys } from '../hooks/use-places';
 import { applyAddressResult, type AddressFields } from '../lib/address-search';
 import { formatCoordinate, parsePosition, type PlacePosition } from '../lib/place-position';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
-// MapLibre runs in the browser only and is heavy: the map loads on demand, after hydration
 const PlacePositionMap = lazy(() => import('./place-position-map'));
 
-type FieldErrors = Partial<Record<keyof z.infer<typeof PlaceFormSchema>, string[]>>;
+const POSITION_MAP_BOX = 'h-72 rounded-md border sm:h-80';
 
 interface PlaceFormProps {
   /** The place to edit; omit to create one. */
@@ -45,7 +41,6 @@ interface PlaceFormProps {
 export function PlaceForm({ place }: PlaceFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isPending, startTransition] = useTransition();
   // The fields hold what the writer typed; the map shows it once it is a valid position
   const [fields, setFields] = useState<AddressFields>({
     latitude: place?.latitude?.toString() ?? '',
@@ -73,59 +68,36 @@ export function PlaceForm({ place }: PlaceFormProps) {
     setFocus({ latitude: result.latitude, longitude: result.longitude });
   };
 
-  const [errors, setErrors] = useState<FieldErrors>({});
-
-  // onSubmit, not a form action: React resets a form after its action runs, which would empty
-  // the fields of a refused save or bring back the saved values
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const parsed = PlaceFormSchema.safeParse(Object.fromEntries(new FormData(form)));
-    if (!parsed.success) {
-      const fieldErrors: FieldErrors = z.flattenError(parsed.error).fieldErrors;
-      setErrors(fieldErrors);
-      // The first field at fault, in the form's order, so the writer sees what to fix
-      const first = Array.from(form.elements).find(element =>
-        Object.hasOwn(fieldErrors, element.id),
+  const { onSubmit, isPending, field, fieldError } = useValidatedForm(
+    PlaceFormSchema,
+    async data => {
+      const saved = await runMutation(
+        async () => {
+          await (place ? updatePlace({ data: { ...data, id: place.id } }) : createPlace({ data }));
+          await queryClient.invalidateQueries({ queryKey: placeKeys.all });
+        },
+        {
+          success: place ? 'Lieu modifié' : 'Lieu créé',
+          failure: 'Le lieu n’a pas pu être enregistré.',
+        },
       );
-      if (first instanceof HTMLElement) first.focus();
-      return;
-    }
-    setErrors({});
-
-    startTransition(async () => {
-      try {
-        if (place) {
-          await updatePlace({ data: { ...parsed.data, id: place.id } });
-        } else {
-          await createPlace({ data: parsed.data });
-        }
-        await queryClient.invalidateQueries({ queryKey: placeKeys.all });
-        toast.success(place ? 'Lieu modifié' : 'Lieu créé');
-        await navigate({ to: '/dashboard/places' });
-      } catch (error) {
-        console.error('Saving place failed:', error);
-        toast.error('Erreur lors de l’enregistrement du lieu');
-      }
-    });
-  };
-
-  const invalid = (name: keyof FieldErrors) =>
-    errors[name] ? { 'aria-invalid': true, 'aria-describedby': `${name}-error` } : {};
+      if (saved) await navigate({ to: '/dashboard/places' });
+    },
+  );
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6">
+    <form onSubmit={onSubmit} noValidate className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="name">Nom *</Label>
-          <Input id="name" name="name" defaultValue={place?.name} required {...invalid('name')} />
-          <FieldError name="name" errors={errors} />
+          <Input defaultValue={place?.name} required {...field('name')} />
+          {fieldError('name')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="type">Type *</Label>
           <Select name="type" defaultValue={place?.type} required>
-            <SelectTrigger id="type" {...invalid('type')}>
+            <SelectTrigger {...field('type')}>
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
             <SelectContent>
@@ -136,56 +108,48 @@ export function PlaceForm({ place }: PlaceFormProps) {
               ))}
             </SelectContent>
           </Select>
-          <FieldError name="type" errors={errors} />
+          {fieldError('type')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="address">Adresse</Label>
           <Input
-            id="address"
-            name="address"
             value={fields.address}
             onChange={event => setField('address')(event.target.value)}
-            {...invalid('address')}
+            {...field('address')}
           />
-          <FieldError name="address" errors={errors} />
+          {fieldError('address')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="city">Ville</Label>
           <Input
-            id="city"
-            name="city"
             value={fields.city}
             onChange={event => setField('city')(event.target.value)}
-            {...invalid('city')}
+            {...field('city')}
           />
-          <FieldError name="city" errors={errors} />
+          {fieldError('city')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="country">Pays</Label>
           <Input
-            id="country"
-            name="country"
             value={fields.country}
             onChange={event => setField('country')(event.target.value)}
-            {...invalid('country')}
+            {...field('country')}
           />
-          <FieldError name="country" errors={errors} />
+          {fieldError('country')}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="website">Site web</Label>
           <Input
-            id="website"
-            name="website"
             type="url"
             defaultValue={place?.website || ''}
             placeholder="https://example.com"
-            {...invalid('website')}
+            {...field('website')}
           />
-          <FieldError name="website" errors={errors} />
+          {fieldError('website')}
         </div>
       </div>
 
@@ -196,62 +160,50 @@ export function PlaceForm({ place }: PlaceFormProps) {
           latitude et la longitude.
         </p>
         <PlaceAddressSearch onPick={handleAddressPick} />
-        <ClientOnly fallback={<MapPlaceholder />}>
-          <MapErrorBoundary
-            fallback={
-              <MapPlaceholder>
-                Carte indisponible : saisissez la latitude et la longitude.
-              </MapPlaceholder>
-            }
-          >
-            <Suspense fallback={<MapPlaceholder />}>
-              <PlacePositionMap position={position} onChange={handleMapChange} focus={focus} />
-            </Suspense>
-          </MapErrorBoundary>
-        </ClientOnly>
+        <MapSlot
+          unavailable="Carte indisponible : saisissez la latitude et la longitude."
+          className={POSITION_MAP_BOX}
+        >
+          <PlacePositionMap
+            position={position}
+            onChange={handleMapChange}
+            focus={focus}
+            className={POSITION_MAP_BOX}
+          />
+        </MapSlot>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="latitude">Latitude *</Label>
             <Input
-              id="latitude"
-              name="latitude"
               type="number"
               step="any"
               value={fields.latitude}
               onChange={event => setField('latitude')(event.target.value)}
-              placeholder="Entre −90 et 90"
-              {...invalid('latitude')}
+              placeholder={`Entre −${COORDINATE_LIMITS.latitude} et ${COORDINATE_LIMITS.latitude}`}
+              {...field('latitude')}
             />
-            <FieldError name="latitude" errors={errors} />
+            {fieldError('latitude')}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="longitude">Longitude *</Label>
             <Input
-              id="longitude"
-              name="longitude"
               type="number"
               step="any"
               value={fields.longitude}
               onChange={event => setField('longitude')(event.target.value)}
-              placeholder="Entre −180 et 180"
-              {...invalid('longitude')}
+              placeholder={`Entre −${COORDINATE_LIMITS.longitude} et ${COORDINATE_LIMITS.longitude}`}
+              {...field('longitude')}
             />
-            <FieldError name="longitude" errors={errors} />
+            {fieldError('longitude')}
           </div>
         </div>
       </fieldset>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          defaultValue={place?.description || ''}
-          rows={4}
-          {...invalid('description')}
-        />
-        <FieldError name="description" errors={errors} />
+        <Textarea defaultValue={place?.description || ''} rows={4} {...field('description')} />
+        {fieldError('description')}
       </div>
 
       <div className="flex justify-end space-x-4">
@@ -267,25 +219,5 @@ export function PlaceForm({ place }: PlaceFormProps) {
         </Button>
       </div>
     </form>
-  );
-}
-
-/** The map's space while MapLibre loads, so the form below doesn't jump. */
-function MapPlaceholder({ children }: { children?: ReactNode }) {
-  return (
-    <div className="flex h-72 items-center justify-center rounded-md border bg-muted p-4 text-center text-sm text-muted-foreground sm:h-80">
-      {children}
-    </div>
-  );
-}
-
-/** A field's first validation message, beside it; `aria-describedby` points to its id. */
-function FieldError({ name, errors }: { name: keyof FieldErrors; errors: FieldErrors }) {
-  const message = errors[name]?.[0];
-  if (!message) return null;
-  return (
-    <p id={`${name}-error`} className="text-sm text-destructive">
-      {message}
-    </p>
   );
 }

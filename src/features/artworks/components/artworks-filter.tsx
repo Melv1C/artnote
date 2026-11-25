@@ -6,21 +6,34 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
-import type { ArtworksSearch } from '../lib/artwork-search';
+import {
+  ArtworkSortSchema,
+  DEFAULT_ARTWORK_SORT,
+  SortOrderSchema,
+  type ArtworkSort,
+  type ArtworksSearch,
+  type SortOrder,
+} from '../lib/artwork-search';
 import { ArrowDownUp, MapPin, Search, X } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const SORT_OPTIONS = [
-  { value: 'title-asc', label: 'Titre, de A à Z' },
-  { value: 'title-desc', label: 'Titre, de Z à A' },
-  { value: 'artist-asc', label: 'Artiste, de A à Z' },
-  { value: 'artist-desc', label: 'Artiste, de Z à A' },
-  { value: 'year-desc', label: 'Œuvres les plus récentes' },
-  { value: 'year-asc', label: 'Œuvres les plus anciennes' },
-  { value: 'published-desc', label: 'Dernières publiées' },
-  { value: 'published-asc', label: 'Premières publiées' },
-] as const;
+/** Each sort in both directions, in the order the menu lists them. */
+const SORT_LABELS: Record<ArtworkSort, Record<SortOrder, string>> = {
+  title: { asc: 'Titre, de A à Z', desc: 'Titre, de Z à A' },
+  artist: { asc: 'Artiste, de A à Z', desc: 'Artiste, de Z à A' },
+  year: { desc: 'Œuvres les plus récentes', asc: 'Œuvres les plus anciennes' },
+  published: { desc: 'Dernières publiées', asc: 'Premières publiées' },
+};
+
+const sortValue = ({ sort, order }: { sort: ArtworkSort; order: SortOrder }) => `${sort}-${order}`;
+
+const SORT_OPTIONS = ArtworkSortSchema.options.flatMap(sort =>
+  Object.entries(SORT_LABELS[sort]).map(([order, label]) => {
+    const option = { sort, order: SortOrderSchema.parse(order) };
+    return { ...option, value: sortValue(option), label };
+  }),
+);
 
 /** Search and sort of the public notices list, kept in the URL so a list can be shared. */
 export function ArtworksFilter() {
@@ -29,31 +42,23 @@ export function ArtworksFilter() {
   const urlSearch = searchParams.search?.toString() ?? '';
 
   const [search, setSearch] = useState(urlSearch);
-  const sortBy = `${searchParams.sort ?? 'title'}-${searchParams.order ?? 'asc'}`;
-  const debouncedSearch = useDebounce(search, 300);
+  const sortBy = sortValue({
+    sort: searchParams.sort ?? DEFAULT_ARTWORK_SORT.sort,
+    order: searchParams.order ?? DEFAULT_ARTWORK_SORT.order,
+  });
+  const debouncedSearch = useDebounce(search);
   const inputRef = useRef<HTMLInputElement>(null);
   // The value this field last wrote to the URL: any other URL value came from elsewhere (a link,
   // back and forward), and the field follows it
   const pushed = useRef(urlSearch);
 
   const updateURL = useCallback(
-    (newParams: { search?: string; sortBy?: string }) => {
+    (changes: Pick<ArtworksSearch, 'search' | 'sort' | 'order'>) => {
       void navigate({
         to: '/artworks',
         replace: true,
         resetScroll: false,
-        search: prev => {
-          const params: ArtworksSearch = { ...prev };
-          if ('search' in newParams) {
-            params.search = newParams.search || undefined;
-          }
-          if (newParams.sortBy) {
-            const [sort, order] = newParams.sortBy.split('-');
-            params.sort = sort as ArtworksSearch['sort'];
-            params.order = order as ArtworksSearch['order'];
-          }
-          return params;
-        },
+        search: prev => ({ ...prev, ...changes }),
       });
     },
     [navigate],
@@ -62,7 +67,7 @@ export function ArtworksFilter() {
   useEffect(() => {
     if (debouncedSearch === pushed.current) return;
     pushed.current = debouncedSearch;
-    updateURL({ search: debouncedSearch });
+    updateURL({ search: debouncedSearch || undefined });
   }, [debouncedSearch, updateURL]);
 
   useEffect(() => {
@@ -119,7 +124,13 @@ export function ArtworksFilter() {
           )}
         </form>
 
-        <Select value={sortBy} onValueChange={value => updateURL({ sortBy: value })}>
+        <Select
+          value={sortBy}
+          onValueChange={value => {
+            const option = SORT_OPTIONS.find(candidate => candidate.value === value);
+            if (option) updateURL({ sort: option.sort, order: option.order });
+          }}
+        >
           <SelectTrigger
             aria-label="Trier les notices"
             className="h-12 w-12 shrink-0 justify-center rounded-full bg-card px-0 max-sm:[&>svg:last-child]:hidden sm:w-60 sm:justify-between sm:px-4 md:h-12"

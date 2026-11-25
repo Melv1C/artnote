@@ -3,7 +3,6 @@ import {
   hiddenInGroup,
   mapMarkers,
   moreNoticesLabel,
-  noticeCountLabel,
   placesBounds,
   placesToGeoJSON,
   type MapMarker,
@@ -11,13 +10,6 @@ import {
 
 const brussels = { id: 'brussels', latitude: 50.8417, longitude: 4.3579, noticeCount: 2 };
 const ghent = { id: 'ghent', latitude: 51.0531, longitude: 3.7272, noticeCount: 1 };
-
-describe('noticeCountLabel', () => {
-  it('says "notice" for one and "notices" for more', () => {
-    expect(noticeCountLabel(1)).toBe('1 notice');
-    expect(noticeCountLabel(3)).toBe('3 notices');
-  });
-});
 
 describe('moreNoticesLabel', () => {
   it('links to every notice only above the three the details list', () => {
@@ -74,29 +66,24 @@ describe('mapMarkers', () => {
         point([4.3579, 50.8417], { placeId: 'brussels', noticeCount: 2 }),
         point([4.1, 50.9], { cluster: true, cluster_id: 7, point_count: 3, noticeCount: 9 }),
       ]),
-    ).toEqual([
-      {
-        key: 'place-brussels',
-        kind: 'place',
-        placeId: 'brussels',
-        noticeCount: 2,
-        longitude: 4.3579,
-        latitude: 50.8417,
-      },
-      {
-        key: 'cluster-7',
-        kind: 'cluster',
-        clusterId: 7,
-        noticeCount: 9,
-        longitude: 4.1,
-        latitude: 50.9,
-      },
+    ).toMatchObject([
+      { kind: 'place', placeId: 'brussels', noticeCount: 2, longitude: 4.3579, latitude: 50.8417 },
+      { kind: 'cluster', clusterId: 7, noticeCount: 9, longitude: 4.1, latitude: 50.9 },
     ]);
   });
 
   it('keeps one marker for a feature repeated across tiles', () => {
     const brusselsFeature = point([4.3579, 50.8417], { placeId: 'brussels', noticeCount: 2 });
     expect(mapMarkers([brusselsFeature, brusselsFeature])).toHaveLength(1);
+  });
+
+  it('tells apart a place and a group that share an id', () => {
+    const markers = mapMarkers([
+      point([4.3579, 50.8417], { placeId: '7', noticeCount: 2 }),
+      point([4.1, 50.9], { cluster: true, cluster_id: 7, point_count: 3, noticeCount: 9 }),
+    ]);
+    expect(markers).toHaveLength(2);
+    expect(new Set(markers.map(marker => marker.key)).size).toBe(2);
   });
 });
 

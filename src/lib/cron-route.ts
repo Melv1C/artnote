@@ -2,10 +2,6 @@ import '@tanstack/react-start/server-only';
 import { isAuthorizedCronRequest } from './cron-auth';
 import { env } from './env';
 
-/**
- * Handler for a scheduled job endpoint: checks the `CRON_SECRET` bearer token, runs `job`, and
- * reports its result as JSON.
- */
 export const cronHandler =
   (name: string, job: () => Promise<Record<string, unknown>>) =>
   async ({ request }: { request: Request }) => {

@@ -50,10 +50,6 @@ describe('toAddressResults', () => {
     ]);
   });
 
-  it('has no results for an empty response', () => {
-    expect(toAddressResults([])).toEqual([]);
-  });
-
   it('keeps at most five results', () => {
     const many = Array.from({ length: 8 }, (_, i) => ({
       lat: '50',

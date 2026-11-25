@@ -17,64 +17,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArtworkStatusSchema } from '@/schemas/common';
-import type { Artist } from '@/schemas/artist';
+import { runMutation } from '@/lib/run-mutation';
 import {
   type Artwork,
   ArtworkEditorSchema,
   type ArtworkEditorValues,
-  type ArtworkForm,
+  toArtworkForm,
 } from '@/schemas/artwork';
-import { type Place } from '@/schemas/place';
+import { ArtworkStatusSchema } from '@/schemas/common';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useBlocker, useNavigate } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
+import { useBlocker, useNavigate, useRouter } from '@tanstack/react-router';
+import { useRef } from 'react';
+import { useForm, type Control } from 'react-hook-form';
+import { createArtwork, updateArtwork } from '../../actions/artwork-mutations';
+import { ARTWORK_STATUS } from '../../lib/artwork-status';
 import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
 import { PlaceSelector } from './place-selector';
 
-interface ArtworkFormProps {
-  initialValues?: Artwork;
-  onSubmit: (data: ArtworkForm) => Promise<void>;
-  onCancel?: () => void;
-  submitLabel?: string;
-  successMessage?: string;
-}
+const editorValues = (artwork?: Artwork): ArtworkEditorValues => ({
+  title: artwork?.title ?? '',
+  creationYear: artwork?.creationYear ?? null,
+  medium: artwork?.medium ?? null,
+  dimensions: artwork?.dimensions ?? null,
+  notice: artwork?.notice ?? null,
+  sources: artwork?.sources ?? null,
+  status: artwork?.status ?? ArtworkStatusSchema.enum.DRAFT,
+  images: artwork?.images ?? [],
+  artists: artwork?.artists.map(credit => credit.artist) ?? [],
+  place: artwork?.place ?? null,
+});
 
-export function ArtworkForm({
-  initialValues,
-  onSubmit,
-  onCancel,
-  submitLabel = 'Enregistrer',
-  successMessage = 'Notice enregistrée avec succès !',
-}: ArtworkFormProps) {
+/** The notice editor; without `artwork`, it creates a new notice. */
+export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
   const navigate = useNavigate();
+  const router = useRouter();
   const confirm = useConfirm();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
-    initialValues?.artists.map(a => a.artist) || [],
-  );
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(initialValues?.place || null);
 
   const form = useForm<ArtworkEditorValues>({
     resolver: zodResolver(ArtworkEditorSchema),
-    defaultValues: {
-      title: '',
-      creationYear: null,
-      medium: null,
-      dimensions: null,
-      notice: null,
-      sources: null,
-      status: ArtworkStatusSchema.enum.DRAFT,
-      images: [],
-      placeId: null,
-      artistIds: initialValues?.artists?.map(a => a.artist.id) || [],
-      ...initialValues,
-    },
+    defaultValues: editorValues(artwork),
   });
+  const { isDirty, isSubmitting } = form.formState;
 
   // Saved: leaving is expected, the guard below lets it through
   const saved = useRef(false);
@@ -95,27 +79,27 @@ export function ArtworkForm({
     enableBeforeUnload: () => !saved.current && form.formState.isDirty,
   });
 
-  const handleSubmit = async (data: ArtworkEditorValues) => {
-    try {
-      setIsSubmitting(true);
-
-      await onSubmit(data);
-      saved.current = true;
-      toast.success(successMessage);
-      await navigate({ to: '/dashboard/artworks' });
-    } catch (error) {
-      console.error('Saving artwork failed:', error);
-      saved.current = false;
-      setIsSubmitting(false);
-      toast.error('La notice n’a pas pu être enregistrée. Réessayez.');
-    }
+  const handleSubmit = async (values: ArtworkEditorValues) => {
+    const data = toArtworkForm(values);
+    saved.current = await runMutation(
+      async () => {
+        await (artwork
+          ? updateArtwork({ data: { artworkId: artwork.id, data } })
+          : createArtwork({ data }));
+        await router.invalidate();
+      },
+      {
+        success: artwork ? 'Notice mise à jour avec succès !' : 'Notice créée avec succès !',
+        failure: 'La notice n’a pas pu être enregistrée. Réessayez.',
+      },
+    );
+    if (saved.current) await navigate({ to: '/dashboard/artworks' });
   };
 
   return (
     <Form {...form}>
       <form onSubmit={event => void form.handleSubmit(handleSubmit)(event)}>
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          {/* The text: what readers read */}
           <div className="space-y-6">
             <FormSection title="Notice">
               <FormField
@@ -143,8 +127,9 @@ export function ArtworkForm({
                     <FormLabel>Notice</FormLabel>
                     <FormControl>
                       <RichTextEditor
-                        value={field.value || ''}
-                        onChange={val => field.onChange(val)}
+                        label="Notice"
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -159,9 +144,10 @@ export function ArtworkForm({
                     <FormLabel>Bibliographie</FormLabel>
                     <FormControl>
                       <RichTextEditor
-                        value={field.value || ''}
-                        onChange={val => field.onChange(val)}
-                        config={editorPresets.minimal}
+                        label="Bibliographie"
+                        value={field.value}
+                        onChange={field.onChange}
+                        features={editorPresets.bibliography}
                         placeholder="Ajoutez des liens ou des références"
                       />
                     </FormControl>
@@ -181,7 +167,7 @@ export function ArtworkForm({
                   <FormItem>
                     <FormLabel>Images</FormLabel>
                     <FormControl>
-                      <ImageUpload images={field.value} onChange={field.onChange} maxImages={10} />
+                      <ImageUpload images={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -190,7 +176,6 @@ export function ArtworkForm({
             </FormSection>
           </div>
 
-          {/* The cartel and the publication: short facts, on the side */}
           <div className="space-y-6">
             <FormSection title="Publication">
               <FormField
@@ -208,7 +193,7 @@ export function ArtworkForm({
                       <SelectContent>
                         {ArtworkStatusSchema.options.map(status => (
                           <SelectItem key={status} value={status}>
-                            {ARTWORK_STATUS_LABELS[status]}
+                            {ARTWORK_STATUS[status].label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -221,91 +206,43 @@ export function ArtworkForm({
             <FormSection title="L’œuvre">
               <FormField
                 control={form.control}
-                name="artistIds"
+                name="artists"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Artistes</FormLabel>
                     <FormControl>
-                      <ArtistSelector
-                        selectedArtists={selectedArtists}
-                        onSelectionChange={artists => {
-                          setSelectedArtists(artists);
-                          field.onChange(artists.map(a => a.id));
-                        }}
-                      />
+                      <ArtistSelector selectedArtists={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
+              <OptionalTextField
                 control={form.control}
                 name="creationYear"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Année de création</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="2023, XIXe siècle…"
-                        {...field}
-                        value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value || null)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Année de création"
+                placeholder="2023, XIXe siècle…"
               />
-              <FormField
+              <OptionalTextField
                 control={form.control}
                 name="medium"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matériaux et techniques</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Huile sur toile, Bronze…"
-                        {...field}
-                        value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value || null)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Matériaux et techniques"
+                placeholder="Huile sur toile, Bronze…"
               />
-              <FormField
+              <OptionalTextField
                 control={form.control}
                 name="dimensions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dimensions</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="100 x 80 cm"
-                        {...field}
-                        value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value || null)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Dimensions"
+                placeholder="100 x 80 cm"
               />
               <FormField
                 control={form.control}
-                name="placeId"
+                name="place"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Lieu de conservation</FormLabel>
                     <FormControl>
-                      <PlaceSelector
-                        selectedPlace={selectedPlace}
-                        onSelectionChange={place => {
-                          setSelectedPlace(place);
-                          field.onChange(place?.id || null);
-                        }}
-                      />
+                      <PlaceSelector selectedPlace={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,10 +252,9 @@ export function ArtworkForm({
           </div>
         </div>
 
-        {/* Always within reach, however long the notice */}
         <div className="sticky bottom-0 z-30 -mx-4 mt-8 border-t bg-background/90 backdrop-blur-xl lg:-mx-8">
           <div className="flex items-center justify-end gap-3 px-4 py-3 lg:px-8">
-            {form.formState.isDirty && !isSubmitting && (
+            {isDirty && !isSubmitting && (
               <p className="mr-auto hidden text-sm text-muted-foreground sm:block">
                 Modifications non enregistrées
               </p>
@@ -326,22 +262,53 @@ export function ArtworkForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                // With unsaved changes, the navigation guard asks first
-                if (onCancel) onCancel();
-                else void navigate({ to: '/dashboard/artworks' });
-              }}
+              // With unsaved changes, the navigation guard asks first
+              onClick={() => void navigate({ to: '/dashboard/artworks' })}
               disabled={isSubmitting}
             >
               Annuler
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Enregistrement…' : submitLabel}
+              {isSubmitting ? 'Enregistrement…' : artwork ? 'Mettre à jour' : 'Créer la notice'}
             </Button>
           </div>
         </div>
       </form>
     </Form>
+  );
+}
+
+/** A one-line text the notice may leave out: an empty field means none. */
+function OptionalTextField({
+  control,
+  name,
+  label,
+  placeholder,
+}: {
+  control: Control<ArtworkEditorValues>;
+  name: 'creationYear' | 'medium' | 'dimensions';
+  label: string;
+  placeholder: string;
+}) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Input
+              placeholder={placeholder}
+              {...field}
+              value={field.value ?? ''}
+              onChange={event => field.onChange(event.target.value || null)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 

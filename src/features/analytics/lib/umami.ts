@@ -1,28 +1,46 @@
-// What ArtNote sends to Umami (ADR 0010): which pages are measured, and the notice reading event.
+// What ArtNote sends to Umami (ADR 0010): which page views, and the notice reading event.
 
-/**
- * True when a page view of `path` is measured: every public page, but not the dashboard nor a
- * notice preview, which are admin work rather than readers.
- */
-export function isMeasuredPath(path: string): boolean {
-  const normalized = path.toLowerCase().replace(/\/+$/, '') || '/';
-  if (normalized === '/dashboard' || normalized.startsWith('/dashboard/')) return false;
-  // Notice URLs come from src/routes/artworks/$artworkId/ (index and preview); update both together
-  if (normalized.startsWith('/artworks/') && normalized.endsWith('/preview')) return false;
-  return true;
+/** The parts of the router's state a page view depends on. */
+interface PageState {
+  location: { pathname: string };
+  /** The location once its page has loaded: behind `location` while a navigation is under way */
+  resolvedLocation?: { pathname: string };
+  matches: { staticData: { measured?: boolean } }[];
 }
 
-export type ReadingTimeBracket = '<30s' | '30s–2min' | '2–5min' | '>5min';
+/**
+ * The path to send a page view for, or undefined: while a navigation is under way, when the
+ * matches can still be the previous page's, and on a page one of whose routes declares
+ * `measured: false`.
+ */
+export function measuredPagePath({
+  location,
+  resolvedLocation,
+  matches,
+}: PageState): string | undefined {
+  if (resolvedLocation?.pathname !== location.pathname) return undefined;
+  if (matches.some(match => match.staticData.measured === false)) return undefined;
+  return location.pathname;
+}
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 
-/** The reading-time bracket a notice reading of `durationMs` falls in. */
+/** The reading-time brackets, shortest first: a reading falls in the first one it is shorter than. */
+export const READING_TIME_BRACKETS = [
+  { name: '<30s', belowMs: 30 * SECOND },
+  { name: '30s–2min', belowMs: 2 * MINUTE },
+  { name: '2–5min', belowMs: 5 * MINUTE },
+  { name: '>5min', belowMs: Infinity },
+] as const;
+
+export type ReadingTimeBracket = (typeof READING_TIME_BRACKETS)[number]['name'];
+
 export function readingTimeBracket(durationMs: number): ReadingTimeBracket {
-  if (durationMs < 30 * SECOND) return '<30s';
-  if (durationMs < 2 * MINUTE) return '30s–2min';
-  if (durationMs < 5 * MINUTE) return '2–5min';
-  return '>5min';
+  const bracket =
+    READING_TIME_BRACKETS.find(({ belowMs }) => durationMs < belowMs) ??
+    READING_TIME_BRACKETS[READING_TIME_BRACKETS.length - 1];
+  return bracket.name;
 }
 
 const NOTICE_READ_EVENT = 'notice_read';

@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  artistNames,
-  mainImage,
-  orderedImages,
-  placeLocality,
-  placeMapUrl,
-} from './artwork-display';
+import { artistNames, cartelLine, galleryOrder, mainImage } from './artwork-display';
 
 const artist = (firstName: string, lastName: string) => ({ artist: { firstName, lastName } });
 
@@ -35,32 +29,30 @@ describe('images', () => {
     expect(mainImage([])).toBeUndefined();
   });
 
-  it('orders the main image first, then by position', () => {
-    expect(orderedImages(images).map(i => i.id)).toEqual(['main', 'a', 'b']);
+  it('opens the gallery on the main image and keeps the writer’s order after it', () => {
+    expect(galleryOrder(images).map(i => i.id)).toEqual(['main', 'b', 'a']);
+    expect(galleryOrder(images.filter(i => !i.isMain)).map(i => i.id)).toEqual(['b', 'a']);
   });
 });
 
-describe('places', () => {
-  const place = {
-    name: 'Musées royaux des Beaux-Arts',
-    address: 'Rue de la Régence 3',
-    city: 'Bruxelles',
-    country: 'Belgique',
-    latitude: null,
-    longitude: null,
+describe('cartelLine', () => {
+  const artwork = {
+    artists: [artist('Pieter', 'Bruegel l’Ancien')],
+    creationYear: 'vers 1560',
+    place: { name: 'Musées royaux des Beaux-Arts' },
   };
 
-  it('describes the locality with what is known', () => {
-    expect(placeLocality(place)).toBe('Bruxelles, Belgique');
-    expect(placeLocality({ city: null, country: 'Belgique' })).toBe('Belgique');
+  it('joins the chosen facts in the cartel’s order', () => {
+    expect(cartelLine(artwork, ['place', 'artist', 'year'])).toBe(
+      'Pieter Bruegel l’Ancien, vers 1560, Musées royaux des Beaux-Arts',
+    );
+    expect(cartelLine(artwork, ['year', 'place'])).toBe('vers 1560, Musées royaux des Beaux-Arts');
   });
 
-  it('links to a map by coordinates, else by name and address', () => {
-    expect(placeMapUrl({ ...place, latitude: 50.84, longitude: 4.36 })).toBe(
-      'https://www.google.com/maps/search/?api=1&query=50.84%2C4.36',
-    );
-    expect(placeMapUrl(place)).toContain(
-      encodeURIComponent('Musées royaux des Beaux-Arts, Rue de la Régence 3'),
+  it('leaves out what is unknown, the date included when there is no artist', () => {
+    expect(cartelLine({ ...artwork, artists: [] }, ['artist', 'year'])).toBe('vers 1560');
+    expect(cartelLine({ artists: [], creationYear: null, place: null }, ['artist', 'year'])).toBe(
+      '',
     );
   });
 });
