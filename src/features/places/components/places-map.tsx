@@ -66,7 +66,7 @@ export default function PlacesMap({ places }: PlacesMapProps) {
         className="h-full"
         {...(bounds ? { bounds, fitBoundsOptions: MAP_FIT } : BELGIUM_VIEW)}
       >
-        <MapControls position="top-right" />
+        <MapControls />
         <PlaceMarkers places={places} selected={selected} onSelect={setSelectedId} />
         {selected && !isMobile && (
           <MapPopup

@@ -260,13 +260,6 @@ function MarkerContent({ children, className }: { children: ReactNode; className
   );
 }
 
-const positionClasses = {
-  'top-left': 'top-2 left-2',
-  'top-right': 'top-2 right-2',
-  'bottom-left': 'bottom-2 left-2',
-  'bottom-right': 'bottom-10 right-2',
-};
-
 function ControlButton({
   onClick,
   label,
@@ -293,12 +286,12 @@ function ControlButton({
   );
 }
 
-/** Zoom in and out buttons over the map. */
-function MapControls({ position = 'bottom-right' }: { position?: keyof typeof positionClasses }) {
+/** Zoom in and out buttons, at the map's top right. */
+function MapControls() {
   const { map } = useMap();
 
   return (
-    <div className={cn('absolute z-10 flex flex-col gap-1.5', positionClasses[position])}>
+    <div className={'absolute top-2 right-2 z-10 flex flex-col gap-1.5'}>
       <div className="border-border bg-background [&>button:not(:last-child)]:border-border flex flex-col overflow-hidden rounded-md border shadow-sm [&>button:not(:last-child)]:border-b">
         <ControlButton
           onClick={() => map?.zoomTo(map.getZoom() + 1, { duration: 300 })}
