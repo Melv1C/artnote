@@ -31,15 +31,16 @@ test('a writer sets an image legend in italics and links its source, and readers
   // One line: Enter adds no second paragraph
   await legend.press('Enter');
   await legend.pressSequentially(', vers 1560');
-  // Select the title only, the way a writer would with the keyboard
-  await legend.press('Home');
-  for (const _ of 'Paysage avec la chute d’Icare') await legend.press('Shift+ArrowRight');
+  // Select the title only, the way a writer would with the keyboard (arrows: Home does not move
+  // the caret on macOS)
+  for (const _ of ', vers 1560') await legend.press('ArrowLeft');
+  for (const _ of 'Paysage avec la chute d’Icare') await legend.press('Shift+ArrowLeft');
   await bubble.getByRole('button', { name: 'Italique', exact: true }).click();
 
   const source = page.getByRole('textbox', { name: 'Source de l’image 1' });
   await source.click();
   await source.pressSequentially('KIK-IRPA, Bruxelles');
-  await source.press('Shift+Home');
+  for (const _ of 'KIK-IRPA, Bruxelles') await source.press('Shift+ArrowLeft');
   await bubble.getByRole('button', { name: 'Lien', exact: true }).click();
   const address = page.getByRole('textbox', { name: 'Adresse du lien' });
   await address.fill('kikirpa.be');
