@@ -1,4 +1,4 @@
-import { expect, notices, test } from './fixtures';
+import { expect, notices, places, test } from './fixtures';
 
 // The reader's side is built for phones first
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -31,7 +31,7 @@ test.describe('a reader on a phone', () => {
   test('finds where to see the work, with a link to a map', async ({ page }) => {
     await page.goto(`/artworks/${notices.icarus.id}`);
     const place = page.getByRole('region', { name: 'Où voir l’œuvre' });
-    await expect(place.getByText('Musées royaux des Beaux-Arts de Belgique')).toBeVisible();
+    await expect(place.getByText(places.fineArts.name)).toBeVisible();
     await expect(place.getByRole('link', { name: /Itinéraire/ })).toHaveAttribute(
       'href',
       /google\.com\/maps/,

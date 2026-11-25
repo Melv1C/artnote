@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, places, test } from './fixtures';
 
 // A refused save keeps what the writer typed and marks the field at fault beside it
 test('creating a place without a position keeps the typed fields', async ({ page, signIn }) => {
@@ -41,7 +41,7 @@ test('editing a place with an invalid value keeps the unsaved changes', async ({
   signIn,
 }) => {
   await signIn('admin');
-  await page.goto('/dashboard/places/seed-place-fine-arts');
+  await page.goto(`/dashboard/places/${places.fineArts.id}`);
   await page.waitForLoadState('networkidle');
 
   await page.getByLabel('Nom *').fill('Musées royaux, nom changé');
@@ -55,5 +55,5 @@ test('editing a place with an invalid value keeps the unsaved changes', async ({
   await expect(page.getByLabel('Nom *')).toHaveValue('Musées royaux, nom changé');
   await expect(page.getByLabel('Description')).toHaveValue('Description changée.');
   await expect(website).toHaveValue('pas une adresse');
-  await expect(page).toHaveURL(/\/dashboard\/places\/seed-place-fine-arts$/);
+  await expect(page).toHaveURL(new RegExp(`/dashboard/places/${places.fineArts.id}$`));
 });

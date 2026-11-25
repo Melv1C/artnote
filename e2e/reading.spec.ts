@@ -1,4 +1,4 @@
-import { expect, notices, test } from './fixtures';
+import { expect, notices, places, test } from './fixtures';
 
 test.describe('a reader', () => {
   test('finds the published notices, not the drafts', async ({ page }) => {
@@ -29,10 +29,10 @@ test.describe('a reader', () => {
 // "Voir les N notices" on the map opens the list filtered by the place's name
 test.describe('the notices list filtered by a place', () => {
   test('shows the place filter and lets the reader remove it', async ({ page }) => {
-    await page.goto(`/artworks?place=${encodeURIComponent('Cathédrale Saint-Bavon')}`);
+    await page.goto(`/artworks?place=${encodeURIComponent(places.saintBavo.name)}`);
     await expect(page.getByRole('status').getByText('1 notice')).toBeAttached();
     const filter = page.getByRole('button', {
-      name: 'Retirer le filtre Lieu : Cathédrale Saint-Bavon',
+      name: `Retirer le filtre Lieu : ${places.saintBavo.name}`,
     });
     await expect(filter).toBeVisible();
 
