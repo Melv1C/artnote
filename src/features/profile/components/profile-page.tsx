@@ -1,3 +1,4 @@
+import { FullPageMessage } from '@/components/full-page-message';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -85,15 +86,10 @@ export function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-[60svh] items-center justify-center px-4">
-        <div className="text-center">
-          <h1 className="font-serif text-3xl font-medium tracking-tight">Connectez-vous</h1>
-          <p className="mt-2 text-muted-foreground">
-            Votre profil s’affiche une fois connecté, avec le bouton « Se connecter » en haut de la
-            page.
-          </p>
-        </div>
-      </div>
+      <FullPageMessage title="Connectez-vous">
+        Votre profil s’affiche une fois connecté, avec le bouton « Se connecter » en haut de la
+        page.
+      </FullPageMessage>
     );
   }
 

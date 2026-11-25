@@ -1,4 +1,4 @@
-import { Painting } from '@/features/artworks/components/painting';
+import { Painting } from '@/components/painting';
 import { cn } from '@/lib/utils';
 import type { MapPlace } from '@/schemas/place';
 import { Link } from '@tanstack/react-router';
@@ -58,9 +58,8 @@ export function PlaceDetails({ place, onClose, className, ref }: PlaceDetailsPro
               <Painting
                 image={notice.image ?? undefined}
                 title={notice.title}
-                className="size-11 shrink-0 rounded-sm p-1 [&_span]:hidden [&_svg]:size-4"
-                imgClassName="shadow-sm"
-                decorative
+                className="size-11 shrink-0 rounded-sm p-1"
+                thumbnail
               />
               <span className="work-title line-clamp-2 text-sm">{notice.title}</span>
             </Link>

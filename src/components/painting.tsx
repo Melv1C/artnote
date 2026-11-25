@@ -11,6 +11,8 @@ interface PaintingProps {
   priority?: boolean;
   /** Inside a link that already names the work: the image adds nothing for a screen reader */
   decorative?: boolean;
+  /** A small decorative picture in a list: a light shadow, an empty frame without its caption */
+  thumbnail?: boolean;
 }
 
 /**
@@ -23,7 +25,8 @@ export function Painting({
   className,
   imgClassName,
   priority,
-  decorative,
+  decorative = false,
+  thumbnail = false,
 }: PaintingProps) {
   return (
     <div
@@ -32,23 +35,32 @@ export function Painting({
       {image ? (
         <img
           src={image.url}
-          alt={decorative ? '' : image.alt || title}
+          alt={decorative || thumbnail ? '' : image.alt || title}
           width={image.width ?? undefined}
           height={image.height ?? undefined}
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
           className={cn(
-            'h-auto max-h-full w-auto max-w-full object-contain shadow-[0_10px_24px_-8px_oklch(0.2_0.02_288/0.45),0_2px_6px_oklch(0.2_0.02_288/0.2)]',
+            'h-auto max-h-full w-auto max-w-full object-contain',
+            thumbnail
+              ? 'shadow-sm'
+              : 'shadow-[0_10px_24px_-8px_oklch(0.2_0.02_288/0.45),0_2px_6px_oklch(0.2_0.02_288/0.2)]',
             imgClassName,
           )}
         />
       ) : (
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
-          <Frame className="size-10" strokeWidth={1.25} aria-hidden="true" />
-          <span className="text-xs" aria-hidden={decorative}>
-            Image à venir
-          </span>
+          <Frame
+            className={thumbnail ? 'size-4' : 'size-10'}
+            strokeWidth={1.25}
+            aria-hidden="true"
+          />
+          {!thumbnail && (
+            <span className="text-xs" aria-hidden={decorative}>
+              Image à venir
+            </span>
+          )}
         </div>
       )}
     </div>

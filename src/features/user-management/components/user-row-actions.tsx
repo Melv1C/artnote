@@ -12,9 +12,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { type UserRole, UserRoleSchema } from '@/schemas/common';
-import { type User } from '@/schemas/user';
+import { runMutation } from '@/lib/run-mutation';
+import { UserRoleSchema, type UserRole } from '@/schemas/common';
+import type { User } from '@/schemas/user';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import { Ban, MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -23,18 +25,24 @@ import {
   impersonateUser,
   unbanUser,
   updateUserRole,
-} from '../../actions/user-mutations';
-import { userKeys } from '../../hooks/use-users';
-import { USER_ROLE_LABELS } from '../../lib/user-roles';
+} from '../actions/user-mutations';
+import { userKeys } from '../hooks/use-users';
+import { accountStatus, USER_ROLE_LABELS } from '../lib/user-accounts';
 
-interface UserRowActionsProps {
-  user: User;
-}
-
-export function UserRowActions({ user }: UserRowActionsProps) {
-  // Get query client for invalidation
+export function UserRowActions({ user }: { user: User }) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const confirm = useConfirm();
+
+  /** Run a change to the account, then refresh the list and the page's figures. */
+  const change = (mutate: () => Promise<unknown>, messages: { success: string; failure: string }) =>
+    runMutation(async () => {
+      await mutate();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: userKeys.all }),
+        router.invalidate(),
+      ]);
+    }, messages);
 
   const handleCopyId = async () => {
     try {
@@ -48,46 +56,26 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     }
   };
 
-  const handleEditRole = async (newRole: UserRole) => {
-    try {
-      await updateUserRole({ data: { userId: user.id, role: newRole } });
-      toast.success(`Rôle mis à jour vers ${USER_ROLE_LABELS[newRole]}`);
-      await queryClient.invalidateQueries({ queryKey: userKeys.all });
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast.error('Erreur lors de la mise à jour du rôle');
-    }
-  };
+  const handleEditRole = (role: UserRole) =>
+    change(() => updateUserRole({ data: { userId: user.id, role } }), {
+      success: `Rôle mis à jour vers ${USER_ROLE_LABELS[role]}`,
+      failure: 'Le rôle n’a pas pu être modifié.',
+    });
 
   const handleBanUser = async () => {
     const reason = prompt('Raison de la suspension (optionnel):');
-    if (reason === null) return; // User cancelled
-
-    try {
-      await banUser({
-        data: {
-          userId: user.id,
-          banReason: reason || undefined,
-        },
-      });
-      toast.success('Utilisateur suspendu avec succès');
-      await queryClient.invalidateQueries({ queryKey: userKeys.all });
-    } catch (error) {
-      console.error('Error banning user:', error);
-      toast.error('Erreur lors de la suspension de l’utilisateur');
-    }
+    if (reason === null) return;
+    await change(() => banUser({ data: { userId: user.id, banReason: reason || undefined } }), {
+      success: 'Utilisateur suspendu',
+      failure: 'L’utilisateur n’a pas pu être suspendu.',
+    });
   };
 
-  const handleUnbanUser = async () => {
-    try {
-      await unbanUser({ data: { userId: user.id } });
-      toast.success('Suspension levée avec succès');
-      await queryClient.invalidateQueries({ queryKey: userKeys.all });
-    } catch (error) {
-      console.error('Error unbanning user:', error);
-      toast.error('Erreur lors de la levée de suspension');
-    }
-  };
+  const handleUnbanUser = () =>
+    change(() => unbanUser({ data: { userId: user.id } }), {
+      success: 'Suspension levée',
+      failure: 'La suspension n’a pas pu être levée.',
+    });
 
   const handleImpersonateUser = async () => {
     const confirmed = await confirm({
@@ -95,19 +83,15 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       description: 'Vous verrez le site comme cette personne, pendant une heure au plus.',
       confirmLabel: 'Continuer',
     });
-    if (confirmed) {
-      try {
+    if (!confirmed) return;
+    // The whole page reloads with the new session
+    await runMutation(
+      async () => {
         await impersonateUser({ data: user.id });
-        toast.success(`Vous vous faites maintenant passer pour ${user.name}`, {
-          description: 'Cette session durera 1 heure maximum',
-        });
-        // Refresh the page to update the session
         window.location.reload();
-      } catch (error) {
-        console.error('Error impersonating user:', error);
-        toast.error('Erreur lors de la connexion en tant que cet utilisateur');
-      }
-    }
+      },
+      { failure: 'La connexion en tant que cet utilisateur a échoué.' },
+    );
   };
 
   const handleDeleteUser = async () => {
@@ -117,20 +101,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
       confirmLabel: 'Supprimer le compte',
       destructive: true,
     });
-    if (confirmed) {
-      try {
-        await deleteUser({ data: user.id });
-        toast.success('Utilisateur supprimé avec succès');
-        await queryClient.invalidateQueries({ queryKey: userKeys.all });
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        toast.error('Erreur lors de la suppression de l’utilisateur');
-      }
-    }
+    if (!confirmed) return;
+    await change(() => deleteUser({ data: user.id }), {
+      success: 'Utilisateur supprimé',
+      failure: 'L’utilisateur n’a pas pu être supprimé.',
+    });
   };
-
-  const isBanned = user.banned;
-  const banExpired = user.banExpires && new Date(user.banExpires) < new Date();
 
   return (
     <DropdownMenu>
@@ -168,7 +144,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
           Se faire passer pour
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        {isBanned && !banExpired ? (
+        {accountStatus(user) === 'suspended' ? (
           <DropdownMenuItem onClick={handleUnbanUser}>
             <ShieldCheck className="mr-2 h-4 w-4" />
             Lever la suspension

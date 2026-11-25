@@ -1,4 +1,4 @@
-import { fetchTotalUserCount } from '@/features/user-management/actions/user-queries';
+import { fetchUserStats } from '@/features/user-management/actions/user-queries';
 import {
   fetchMyArtworks,
   fetchPublishedArtworkCount,
@@ -9,10 +9,8 @@ import {
  * boundary. Audience figures live in Umami (ADR 0010), not here.
  */
 export const loadAdminDashboardData = () => ({
-  stats: {
-    userCount: fetchTotalUserCount(),
-    noticeCount: fetchPublishedArtworkCount(),
-  },
+  userStats: fetchUserStats(),
+  publishedCount: fetchPublishedArtworkCount(),
   myArtworks: fetchMyArtworks(),
 });
 

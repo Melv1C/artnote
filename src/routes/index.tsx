@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
 import { ArtworkCard } from '@/features/artworks/components/artwork-card';
-import { Painting } from '@/features/artworks/components/painting';
+import { Painting } from '@/components/painting';
 import { artistNames, mainImage } from '@/features/artworks/lib/artwork-display';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link, createFileRoute } from '@tanstack/react-router';

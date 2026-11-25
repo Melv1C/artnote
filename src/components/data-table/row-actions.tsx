@@ -1,4 +1,3 @@
-import { artistFullName } from '@/features/artists/lib/artist-name';
 import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,35 +8,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Artist } from '@/schemas/artist';
-import { useQueryClient } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { runMutation } from '@/lib/run-mutation';
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { deleteArtist } from '../actions/artist-mutations';
-import { artistKeys } from '../hooks/use-artists';
+import { cloneElement, type ReactElement } from 'react';
 
-export function ArtistRowActions({ artist }: { artist: Artist }) {
-  const queryClient = useQueryClient();
+interface RowActionsProps {
+  /** A `<Link>` to the row's edit page; its text is set here */
+  editLink: ReactElement;
+  /** What to delete, as the confirmation names it: "Supprimer <name> ?" */
+  name: string;
+  /** What deleting it does to the rest of the content */
+  deleteConsequence: string;
+  /** Deletes the row and refreshes the table */
+  onDelete: () => Promise<unknown>;
+  messages: { deleted: string; failed: string };
+}
+
+/** A dashboard row's menu: edit it, or delete it once confirmed. */
+export function RowActions({
+  editLink,
+  name,
+  deleteConsequence,
+  onDelete,
+  messages,
+}: RowActionsProps) {
   const confirm = useConfirm();
-  const fullName = artistFullName(artist);
 
   const handleDelete = async () => {
     const confirmed = await confirm({
-      title: `Supprimer ${fullName} ?`,
-      description: 'L’artiste sera retiré des notices qui le citent. Cette action est définitive.',
+      title: `Supprimer ${name} ?`,
+      description: `${deleteConsequence} Cette action est définitive.`,
       confirmLabel: 'Supprimer',
       destructive: true,
     });
-    if (!confirmed) return;
-    try {
-      await deleteArtist({ data: artist.id });
-      await queryClient.invalidateQueries({ queryKey: artistKeys.all });
-      toast.success('Artiste supprimé');
-    } catch (error) {
-      console.error('Deleting artist failed:', error);
-      toast.error('Erreur lors de la suppression de l’artiste');
-    }
+    if (confirmed)
+      await runMutation(onDelete, { success: messages.deleted, failure: messages.failed });
   };
 
   return (
@@ -51,10 +56,14 @@ export function ArtistRowActions({ artist }: { artist: Artist }) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }}>
-            <Edit className="mr-2 h-4 w-4" />
-            Modifier
-          </Link>
+          {cloneElement(
+            editLink,
+            {},
+            <>
+              <Edit className="mr-2 h-4 w-4" />
+              Modifier
+            </>,
+          )}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDelete} className="text-red-600 hover:text-red-700">

@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link } from '@tanstack/react-router';
 import { artistNames, mainImage } from '../lib/artwork-display';
-import { Painting } from './painting';
+import { Painting } from '@/components/painting';
 
 interface ArtworkCardProps {
   artwork: PublicArtwork;

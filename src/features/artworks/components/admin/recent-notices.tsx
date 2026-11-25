@@ -1,19 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Painting } from '@/features/artworks/components/painting';
-import { StatusBadge } from '@/features/artworks/components/admin/status-badge';
-import { mainImage } from '@/features/artworks/lib/artwork-display';
+import { Painting } from '@/components/painting';
+import { formatAgo } from '@/lib/format';
 import { Link } from '@tanstack/react-router';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { use } from 'react';
-import type { AdminDashboardData } from '../actions/dashboard-queries';
+import type { fetchMyArtworks } from '../../actions/artwork-queries';
+import { mainImage } from '../../lib/artwork-display';
+import { StatusBadge } from './status-badge';
 
 /** The writer's most recently changed notices: where to pick the writing back up. */
-export function RecentNotices({ artworks }: { artworks: AdminDashboardData['myArtworks'] }) {
-  const recent = use(artworks)
-    .toSorted((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    .slice(0, 5);
+export function RecentNotices({ artworks }: { artworks: ReturnType<typeof fetchMyArtworks> }) {
+  const recent = use(artworks).slice(0, 5);
 
   return (
     <section aria-labelledby="recent-notices" className="rounded-xl border bg-card shadow-xs">
@@ -47,18 +44,13 @@ export function RecentNotices({ artworks }: { artworks: AdminDashboardData['myAr
                 <Painting
                   image={mainImage(artwork.images)?.image}
                   title={artwork.title}
-                  className="size-11 shrink-0 rounded-md p-1 [&_span]:hidden [&_svg]:size-4"
-                  imgClassName="shadow-sm"
-                  decorative
+                  className="size-11 shrink-0 rounded-md p-1"
+                  thumbnail
                 />
                 <div className="min-w-0 flex-1">
                   <p className="work-title truncate text-base">{artwork.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    Modifiée{' '}
-                    {formatDistanceToNow(new Date(artwork.updatedAt), {
-                      addSuffix: true,
-                      locale: fr,
-                    })}
+                    Modifiée {formatAgo(artwork.updatedAt)}
                   </p>
                 </div>
                 <StatusBadge status={artwork.status} />

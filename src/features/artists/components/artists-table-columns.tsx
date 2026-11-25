@@ -1,49 +1,46 @@
-import { artistFullName } from '@/features/artists/lib/artist-name';
+import { RowActions } from '@/components/data-table/row-actions';
+import type { PagedColumnDef } from '@/components/data-table/paged-table';
 import { Badge } from '@/components/ui/badge';
+import { artistFullName } from '@/features/artists/lib/artist-name';
+import { formatShortDate, plural } from '@/lib/format';
 import type { ArtistWithRelations } from '@/schemas/artist';
-import type { DataTableFeatures } from '@/lib/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArtistRowActions } from './artist-row-actions';
+import { deleteArtist } from '../actions/artist-mutations';
+import { artistKeys } from '../hooks/use-artists';
 
-export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
+export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
-    accessorKey: 'name',
+    id: 'name',
     header: 'Nom',
-    cell: ({ row }) => {
-      const artist = row.original;
-      const fullName = artistFullName(artist);
-      return (
-        <Link
-          to="/dashboard/artists/$artistId"
-          params={{ artistId: artist.id }}
-          className="font-medium hover:underline"
-        >
-          {fullName}
-        </Link>
-      );
-    },
+    cell: ({ row }) => (
+      <Link
+        to="/dashboard/artists/$artistId"
+        params={{ artistId: row.original.id }}
+        className="font-medium hover:underline"
+      >
+        {artistFullName(row.original)}
+      </Link>
+    ),
   },
   {
-    accessorKey: 'birthDate',
+    id: 'birthDate',
     header: 'Date de naissance',
     cell: ({ row }) => row.original.birthDate ?? '—',
   },
   {
-    accessorKey: 'deathDate',
+    id: 'deathDate',
     header: 'Date de décès',
     cell: ({ row }) => row.original.deathDate ?? '—',
   },
   {
-    accessorKey: 'artworks',
+    id: 'artworks',
     header: 'Œuvres',
     cell: ({ row }) => {
       const artworks = row.original.artworks;
       return (
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium">
-            {artworks.length} œuvre{artworks.length > 1 ? 's' : ''}
-          </span>
+          <span className="text-sm font-medium">{plural(artworks.length, 'œuvre')}</span>
           {artworks.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {artworks.slice(0, 3).map(artwork => (
@@ -63,16 +60,28 @@ export const columns: ColumnDef<DataTableFeatures, ArtistWithRelations>[] = [
     },
   },
   {
-    accessorKey: 'createdAt',
+    id: 'createdAt',
     header: 'Créé le',
-    cell: ({ row }) => {
-      const date = new Date(row.getValue('createdAt'));
-      return date.toLocaleDateString('fr-FR');
-    },
+    cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
-    enableHiding: false,
     cell: ({ row }) => <ArtistRowActions artist={row.original} />,
   },
 ];
+
+function ArtistRowActions({ artist }: { artist: ArtistWithRelations }) {
+  const queryClient = useQueryClient();
+  return (
+    <RowActions
+      editLink={<Link to="/dashboard/artists/$artistId" params={{ artistId: artist.id }} />}
+      name={artistFullName(artist)}
+      deleteConsequence="L’artiste sera retiré des notices qui le citent."
+      onDelete={async () => {
+        await deleteArtist({ data: artist.id });
+        await queryClient.invalidateQueries({ queryKey: artistKeys.all });
+      }}
+      messages={{ deleted: 'Artiste supprimé', failed: 'L’artiste n’a pas pu être supprimé.' }}
+    />
+  );
+}

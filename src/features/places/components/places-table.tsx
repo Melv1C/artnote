@@ -1,6 +1,7 @@
 import { PagedTable } from '@/components/data-table/paged-table';
+import { SearchInput } from '@/components/data-table/search-input';
+import { useTableFilters } from '@/components/data-table/use-table-filters';
 import { Input } from '@/components/ui/input';
-import { Toggle } from '@/components/ui/toggle';
 import {
   Select,
   SelectContent,
@@ -8,48 +9,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Toggle } from '@/components/ui/toggle';
 import { PlaceTypeSchema } from '@/schemas/common';
-import { MapPinOff, Search } from 'lucide-react';
-import { useState } from 'react';
+import { MapPinOff } from 'lucide-react';
 import { usePlaces } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 import { columns } from './places-table-columns';
 
 export function PlacesTable() {
-  const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({ search: '', type: 'all', city: '', country: '' });
-  const [missingPosition, setMissingPosition] = useState(false);
-  const debounced = useDebounce(filters, 300);
-
+  const { page, setPage, filters, debounced, setFilter } = useTableFilters({
+    search: '',
+    type: 'all',
+    city: '',
+    country: '',
+    missingPosition: false,
+  });
   const { data, isLoading, isError } = usePlaces({
     page,
     search: debounced.search || undefined,
     type: PlaceTypeSchema.safeParse(debounced.type).data,
     city: debounced.city || undefined,
     country: debounced.country || undefined,
-    missingPosition: missingPosition || undefined,
+    missingPosition: debounced.missingPosition || undefined,
   });
-
-  // A new filter starts again from the first page
-  const setFilter = (key: keyof typeof filters, value: string) => {
-    setFilters(current => ({ ...current, [key]: value }));
-    setPage(1);
-  };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher un lieu…"
-            aria-label="Rechercher un lieu"
-            value={filters.search}
-            onChange={event => setFilter('search', event.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          label="Rechercher un lieu"
+          value={filters.search}
+          onChange={value => setFilter('search', value)}
+        />
         <Select value={filters.type} onValueChange={value => setFilter('type', value)}>
           <SelectTrigger className="w-48" aria-label="Type de lieu">
             <SelectValue placeholder="Type" />
@@ -79,11 +70,8 @@ export function PlacesTable() {
         />
         <Toggle
           variant="outline"
-          pressed={missingPosition}
-          onPressedChange={pressed => {
-            setMissingPosition(pressed);
-            setPage(1);
-          }}
+          pressed={filters.missingPosition}
+          onPressedChange={pressed => setFilter('missingPosition', pressed)}
         >
           <MapPinOff />
           Sans position

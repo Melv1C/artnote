@@ -1,14 +1,17 @@
+import { RowActions } from '@/components/data-table/row-actions';
+import type { PagedColumnDef } from '@/components/data-table/paged-table';
 import { Badge } from '@/components/ui/badge';
+import { formatShortDate, plural } from '@/lib/format';
 import type { PlaceWithRelations } from '@/schemas/place';
-import type { DataTableFeatures } from '@/lib/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { deletePlace } from '../actions/place-mutations';
+import { placeKeys } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
-import { PlaceRowActions } from './place-row-actions';
 
-export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
+export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
-    accessorKey: 'name',
+    id: 'name',
     header: 'Nom',
     cell: ({ row }) => (
       <div className="flex flex-wrap items-center gap-2">
@@ -17,7 +20,7 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
           params={{ placeId: row.original.id }}
           className="font-medium hover:underline"
         >
-          {row.getValue('name')}
+          {row.original.name}
         </Link>
         {(row.original.latitude === null || row.original.longitude === null) && (
           <Badge variant="secondary">Sans position</Badge>
@@ -26,48 +29,52 @@ export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
     ),
   },
   {
-    accessorKey: 'type',
+    id: 'type',
     header: 'Type',
-    cell: ({ row }) => {
-      return <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>;
-    },
+    cell: ({ row }) => <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>,
   },
   {
-    accessorKey: 'city',
+    id: 'city',
     header: 'Ville',
-    cell: ({ row }) => row.getValue('city') || '—',
+    cell: ({ row }) => row.original.city || '—',
   },
   {
-    accessorKey: 'country',
+    id: 'country',
     header: 'Pays',
-    cell: ({ row }) => row.getValue('country') || '—',
+    cell: ({ row }) => row.original.country || '—',
   },
   {
-    accessorKey: 'artworks',
+    id: 'artworks',
     header: 'Œuvres',
-    cell: ({ row }) => {
-      const artworks = row.getValue('artworks') as {
-        id: string;
-        title: string;
-      }[];
-      return (
-        <span className="text-sm text-muted-foreground">
-          {artworks.length} œuvre{artworks.length > 1 ? 's' : ''}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="text-sm text-muted-foreground">
+        {plural(row.original.artworks.length, 'œuvre')}
+      </span>
+    ),
   },
   {
-    accessorKey: 'createdAt',
+    id: 'createdAt',
     header: 'Créé le',
-    cell: ({ row }) => {
-      const date = new Date(row.getValue('createdAt'));
-      return date.toLocaleDateString('fr-FR');
-    },
+    cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
-    enableHiding: false,
     cell: ({ row }) => <PlaceRowActions place={row.original} />,
   },
 ];
+
+function PlaceRowActions({ place }: { place: PlaceWithRelations }) {
+  const queryClient = useQueryClient();
+  return (
+    <RowActions
+      editLink={<Link to="/dashboard/places/$placeId" params={{ placeId: place.id }} />}
+      name={place.name}
+      deleteConsequence="Les notices conservées dans ce lieu n’auront plus de lieu."
+      onDelete={async () => {
+        await deletePlace({ data: place.id });
+        await queryClient.invalidateQueries({ queryKey: placeKeys.all });
+      }}
+      messages={{ deleted: 'Lieu supprimé', failed: 'Le lieu n’a pas pu être supprimé.' }}
+    />
+  );
+}

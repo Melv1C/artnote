@@ -20,7 +20,7 @@ import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { artistNames, mainImage } from '../../lib/artwork-display';
 import { ARTWORK_STATUS_LABELS } from '../../lib/artwork-status';
-import { Painting } from '../painting';
+import { Painting } from '@/components/painting';
 import { STATUS_DOT, StatusBadge } from './status-badge';
 
 /** What moving a notice to a status is called, in the menu and its toast. */
@@ -88,9 +88,8 @@ export function ArtworkRowAdmin({ artwork, onDelete, onStatusChange }: ArtworkRo
         <Painting
           image={mainImage(images)?.image}
           title={title}
-          className="size-14 rounded-lg p-1.5 [&_svg]:size-5 [&_span]:hidden"
-          imgClassName="shadow-sm"
-          decorative
+          className="size-14 rounded-lg p-1.5"
+          thumbnail
         />
       </div>
 

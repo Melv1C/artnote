@@ -1,10 +1,9 @@
 import { ArtworkCard } from '@/features/artworks/components/artwork-card';
 import { ArtworksListSkeleton } from '@/features/artworks/components/artworks-list-skeleton';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
+import { formatLongDate } from '@/lib/format';
 import { pageMeta } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Suspense, use } from 'react';
 
 export const Route = createFileRoute('/whats-new')({
@@ -58,7 +57,7 @@ function LatestList({
             <p className="text-xs font-medium text-muted-foreground">
               Publiée le{' '}
               <time dateTime={new Date(artwork.publishedAt).toISOString()}>
-                {format(new Date(artwork.publishedAt), 'd MMMM yyyy', { locale: fr })}
+                {formatLongDate(artwork.publishedAt)}
               </time>
             </p>
           )}
