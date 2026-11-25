@@ -1,10 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-import { config } from 'dotenv';
 import { e2eEnv } from './scripts/e2e-env';
+import { loadEnvFiles } from './scripts/env-files';
 
-// Same precedence as the app: the environment, then .env.local, then .env
-config({ path: '.env.local', quiet: true });
-config({ path: '.env', quiet: true });
+loadEnvFiles();
 
 // A database and port of its own, recreated on every run: tests may write freely
 const env = e2eEnv(process.env);

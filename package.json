@@ -18,7 +18,6 @@
     "dev": "vpx scripts/preflight.ts dev && vp dev",
     "build": "vp build",
     "start": "node .output/server/index.mjs",
-    "preview": "vp preview",
     "check": "vpx scripts/preflight.ts check && prisma generate && prisma validate && prisma format --check && vp check && vp test && knip && vp build",
     "fix": "vp check --fix",
     "test:e2e": "playwright test",

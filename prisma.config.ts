@@ -1,9 +1,7 @@
-import { config } from 'dotenv';
 import { defineConfig, env } from 'prisma/config';
+import { loadEnvFiles } from './scripts/env-files';
 
-// Same precedence as the app: .env.local wins over .env
-config({ path: '.env.local' });
-config({ path: '.env' });
+loadEnvFiles();
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

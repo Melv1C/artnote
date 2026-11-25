@@ -11,5 +11,3 @@ export function assertLocalDatabase(url: string | undefined): string {
   }
   return url;
 }
-
-if (import.meta.main) assertLocalDatabase(process.env.PRISMA_DATABASE_URL);

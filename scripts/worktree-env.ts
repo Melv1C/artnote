@@ -32,3 +32,27 @@ function setLine(content: string, key: string, value: string) {
     ? content.replace(linePattern(key), () => line(key, value))
     : `${content.trimEnd()}\n${line(key, value)}\n`;
 }
+
+const POSTGRES_NAME_LIMIT = 63;
+const E2E_SUFFIX = '_e2e';
+
+/** This worktree's database, from its folder's slug (lowercase letters, digits and underscores). */
+export const worktreeDatabaseName = (slug: string) =>
+  `artnote_${slug}`.slice(0, POSTGRES_NAME_LIMIT);
+
+/** The end-to-end run's database beside `name`, recreated on every run. */
+export const e2eDatabaseName = (name: string) =>
+  `${name.slice(0, POSTGRES_NAME_LIMIT - E2E_SUFFIX.length)}${E2E_SUFFIX}`;
+
+/** Only an end-to-end database is throwaway. */
+export const isE2eDatabaseName = (name: string) =>
+  name.length > E2E_SUFFIX.length && name.endsWith(E2E_SUFFIX);
+
+/** The database a URL names. Scripts quote it into SQL, so it must match [a-z0-9_]+. */
+export function databaseName(url: string) {
+  const name = decodeURIComponent(new URL(url).pathname.slice(1));
+  if (!/^[a-z0-9_]+$/.test(name)) {
+    throw new Error(`Database name "${name}" must be lowercase letters, digits and underscores.`);
+  }
+  return name;
+}

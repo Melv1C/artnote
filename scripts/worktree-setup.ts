@@ -1,13 +1,15 @@
 // Set up this git worktree (`vp run worktree:setup`, run by t3.json after `vp install`): write
-// its .env, start Postgres and MinIO, create its database, migrate, generate and seed (ADR 0007).
-import { config, parse } from 'dotenv';
+// its .env, start Postgres and MinIO, generate the Prisma client, create its database, migrate and
+// seed it (ADR 0007).
+import { parse } from 'dotenv';
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { basename, join, resolve } from 'node:path';
 import { assertLocalDatabase } from './assert-local-db';
-import { buildWorktreeEnv } from './worktree-env';
+import { loadEnvFiles } from './env-files';
+import { buildWorktreeEnv, databaseName, worktreeDatabaseName } from './worktree-env';
 
 const ENV_FILE = '.env';
 const FIRST_DEV_PORT = 3100;
@@ -47,7 +49,9 @@ async function pickDevPort(slug: string) {
     const port = FIRST_DEV_PORT + ((offset + i) % DEV_PORT_RANGE);
     if (await isPortFree(port)) return port;
   }
-  throw new Error(`No free port between ${FIRST_DEV_PORT} and ${FIRST_DEV_PORT + DEV_PORT_RANGE}.`);
+  throw new Error(
+    `No free port between ${FIRST_DEV_PORT} and ${FIRST_DEV_PORT + DEV_PORT_RANGE - 1}.`,
+  );
 }
 
 /** The main checkout's .env: the first worktree `git worktree list` prints. Null when it has none. */
@@ -60,7 +64,7 @@ function readMainEnv() {
 
 async function writeWorktreeEnv() {
   const slug = worktreeSlug();
-  const database = `artnote_${slug}`.slice(0, 63);
+  const database = worktreeDatabaseName(slug);
   const port = await pickDevPort(slug);
   const mainEnv = readMainEnv();
   const fromMain = parse(mainEnv?.content ?? '');
@@ -83,57 +87,18 @@ async function writeWorktreeEnv() {
   );
 }
 
-function databaseFromUrl(url: string) {
-  const { pathname, username } = new URL(url);
-  const name = decodeURIComponent(pathname.slice(1));
-  if (!/^[a-z0-9_]+$/.test(name)) {
-    throw new Error(`Database name "${name}" must be lowercase letters, digits and underscores.`);
-  }
-  return { name, user: decodeURIComponent(username) };
-}
-
-const psql = (user: string, sql: string) =>
-  read(
-    'docker',
-    'compose',
-    'exec',
-    '-T',
-    'db',
-    'psql',
-    '-v',
-    'ON_ERROR_STOP=1',
-    '-U',
-    user,
-    '-d',
-    'postgres',
-    '-tAc',
-    sql,
-  );
-
 if (!existsSync(ENV_FILE)) await writeWorktreeEnv();
+loadEnvFiles();
 
-config({ path: '.env.local', quiet: true });
-config({ path: ENV_FILE, quiet: true });
-
-const database = databaseFromUrl(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
+// Before starting containers: refuse a database that is not local or has an unsafe name
+databaseName(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
 
 run('docker', 'compose', 'up', '-d', '--wait', 'db', 'storage');
 run('docker', 'compose', 'run', '--rm', 'storage-init');
-
-if (reset) {
-  psql(database.user, `DROP DATABASE IF EXISTS "${database.name}" WITH (FORCE)`);
-  console.log(`Dropped database ${database.name}`);
-}
-
-if (
-  psql(database.user, `SELECT 1 FROM pg_database WHERE datname = '${database.name}'`).trim() !== '1'
-) {
-  psql(database.user, `CREATE DATABASE "${database.name}"`);
-  console.log(`Created database ${database.name}`);
-}
-
-run('prisma', 'migrate', 'deploy');
 run('prisma', 'generate');
-run('prisma', 'db', 'seed');
+
+// Imported once the Prisma client it uses is generated
+const { prepareLocalDatabase } = await import('./local-database');
+await prepareLocalDatabase({ drop: reset });
 
 console.log(`\nReady. Run \`vp run dev\` and open ${process.env.BASE_URL}`);
