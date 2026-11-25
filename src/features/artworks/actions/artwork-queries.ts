@@ -18,7 +18,8 @@ import {
 const artworkInclude = {
   place: true,
   artists: { include: { artist: true }, orderBy: { artist: { lastName: 'asc' } } },
-  images: { include: { image: true }, orderBy: [{ isMain: 'desc' }, { sortOrder: 'asc' }] },
+  // The writer's order, which the editor saves back; pages pick the main image (`mainImage`)
+  images: { include: { image: true }, orderBy: { sortOrder: 'asc' } },
 } satisfies Prisma.ArtworkInclude;
 
 // Public reads expose only the writer's public profile, never the full user row

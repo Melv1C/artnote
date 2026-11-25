@@ -5,6 +5,7 @@ import { fetchArtworkPreview } from '@/features/artworks/actions/artwork-queries
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
 import { ARTWORK_STATUS } from '@/features/artworks/lib/artwork-status';
+import { ArtworkStatusSchema } from '@/schemas/common';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { EyeOff, Pencil } from 'lucide-react';
 
@@ -19,7 +20,7 @@ export const Route = createFileRoute('/artworks/$artworkId/preview')({
 
 function ArtworkPreviewPage() {
   const artwork = Route.useLoaderData();
-  const isPublished = artwork.status === 'PUBLISHED';
+  const isPublished = artwork.status === ArtworkStatusSchema.enum.PUBLISHED;
   const { user } = useAuth();
   // Only the writer can edit a notice (ADR 0003); other admins only preview it
   const isOwn = user?.id === artwork.writer.id;

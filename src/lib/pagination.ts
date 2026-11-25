@@ -1,3 +1,9 @@
+/** Rows per page of a dashboard table. */
+export const DASHBOARD_PAGE_SIZE = 25;
+
+/** The most rows one query returns: a page, or a picker's options. */
+export const MAX_PAGE_SIZE = 100;
+
 /** Page metadata returned by paginated dashboard queries. */
 export type PageInfo = ReturnType<typeof paginate>;
 

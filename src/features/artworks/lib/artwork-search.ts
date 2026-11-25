@@ -17,7 +17,7 @@ export const DEFAULT_ARTWORK_SORT = { sort: 'title', order: 'asc' } as const sat
   order: SortOrder;
 };
 
-// Default search parsing turns numeric values (e.g. `?year=1890`) into numbers, so accept both
+// Default search parsing turns numeric values (e.g. `?search=1890`) into numbers, so accept both
 // and keep the parsed value to avoid rewriting the URL. Over-long values are dropped, not errors.
 const searchValue = z
   .union([z.string().max(200), z.number()])
@@ -27,10 +27,8 @@ const searchValue = z
 /** Search params of the public notices list (`/artworks`). Invalid values are dropped. */
 export const ArtworksSearchSchema = z.object({
   search: searchValue,
-  artist: searchValue,
+  /** A place's exact name, set by the map's "Voir les N notices" link */
   place: searchValue,
-  medium: searchValue,
-  year: searchValue,
   sort: ArtworkSortSchema.optional().catch(undefined),
   order: SortOrderSchema.optional().catch(undefined),
 });
@@ -40,10 +38,7 @@ export type ArtworksSearch = z.infer<typeof ArtworksSearchSchema>;
 /** Input of `fetchFilteredArtworks`: every filter as a bounded string. */
 export const ArtworkFiltersSchema = z.object({
   search: SearchTextSchema.optional(),
-  artist: SearchTextSchema.optional(),
   place: SearchTextSchema.optional(),
-  medium: SearchTextSchema.optional(),
-  year: SearchTextSchema.optional(),
   sort: ArtworkSortSchema.default(DEFAULT_ARTWORK_SORT.sort),
   order: SortOrderSchema.default(DEFAULT_ARTWORK_SORT.order),
 });
@@ -55,10 +50,7 @@ const str = (value: string | number | undefined) =>
 
 export const toArtworkFilters = (search: ArtworksSearch): ArtworkFilters => ({
   search: str(search.search),
-  artist: str(search.artist),
   place: str(search.place),
-  medium: str(search.medium),
-  year: str(search.year),
   sort: search.sort,
   order: search.order,
 });
@@ -71,15 +63,11 @@ const artistNamed = (name: string): Prisma.ArtworkWhereInput => ({
   },
 });
 
-const placeNamed = (name: string): Prisma.ArtworkWhereInput => ({
-  place: { name: contains(name) },
-});
-
 /** Prisma `where` for published notices matching `filters`. */
 export function buildArtworkWhere(
   filters: z.output<typeof ArtworkFiltersSchema>,
 ): Prisma.ArtworkWhereInput {
-  const { search, artist, place, medium, year } = filters;
+  const { search, place } = filters;
   return {
     ...publishedWhere,
     AND: [
@@ -88,16 +76,13 @@ export function buildArtworkWhere(
             OR: [
               { title: contains(search) },
               artistNamed(search),
-              placeNamed(search),
+              { place: { name: contains(search) } },
               { medium: contains(search) },
               { notice: contains(search) },
             ],
           }
         : {},
-      artist ? artistNamed(artist) : {},
-      place ? placeNamed(place) : {},
-      medium ? { medium: contains(medium) } : {},
-      year ? { creationYear: contains(year) } : {},
+      place ? { place: { name: { equals: place, mode: 'insensitive' } } } : {},
     ],
   };
 }

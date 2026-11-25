@@ -1,3 +1,4 @@
+import { pageTitle } from '@/lib/seo';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,7 @@ export const Route = createFileRoute('/dashboard/artworks/')({
     stats: fetchMyArtworkStats(),
     artworks: fetchMyArtworks(),
   }),
-  head: () => ({ meta: [{ title: 'ArtNote - Mes notices' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Mes notices') }] }),
   component: ArtworksPage,
 });
 

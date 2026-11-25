@@ -57,12 +57,19 @@ export const SignInSchema = z.object({
   password: z.string().min(1, 'Le mot de passe est requis'),
 });
 
+/** The shortest password an account may have: Better Auth enforces it, the form says it first. */
+export const MIN_PASSWORD_LENGTH = 8;
+
 export const SignUpSchema = z
   .object({
     name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
     email: z.email(),
-    // Better Auth's minimum password length (`minPasswordLength`, 8 by default)
-    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+    password: z
+      .string()
+      .min(
+        MIN_PASSWORD_LENGTH,
+        `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`,
+      ),
     confirmPassword: z.string(),
   })
   .refine(data => data.password === data.confirmPassword, {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { artistNames, cartelLine, mainImage } from './artwork-display';
+import { artistNames, cartelLine, galleryOrder, mainImage } from './artwork-display';
 
 const artist = (firstName: string, lastName: string) => ({ artist: { firstName, lastName } });
 
@@ -27,6 +27,11 @@ describe('images', () => {
     expect(mainImage(images)?.id).toBe('main');
     expect(mainImage(images.filter(i => !i.isMain))?.id).toBe('b');
     expect(mainImage([])).toBeUndefined();
+  });
+
+  it('opens the gallery on the main image and keeps the writer’s order after it', () => {
+    expect(galleryOrder(images).map(i => i.id)).toEqual(['main', 'b', 'a']);
+    expect(galleryOrder(images.filter(i => !i.isMain)).map(i => i.id)).toEqual(['b', 'a']);
   });
 });
 

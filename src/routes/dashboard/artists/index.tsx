@@ -1,3 +1,4 @@
+import { pageTitle } from '@/lib/seo';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { ArtistsTable } from '@/features/artists/components/artists-table';
@@ -5,7 +6,7 @@ import { Plus } from 'lucide-react';
 import { Link, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/artists/')({
-  head: () => ({ meta: [{ title: 'ArtNote - Artistes' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Artistes') }] }),
   component: ArtistsPage,
 });
 

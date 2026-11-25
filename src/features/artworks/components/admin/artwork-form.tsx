@@ -26,7 +26,7 @@ import {
 } from '@/schemas/artwork';
 import { ArtworkStatusSchema } from '@/schemas/common';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useBlocker, useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate, useRouter } from '@tanstack/react-router';
 import { useRef } from 'react';
 import { useForm, type Control } from 'react-hook-form';
 import { createArtwork, updateArtwork } from '../../actions/artwork-mutations';
@@ -51,6 +51,7 @@ const editorValues = (artwork?: Artwork): ArtworkEditorValues => ({
 /** The notice editor; without `artwork`, it creates a new notice. */
 export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
   const navigate = useNavigate();
+  const router = useRouter();
   const confirm = useConfirm();
 
   const form = useForm<ArtworkEditorValues>({
@@ -81,10 +82,12 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
   const handleSubmit = async (values: ArtworkEditorValues) => {
     const data = toArtworkForm(values);
     saved.current = await runMutation(
-      () =>
-        artwork
+      async () => {
+        await (artwork
           ? updateArtwork({ data: { artworkId: artwork.id, data } })
-          : createArtwork({ data }),
+          : createArtwork({ data }));
+        await router.invalidate();
+      },
       {
         success: artwork ? 'Notice mise à jour avec succès !' : 'Notice créée avec succès !',
         failure: 'La notice n’a pas pu être enregistrée. Réessayez.',

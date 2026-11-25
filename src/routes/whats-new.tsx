@@ -1,7 +1,7 @@
 import { ArtworkGrid, ArtworkGridSkeleton } from '@/features/artworks/components/artwork-grid';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
 import { formatLongDate } from '@/lib/format';
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense, use } from 'react';
 
@@ -9,7 +9,10 @@ export const Route = createFileRoute('/whats-new')({
   // Not awaited: the list streams in behind its Suspense skeleton
   loader: () => ({ latestArtworks: fetchLatestPublishedArtworks({ data: 12 }) }),
   head: () => ({
-    meta: pageMeta('ArtNote - Nouveautés', 'Découvrez les dernières notices publiées sur ArtNote.'),
+    meta: pageMeta(
+      pageTitle('Nouveautés'),
+      'Découvrez les dernières notices publiées sur ArtNote.',
+    ),
   }),
   component: WhatsNewPage,
 });

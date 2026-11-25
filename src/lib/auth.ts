@@ -1,5 +1,6 @@
 import '@tanstack/react-start/server-only';
 import { UserRoleSchema } from '@/schemas/common';
+import { MIN_PASSWORD_LENGTH } from '@/schemas/user';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
@@ -20,6 +21,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
     signUp: {
       enabled: true,
       fields: {

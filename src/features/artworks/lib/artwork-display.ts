@@ -18,6 +18,12 @@ export function mainImage<T extends Pick<ArtworkImage, 'isMain'>>(images: T[]): 
   return images.find(image => image.isMain) ?? images[0];
 }
 
+/** The notice page's gallery: the main image first, then the others in the writer's order. */
+export function galleryOrder<T extends Pick<ArtworkImage, 'isMain'>>(images: T[]): T[] {
+  const main = mainImage(images);
+  return main ? [main, ...images.filter(image => image !== main)] : images;
+}
+
 interface CartelSource {
   artists: NamedArtist[];
   creationYear: string | null;

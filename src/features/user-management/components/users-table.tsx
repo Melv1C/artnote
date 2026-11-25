@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/user-avatar';
 import { formatShortDate } from '@/lib/format';
+import { DASHBOARD_PAGE_SIZE } from '@/lib/pagination';
 import { UserRoleSchema } from '@/schemas/common';
 import type { User } from '@/schemas/user';
 import {
@@ -20,8 +21,6 @@ import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { ACCOUNT_STATUS_LABELS, accountStatus, USER_ROLE_LABELS } from '../lib/user-accounts';
 import { UserRowActions } from './user-row-actions';
-
-const PAGE_SIZE = 10;
 
 const features = tableFeatures({
   rowPaginationFeature,
@@ -116,6 +115,6 @@ export function useUsersTable(users: User[], page: number) {
     columns,
     getRowId: user => user.id,
     onSortingChange: setSorting,
-    state: { sorting, pagination: { pageIndex: page - 1, pageSize: PAGE_SIZE } },
+    state: { sorting, pagination: { pageIndex: page - 1, pageSize: DASHBOARD_PAGE_SIZE } },
   });
 }

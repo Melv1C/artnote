@@ -2,12 +2,13 @@ import { PageHeader } from '@/components/layout/page-header';
 import { fetchUserStats } from '@/features/user-management/actions/user-queries';
 import { UserStatsOverview } from '@/features/user-management/components/user-stats-overview';
 import { UsersList } from '@/features/user-management/components/users-list';
+import { pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/users')({
   // Not awaited: the stat cards stream in behind their skeletons
   loader: () => ({ stats: fetchUserStats() }),
-  head: () => ({ meta: [{ title: 'ArtNote - Utilisateurs' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Utilisateurs') }] }),
   component: AdminUsersPage,
 });
 

@@ -1,3 +1,4 @@
+import { DASHBOARD_PAGE_SIZE, MAX_PAGE_SIZE } from '@/lib/pagination';
 import { z } from '@/lib/zod';
 
 // Allowed values of the plain-string columns `User.role`, `Artwork.status` and `Place.type`
@@ -23,7 +24,7 @@ export const WebLinkSchema = z.url({ protocol: /^https?$/, message: 'URL invalid
 
 export const PaginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  limit: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DASHBOARD_PAGE_SIZE),
 });
 
 export const emptyToNull = (value: string | null | undefined) => value?.trim() || null;

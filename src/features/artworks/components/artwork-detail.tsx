@@ -9,7 +9,7 @@ import { Link, useCanGoBack, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, ExternalLink, Images, MapPin, Navigation } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { placeLocality, placeMapUrl } from '@/features/places/lib/place-display';
-import { artistNames } from '../lib/artwork-display';
+import { artistNames, galleryOrder } from '../lib/artwork-display';
 import { ArtworkGallery } from './artwork-gallery';
 import { ArtworkImageViewer } from './artwork-image-viewer';
 import { ShareButton } from './share-button';
@@ -25,18 +25,9 @@ interface ArtworkDetailProps {
  * and where to see the work. On a wide screen the painting stays in view beside the text.
  */
 export function ArtworkDetail({ artwork, preview }: ArtworkDetailProps) {
-  const {
-    title,
-    creationYear,
-    medium,
-    dimensions,
-    notice,
-    sources,
-    writer,
-    place,
-    artists,
-    images,
-  } = artwork;
+  const { title, creationYear, medium, dimensions, notice, sources, writer, place, artists } =
+    artwork;
+  const images = galleryOrder(artwork.images);
   const artist = artistNames(artists);
   const roles = artists.filter(a => a.role && a.role !== 'peintre');
 

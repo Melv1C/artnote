@@ -1,6 +1,6 @@
 import { MapSlot } from '@/features/places/components/map-slot';
 import { fetchMapPlaces } from '@/features/places/actions/place-queries';
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { lazy } from 'react';
 
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/carte')({
   staticData: { fillsPhoneScreen: true },
   head: () => ({
     meta: pageMeta(
-      'ArtNote - Carte',
+      pageTitle('Carte'),
       'Les lieux où voir les œuvres présentées sur ArtNote, avec leur nombre de notices.',
     ),
   }),

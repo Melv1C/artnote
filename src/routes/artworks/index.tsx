@@ -3,7 +3,7 @@ import { ArtworksList } from '@/features/artworks/components/artworks-list';
 import { ArtworkGridSkeleton } from '@/features/artworks/components/artwork-grid';
 import { ArtworksSearchSchema, toArtworkFilters } from '@/features/artworks/lib/artwork-search';
 import { fetchFilteredArtworks } from '@/features/artworks/actions/artwork-queries';
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense } from 'react';
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/artworks/')({
   loader: ({ deps }) => ({ artworks: fetchFilteredArtworks({ data: deps }) }),
   head: () => ({
     meta: pageMeta(
-      'ArtNote - Toutes les notices',
+      pageTitle('Toutes les notices'),
       'Explorez toutes les notices sur l’histoire de la peinture disponibles sur ArtNote.',
     ),
   }),
@@ -23,8 +23,8 @@ export const Route = createFileRoute('/artworks/')({
 
 function ArtworksPage() {
   const { artworks } = Route.useLoaderData();
-  const { search, artist, place, medium, year } = Route.useLoaderDeps();
-  const isFiltered = Boolean(search || artist || place || medium || year);
+  const { search, place } = Route.useLoaderDeps();
+  const isFiltered = Boolean(search || place);
 
   return (
     <div className="page-width pt-6 pb-10 md:pt-12">

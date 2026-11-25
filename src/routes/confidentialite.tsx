@@ -4,7 +4,7 @@ import {
   VIEW_RECORD_RETENTION_MS,
 } from '@/features/artworks/lib/view-count';
 import { formatDuration } from '@/lib/format';
-import { pageMeta } from '@/lib/seo';
+import { pageMeta, pageTitle } from '@/lib/seo';
 import { Link, createFileRoute } from '@tanstack/react-router';
 
 /** "moins de 30 secondes, de 30 secondes à 2 minutes, … ou plus de 5 minutes" */
@@ -21,7 +21,7 @@ const readingTimeBrackets = new Intl.ListFormat('fr', { type: 'disjunction' }).f
 export const Route = createFileRoute('/confidentialite')({
   head: () => ({
     meta: pageMeta(
-      'ArtNote - Confidentialité',
+      pageTitle('Confidentialité'),
       'Ce qu’ArtNote mesure de ses visites, comment, et les cookies utilisés par le site.',
     ),
   }),

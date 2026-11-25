@@ -4,7 +4,7 @@ import { useNoticeReading } from '@/features/analytics/hooks/use-notice-reading'
 import { useRecordNoticeView } from '@/features/artworks/hooks/use-record-notice-view';
 import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
 import { artistNames, mainImage } from '@/features/artworks/lib/artwork-display';
-import { DEFAULT_OG_IMAGE, ogImageMeta, pageMeta } from '@/lib/seo';
+import { DEFAULT_OG_IMAGE, ogImageMeta, pageMeta, pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 import type { RootLoaderData } from '../../__root';
 
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
   loader: ({ params }) => fetchPublishedArtwork({ data: params.artworkId }),
   head: ({ loaderData: artwork, matches }) => {
     if (!artwork) {
-      return { meta: [{ title: 'ArtNote - Œuvre non trouvée' }] };
+      return { meta: [{ title: pageTitle('Œuvre non trouvée') }] };
     }
 
     const { siteUrl } = (matches[0]?.loaderData ?? { siteUrl: '' }) as RootLoaderData;
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/artworks/$artworkId/')({
     return {
       meta: [
         ...pageMeta(
-          `ArtNote - ${artwork.title}`,
+          pageTitle(artwork.title),
           `Découvrez la notice "${artwork.title}"${artists ? ` de ${artists}` : ''}.`,
         ),
         ...ogImageMeta(siteUrl, [

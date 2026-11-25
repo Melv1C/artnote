@@ -1,3 +1,4 @@
+import { pageTitle } from '@/lib/seo';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { ArtworkForm } from '@/features/artworks/components/admin/artwork-form';
@@ -7,7 +8,7 @@ import { Eye } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard/artworks/$artworkId/edit')({
   loader: ({ params }) => fetchMyArtworkForEdit({ data: params.artworkId }),
-  head: () => ({ meta: [{ title: 'ArtNote - Modifier la notice' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Modifier la notice') }] }),
   component: EditArtworkPage,
 });
 

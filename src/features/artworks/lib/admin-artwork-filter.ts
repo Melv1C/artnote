@@ -1,7 +1,6 @@
 import { ArtworkStatusSchema, type ArtworkStatus } from '@/schemas/common';
+import type { SortOrder } from './artwork-search';
 import { ARTWORK_STATUS } from './artwork-status';
-
-type SortOrder = 'asc' | 'desc';
 
 /** The sorts of the dashboard notices list, in the order the menu offers them. */
 export const ADMIN_ARTWORK_SORTS = ['updatedAt', 'createdAt', 'title', 'viewCount'] as const;

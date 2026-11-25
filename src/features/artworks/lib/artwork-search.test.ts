@@ -13,9 +13,9 @@ const filters = (input: Parameters<typeof ArtworkFiltersSchema.parse>[0]) =>
 
 describe('public notice search', () => {
   it('keeps numeric URL params and turns them into string filters', () => {
-    const search = ArtworksSearchSchema.parse({ year: 1890, sort: 'year', order: 'sideways' });
-    expect(search).toEqual({ year: 1890, sort: 'year', order: undefined });
-    expect(toArtworkFilters(search)).toMatchObject({ year: '1890', sort: 'year' });
+    const search = ArtworksSearchSchema.parse({ search: 1890, sort: 'year', order: 'sideways' });
+    expect(search).toEqual({ search: 1890, sort: 'year', order: undefined });
+    expect(toArtworkFilters(search)).toMatchObject({ search: '1890', sort: 'year' });
   });
 
   it('drops an over-long URL value instead of failing the page', () => {
@@ -23,7 +23,7 @@ describe('public notice search', () => {
   });
 
   it('only ever matches published notices', () => {
-    const where = buildArtworkWhere(filters({ search: 'Ensor', year: '1888' }));
+    const where = buildArtworkWhere(filters({ search: 'Ensor', place: 'Musée Magritte' }));
     expect(where).toMatchObject({ status: 'PUBLISHED', publishedAt: { not: null } });
   });
 
@@ -38,6 +38,13 @@ describe('public notice search', () => {
         { notice: text },
         expect.objectContaining({ artists: expect.anything() }),
       ]),
+    });
+  });
+
+  it('narrows to one place by its whole name, not every place whose name contains it', () => {
+    const where = buildArtworkWhere(filters({ place: 'Musée Magritte' }));
+    expect(where.AND).toContainEqual({
+      place: { name: { equals: 'Musée Magritte', mode: 'insensitive' } },
     });
   });
 
