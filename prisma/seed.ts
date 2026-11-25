@@ -1,37 +1,14 @@
 import { hashPassword } from 'better-auth/crypto';
 import { assertLocalDatabase } from '../scripts/assert-local-db';
 import { createPrismaClient } from '../src/lib/prisma-client';
-
-const SEED_PASSWORD = 'artnote-dev-password';
-
-// One account per kind of user QA needs. Staging has the same accounts with other passwords
-// (AGENTS.md, Environments and QA).
-const seedUsers = [
-  { id: 'seed-user-admin', email: 'admin@example.com', name: 'Admin ArtNote', role: 'admin' },
-  // A second writer: the seed notices belong to the first, so this one sees none of them (ADR 0003)
-  {
-    id: 'seed-user-writer',
-    email: 'writer@example.com',
-    name: 'Rédactrice ArtNote',
-    role: 'admin',
-  },
-  { id: 'seed-user-reader', email: 'user@example.com', name: 'Lecteur ArtNote', role: 'user' },
-  {
-    id: 'seed-user-banned',
-    email: 'banned@example.com',
-    name: 'Compte suspendu',
-    role: 'user',
-    banned: true,
-    banReason: 'Compte de test suspendu',
-  },
-] as const;
+import { SEED_PASSWORD, seedArtists, seedNotices, seedPlaces, seedUsers } from './seed-data';
 
 const prisma = createPrismaClient(assertLocalDatabase(process.env.PRISMA_DATABASE_URL));
 
 async function seedAccounts() {
   const password = await hashPassword(SEED_PASSWORD);
   const now = new Date();
-  for (const user of seedUsers) {
+  for (const user of Object.values(seedUsers)) {
     const { id: _id, email: _email, ...fields } = user;
     await prisma.user.upsert({
       where: { email: user.email },
@@ -58,46 +35,7 @@ async function seedAccounts() {
 async function seedCatalogue(adminId: string) {
   const audit = { createdById: adminId, updatedById: adminId };
 
-  const places = [
-    {
-      id: 'seed-place-fine-arts',
-      name: 'Musées royaux des Beaux-Arts de Belgique',
-      type: 'MUSEUM',
-      city: 'Bruxelles',
-      country: 'Belgique',
-      website: 'https://fine-arts-museum.be',
-      latitude: 50.8417,
-      longitude: 4.3579,
-    },
-    {
-      id: 'seed-place-saint-bavo',
-      name: 'Cathédrale Saint-Bavon',
-      type: 'CHURCH',
-      city: 'Gand',
-      country: 'Belgique',
-      latitude: 51.0531,
-      longitude: 3.7272,
-    },
-    // Its only notice is a draft: the public map leaves it out
-    {
-      id: 'seed-place-magritte',
-      name: 'Musée Magritte Museum',
-      type: 'MUSEUM',
-      city: 'Bruxelles',
-      country: 'Belgique',
-      latitude: 50.8428,
-      longitude: 4.3586,
-    },
-    // No position yet, as places written before positions were required
-    {
-      id: 'seed-place-groeninge',
-      name: 'Musée Groeninge',
-      type: 'MUSEUM',
-      city: 'Bruges',
-      country: 'Belgique',
-    },
-  ];
-  for (const place of places) {
+  for (const place of Object.values(seedPlaces)) {
     await prisma.place.upsert({
       where: { id: place.id },
       update: place,
@@ -105,33 +43,7 @@ async function seedCatalogue(adminId: string) {
     });
   }
 
-  const artists = [
-    {
-      id: 'seed-artist-bruegel',
-      firstName: 'Pieter',
-      lastName: 'Bruegel l’Ancien',
-      birthDate: 'vers 1525',
-      deathDate: '09/09/1569',
-      biography: '<p>Peintre flamand de la Renaissance, maître des scènes paysannes.</p>',
-    },
-    {
-      id: 'seed-artist-van-eyck',
-      firstName: 'Jan',
-      lastName: 'van Eyck',
-      birthDate: 'vers 1390',
-      deathDate: '09/07/1441',
-      biography: '<p>Peintre primitif flamand, figure majeure de la peinture à l’huile.</p>',
-    },
-    {
-      id: 'seed-artist-magritte',
-      firstName: 'René',
-      lastName: 'Magritte',
-      birthDate: '21/11/1898',
-      deathDate: '15/08/1967',
-      biography: '<p>Peintre surréaliste belge.</p>',
-    },
-  ];
-  for (const artist of artists) {
+  for (const artist of Object.values(seedArtists)) {
     await prisma.artist.upsert({
       where: { id: artist.id },
       update: artist,
@@ -139,60 +51,7 @@ async function seedCatalogue(adminId: string) {
     });
   }
 
-  const artworks = [
-    {
-      id: 'seed-artwork-icarus',
-      title: 'Paysage avec la chute d’Icare',
-      creationYear: 'vers 1560',
-      medium: 'Huile sur toile',
-      dimensions: '73,5 × 112 cm',
-      status: 'PUBLISHED',
-      publishedAt: new Date('2026-01-15'),
-      placeId: 'seed-place-fine-arts',
-      artistId: 'seed-artist-bruegel',
-      notice:
-        '<p>Au premier plan, un laboureur poursuit son travail. Icare, lui, disparaît presque dans un coin de la mer.</p>',
-    },
-    {
-      id: 'seed-artwork-census',
-      title: 'Le Dénombrement de Bethléem',
-      creationYear: '1566',
-      medium: 'Huile sur panneau',
-      dimensions: '115,5 × 164,5 cm',
-      status: 'PUBLISHED',
-      publishedAt: new Date('2026-01-20'),
-      placeId: 'seed-place-fine-arts',
-      artistId: 'seed-artist-bruegel',
-      notice:
-        '<p>Sous la neige, un village flamand se presse devant l’auberge où l’on se fait recenser ; Marie et Joseph passent presque inaperçus.</p>',
-    },
-    {
-      id: 'seed-artwork-lamb',
-      title: 'L’Adoration de l’Agneau mystique',
-      creationYear: '1432',
-      medium: 'Huile sur panneau',
-      dimensions: '350 × 461 cm',
-      status: 'PUBLISHED',
-      publishedAt: new Date('2026-02-01'),
-      placeId: 'seed-place-saint-bavo',
-      artistId: 'seed-artist-van-eyck',
-      notice:
-        '<p>Le polyptyque ouvert présente l’Agneau sur un autel, entouré de groupes de fidèles.</p>',
-    },
-    {
-      id: 'seed-artwork-empire',
-      title: 'L’Empire des lumières',
-      creationYear: '1954',
-      medium: 'Huile sur toile',
-      dimensions: '146 × 114 cm',
-      status: 'DRAFT',
-      publishedAt: null,
-      placeId: 'seed-place-magritte',
-      artistId: 'seed-artist-magritte',
-      notice: '<p>Brouillon : une rue nocturne sous un ciel de plein jour.</p>',
-    },
-  ];
-  for (const { artistId, ...artwork } of artworks) {
+  for (const { artistId, ...artwork } of Object.values(seedNotices)) {
     await prisma.artwork.upsert({
       where: { id: artwork.id },
       update: artwork,
@@ -208,9 +67,9 @@ async function seedCatalogue(adminId: string) {
 
 async function main() {
   await seedAccounts();
-  await seedCatalogue(seedUsers[0].id);
+  await seedCatalogue(seedUsers.admin.id);
   console.log('Seeded local database. Sign in with:');
-  for (const user of seedUsers)
+  for (const user of Object.values(seedUsers))
     console.log(
       `  ${user.role.padEnd(5)}  ${user.email} / ${SEED_PASSWORD}${'banned' in user ? ' (banned)' : ''}`,
     );
