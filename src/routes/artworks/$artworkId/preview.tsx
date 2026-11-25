@@ -10,6 +10,8 @@ import { EyeOff, Pencil } from 'lucide-react';
 
 export const Route = createFileRoute('/artworks/$artworkId/preview')({
   loader: ({ params }) => fetchArtworkPreview({ data: params.artworkId }),
+  // Admin work, not reading
+  staticData: { measured: false },
   component: ArtworkPreviewPage,
   errorComponent: UnauthorizedOrError,
   notFoundComponent: NotFound,

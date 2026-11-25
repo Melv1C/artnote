@@ -1,5 +1,22 @@
+import { READING_TIME_BRACKETS } from '@/features/analytics/lib/umami';
+import {
+  VIEW_DEDUPLICATION_WINDOW_MS,
+  VIEW_RECORD_RETENTION_MS,
+} from '@/features/artworks/lib/view-count';
+import { formatDuration } from '@/lib/format';
 import { pageMeta } from '@/lib/seo';
 import { Link, createFileRoute } from '@tanstack/react-router';
+
+/** "moins de 30 secondes, de 30 secondes à 2 minutes, … ou plus de 5 minutes" */
+const readingTimeBrackets = new Intl.ListFormat('fr', { type: 'disjunction' }).format(
+  READING_TIME_BRACKETS.map(({ belowMs }, index) => {
+    if (index === 0) return `moins de ${formatDuration(belowMs)}`;
+    const fromMs = READING_TIME_BRACKETS[index - 1].belowMs;
+    return belowMs === Infinity
+      ? `plus de ${formatDuration(fromMs)}`
+      : `de ${formatDuration(fromMs)} à ${formatDuration(belowMs)}`;
+  }),
+);
 
 export const Route = createFileRoute('/confidentialite')({
   head: () => ({
@@ -50,7 +67,7 @@ function PrivacyPage() {
               réseau (IP) conservée. Umami retient les pages consultées, le site d’où vous venez,
               votre pays et votre région, votre type d’appareil, son système et la taille de son
               écran, votre navigateur et sa langue, ainsi que la notice lue et le temps passé
-              dessus, par tranche (moins de 30 secondes, 30 secondes à 2 minutes, etc.).
+              dessus, par tranche : {readingTimeBrackets}.
             </li>
             <li>
               Les paramètres des adresses visitées, comme les termes de recherche, ne sont pas
@@ -68,15 +85,19 @@ function PrivacyPage() {
           <h2 className="font-serif text-2xl font-medium">Nombre de vues des notices</h2>
           <p>
             Chaque notice affiche son nombre de vues. Pour ne compter qu’une fois un même lecteur
-            qui recharge la page, ArtNote compte au plus une vue toutes les 30 minutes pour une même
-            notice et une même adresse réseau (IP).
+            qui recharge la page, ArtNote compte au plus une vue toutes les{' '}
+            {formatDuration(VIEW_DEDUPLICATION_WINDOW_MS)} pour une même notice et une même adresse
+            réseau (IP).
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>
               L’adresse réseau n’est jamais enregistrée telle quelle : seule une empreinte salée, un
               hachage, en est conservée, qui ne permet pas de retrouver directement l’adresse.
             </li>
-            <li>Ces empreintes sont supprimées chaque nuit dès qu’elles ont plus d’un jour.</li>
+            <li>
+              Ces empreintes sont supprimées chaque nuit dès qu’elles ont plus de{' '}
+              {formatDuration(VIEW_RECORD_RETENTION_MS)}.
+            </li>
           </ul>
         </section>
 

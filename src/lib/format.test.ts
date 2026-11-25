@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { plural } from './format';
+import { formatDuration, plural } from './format';
+
+describe('formatDuration', () => {
+  it('counts in the largest whole unit', () => {
+    expect(formatDuration(30 * 1000)).toBe('30 secondes');
+    expect(formatDuration(60 * 1000)).toBe('1 minute');
+    expect(formatDuration(90 * 1000)).toBe('90 secondes');
+    expect(formatDuration(30 * 60 * 1000)).toBe('30 minutes');
+    expect(formatDuration(24 * 60 * 60 * 1000)).toBe('24 heures');
+  });
+});
 
 describe('plural', () => {
   it('keeps zero and one singular, as French does', () => {

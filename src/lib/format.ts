@@ -19,3 +19,15 @@ export const formatAgo = (date: Date) => formatDistanceToNow(date, { addSuffix: 
 export function plural(count: number, singular: string, pluralForm = `${singular}s`): string {
   return `${formatCount(count)} ${count >= 2 ? pluralForm : singular}`;
 }
+
+const DURATION_UNITS = [
+  { ms: 60 * 60 * 1000, name: 'heure' },
+  { ms: 60 * 1000, name: 'minute' },
+  { ms: 1000, name: 'seconde' },
+];
+
+/** "30 secondes", "2 minutes", "24 heures": a duration in the largest unit that counts it whole. */
+export function formatDuration(ms: number): string {
+  const unit = DURATION_UNITS.find(({ ms: size }) => ms >= size && ms % size === 0);
+  return unit ? plural(ms / unit.ms, unit.name) : plural(ms / 1000, 'seconde');
+}
