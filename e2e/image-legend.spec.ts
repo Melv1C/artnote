@@ -54,9 +54,9 @@ test('a writer sets an image legend in italics and links its source, and readers
   await reader.goto('/artworks');
   await reader.getByText(title).first().click();
   await expect(reader.getByRole('heading', { level: 1, name: title })).toBeVisible();
-  const caption = reader.locator('p', { hasText: 'Paysage avec la chute d’Icare, vers 1560' });
+  const caption = reader.getByText('Paysage avec la chute d’Icare, vers 1560');
   await expect(caption).toHaveCount(1);
-  await expect(caption.locator('em')).toHaveText('Paysage avec la chute d’Icare');
+  await expect(caption.getByRole('emphasis')).toHaveText('Paysage avec la chute d’Icare');
   await expect(reader.getByRole('link', { name: 'KIK-IRPA, Bruxelles' })).toHaveAttribute(
     'href',
     'https://kikirpa.be',

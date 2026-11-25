@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/input';
+import { richTextLinkClass, useEditorValue } from '@/components/ui/rich-text-editor';
 import { linkHref } from '@/lib/rich-text-links';
 import { cn } from '@/lib/utils';
 import Document from '@tiptap/extension-document';
@@ -69,9 +70,7 @@ export function RichTextLineEditor({
           autolink: true,
           linkOnPaste: true,
           defaultProtocol: 'https',
-          HTMLAttributes: {
-            class: 'text-primary underline underline-offset-2 decoration-primary/50',
-          },
+          HTMLAttributes: { class: richTextLinkClass },
         },
       }),
       Document.extend({ content: 'paragraph' }),
@@ -98,11 +97,7 @@ export function RichTextLineEditor({
     onUpdate: ({ editor }) => onChange(editor.isEmpty ? null : editor.getHTML()),
   });
 
-  useEffect(() => {
-    if (editor && !(editor.isEmpty && !value) && value !== editor.getHTML()) {
-      editor.commands.setContent(value || '');
-    }
-  }, [value, editor]);
+  useEditorValue(editor, value);
 
   // The bubble only checks whether to show when the selection or text changes: opening the
   // address for an empty selection, or dropping it, tells it directly

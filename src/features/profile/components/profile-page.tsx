@@ -221,7 +221,8 @@ export function ProfilePage() {
                       {isEditing ? (
                         <div>
                           <RichTextEditor
-                            value={watch('bio') || ''}
+                            label="Biographie"
+                            value={watch(\'bio\') || \'\'}
                             onChange={value =>
                               setValue('bio', value || '', {
                                 shouldDirty: true,
@@ -237,7 +238,7 @@ export function ProfilePage() {
                       ) : (
                         <div className="py-2 px-3 border rounded-md bg-muted/50 min-h-[100px]">
                           {user.bio ? (
-                            <RichTextViewer content={user.bio} className="prose-sm" />
+                            <RichTextViewer content={user.bio} />
                           ) : (
                             <span className="text-muted-foreground italic">
                               Aucune biographie renseignée

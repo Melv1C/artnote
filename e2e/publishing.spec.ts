@@ -37,10 +37,7 @@ test('a long address in the bibliography shows as its site, without widening the
   await page.getByRole('combobox').filter({ hasText: 'Brouillon' }).click();
   await page.getByRole('option', { name: 'Publié' }).click();
   // The editor links an address once a space follows it
-  const bibliography = page
-    .locator('[data-slot="form-item"]')
-    .filter({ has: page.getByText('Bibliographie', { exact: true }) })
-    .locator('[contenteditable="true"]');
+  const bibliography = page.getByRole('textbox', { name: 'Bibliographie', exact: true });
   await bibliography.click();
   await bibliography.pressSequentially(`Maison des Géants, ${address} (06/05/2026).`);
   await page.getByRole('button', { name: 'Créer la notice' }).click();

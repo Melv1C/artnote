@@ -125,7 +125,7 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
                   <FormItem>
                     <FormLabel>Notice</FormLabel>
                     <FormControl>
-                      <RichTextEditor value={field.value} onChange={field.onChange} />
+                      <RichTextEditor label="Notice" value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,9 +139,10 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
                     <FormLabel>Bibliographie</FormLabel>
                     <FormControl>
                       <RichTextEditor
+                        label="Bibliographie"
                         value={field.value}
                         onChange={field.onChange}
-                        config={editorPresets.minimal}
+                        features={editorPresets.bibliography}
                         placeholder="Ajoutez des liens ou des références"
                       />
                     </FormControl>
