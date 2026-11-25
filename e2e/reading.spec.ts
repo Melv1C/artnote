@@ -3,7 +3,7 @@ import { expect, notices, places, test } from './fixtures';
 test.describe('a reader', () => {
   test('finds the published notices, not the drafts', async ({ page }) => {
     await page.goto('/artworks');
-    await expect(page.getByText(notices.icarus.title).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: notices.icarus.title })).toBeVisible();
     await expect(page.getByText(notices.empire.title)).toHaveCount(0);
   });
 
@@ -40,6 +40,6 @@ test.describe('the notices list filtered by a place', () => {
     await filter.click();
     await expect(page).toHaveURL(/\/artworks$/);
     await expect(filter).toHaveCount(0);
-    await expect(page.getByText(notices.icarus.title).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: notices.icarus.title })).toBeVisible();
   });
 });

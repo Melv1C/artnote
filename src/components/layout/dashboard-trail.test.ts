@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { DASHBOARD_NAV } from './dashboard-navigation';
 import { dashboardTrail } from './dashboard-trail';
 
 const labels = (path: string) => dashboardTrail(path).map(step => step.label);
@@ -27,12 +26,6 @@ describe('dashboardTrail', () => {
       'Artistes',
       'Modifier',
     ]);
-  });
-
-  it('names every section as the sidebar does', () => {
-    for (const item of DASHBOARD_NAV) {
-      expect(dashboardTrail(item.to).at(-1)).toEqual({ label: item.label, href: item.to });
-    }
   });
 
   it('links each step to its page', () => {

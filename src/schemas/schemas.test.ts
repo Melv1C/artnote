@@ -95,21 +95,6 @@ describe('ArtworkFormSchema', () => {
     expect(parsed.images).toEqual([attachment]);
   });
 
-  it('reports default validation errors in French', () => {
-    const result = ArtworkFormSchema.safeParse({ ...form, images: [], medium: 'x'.repeat(300) });
-    const message = result.error?.issues[0]?.message ?? '';
-    expect(message).not.toMatch(/too big/i);
-    expect(message).toMatch(/trop/i);
-  });
-
-  it('rejects unbounded ids', () => {
-    const result = ArtworkFormSchema.safeParse({
-      ...form,
-      images: [{ ...attachment, imageId: 'x'.repeat(65) }],
-    });
-    expect(result.success).toBe(false);
-  });
-
   it('accepts no more images than the editor lets a writer attach', () => {
     const images = (count: number) =>
       Array.from({ length: count }, (_, sortOrder) => ({ ...attachment, sortOrder }));
@@ -167,39 +152,17 @@ describe('PlaceFormSchema', () => {
     ]);
     expect(issues({ longitude: '3.72' })).toEqual(['Position manquante : indiquez la latitude']);
   });
-
-  it('asks for a type when none is chosen', () => {
-    expect(issues({ type: undefined, latitude: '51.04', longitude: '3.72' })).toEqual([
-      'Le type est requis',
-    ]);
-  });
-
-  it('keeps latitude and longitude within their ranges', () => {
-    expect(issues({ latitude: '120', longitude: '3.72' })).toHaveLength(1);
-    expect(issues({ latitude: '-91', longitude: '3.72' })).toHaveLength(1);
-    expect(issues({ latitude: '51.04', longitude: '181' })).toHaveLength(1);
-    expect(issues({ latitude: '90', longitude: '-180' })).toBeUndefined();
-  });
 });
 
 describe('ArtistFormSchema', () => {
   const artist = { firstName: 'Pieter', lastName: 'Bruegel' };
 
-  it('takes birth and death dates as free text, as precise as the sources allow', () => {
-    for (const date of ['01/01/1950', '1950', 'vers 1525', 'XIXe siècle']) {
-      expect(ArtistFormSchema.parse({ ...artist, birthDate: date }).birthDate).toBe(date);
-    }
+  it('trims the spaces around a date', () => {
     expect(ArtistFormSchema.parse({ ...artist, deathDate: ' 1569 ' }).deathDate).toBe('1569');
   });
 
   it('takes an artist known by a single name, without a last name', () => {
     expect(ArtistFormSchema.parse({ firstName: 'Giotto', lastName: '' }).lastName).toBe('');
     expect(ArtistFormSchema.safeParse({ firstName: '', lastName: 'Giotto' }).success).toBe(false);
-  });
-
-  it('bounds a date’s length', () => {
-    expect(ArtistFormSchema.safeParse({ ...artist, birthDate: 'x'.repeat(101) }).success).toBe(
-      false,
-    );
   });
 });

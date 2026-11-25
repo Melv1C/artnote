@@ -1,3 +1,5 @@
+import type { Locator, Page } from '@playwright/test';
+import { MAP_FIT } from '../src/features/places/lib/place-map';
 import { expect, notices, places, test } from './fixtures';
 
 // The tests never depend on OpenFreeMap: its styles are replaced by a blank one, so no tile loads
@@ -6,6 +8,30 @@ test.beforeEach(async ({ page }) => {
     route.fulfill({ json: { version: 8, sources: {}, layers: [] } }),
   );
 });
+
+// Without animations each zoom button click moves a whole level at once, and panels open in place
+test.use({ reducedMotion: 'reduce' });
+
+/** The group of the two seed places on the map, which only shows once zoomed out far enough. */
+const seedGroup = (page: Page) => page.getByRole('button', { name: /^3 notices dans ce groupe/ });
+
+/**
+ * Click "Dézoomer" until `group` shows. How many clicks depends on the opening zoom, which fits
+ * the places to the window, so the bound is the most it can take: from the closest opening zoom
+ * down to the whole world.
+ */
+async function zoomOutUntil(page: Page, group: Locator) {
+  const zoomOut = page.getByRole('button', { name: 'Dézoomer' });
+  for (let click = 0; click < MAP_FIT.maxZoom; click++) {
+    await zoomOut.click();
+    const shown = await group.waitFor({ timeout: 1_000 }).then(
+      () => true,
+      () => false,
+    );
+    if (shown) return;
+  }
+  await expect(group, `a group after ${MAP_FIT.maxZoom} clicks on "Dézoomer"`).toBeVisible();
+}
 
 test.describe('the map of places', () => {
   test('opens from the navigation', async ({ page }) => {
@@ -45,12 +71,8 @@ test.describe('the map of places', () => {
     const saintBavo = page.getByRole('button', { name: `${places.saintBavo.name} : 1 notice` });
     await expect(saintBavo).toBeVisible();
 
-    const group = page.getByRole('button', { name: /^3 notices dans ce groupe/ });
-    const zoomOut = page.getByRole('button', { name: 'Dézoomer' });
-    await expect(async () => {
-      await zoomOut.click();
-      await expect(group).toBeVisible({ timeout: 1_000 });
-    }).toPass();
+    const group = seedGroup(page);
+    await zoomOutUntil(page, group);
     await expect(saintBavo).toHaveCount(0);
 
     await group.click();
@@ -75,12 +97,7 @@ test.describe('the map of places', () => {
     const details = page.getByRole('region', { name: places.saintBavo.name });
     await expect(details).toBeVisible();
 
-    const group = page.getByRole('button', { name: /^3 notices dans ce groupe/ });
-    const zoomOut = page.getByRole('button', { name: 'Dézoomer' });
-    await expect(async () => {
-      await zoomOut.click();
-      await expect(group).toBeVisible({ timeout: 1_000 });
-    }).toPass();
+    await zoomOutUntil(page, seedGroup(page));
     await expect(details).toHaveCount(0);
   });
 
@@ -123,17 +140,14 @@ test.describe('the map of places on a phone', () => {
     await expect(details.getByText('1 notice', { exact: true })).toBeVisible();
     await expect(details.getByRole('link', { name: notices.lamb.title })).toBeVisible();
 
-    // The whole width of the screen, down to the tab bar, once it has slid in
+    // The whole width of the screen, down to the tab bar: its bottom edge within a few pixels of
+    // the bar's top
     const tabBar = await page
       .getByRole('navigation', { name: 'Navigation principale' })
       .boundingBox();
-    await expect
-      .poll(async () => {
-        const panel = await details.boundingBox();
-        return panel && [panel.x, panel.width, Math.round(panel.y + panel.height)];
-      })
-      // Within the tab bar's top border
-      .toEqual([0, 390, expect.closeTo(tabBar?.y ?? 0, -1)]);
+    const panel = await details.boundingBox();
+    expect(panel && { left: panel.x, width: panel.width }).toEqual({ left: 0, width: 390 });
+    expect(Math.abs((panel?.y ?? 0) + (panel?.height ?? 0) - (tabBar?.y ?? 0))).toBeLessThan(5);
 
     await details.getByRole('button', { name: 'Fermer' }).click();
     await expect(details).toHaveCount(0);

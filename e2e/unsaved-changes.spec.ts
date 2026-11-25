@@ -1,13 +1,13 @@
-import { expect, test } from './fixtures';
+import { expect, startNotice, test } from './fixtures';
 
 test('a writer leaving an unsaved notice is asked first', async ({ page, signIn }) => {
   await signIn('admin');
-  await page.goto('/dashboard/artworks/create');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel('Titre *', { exact: true }).fill('Brouillon jamais enregistré');
+  await startNotice(page, 'Brouillon jamais enregistré');
 
   // Leaving by the sidebar, not only by "Annuler", is caught
-  const sidebarLink = page.getByRole('link', { name: 'Mes notices' }).first();
+  const sidebarLink = page
+    .getByRole('navigation', { name: 'Gestion' })
+    .getByRole('link', { name: 'Mes notices' });
   await sidebarLink.click();
   const dialog = page.getByRole('alertdialog', { name: 'Quitter sans enregistrer ?' });
   await expect(dialog).toBeVisible();

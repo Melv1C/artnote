@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, startNotice, test } from './fixtures';
 
 // A 1×1 PNG: the upload only checks the type and size
 const PIXEL = Buffer.from(
@@ -14,14 +14,10 @@ test('a writer sets an image legend in italics and links its source, and readers
   const title = `Notice illustrée ${Date.now()}`;
 
   await signIn('admin');
-  await page.goto('/dashboard/artworks/create');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel('Titre *', { exact: true }).fill(title);
-  await page.getByRole('combobox').filter({ hasText: 'Brouillon' }).click();
-  await page.getByRole('option', { name: 'Publié' }).click();
-  await page
-    .locator('input[type="file"]')
-    .setInputFiles({ name: 'icare.png', mimeType: 'image/png', buffer: PIXEL });
+  await startNotice(page, title, { published: true });
+  const fileChooser = page.waitForEvent('filechooser');
+  await page.getByText('cliquez pour parcourir').click();
+  await (await fileChooser).setFiles({ name: 'icare.png', mimeType: 'image/png', buffer: PIXEL });
 
   // Selecting words offers their formatting in a bubble above them
   const bubble = page.getByRole('toolbar', { name: 'Mise en forme' });
@@ -53,7 +49,7 @@ test('a writer sets an image legend in italics and links its source, and readers
 
   const reader = await browser.newPage();
   await reader.goto('/artworks');
-  await reader.getByText(title).first().click();
+  await reader.getByRole('heading', { name: title, exact: true }).click();
   await expect(reader.getByRole('heading', { level: 1, name: title })).toBeVisible();
   const caption = reader.getByText('Paysage avec la chute d’Icare, vers 1560');
   await expect(caption).toHaveCount(1);

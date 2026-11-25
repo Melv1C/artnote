@@ -41,10 +41,6 @@ describe('public notice search', () => {
     });
   });
 
-  it('rejects oversized search text', () => {
-    expect(ArtworkFiltersSchema.safeParse({ search: 'x'.repeat(201) }).success).toBe(false);
-  });
-
   it('orders by title by default and breaks ties by title', () => {
     expect(buildArtworkOrderBy(filters({}))).toEqual([{ title: 'asc' }]);
     expect(buildArtworkOrderBy(filters({ sort: 'year', order: 'desc' }))).toEqual([

@@ -24,7 +24,7 @@ test.describe('a reader on a phone', () => {
     await expect(page.getByText('Aucune notice ne correspond')).toBeVisible();
 
     await page.getByRole('link', { name: 'Voir toutes les notices' }).click();
-    await expect(page.getByText(notices.icarus.title).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: notices.icarus.title })).toBeVisible();
     await expect(page.getByRole('searchbox', { name: 'Rechercher une notice' })).toHaveValue('');
   });
 

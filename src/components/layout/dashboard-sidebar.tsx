@@ -68,25 +68,27 @@ export function DashboardSidebar({ user }: { user: User }) {
         <SidebarGroup>
           <SidebarGroupLabel>Gestion</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {DASHBOARD_NAV.filter(item => hasRolePermission(user.role, item.permissions)).map(
-                item => (
-                  <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton asChild tooltip={item.label}>
-                      <Link
-                        to={item.to}
-                        activeOptions={{ exact: item.exact }}
-                        // SidebarMenuButton styles the current page from `data-active`
-                        activeProps={{ 'data-active': true }}
-                      >
-                        <item.icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ),
-              )}
-            </SidebarMenu>
+            <nav aria-label="Gestion">
+              <SidebarMenu>
+                {DASHBOARD_NAV.filter(item => hasRolePermission(user.role, item.permissions)).map(
+                  item => (
+                    <SidebarMenuItem key={item.to}>
+                      <SidebarMenuButton asChild tooltip={item.label}>
+                        <Link
+                          to={item.to}
+                          activeOptions={{ exact: item.exact }}
+                          // SidebarMenuButton styles the current page from `data-active`
+                          activeProps={{ 'data-active': true }}
+                        >
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ),
+                )}
+              </SidebarMenu>
+            </nav>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

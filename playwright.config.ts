@@ -12,7 +12,6 @@ export default defineConfig({
   // One worker: the tests share the seeded database and the dev server compiles pages on first visit
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   timeout: 60_000,
   use: {

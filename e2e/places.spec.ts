@@ -1,5 +1,13 @@
 import { expect, places, test } from './fixtures';
 
+// The seed's only place without a position, which this test fills in: put it back for a rerun
+test.afterEach(async ({ db }) => {
+  await db.place.update({
+    where: { id: places.groeninge.id },
+    data: { latitude: null, longitude: null },
+  });
+});
+
 // One test, in order: filling in the seed's place without a position changes what the filter lists
 test('a writer finds the places without a position and fills one in', async ({ page, signIn }) => {
   await signIn('admin');
