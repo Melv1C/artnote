@@ -38,14 +38,12 @@ export function useValidatedForm<S extends z.ZodObject>(
     });
   };
 
-  /** A field's `id` and `name`, the schema key, and its invalid state pointing to its message. */
   const field = (name: Field) => ({
     id: name,
     name,
     ...(errors[name] && { 'aria-invalid': true, 'aria-describedby': `${name}-error` }),
   });
 
-  /** The field's first message, placed beside it. */
   const fieldError = (name: Field) => {
     const message = errors[name]?.[0];
     return message ? (

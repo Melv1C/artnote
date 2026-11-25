@@ -75,7 +75,6 @@ export const updateArtwork = createServerFn({ method: 'POST' })
   .handler(async ({ data: { artworkId, data: form }, context: { user } }) => {
     const existing = await findOwnArtwork(artworkId, user.id);
 
-    // Images and artists are replaced as a whole
     await prisma.$transaction(async tx => {
       await tx.artwork.update({
         where: { id: artworkId },

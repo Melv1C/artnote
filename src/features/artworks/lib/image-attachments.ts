@@ -34,7 +34,6 @@ export const attachImages = (attachments: EditorAttachment[], images: Image[]) =
     })),
   ]);
 
-/** Move the attachment at `from` to `to`. */
 export function moveAttachment(attachments: EditorAttachment[], from: number, to: number) {
   const moved = attachments[from];
   if (!moved) return attachments;
@@ -46,7 +45,6 @@ export function moveAttachment(attachments: EditorAttachment[], from: number, to
 export const detachImage = (attachments: EditorAttachment[], imageId: string) =>
   normalize(attachments.filter(attachment => attachment.imageId !== imageId));
 
-/** Make an image the notice's main image. */
 export const setMainImage = (attachments: EditorAttachment[], imageId: string) =>
   normalize(
     attachments.map(attachment => ({ ...attachment, isMain: attachment.imageId === imageId })),

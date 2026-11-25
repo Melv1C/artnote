@@ -16,7 +16,6 @@ export function usePlaces(filters: PlaceFilters = {}) {
     queryKey: placeKeys.list(filters),
     queryFn: () => fetchPlaces({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
-    // Keep the current page on screen while the next one loads
     placeholderData: keepPreviousData,
   });
 }

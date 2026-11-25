@@ -16,7 +16,6 @@ export function useArtists(filters: ArtistFilters = {}) {
     queryKey: artistKeys.list(filters),
     queryFn: () => fetchArtists({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
     staleTime: 30 * 1000,
-    // Keep the current page on screen while the next one loads
     placeholderData: keepPreviousData,
   });
 }

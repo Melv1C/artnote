@@ -30,7 +30,6 @@ const ImageUploadSchema = z.object({
   caption: optionalText,
 });
 
-/** Read and validate the `file`, `alt` and `caption` fields of an upload form. */
 export function readImageUpload(formData: FormData) {
   const result = ImageUploadSchema.safeParse({
     file: formData.get('file'),

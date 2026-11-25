@@ -65,7 +65,6 @@ export const fetchMapPlaces = createServerFn({ method: 'GET' }).handler(async ()
         select: {
           id: true,
           title: true,
-          // The main image, else the first
           images: {
             select: { image: true },
             orderBy: [{ isMain: 'desc' }, { sortOrder: 'asc' }],

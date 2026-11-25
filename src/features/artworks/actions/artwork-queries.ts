@@ -40,7 +40,6 @@ export const fetchFilteredArtworks = createServerFn({ method: 'GET' })
     return filters.sort === 'artist' ? sortByFirstArtist(parsed, filters.order) : parsed;
   });
 
-/** The most recently published notices. */
 export const fetchLatestPublishedArtworks = createServerFn({ method: 'GET' })
   .validator(z.number().int().min(1).max(24))
   .handler(async ({ data: limit }) =>

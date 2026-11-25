@@ -19,7 +19,6 @@ interface TableViewProps<TFeatures extends TableFeatures, TRow extends RowData> 
   table: TanStackTable<TFeatures, TRow>;
   isLoading: boolean;
   isError: boolean;
-  /** French messages for the empty and error states. */
   messages: { empty: string; error: string };
 }
 

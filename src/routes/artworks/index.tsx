@@ -35,7 +35,6 @@ function ArtworksPage() {
         </p>
       </header>
 
-      {/* Stays at hand while scrolling the list */}
       <div className="sticky top-(--header-total) page-bleed z-30 mb-8 bg-background py-3">
         <ArtworksFilter />
       </div>

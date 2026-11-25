@@ -30,7 +30,6 @@ export function UserRowActions({ user }: { user: User }) {
   const router = useRouter();
   const confirm = useConfirm();
 
-  /** Refresh the account list and the page's figures after a change. */
   const refresh = () =>
     Promise.all([queryClient.invalidateQueries({ queryKey: userKeys.all }), router.invalidate()]);
 
@@ -80,7 +79,6 @@ export function UserRowActions({ user }: { user: User }) {
       confirmLabel: 'Continuer',
     });
     if (!confirmed) return;
-    // The whole page reloads with the new session
     await runMutation(
       async () => {
         await impersonateUser({ data: user.id });

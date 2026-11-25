@@ -26,5 +26,4 @@ export const PaginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
-/** Turn an empty or whitespace-only form value into null. */
 export const emptyToNull = (value: string | null | undefined) => value?.trim() || null;

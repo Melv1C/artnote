@@ -123,7 +123,6 @@ function Recent({ latest }: { latest: Latest }) {
           Tout voir
         </Link>
       </div>
-      {/* A swipeable rail on phones, a grid on wider screens */}
       <ul className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 max-sm:page-bleed sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible lg:grid-cols-3">
         {recent.map(artwork => (
           <li key={artwork.id} className="w-[78%] shrink-0 snap-start sm:w-auto">

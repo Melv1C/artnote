@@ -11,7 +11,6 @@ import { TablePager, TableView } from './table-view';
 
 const pagedTableFeatures = tableFeatures({ rowPaginationFeature });
 
-/** The column type of a `PagedTable`. */
 export type PagedColumnDef<TRow extends RowData> = ColumnDef<typeof pagedTableFeatures, TRow>;
 
 interface PagedTableProps<TRow extends RowData> {
@@ -23,7 +22,6 @@ interface PagedTableProps<TRow extends RowData> {
   onPageChange: (page: number) => void;
   isLoading: boolean;
   isError: boolean;
-  /** French messages for the empty and error states. */
   messages: { empty: string; error: string };
 }
 

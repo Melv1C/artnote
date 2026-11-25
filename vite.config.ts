@@ -77,7 +77,6 @@ export default defineConfig(({ mode }) => {
         correctness: 'error',
       },
       options: {
-        // Type-aware rules and the TypeScript type check run as part of `vp check`
         typeAware: true,
         typeCheck: true,
       },

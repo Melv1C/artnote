@@ -53,7 +53,6 @@ export type ArtworkFilters = z.input<typeof ArtworkFiltersSchema>;
 const str = (value: string | number | undefined) =>
   value === undefined ? undefined : String(value);
 
-/** Turn URL search params into query filters. */
 export const toArtworkFilters = (search: ArtworksSearch): ArtworkFilters => ({
   search: str(search.search),
   artist: str(search.artist),

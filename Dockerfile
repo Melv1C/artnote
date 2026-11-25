@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
 # Production image, built by Dokploy for staging, previews and production (README, Deployments).
-# The container applies pending migrations, then starts the Nitro server on port 3000.
 # Vite+ installs and builds; Node's own image runs. Keep its tag at package.json's devEngines.runtime.
 
 # Vite+ resolves Node from devEngines.runtime and Bun from packageManager (package.json)

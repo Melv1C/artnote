@@ -68,7 +68,6 @@ export default function PlacePositionMap({
   );
 }
 
-/** A click on the map puts the marker there. */
 function ClickToPlace({ onChange }: Pick<PlacePositionMapProps, 'onChange'>) {
   const { map } = useMap();
 

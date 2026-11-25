@@ -35,7 +35,6 @@ import { ArtistSelector } from './artist-selector';
 import { ImageUpload } from './image-upload';
 import { PlaceSelector } from './place-selector';
 
-/** The editor's starting values: a blank draft, or the notice being edited. */
 const editorValues = (artwork?: Artwork): ArtworkEditorValues => ({
   title: artwork?.title ?? '',
   creationYear: artwork?.creationYear ?? null,
@@ -98,7 +97,6 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
     <Form {...form}>
       <form onSubmit={event => void form.handleSubmit(handleSubmit)(event)}>
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          {/* The text: what readers read */}
           <div className="space-y-6">
             <FormSection title="Notice">
               <FormField
@@ -175,7 +173,6 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
             </FormSection>
           </div>
 
-          {/* The cartel and the publication: short facts, on the side */}
           <div className="space-y-6">
             <FormSection title="Publication">
               <FormField
@@ -252,7 +249,6 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
           </div>
         </div>
 
-        {/* Always within reach, however long the notice */}
         <div className="sticky bottom-0 z-30 -mx-4 mt-8 border-t bg-background/90 backdrop-blur-xl lg:-mx-8">
           <div className="flex items-center justify-end gap-3 px-4 py-3 lg:px-8">
             {isDirty && !isSubmitting && (

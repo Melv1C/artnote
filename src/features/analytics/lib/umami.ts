@@ -36,7 +36,6 @@ export const READING_TIME_BRACKETS = [
 
 export type ReadingTimeBracket = (typeof READING_TIME_BRACKETS)[number]['name'];
 
-/** The reading-time bracket a notice reading of `durationMs` falls in. */
 export function readingTimeBracket(durationMs: number): ReadingTimeBracket {
   const bracket =
     READING_TIME_BRACKETS.find(({ belowMs }) => durationMs < belowMs) ??

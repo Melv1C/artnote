@@ -22,7 +22,6 @@ interface ArtworkImageViewerProps {
   images: ArtworkImage[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** The image shown first */
   startIndex: number;
 }
 
@@ -43,7 +42,6 @@ export function ArtworkImageViewer({
   // Each slide keeps its own zoom: reset the ones left behind
   const zoomers = useRef<(ReactZoomPanPinchContentRef | null)[]>([]);
 
-  // Each opening starts on the image that was tapped
   useEffect(() => {
     if (open) setIndex(startIndex);
   }, [open, startIndex]);
