@@ -34,9 +34,14 @@ type Features = typeof features;
 
 function SortableHeader({ column, label }: { column: Column<Features, User>; label: string }) {
   return (
-    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="-ml-3 h-8 text-xs font-medium text-muted-foreground"
+      onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+    >
       {label}
-      <ArrowUpDown className="ml-2 h-4 w-4" />
+      <ArrowUpDown className="size-3.5" />
     </Button>
   );
 }
