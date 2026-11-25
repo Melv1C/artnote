@@ -57,6 +57,12 @@ export const SignInSchema = z.object({
   password: z.string().min(1, 'Le mot de passe est requis'),
 });
 
+/** How long an admin may act as another account. */
+export const IMPERSONATION_SECONDS = 60 * 60;
+
+/** How long a suspension lasts: Better Auth lifts it after that. */
+export const SUSPENSION_SECONDS = 7 * 24 * 60 * 60;
+
 /** The shortest password an account may have: Better Auth enforces it, the form says it first. */
 export const MIN_PASSWORD_LENGTH = 8;
 
@@ -83,7 +89,6 @@ export const SetUserRoleSchema = UserIdSchema.extend({ role: UserRoleSchema });
 
 export const BanUserSchema = UserIdSchema.extend({
   banReason: z.string().max(500).optional(),
-  banExpiresIn: z.number().int().positive().optional(), // seconds
 });
 
 export type User = z.infer<typeof UserSchema>;

@@ -8,6 +8,7 @@ describe('formatDuration', () => {
     expect(formatDuration(90 * 1000)).toBe('90 secondes');
     expect(formatDuration(30 * 60 * 1000)).toBe('30 minutes');
     expect(formatDuration(24 * 60 * 60 * 1000)).toBe('24 heures');
+    expect(formatDuration(7 * 24 * 60 * 60 * 1000)).toBe('1 semaine');
   });
 });
 

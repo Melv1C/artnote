@@ -10,12 +10,6 @@ import {
   MAX_IMAGE_MEGABYTES,
 } from '@/schemas/image';
 
-const optionalText = z
-  .string()
-  .max(500)
-  .nullish()
-  .transform(value => value?.trim() || null);
-
 const ImageUploadSchema = z.object({
   file: z
     .instanceof(File, { message: 'Aucun fichier fourni' })
@@ -26,15 +20,11 @@ const ImageUploadSchema = z.object({
     .refine(file => file.size <= MAX_IMAGE_BYTES, {
       message: `Le fichier est trop volumineux (max ${MAX_IMAGE_MEGABYTES} Mo)`,
     }),
-  alt: optionalText,
-  caption: optionalText,
 });
 
 export function readImageUpload(formData: FormData) {
   const result = ImageUploadSchema.safeParse({
     file: formData.get('file'),
-    alt: formData.get('alt'),
-    caption: formData.get('caption'),
   });
   if (!result.success) throw new Error(result.error.issues[0]?.message ?? 'Image invalide');
   return result.data;

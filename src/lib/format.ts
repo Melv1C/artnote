@@ -21,6 +21,7 @@ export function plural(count: number, singular: string, pluralForm = `${singular
 }
 
 const DURATION_UNITS = [
+  { ms: 7 * 24 * 60 * 60 * 1000, name: 'semaine' },
   { ms: 60 * 60 * 1000, name: 'heure' },
   { ms: 60 * 1000, name: 'minute' },
   { ms: 1000, name: 'seconde' },

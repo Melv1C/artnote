@@ -10,7 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { runMutation } from '@/lib/run-mutation';
 import { UserRoleSchema, type UserRole } from '@/schemas/common';
-import type { User } from '@/schemas/user';
+import { IMPERSONATION_SECONDS, SUSPENSION_SECONDS, type User } from '@/schemas/user';
+import { formatDuration } from '@/lib/format';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { Ban, ShieldCheck, UserCheck } from 'lucide-react';
@@ -58,7 +59,9 @@ export function UserRowActions({ user }: { user: User }) {
     });
 
   const handleBanUser = async () => {
-    const reason = prompt('Raison de la suspension (optionnel):');
+    const reason = prompt(
+      `Suspension de ${formatDuration(SUSPENSION_SECONDS * 1000)}. Raison (optionnel) :`,
+    );
     if (reason === null) return;
     await change(() => banUser({ data: { userId: user.id, banReason: reason || undefined } }), {
       success: 'Utilisateur suspendu',
@@ -75,7 +78,7 @@ export function UserRowActions({ user }: { user: User }) {
   const handleImpersonateUser = async () => {
     const confirmed = await confirm({
       title: `Se connecter en tant que ${user.name} ?`,
-      description: 'Vous verrez le site comme cette personne, pendant une heure au plus.',
+      description: `Vous verrez le site comme cette personne, pendant ${formatDuration(IMPERSONATION_SECONDS * 1000)} au plus.`,
       confirmLabel: 'Continuer',
     });
     if (!confirmed) return;

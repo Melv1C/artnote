@@ -1,3 +1,4 @@
+import { IMAGE_FORMATS } from '@/schemas/image';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/features/auth/hooks/use-auth';
@@ -37,7 +38,7 @@ export function AvatarUpload({ user }: { user: { name: string; image?: string | 
       <UserAvatar user={user} src={preview} className="size-24 *:text-lg" />
       <input
         type="file"
-        accept="image/*"
+        accept={Object.keys(IMAGE_FORMATS).join(',')}
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"

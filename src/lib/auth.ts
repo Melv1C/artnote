@@ -1,6 +1,6 @@
 import '@tanstack/react-start/server-only';
 import { UserRoleSchema } from '@/schemas/common';
-import { MIN_PASSWORD_LENGTH } from '@/schemas/user';
+import { IMPERSONATION_SECONDS, MIN_PASSWORD_LENGTH, SUSPENSION_SECONDS } from '@/schemas/user';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
@@ -45,8 +45,8 @@ export const auth = betterAuth({
       defaultBanReason: "Violation des conditions d'utilisation",
       bannedUserMessage:
         "Votre compte a été suspendu. Veuillez contacter le support si vous pensez qu'il s'agit d'une erreur.",
-      impersonationSessionDuration: 60 * 60,
-      defaultBanExpiresIn: 60 * 60 * 24 * 7,
+      impersonationSessionDuration: IMPERSONATION_SECONDS,
+      defaultBanExpiresIn: SUSPENSION_SECONDS,
     }),
     // Must stay last so auth cookies are set through TanStack Start's cookie helpers
     tanstackStartCookies(),

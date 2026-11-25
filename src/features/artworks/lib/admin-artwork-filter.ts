@@ -82,11 +82,9 @@ export function inStatusView(view: ArtworkStatusView, status: ArtworkStatus): bo
   return Boolean(ARTWORK_STATUS_VIEWS.find(({ id }) => id === view)?.statuses.includes(status));
 }
 
-const endOfDay = (isoDate: string) => {
-  const date = new Date(isoDate);
-  date.setHours(23, 59, 59, 999);
-  return date;
-};
+// A date-only string parses as UTC midnight; with a time it parses in the writer's own time zone
+const startOfDay = (isoDate: string) => new Date(`${isoDate}T00:00:00`);
+const endOfDay = (isoDate: string) => new Date(`${isoDate}T23:59:59.999`);
 
 const sortKey = (artwork: FilterableArtwork, sortBy: AdminArtworkSort): string | number => {
   switch (sortBy) {
@@ -111,7 +109,7 @@ export function filterAdminArtworks<T extends FilterableArtwork>(
   filter: AdminArtworkFilter,
 ): T[] {
   const search = filter.search.trim().toLowerCase();
-  const after = filter.createdAfter ? new Date(filter.createdAfter) : null;
+  const after = filter.createdAfter ? startOfDay(filter.createdAfter) : null;
   const before = filter.createdBefore ? endOfDay(filter.createdBefore) : null;
   const direction = filter.sortOrder === 'asc' ? 1 : -1;
 

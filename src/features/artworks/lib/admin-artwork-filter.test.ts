@@ -66,6 +66,13 @@ describe('filterAdminArtworks', () => {
     ).toEqual(['La Mort de Marat', "L'Intrigue"]);
   });
 
+  it('counts the whole start day in the writer’s time zone', () => {
+    const justAfterMidnight = { ...artworks[0], createdAt: new Date(2026, 0, 10, 0, 30) };
+    expect(
+      filterAdminArtworks([justAfterMidnight], filter({ createdAfter: '2026-01-10' })),
+    ).toHaveLength(1);
+  });
+
   it('sorts by any column in either direction', () => {
     expect(titles(filterAdminArtworks(artworks, filter({ sortBy: 'viewCount' })))[0]).toBe(
       'La Mort de Marat',

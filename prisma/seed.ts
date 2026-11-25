@@ -13,7 +13,7 @@ async function seedAccounts() {
     await prisma.user.upsert({
       where: { email: user.email },
       // Re-seeding restores each account's role and ban, whatever QA changed
-      update: fields,
+      update: { banned: false, banReason: null, banExpires: null, ...fields },
       create: { ...user, emailVerified: true, createdAt: now, updatedAt: now },
     });
     await prisma.account.upsert({

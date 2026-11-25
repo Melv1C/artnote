@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link } from '@tanstack/react-router';
 import { artistNames, cartelLine, mainImage } from '../lib/artwork-display';
@@ -8,7 +7,6 @@ interface ArtworkCardProps {
   artwork: PublicArtwork;
   /** The first cards of a list load their image at once */
   priority?: boolean;
-  className?: string;
   /** The title's heading level: 2 in a page's list, 3 under a section heading */
   headingLevel?: 2 | 3;
 }
@@ -17,7 +15,7 @@ interface ArtworkCardProps {
  * A notice in a list: the painting on its wall, then its cartel (the museum label): artist, title
  * in italics, date and place.
  */
-export function ArtworkCard({ artwork, priority, className, headingLevel = 2 }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, priority, headingLevel = 2 }: ArtworkCardProps) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const { id, title, images, artists } = artwork;
   const artist = artistNames(artists);
@@ -27,10 +25,7 @@ export function ArtworkCard({ artwork, priority, className, headingLevel = 2 }: 
     <Link
       to="/artworks/$artworkId"
       params={{ artworkId: id }}
-      className={cn(
-        'group flex flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background',
-        className,
-      )}
+      className="group flex flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
     >
       <Painting
         image={mainImage(images)?.image}

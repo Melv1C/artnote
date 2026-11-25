@@ -117,10 +117,10 @@ export const uploadArtworkImage = createServerFn({ method: 'POST' })
   .middleware([dashboardAccessMiddleware])
   .validator(ImageUploadSchema)
   .handler(async ({ data: formData }) => {
-    const { file, alt, caption } = readImageUpload(formData);
+    const { file } = readImageUpload(formData);
     const upload = await uploadPublicImage('artworks', file);
     const image = await prisma.image.create({
-      data: { url: upload.url, alt, caption, size: file.size, mimeType: file.type },
+      data: { url: upload.url, size: file.size, mimeType: file.type },
     });
     return ImageSchema.parse(image);
   });
