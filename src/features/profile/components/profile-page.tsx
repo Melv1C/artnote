@@ -222,7 +222,7 @@ export function ProfilePage() {
                         <div>
                           <RichTextEditor
                             label="Biographie"
-                            value={watch(\'bio\') || \'\'}
+                            value={watch('bio') || ''}
                             onChange={value =>
                               setValue('bio', value || '', {
                                 shouldDirty: true,

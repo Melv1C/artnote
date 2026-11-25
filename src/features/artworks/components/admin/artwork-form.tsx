@@ -125,7 +125,11 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
                   <FormItem>
                     <FormLabel>Notice</FormLabel>
                     <FormControl>
-                      <RichTextEditor label="Notice" value={field.value} onChange={field.onChange} />
+                      <RichTextEditor
+                        label="Notice"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
