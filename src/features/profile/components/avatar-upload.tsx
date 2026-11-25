@@ -1,19 +1,15 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { UserAvatar } from '@/components/user-avatar';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { runMutation } from '@/lib/run-mutation';
 import { uploadAvatar } from '../actions/profile-mutations';
-import { useSession } from '@/lib/auth-client';
 import { Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 
-interface AvatarUploadProps {
-  user: { name: string; image?: string | null };
-}
-
-export function AvatarUpload({ user }: AvatarUploadProps) {
+export function AvatarUpload({ user }: { user: { name: string; image?: string | null } }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { refetch } = useSession();
-  const [preview, setPreview] = useState<string | null>(user.image ?? null);
+  const { refetch } = useAuth();
+  const [preview, setPreview] = useState(user.image);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,33 +20,21 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
     formData.append('file', file);
 
     setIsUploading(true);
-
-    try {
-      const { url } = await uploadAvatar({ data: formData });
-      setPreview(url);
-      toast.success('Avatar mis à jour');
-      await refetch();
-    } catch (error) {
-      console.error('Avatar upload failed:', error);
-      toast.error('Erreur lors du téléchargement');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    await runMutation(
+      async () => {
+        const { url } = await uploadAvatar({ data: formData });
+        setPreview(url);
+        await refetch();
+      },
+      { success: 'Avatar mis à jour', failure: 'Erreur lors du téléchargement' },
+    );
+    setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      <Avatar className="w-24 h-24">
-        <AvatarImage src={preview || undefined} alt={user.name} />
-        <AvatarFallback className="text-lg">
-          {user.name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase() || 'U'}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar user={user} src={preview} className="size-24 *:text-lg" />
       <input
         type="file"
         accept="image/*"

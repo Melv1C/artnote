@@ -46,3 +46,7 @@ export function hasRolePermission(role: UserRole, permissions: PermissionCheck):
 
 /** What the dashboard requires: managing notices. */
 export const DASHBOARD_PERMISSIONS = { artwork: ['manage'] } satisfies PermissionCheck;
+
+/** Whether `user` is signed in and may use the dashboard. */
+export const canViewDashboard = (user: { role: UserRole } | null) =>
+  !!user && hasRolePermission(user.role, DASHBOARD_PERMISSIONS);

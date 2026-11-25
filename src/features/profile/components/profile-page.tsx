@@ -7,20 +7,32 @@ import { RichTextEditor, RichTextViewer } from '@/components/ui/rich-text-editor
 import { AvatarUpload } from './avatar-upload';
 import { useProfileStats } from '../hooks/use-profile-stats';
 import { useAuth } from '@/features/auth/hooks/use-auth';
+import { USER_ROLE_LABELS } from '@/features/user-management/lib/user-accounts';
 import { updateProfile } from '../actions/profile-mutations';
-import { UserProfileFormSchema, type UserProfileForm } from '@/schemas/user';
+import { formatCount, formatShortDate } from '@/lib/format';
+import { runMutation } from '@/lib/run-mutation';
+import {
+  CvLinkSchema,
+  UserProfileFormSchema,
+  type User,
+  type UserProfileForm,
+} from '@/schemas/user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link as LinkIcon, Save, User } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Link as LinkIcon, Save, User as UserIcon } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+
+const profileValues = (user: User): UserProfileForm => ({
+  name: user.name,
+  bio: user.bio ?? '',
+  cv: user.cv ?? '',
+});
 
 export function ProfilePage() {
-  const { user, isLoading: isAuthLoading, refetch, isAdmin } = useAuth();
+  const { user, isLoading: isAuthLoading, refetch, canViewDashboard } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const stats = useProfileStats({ enabled: isAdmin });
+  const stats = useProfileStats({ enabled: canViewDashboard });
 
-  // Initialize React Hook Form
   const {
     register,
     handleSubmit,
@@ -30,47 +42,23 @@ export function ProfilePage() {
     formState: { errors, isSubmitting, isDirty },
   } = useForm<UserProfileForm>({
     resolver: zodResolver(UserProfileFormSchema),
-    defaultValues: {
-      name: '',
-      bio: '',
-      cv: '',
-    },
+    // Follows the saved profile: filled once the session loads, and again after each save
+    values: user ? profileValues(user) : undefined,
   });
 
-  // Watch bio field for the rich text editor
-  const watchedBio = watch('bio');
-
-  // Update form values when user data changes
-  useEffect(() => {
-    if (user) {
-      reset({
-        name: user.name || '',
-        bio: user.bio || '',
-        cv: user.cv || '',
-      });
-    }
-  }, [user, reset]);
-
   const onSubmit = async (data: UserProfileForm) => {
-    try {
-      await updateProfile({ data });
-      refetch();
-      toast.success('Profil mis à jour !');
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Saving profile failed:', error);
-      toast.error('Erreur lors de la mise à jour du profil');
-    }
+    const saved = await runMutation(
+      async () => {
+        await updateProfile({ data });
+        await refetch();
+      },
+      { success: 'Profil mis à jour !', failure: 'Erreur lors de la mise à jour du profil' },
+    );
+    if (saved) setIsEditing(false);
   };
 
   const handleCancel = () => {
-    if (user) {
-      reset({
-        name: user.name || '',
-        bio: user.bio || '',
-        cv: user.cv || '',
-      });
-    }
+    reset();
     setIsEditing(false);
   };
 
@@ -109,15 +97,16 @@ export function ProfilePage() {
 
         <div
           className={
-            isAdmin
+            canViewDashboard
               ? 'grid grid-cols-1 lg:grid-cols-3 gap-8'
               : 'flex items-center justify-center min-h-[60vh]'
           }
         >
-          {/* Profile Picture & Quick Info */}
           <div
             className={
-              isAdmin ? 'lg:col-span-1' : 'flex items-center justify-center min-h-[60vh] w-full'
+              canViewDashboard
+                ? 'lg:col-span-1'
+                : 'flex items-center justify-center min-h-[60vh] w-full'
             }
           >
             <Card className="w-full max-w-sm">
@@ -131,15 +120,11 @@ export function ProfilePage() {
                 <div className="mt-6 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Rôle</span>
-                    <span className="text-sm font-medium capitalize">
-                      {user.role?.toLowerCase()}
-                    </span>
+                    <span className="text-sm font-medium">{USER_ROLE_LABELS[user.role]}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Membre depuis</span>
-                    <span className="text-sm">
-                      {new Date(user.createdAt).toLocaleDateString('fr-FR')}
-                    </span>
+                    <span className="text-sm">{formatShortDate(user.createdAt)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Email vérifié</span>
@@ -149,8 +134,7 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Statistics - Only for admin users */}
-            {isAdmin && (
+            {canViewDashboard && (
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>Mes statistiques</CardTitle>
@@ -160,13 +144,13 @@ export function ProfilePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
-                        {stats.data?.published ?? '—'}
+                        {stats.data ? formatCount(stats.data.published) : '—'}
                       </div>
                       <p className="text-sm text-muted-foreground">Notices publiées</p>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
-                        {stats.data?.views.toLocaleString('fr-BE') ?? '—'}
+                        {stats.data ? formatCount(stats.data.views) : '—'}
                       </div>
                       <p className="text-sm text-muted-foreground">Vues totales</p>
                     </div>
@@ -176,8 +160,7 @@ export function ProfilePage() {
             )}
           </div>
 
-          {/* Profile Form - Only for admin users */}
-          {isAdmin && (
+          {canViewDashboard && (
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Card>
@@ -191,7 +174,7 @@ export function ProfilePage() {
                       </div>
                       {!isEditing ? (
                         <Button type="button" onClick={() => setIsEditing(true)}>
-                          <User className="mr-2 h-4 w-4" />
+                          <UserIcon className="mr-2 h-4 w-4" />
                           Modifier le profil
                         </Button>
                       ) : (
@@ -208,7 +191,6 @@ export function ProfilePage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Name */}
                     <div className="space-y-2">
                       <Label htmlFor="name">Nom complet</Label>
                       {isEditing ? (
@@ -223,7 +205,6 @@ export function ProfilePage() {
                       )}
                     </div>
 
-                    {/* Email */}
                     <div className="space-y-2">
                       <Label htmlFor="email">Adresse email</Label>
                       <div className="py-2 px-3 border rounded-md bg-muted/50 text-muted-foreground">
@@ -232,7 +213,6 @@ export function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Bio */}
                     <div className="space-y-2">
                       <Label htmlFor="bio">Biographie</Label>
                       <p className="text-sm text-muted-foreground">
@@ -241,7 +221,7 @@ export function ProfilePage() {
                       {isEditing ? (
                         <div>
                           <RichTextEditor
-                            value={watchedBio || ''}
+                            value={watch('bio') || ''}
                             onChange={value =>
                               setValue('bio', value || '', {
                                 shouldDirty: true,
@@ -267,7 +247,6 @@ export function ProfilePage() {
                       )}
                     </div>
 
-                    {/* CV */}
                     <div className="space-y-2">
                       <Label htmlFor="cv">CV / Portfolio</Label>
                       <p className="text-sm text-muted-foreground">
@@ -289,7 +268,8 @@ export function ProfilePage() {
                         </div>
                       ) : (
                         <div className="py-2 px-3 border rounded-md bg-muted/50">
-                          {user.cv && isHttpsUrl(user.cv) ? (
+                          {/* Checked again before it becomes an href: the row may predate the check */}
+                          {user.cv && CvLinkSchema.safeParse(user.cv).success ? (
                             <a
                               href={user.cv}
                               target="_blank"
@@ -317,12 +297,3 @@ export function ProfilePage() {
     </div>
   );
 }
-
-// The CV link is user input: only render https URLs as links (no `javascript:` hrefs)
-const isHttpsUrl = (value: string) => {
-  try {
-    return new URL(value).protocol === 'https:';
-  } catch {
-    return false;
-  }
-};
