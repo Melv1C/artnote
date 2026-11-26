@@ -7,7 +7,11 @@ import { Link, createFileRoute } from '@tanstack/react-router';
 import { Eye } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard/artworks/$artworkId/edit')({
-  loader: ({ params }) => fetchMyArtworkForEdit({ data: params.artworkId }),
+  loader: {
+    handler: ({ params }) => fetchMyArtworkForEdit({ data: params.artworkId }),
+    // The form reads the notice once: wait for the fresh one rather than open on the cached copy
+    staleReloadMode: 'blocking',
+  },
   head: () => ({ meta: [{ title: pageTitle('Modifier la notice') }] }),
   component: EditArtworkPage,
 });
