@@ -23,8 +23,8 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
         >
           {artistFullName(row.original)}
         </Link>
-        {/* On a phone, the one column of figures left out of the table */}
-        <p className="text-xs text-muted-foreground md:hidden">
+        {/* In a narrow table, the works column is left out */}
+        <p className="text-xs text-muted-foreground @3xl:hidden">
           {plural(row.original.artworks.length, 'œuvre')}
         </p>
       </div>
@@ -33,19 +33,19 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'birthDate',
     header: 'Date de naissance',
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => row.original.birthDate ?? '—',
   },
   {
     id: 'deathDate',
     header: 'Date de décès',
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => row.original.deathDate ?? '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
-    meta: { className: 'hidden md:table-cell whitespace-normal' },
+    meta: { className: 'hidden @3xl:table-cell whitespace-normal' },
     cell: ({ row }) => {
       const artworks = row.original.artworks;
       return (
@@ -72,11 +72,12 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
-    meta: { className: 'hidden lg:table-cell' },
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
     meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <ArtistRowActions artist={row.original} />,
   },

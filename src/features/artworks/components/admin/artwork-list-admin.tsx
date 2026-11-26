@@ -93,7 +93,7 @@ export function ArtworkListAdmin(props: { artworks: ReturnType<typeof fetchMyArt
           role="table"
           aria-label="Mes notices"
           aria-rowcount={shown.length + 1}
-          className="overflow-hidden rounded-xl border bg-card shadow-xs"
+          className="@container overflow-hidden rounded-xl border bg-card shadow-xs"
         >
           <ArtworkTableHeader />
           <div role="rowgroup" className="divide-y">

@@ -35,7 +35,7 @@ function DashboardHome() {
         description={`Bonjour ${user.name.split(' ')[0]}, voici où en est ArtNote.`}
       />
       <StatsOverview userStats={userStats} publishedCount={publishedCount} />
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 @4xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Suspense fallback={<RecentNoticesSkeleton />}>
           <RecentNotices artworks={myArtworks} />
         </Suspense>

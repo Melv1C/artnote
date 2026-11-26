@@ -56,15 +56,6 @@ export function PlacesTable() {
             ))}
           </SelectContent>
         </Select>
-        <Toggle
-          variant="outline"
-          pressed={filters.missingPosition}
-          onPressedChange={pressed => setFilter('missingPosition', pressed)}
-          className="lg:order-last"
-        >
-          <MapPinOff />
-          Sans position
-        </Toggle>
         <Input
           placeholder="Ville"
           aria-label="Filtrer par ville"
@@ -79,6 +70,14 @@ export function PlacesTable() {
           onChange={event => setFilter('country', event.target.value)}
           className="lg:w-36"
         />
+        <Toggle
+          variant="outline"
+          pressed={filters.missingPosition}
+          onPressedChange={pressed => setFilter('missingPosition', pressed)}
+        >
+          <MapPinOff />
+          Sans position
+        </Toggle>
       </div>
 
       <PagedTable

@@ -28,9 +28,15 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
             <Badge variant="secondary">Sans position</Badge>
           )}
         </div>
-        {/* On a phone, the columns left out of the table */}
-        <p className="text-xs text-muted-foreground md:hidden">
-          {[PLACE_TYPE_LABELS[row.original.type], row.original.city].filter(Boolean).join(' · ')}
+        {/* In a narrow table, the type, city and works columns are left out */}
+        <p className="text-xs text-muted-foreground @3xl:hidden">
+          {[
+            PLACE_TYPE_LABELS[row.original.type],
+            row.original.city,
+            plural(row.original.artworks.length, 'œuvre'),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </p>
       </div>
     ),
@@ -38,25 +44,25 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'type',
     header: 'Type',
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>,
   },
   {
     id: 'city',
     header: 'Ville',
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => row.original.city || '—',
   },
   {
     id: 'country',
     header: 'Pays',
-    meta: { className: 'hidden lg:table-cell' },
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => row.original.country || '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => (
       <span className="text-sm text-muted-foreground">
         {plural(row.original.artworks.length, 'œuvre')}
@@ -66,11 +72,12 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
-    meta: { className: 'hidden lg:table-cell' },
+    meta: { className: 'hidden @5xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
     meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <PlaceRowActions place={row.original} />,
   },

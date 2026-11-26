@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/user-avatar';
 import { formatShortDate } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { DASHBOARD_PAGE_SIZE } from '@/lib/pagination';
 import { UserRoleSchema } from '@/schemas/common';
 import type { User } from '@/schemas/user';
@@ -46,6 +47,21 @@ function SortableHeader({ column, label }: { column: Column<Features, User>; lab
   );
 }
 
+// Quiet badges: colour is kept for what needs attention, a suspension
+function RoleBadge({ role, className }: { role: User['role']; className?: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        role === UserRoleSchema.enum.admin && 'border-primary/30 text-primary',
+        className,
+      )}
+    >
+      {USER_ROLE_LABELS[role]}
+    </Badge>
+  );
+}
+
 const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'name',
@@ -57,15 +73,19 @@ const columns: ColumnDef<Features, User>[] = [
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="font-medium">{row.original.name}</span>
-            {/* On a phone, the status column is left out: only a suspension shows */}
+            {/* In a narrow table, the role and status columns are left out: only an
+                administrator and a suspension show */}
+            {row.original.role === UserRoleSchema.enum.admin && (
+              <RoleBadge role={row.original.role} className="@lg:hidden" />
+            )}
             {accountStatus(row.original) !== 'active' && (
-              <Badge variant="destructive" className="sm:hidden">
+              <Badge variant="destructive" className="@lg:hidden">
                 {ACCOUNT_STATUS_LABELS[accountStatus(row.original)]}
               </Badge>
             )}
           </div>
-          {/* On a phone, the email column is left out too */}
-          <div className="text-xs text-muted-foreground lowercase md:hidden">
+          {/* And the email column */}
+          <div className="text-xs text-muted-foreground lowercase @3xl:hidden">
             {row.original.email}
           </div>
         </div>
@@ -75,30 +95,19 @@ const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'email',
     header: ({ column }) => <SortableHeader column={column} label="Email" />,
-    meta: { className: 'hidden md:table-cell' },
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => <div className="lowercase">{row.original.email}</div>,
   },
   {
     id: 'role',
     header: 'Rôle',
-    meta: { className: 'hidden sm:table-cell' },
-    cell: ({ row }) => {
-      const role = row.original.role;
-      // Quiet badges: colour is kept for what needs attention, a suspension
-      return (
-        <Badge
-          variant="outline"
-          className={role === UserRoleSchema.enum.admin ? 'border-primary/30 text-primary' : ''}
-        >
-          {USER_ROLE_LABELS[role]}
-        </Badge>
-      );
-    },
+    meta: { className: 'hidden @lg:table-cell' },
+    cell: ({ row }) => <RoleBadge role={row.original.role} />,
   },
   {
     id: 'emailVerified',
     header: 'Email vérifié',
-    meta: { className: 'hidden lg:table-cell' },
+    meta: { className: 'hidden @5xl:table-cell' },
     cell: ({ row }) =>
       row.original.emailVerified ? (
         <span className="text-sm">Vérifié</span>
@@ -109,7 +118,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     id: 'status',
     header: 'Statut',
-    meta: { className: 'hidden sm:table-cell' },
+    meta: { className: 'hidden @lg:table-cell' },
     cell: ({ row }) => {
       const status = accountStatus(row.original);
       return status === 'active' ? (
@@ -122,11 +131,12 @@ const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'createdAt',
     header: ({ column }) => <SortableHeader column={column} label="Date d’inscription" />,
-    meta: { className: 'hidden lg:table-cell' },
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
     meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <UserRowActions user={row.original} />,
   },

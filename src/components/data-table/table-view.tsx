@@ -25,7 +25,10 @@ declare module '@tanstack/react-table' {
     TData extends RowData,
     TValue extends CellData = CellData,
   > {
-    /** Classes for the column's header and cells, such as `hidden md:table-cell` to drop it on phones */
+    /**
+     * Classes for the column's header and cells. `hidden @2xl:table-cell` shows the column only
+     * once the table is 42rem wide: container queries, since the sidebar takes part of the screen.
+     */
     className?: string;
   }
 }
@@ -33,7 +36,8 @@ declare module '@tanstack/react-table' {
 function columnClass<TFeatures extends TableFeatures, TRow extends RowData>(
   column: Column<TFeatures, TRow>,
 ) {
-  // Generic over the features, so the meta's type stays unresolved; every table here declares none
+  // TableView is generic over the features, which leaves the meta's type unresolved here. No
+  // table adds feature-specific meta, so it is the `ColumnMeta` declared above.
   return (column.columnDef.meta as ColumnMeta<TFeatures, TRow> | undefined)?.className;
 }
 
@@ -66,7 +70,10 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-xs" aria-busy={isLoading}>
+    <div
+      className="@container overflow-hidden rounded-xl border bg-card shadow-xs"
+      aria-busy={isLoading}
+    >
       <Table>
         <TableHeader className="bg-muted/40">
           {table.getHeaderGroups().map(headerGroup => (
@@ -124,23 +131,31 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
   );
 }
 
-/** "Page 2 sur 5 · 112 au total" and, when there is more than one page, Précédent and Suivant. */
+/**
+ * "Page 2 sur 5 · 112 au total" (or "· 112 sur 250" for a part of the rows) and, when there is
+ * more than one page, Précédent and Suivant.
+ */
 export function TablePager({
   page,
   pageCount,
   totalCount,
+  outOf,
   onPageChange,
 }: {
   /** 1-based */
   page: number;
   pageCount: number;
   totalCount: number;
+  /** The rows there are in all, when the table shows only some of them */
+  outOf?: number;
   onPageChange: (page: number) => void;
 }) {
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
-        {totalCount > 0 ? `Page ${page} sur ${pageCount} · ${totalCount} au total` : null}
+        {totalCount > 0
+          ? `Page ${page} sur ${pageCount} · ${totalCount} ${outOf !== undefined && outOf !== totalCount ? `sur ${outOf}` : 'au total'}`
+          : null}
       </div>
       {pageCount > 1 && (
         <div className="flex gap-2">

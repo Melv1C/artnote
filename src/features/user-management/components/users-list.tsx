@@ -41,6 +41,8 @@ export function UsersList() {
         page={page}
         pageCount={table.getPageCount()}
         totalCount={users.length}
+        // Filtered, or past the accounts fetchUsers loads: say how many there are in all
+        outOf={data?.total}
         onPageChange={setPage}
       />
     </div>
