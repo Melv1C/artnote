@@ -12,7 +12,7 @@ export function StatsOverview({
   publishedCount: ReturnType<typeof fetchPublishedArtworkCount>;
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 @xl:grid-cols-3">
       <StatCard title="Comptes" icon={Users} data={userStats} value={stats => stats.total} />
       <StatCard
         title="Notices publiées"

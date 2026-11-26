@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatAgo, formatCount, formatLongDate } from '@/lib/format';
+import { formatAgo, formatCount, formatLongDate, plural } from '@/lib/format';
 import { runMutation } from '@/lib/run-mutation';
 import { cn } from '@/lib/utils';
 import type { Artwork } from '@/schemas/artwork';
@@ -20,17 +20,20 @@ import { cartelLine, mainImage } from '../../lib/artwork-display';
 import { ARTWORK_STATUS } from '../../lib/artwork-status';
 import { StatusBadge, StatusDot } from './status-badge';
 
-/** The list's columns from `md` on, shared by its header and its rows. */
+/**
+ * The list's columns once it is 56rem wide, shared by its header and its rows. Container queries
+ * on the list (`@container` in ArtworkListAdmin), since the sidebar takes part of the screen.
+ */
 const COLUMNS =
-  'md:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] lg:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem]';
+  '@4xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] @5xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem]';
 
-/** The column headers of the writer's notices list; phones show none. */
+/** The column headers of the writer's notices list; a narrow list shows none. */
 export function ArtworkTableHeader() {
   return (
     <div
       role="row"
       className={cn(
-        'hidden gap-x-4 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground md:grid',
+        'hidden gap-x-4 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground @4xl:grid',
         COLUMNS,
       )}
     >
@@ -91,22 +94,31 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
         <Link
           to="/dashboard/artworks/$artworkId/edit"
           params={{ artworkId: id }}
-          className="work-title block truncate text-lg leading-snug outline-none hover:text-primary focus-visible:underline"
+          className="work-title block text-lg leading-snug break-words outline-none hover:text-primary focus-visible:underline"
         >
           {title}
         </Link>
         <p className="truncate text-sm text-muted-foreground">
           {cartelLine(artwork, ['artist', 'year']) || 'Sans artiste ni date'}
         </p>
-        {/* Narrow screens have no status column */}
-        <StatusBadge status={status} className="mt-1 md:hidden" />
+        {/* A narrow list has no status, date or views columns */}
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground @4xl:hidden">
+          <StatusBadge status={status} />
+          <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
+            Modifiée {formatAgo(updatedAt)}
+          </time>
+          {/* A draft has no views; a phone keeps the status and the date */}
+          {status !== ArtworkStatusSchema.enum.DRAFT && (
+            <span className="hidden @lg:inline">· {plural(viewCount, 'vue')}</span>
+          )}
+        </div>
       </div>
 
-      <div role="cell" className="hidden md:block">
+      <div role="cell" className="hidden @4xl:block">
         <StatusBadge status={status} />
       </div>
 
-      <div role="cell" className="hidden text-sm text-muted-foreground md:block">
+      <div role="cell" className="hidden text-sm text-muted-foreground @4xl:block">
         <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
           {formatAgo(updatedAt)}
         </time>
@@ -114,14 +126,22 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
 
       <div
         role="cell"
-        className="hidden text-right text-sm tabular-nums text-muted-foreground md:block"
+        className="hidden text-right text-sm tabular-nums text-muted-foreground @4xl:block"
       >
-        {formatCount(viewCount)}
-        <span className="sr-only"> vues</span>
+        {status === ArtworkStatusSchema.enum.DRAFT ? (
+          <>
+            —<span className="sr-only">non publiée</span>
+          </>
+        ) : (
+          <>
+            {formatCount(viewCount)}
+            <span className="sr-only"> vues</span>
+          </>
+        )}
       </div>
 
       <div role="cell" className="flex items-center justify-end gap-1">
-        <Button asChild size="sm" variant="ghost" className="hidden lg:inline-flex">
+        <Button asChild size="sm" variant="ghost" className="hidden @5xl:inline-flex">
           <Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }}>
             <Pencil />
             Modifier
@@ -139,8 +159,8 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           <TooltipContent>Aperçu</TooltipContent>
         </Tooltip>
         <RowMenu disabled={isPending}>
+          {/* Kept at every width: the menu is portaled, out of reach of the list's container */}
           <EditMenuItem
-            className="lg:hidden"
             link={<Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }} />}
           />
           <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">

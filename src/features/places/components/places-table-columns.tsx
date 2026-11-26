@@ -13,39 +13,64 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'name',
     header: 'Nom',
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
-      <div className="flex flex-wrap items-center gap-2">
-        <Link
-          to="/dashboard/places/$placeId"
-          params={{ placeId: row.original.id }}
-          className="font-medium hover:underline"
-        >
-          {row.original.name}
-        </Link>
-        {(row.original.latitude === null || row.original.longitude === null) && (
-          <Badge variant="secondary">Sans position</Badge>
-        )}
+      <div>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            to="/dashboard/places/$placeId"
+            params={{ placeId: row.original.id }}
+            className="font-medium hover:underline"
+          >
+            {row.original.name}
+          </Link>
+          {(row.original.latitude === null || row.original.longitude === null) && (
+            <Badge variant="secondary">Sans position</Badge>
+          )}
+        </div>
+        {/* In a narrow table, the type, city, country and works columns are left out */}
+        <p className="text-xs text-muted-foreground @3xl:hidden">
+          {[
+            PLACE_TYPE_LABELS[row.original.type],
+            [row.original.city, row.original.country].filter(Boolean).join(', '),
+            plural(row.original.artworks.length, 'œuvre'),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
       </div>
     ),
   },
   {
     id: 'type',
     header: 'Type',
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>,
   },
   {
     id: 'city',
     header: 'Ville',
-    cell: ({ row }) => row.original.city || '—',
+    meta: { className: 'hidden @3xl:table-cell' },
+    cell: ({ row }) => (
+      <>
+        {/* With the country, until its column shows */}
+        <span className="@4xl:hidden">
+          {[row.original.city, row.original.country].filter(Boolean).join(', ') || '—'}
+        </span>
+        <span className="hidden @4xl:inline">{row.original.city || '—'}</span>
+      </>
+    ),
   },
   {
     id: 'country',
     header: 'Pays',
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => row.original.country || '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
+    meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => (
       <span className="text-sm text-muted-foreground">
         {plural(row.original.artworks.length, 'œuvre')}
@@ -55,10 +80,13 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
+    meta: { className: 'hidden @5xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <PlaceRowActions place={row.original} />,
   },
 ];

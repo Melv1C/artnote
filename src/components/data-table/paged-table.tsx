@@ -20,6 +20,8 @@ interface PagedTableProps<TRow extends RowData> {
   /** The server's page metadata; undefined while the first page loads. */
   page: PageInfo | undefined;
   onPageChange: (page: number) => void;
+  /** The table's accessible name */
+  label: string;
   isLoading: boolean;
   isError: boolean;
   messages: { empty: string; error: string };

@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/user-avatar';
 import { formatShortDate } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { DASHBOARD_PAGE_SIZE } from '@/lib/pagination';
 import { UserRoleSchema } from '@/schemas/common';
 import type { User } from '@/schemas/user';
@@ -46,41 +47,67 @@ function SortableHeader({ column, label }: { column: Column<Features, User>; lab
   );
 }
 
+// Quiet badges: colour is kept for what needs attention, a suspension
+function RoleBadge({ role, className }: { role: User['role']; className?: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        role === UserRoleSchema.enum.admin && 'border-primary/30 text-primary',
+        className,
+      )}
+    >
+      {USER_ROLE_LABELS[role]}
+    </Badge>
+  );
+}
+
 const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => <SortableHeader column={column} label="Nom" />,
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
         <UserAvatar user={row.original} />
-        <div className="font-medium">{row.original.name}</div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-medium">{row.original.name}</span>
+            {/* In a narrow table, the role and status columns are left out: only an
+                administrator and a suspension show */}
+            {row.original.role === UserRoleSchema.enum.admin && (
+              <RoleBadge role={row.original.role} className="@lg:hidden" />
+            )}
+            {accountStatus(row.original) !== 'active' && (
+              <Badge variant="destructive" className="@4xl:hidden">
+                {ACCOUNT_STATUS_LABELS[accountStatus(row.original)]}
+              </Badge>
+            )}
+          </div>
+          {/* And the email column */}
+          <div className="text-xs text-muted-foreground lowercase @4xl:hidden">
+            {row.original.email}
+          </div>
+        </div>
       </div>
     ),
   },
   {
     accessorKey: 'email',
     header: ({ column }) => <SortableHeader column={column} label="Email" />,
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => <div className="lowercase">{row.original.email}</div>,
   },
   {
     id: 'role',
     header: 'Rôle',
-    cell: ({ row }) => {
-      const role = row.original.role;
-      // Quiet badges: colour is kept for what needs attention, a suspension
-      return (
-        <Badge
-          variant="outline"
-          className={role === UserRoleSchema.enum.admin ? 'border-primary/30 text-primary' : ''}
-        >
-          {USER_ROLE_LABELS[role]}
-        </Badge>
-      );
-    },
+    meta: { className: 'hidden @lg:table-cell' },
+    cell: ({ row }) => <RoleBadge role={row.original.role} />,
   },
   {
     id: 'emailVerified',
     header: 'Email vérifié',
+    meta: { className: 'hidden @5xl:table-cell' },
     cell: ({ row }) =>
       row.original.emailVerified ? (
         <span className="text-sm">Vérifié</span>
@@ -91,6 +118,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     id: 'status',
     header: 'Statut',
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => {
       const status = accountStatus(row.original);
       return status === 'active' ? (
@@ -102,11 +130,16 @@ const columns: ColumnDef<Features, User>[] = [
   },
   {
     accessorKey: 'createdAt',
+    // Shown from a narrower table than email and status: its header is the one way to sort by
+    // sign-up
     header: ({ column }) => <SortableHeader column={column} label="Date d’inscription" />,
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <UserRowActions user={row.original} />,
   },
 ];

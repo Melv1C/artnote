@@ -97,7 +97,7 @@ export function PlaceForm({ place }: PlaceFormProps) {
         <div className="space-y-2">
           <Label htmlFor="type">Type *</Label>
           <Select name="type" defaultValue={place?.type} required>
-            <SelectTrigger {...field('type')}>
+            <SelectTrigger {...field('type')} className="w-full">
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
             <SelectContent>

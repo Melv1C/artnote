@@ -13,29 +13,44 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'name',
     header: 'Nom',
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
-      <Link
-        to="/dashboard/artists/$artistId"
-        params={{ artistId: row.original.id }}
-        className="font-medium hover:underline"
-      >
-        {artistFullName(row.original)}
-      </Link>
+      <div>
+        <Link
+          to="/dashboard/artists/$artistId"
+          params={{ artistId: row.original.id }}
+          className="font-medium hover:underline"
+        >
+          {artistFullName(row.original)}
+        </Link>
+        {/* In a narrow table, the dates and works columns are left out */}
+        <p className="text-xs text-muted-foreground @3xl:hidden">
+          {(row.original.birthDate || row.original.deathDate) && (
+            <span className="@2xl:hidden">
+              {row.original.birthDate ?? '?'} – {row.original.deathDate ?? '?'} ·{' '}
+            </span>
+          )}
+          {plural(row.original.artworks.length, 'œuvre')}
+        </p>
+      </div>
     ),
   },
   {
     id: 'birthDate',
     header: 'Date de naissance',
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => row.original.birthDate ?? '—',
   },
   {
     id: 'deathDate',
     header: 'Date de décès',
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => row.original.deathDate ?? '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
+    meta: { className: 'hidden @3xl:table-cell whitespace-normal' },
     cell: ({ row }) => {
       const artworks = row.original.artworks;
       return (
@@ -62,10 +77,13 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <ArtistRowActions artist={row.original} />,
   },
 ];

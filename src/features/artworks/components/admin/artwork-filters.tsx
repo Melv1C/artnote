@@ -37,7 +37,7 @@ export function ArtworkFilters({ filters, onChange }: ArtworkFiltersProps) {
   const sortLabels = ADMIN_ARTWORK_SORT_LABELS[filters.sortBy];
 
   return (
-    <div className="flex flex-1 gap-2 lg:max-w-xl">
+    <div className="flex flex-1 gap-2 @4xl:max-w-xl">
       <SearchInput
         label="Rechercher par titre, technique ou date"
         value={filters.search}

@@ -35,14 +35,16 @@ export function PlacesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <SearchInput
-          label="Rechercher un lieu"
-          value={filters.search}
-          onChange={value => setFilter('search', value)}
-        />
+      <div className="grid grid-cols-2 gap-3 @4xl:flex @4xl:items-center">
+        <div className="col-span-2 flex @4xl:flex-1">
+          <SearchInput
+            label="Rechercher un lieu"
+            value={filters.search}
+            onChange={value => setFilter('search', value)}
+          />
+        </div>
         <Select value={filters.type} onValueChange={value => setFilter('type', value)}>
-          <SelectTrigger className="w-48" aria-label="Type de lieu">
+          <SelectTrigger className="w-full @4xl:w-44" aria-label="Type de lieu">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -59,14 +61,14 @@ export function PlacesTable() {
           aria-label="Filtrer par ville"
           value={filters.city}
           onChange={event => setFilter('city', event.target.value)}
-          className="w-32"
+          className="@4xl:w-36"
         />
         <Input
           placeholder="Pays"
           aria-label="Filtrer par pays"
           value={filters.country}
           onChange={event => setFilter('country', event.target.value)}
-          className="w-32"
+          className="@4xl:w-36"
         />
         <Toggle
           variant="outline"
@@ -80,6 +82,7 @@ export function PlacesTable() {
 
       <PagedTable
         columns={columns}
+        label="Lieux"
         rows={data?.places ?? []}
         page={data?.pagination}
         onPageChange={setPage}

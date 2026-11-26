@@ -1,8 +1,6 @@
 import { SearchInput } from '@/components/data-table/search-input';
 import { TablePager, TableView } from '@/components/data-table/table-view';
 import { useTableFilters } from '@/components/data-table/use-table-filters';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { plural } from '@/lib/format';
 import { useMemo } from 'react';
 import { useUsers } from '../hooks/use-users';
 import { DEFAULT_USER_FILTER, filterUsers } from '../lib/user-accounts';
@@ -21,41 +19,33 @@ export function UsersList() {
   const table = useUsersTable(users, page);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tous les comptes</CardTitle>
-        <CardDescription>
-          {isLoading && 'Chargement des comptes…'}
-          {isError && 'Erreur lors du chargement'}
-          {data &&
-            `${plural(users.length, 'compte')}${users.length !== data.total ? ` sur ${data.total}` : ''}`}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <SearchInput
-            label="Rechercher par nom, email"
-            value={filters.search}
-            onChange={value => setFilter('search', value)}
-          />
-          <UserFilters filter={filters} onChange={setFilter} onClear={reset} />
-        </div>
-        <TableView
-          table={table}
-          isLoading={isLoading}
-          isError={isError}
-          messages={{
-            empty: 'Aucun compte trouvé.',
-            error: 'Erreur lors du chargement des utilisateurs',
-          }}
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <SearchInput
+          label="Rechercher par nom, email"
+          value={filters.search}
+          onChange={value => setFilter('search', value)}
         />
-        <TablePager
-          page={page}
-          pageCount={table.getPageCount()}
-          totalCount={users.length}
-          onPageChange={setPage}
-        />
-      </CardContent>
-    </Card>
+        <UserFilters filter={filters} onChange={setFilter} onClear={reset} />
+      </div>
+      <TableView
+        table={table}
+        label="Comptes"
+        isLoading={isLoading}
+        isError={isError}
+        messages={{
+          empty: 'Aucun compte trouvé.',
+          error: 'Erreur lors du chargement des utilisateurs',
+        }}
+      />
+      <TablePager
+        page={page}
+        pageCount={table.getPageCount()}
+        totalCount={users.length}
+        // Filtered, or past the accounts fetchUsers loads: say how many there are in all
+        outOf={data && { count: data.total, noun: 'compte' }}
+        onPageChange={setPage}
+      />
+    </div>
   );
 }

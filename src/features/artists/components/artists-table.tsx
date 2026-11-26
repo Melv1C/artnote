@@ -21,6 +21,7 @@ export function ArtistsTable() {
 
       <PagedTable
         columns={columns}
+        label="Artistes"
         rows={data?.artists ?? []}
         page={data?.pagination}
         onPageChange={setPage}

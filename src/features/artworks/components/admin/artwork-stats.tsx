@@ -5,7 +5,7 @@ import { ARTWORK_STATUS } from '../../lib/artwork-status';
 
 export function ArtworkStats({ stats }: { stats: ReturnType<typeof fetchMyArtworkStats> }) {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 @3xl:grid-cols-4">
       <StatCard title="Notices" icon={FileText} data={stats} value={s => s.total} />
       <StatCard
         title={ARTWORK_STATUS.PUBLISHED.plural}
