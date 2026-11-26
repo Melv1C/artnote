@@ -107,7 +107,7 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
             Modifiée {formatAgo(updatedAt)}
           </time>
-          {/* Views count published notices only; a phone keeps the status and the date */}
+          {/* A draft has no views; a phone keeps the status and the date */}
           {status !== ArtworkStatusSchema.enum.DRAFT && (
             <span className="hidden @lg:inline">· {plural(viewCount, 'vue')}</span>
           )}
@@ -128,8 +128,16 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
         role="cell"
         className="hidden text-right text-sm tabular-nums text-muted-foreground @4xl:block"
       >
-        {formatCount(viewCount)}
-        <span className="sr-only"> vues</span>
+        {status === ArtworkStatusSchema.enum.DRAFT ? (
+          <>
+            —<span className="sr-only">non publiée</span>
+          </>
+        ) : (
+          <>
+            {formatCount(viewCount)}
+            <span className="sr-only"> vues</span>
+          </>
+        )}
       </div>
 
       <div role="cell" className="flex items-center justify-end gap-1">

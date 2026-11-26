@@ -22,7 +22,8 @@ export function RecentNotices({ artworks }: { artworks: ReturnType<typeof fetchM
         <Button asChild variant="ghost" size="sm" className="-mr-2 text-primary">
           <Link to="/dashboard/artworks">
             Toutes mes notices
-            <ArrowRight aria-hidden="true" />
+            {/* Kept off phones, where it pushes the heading onto two lines */}
+            <ArrowRight aria-hidden="true" className="hidden sm:block" />
           </Link>
         </Button>
       </div>

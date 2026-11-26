@@ -137,7 +137,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
 
 /**
  * "Page 2 sur 5 · 112 au total" (or "· 112 comptes sur 250" for a part of the rows) and, when
- * there is more than one page, Précédent and Suivant. A single page shows only the count.
+ * there is more than one page, Précédent and Suivant. Page 1 of 1 shows only the count.
  */
 export function TablePager({
   page,
@@ -158,17 +158,16 @@ export function TablePager({
     outOf && outOf.count !== totalCount
       ? `${plural(totalCount, outOf.noun)} sur ${outOf.count}`
       : `${totalCount} au total`;
+  // Past page 1 the buttons stay, even when the rows now fit on one page (after a delete, say),
+  // so the way back is never hidden
+  const paged = pageCount > 1 || page > 1;
 
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
-        {totalCount > 0
-          ? pageCount > 1
-            ? `Page ${page} sur ${pageCount} · ${count}`
-            : count
-          : null}
+        {totalCount > 0 ? (paged ? `Page ${page} sur ${pageCount} · ${count}` : count) : null}
       </div>
-      {pageCount > 1 && (
+      {paged && (
         <div className="flex gap-2">
           <Button
             variant="outline"
