@@ -1,4 +1,4 @@
-import { expect, notices, places, test } from './fixtures';
+import { expect, notices, places, startNotice, test } from './fixtures';
 import type { Locator, Page } from '@playwright/test';
 
 /** Neither the page nor any of its tables scrolls sideways. */
@@ -83,19 +83,26 @@ for (const { label, viewport, phone } of [
   });
 }
 
-// The notices list switches to columns as it widens: every width, the stacked layout and the
-// columns, from where they appear (about 1150px with the sidebar) to a wide screen
-test.describe('an admin reading the notices list', () => {
-  test.beforeEach(async ({ signIn }) => {
-    await signIn('admin');
-  });
+// The notices list switches to columns at about 1226px with the sidebar: the stacked layout
+// below, the columns from there to a wide screen. A long title shows whole at every width, and the
+// modification date never disappears with its column.
+test('an admin reads a long notice title and its date in the list at every width', async ({
+  page,
+  signIn,
+  db,
+}) => {
+  const title = `Une notice au titre assez long pour passer à la ligne dans la liste du tableau de bord, quelle que soit sa largeur ${Date.now()}`;
+  await signIn('admin');
+  await startNotice(page, title);
+  await page.getByRole('button', { name: 'Créer la notice' }).click();
+  await expect(page).toHaveURL(/\/dashboard\/artworks$/);
 
-  for (const width of [768, 1024, 1100, 1180, 1240, 1280, 1440]) {
-    test(`reads every title in full at ${width}px`, async ({ page }) => {
+  try {
+    const list = page.getByRole('table', { name: 'Mes notices' });
+    const row = list.getByRole('row').filter({ hasText: title });
+    for (const width of [390, 768, 1024, 1100, 1180, 1226, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto('/dashboard/artworks');
-      const list = page.getByRole('table', { name: 'Mes notices' });
-      await expect(list.getByRole('link', { name: notices.lamb.title })).toBeVisible();
+      await expect(row.getByText(/il y a/).filter({ visible: true }), `${width}px`).toHaveCount(1);
       const cut = await list
         .locator('a.work-title')
         .evaluateAll(
@@ -104,7 +111,9 @@ test.describe('an admin reading the notices list', () => {
               link => link.scrollWidth > link.clientWidth || link.scrollHeight > link.clientHeight,
             ).length,
         );
-      expect(cut).toBe(0);
-    });
+      expect(cut, `titles cut at ${width}px`).toBe(0);
+    }
+  } finally {
+    await db.artwork.deleteMany({ where: { title } });
   }
 });

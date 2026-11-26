@@ -130,7 +130,8 @@ const columns: ColumnDef<Features, User>[] = [
   },
   {
     accessorKey: 'createdAt',
-    // Shown before email and status: its header is the one way to sort by sign-up
+    // Shown from a narrower table than email and status: its header is the one way to sort by
+    // sign-up
     header: ({ column }) => <SortableHeader column={column} label="Date d’inscription" />,
     meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),

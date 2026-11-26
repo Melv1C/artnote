@@ -136,8 +136,8 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
 }
 
 /**
- * "Page 2 sur 5 · 112 au total" (or "· 112 comptes sur 250" for a part of the rows) and, when there is
- * more than one page, Précédent and Suivant.
+ * "Page 2 sur 5 · 112 au total" (or "· 112 comptes sur 250" for a part of the rows) and, when
+ * there is more than one page, Précédent and Suivant. A single page shows only the count.
  */
 export function TablePager({
   page,
@@ -162,7 +162,11 @@ export function TablePager({
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
-        {totalCount > 0 ? `Page ${page} sur ${pageCount} · ${count}` : null}
+        {totalCount > 0
+          ? pageCount > 1
+            ? `Page ${page} sur ${pageCount} · ${count}`
+            : count
+          : null}
       </div>
       {pageCount > 1 && (
         <div className="flex gap-2">

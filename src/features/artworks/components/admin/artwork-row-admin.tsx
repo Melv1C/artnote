@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatAgo, formatCount, formatLongDate } from '@/lib/format';
+import { formatAgo, formatCount, formatLongDate, plural } from '@/lib/format';
 import { runMutation } from '@/lib/run-mutation';
 import { cn } from '@/lib/utils';
 import type { Artwork } from '@/schemas/artwork';
@@ -94,15 +94,25 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
         <Link
           to="/dashboard/artworks/$artworkId/edit"
           params={{ artworkId: id }}
-          className="work-title line-clamp-2 text-lg leading-snug outline-none hover:text-primary focus-visible:underline"
+          className="work-title block text-lg leading-snug break-words outline-none hover:text-primary focus-visible:underline"
         >
           {title}
         </Link>
         <p className="truncate text-sm text-muted-foreground">
           {cartelLine(artwork, ['artist', 'year']) || 'Sans artiste ni date'}
         </p>
-        {/* A narrow list has no status column */}
-        <StatusBadge status={status} className="mt-1 @4xl:hidden" />
+        {/* A narrow list has no status, date or views columns */}
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground @4xl:hidden">
+          <StatusBadge status={status} />
+          <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
+            Modifiée {formatAgo(updatedAt)}
+          </time>
+          {/* A phone keeps the status and the date */}
+          <span aria-hidden="true" className="hidden @lg:inline">
+            ·
+          </span>
+          <span className="hidden @lg:inline">{plural(viewCount, 'vue')}</span>
+        </div>
       </div>
 
       <div role="cell" className="hidden @4xl:block">

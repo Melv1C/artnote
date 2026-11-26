@@ -53,9 +53,11 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
     meta: { className: 'hidden @3xl:table-cell' },
     cell: ({ row }) => (
       <>
-        {row.original.city || '—'}
-        {/* Until the country column shows */}
-        {row.original.country && <span className="@4xl:hidden">, {row.original.country}</span>}
+        {/* With the country, until its column shows */}
+        <span className="@4xl:hidden">
+          {[row.original.city, row.original.country].filter(Boolean).join(', ') || '—'}
+        </span>
+        <span className="hidden @4xl:inline">{row.original.city || '—'}</span>
       </>
     ),
   },
