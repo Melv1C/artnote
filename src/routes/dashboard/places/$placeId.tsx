@@ -5,7 +5,11 @@ import { pageTitle } from '@/lib/seo';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/$placeId')({
-  loader: ({ params }) => fetchPlace({ data: params.placeId }),
+  loader: {
+    handler: ({ params }) => fetchPlace({ data: params.placeId }),
+    // The form reads the place once: wait for the fresh one rather than open on the cached copy
+    staleReloadMode: 'blocking',
+  },
   head: () => ({ meta: [{ title: pageTitle('Modifier le lieu') }] }),
   component: EditPlacePage,
 });

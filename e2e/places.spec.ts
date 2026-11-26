@@ -48,6 +48,15 @@ test('a writer finds the places without a position and fills one in', async ({ p
   await expect(groeninge).toBeVisible();
   await expect(groeninge).not.toContainText('Sans position');
 
+  // Opened again from the list, the form shows the saved position, not the page as first opened
+  await groeninge.getByRole('button', { name: 'Plus d’actions' }).click();
+  await page.getByRole('menuitem', { name: 'Modifier' }).click();
+  await expect(page).toHaveURL(new RegExp(`/dashboard/places/${places.groeninge.id}$`));
+  await expect(page.getByLabel('Latitude *')).toHaveValue('51.2049');
+  await expect(page.getByLabel('Longitude *')).toHaveValue('3.2248');
+  await page.getByRole('button', { name: 'Annuler' }).last().click();
+  await expect(page).toHaveURL(/\/dashboard\/places$/);
+
   await page.getByRole('button', { name: 'Sans position' }).click();
   await expect(page.getByText('Aucun lieu trouvé.')).toBeVisible();
 });
