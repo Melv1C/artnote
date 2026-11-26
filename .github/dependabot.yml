@@ -1,0 +1,15 @@
+# Keeps the GitHub Actions used by the workflows up to date. npm dependencies are
+# left out: Vite+ and Bun manage them (`vp update`), and Dependabot security
+# updates (enabled in the repository settings) still open PRs for vulnerable ones.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: chore
+      include: scope
