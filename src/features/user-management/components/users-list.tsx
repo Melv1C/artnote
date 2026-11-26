@@ -30,6 +30,7 @@ export function UsersList() {
       </div>
       <TableView
         table={table}
+        label="Comptes"
         isLoading={isLoading}
         isError={isError}
         messages={{
@@ -42,7 +43,7 @@ export function UsersList() {
         pageCount={table.getPageCount()}
         totalCount={users.length}
         // Filtered, or past the accounts fetchUsers loads: say how many there are in all
-        outOf={data?.total}
+        outOf={data && { count: data.total, noun: 'compte' }}
         onPageChange={setPage}
       />
     </div>

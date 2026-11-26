@@ -99,7 +99,7 @@ export function ArtworkForm({ artwork }: { artwork?: Artwork }) {
   return (
     <Form {...form}>
       <form onSubmit={event => void form.handleSubmit(handleSubmit)(event)}>
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid items-start gap-6 @4xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-6">
             <FormSection title="Notice">
               <FormField

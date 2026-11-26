@@ -49,7 +49,7 @@ export function ArtworkListAdmin(props: { artworks: ReturnType<typeof fetchMyArt
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 @4xl:flex-row @4xl:items-center @4xl:justify-between">
         <div
           className="inline-flex w-fit flex-wrap rounded-lg bg-muted p-1"
           role="group"

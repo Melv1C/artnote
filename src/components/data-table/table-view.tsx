@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import {
   flexRender,
@@ -43,6 +44,8 @@ function columnClass<TFeatures extends TableFeatures, TRow extends RowData>(
 
 interface TableViewProps<TFeatures extends TableFeatures, TRow extends RowData> {
   table: TanStackTable<TFeatures, TRow>;
+  /** The table's accessible name, such as "Artistes" */
+  label: string;
   isLoading: boolean;
   isError: boolean;
   messages: { empty: string; error: string };
@@ -51,6 +54,7 @@ interface TableViewProps<TFeatures extends TableFeatures, TRow extends RowData> 
 /** A dashboard table's rows, or its loading, empty or error state. */
 export function TableView<TFeatures extends TableFeatures, TRow extends RowData>({
   table,
+  label,
   isLoading,
   isError,
   messages,
@@ -74,7 +78,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
       className="@container overflow-hidden rounded-xl border bg-card shadow-xs"
       aria-busy={isLoading}
     >
-      <Table>
+      <Table aria-label={label}>
         <TableHeader className="bg-muted/40">
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -132,7 +136,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
 }
 
 /**
- * "Page 2 sur 5 · 112 au total" (or "· 112 sur 250" for a part of the rows) and, when there is
+ * "Page 2 sur 5 · 112 au total" (or "· 112 comptes sur 250" for a part of the rows) and, when there is
  * more than one page, Précédent and Suivant.
  */
 export function TablePager({
@@ -146,15 +150,15 @@ export function TablePager({
   page: number;
   pageCount: number;
   totalCount: number;
-  /** The rows there are in all, when the table shows only some of them */
-  outOf?: number;
+  /** The rows there are in all, named by `noun`, when the table shows only some of them */
+  outOf?: { count: number; noun: string };
   onPageChange: (page: number) => void;
 }) {
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
         {totalCount > 0
-          ? `Page ${page} sur ${pageCount} · ${totalCount} ${outOf !== undefined && outOf !== totalCount ? `sur ${outOf}` : 'au total'}`
+          ? `Page ${page} sur ${pageCount} · ${outOf && outOf.count !== totalCount ? `${plural(totalCount, outOf.noun)} sur ${outOf.count}` : `${totalCount} au total`}`
           : null}
       </div>
       {pageCount > 1 && (

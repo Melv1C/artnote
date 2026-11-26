@@ -21,11 +21,11 @@ import { ARTWORK_STATUS } from '../../lib/artwork-status';
 import { StatusBadge, StatusDot } from './status-badge';
 
 /**
- * The list's columns once it is 42rem wide, shared by its header and its rows. Container queries
+ * The list's columns once it is 48rem wide, shared by its header and its rows. Container queries
  * on the list (`@container` in ArtworkListAdmin), since the sidebar takes part of the screen.
  */
 const COLUMNS =
-  '@2xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] @3xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem]';
+  '@3xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] @4xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem]';
 
 /** The column headers of the writer's notices list; a narrow list shows none. */
 export function ArtworkTableHeader() {
@@ -33,7 +33,7 @@ export function ArtworkTableHeader() {
     <div
       role="row"
       className={cn(
-        'hidden gap-x-4 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground @2xl:grid',
+        'hidden gap-x-4 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground @3xl:grid',
         COLUMNS,
       )}
     >
@@ -102,14 +102,14 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           {cartelLine(artwork, ['artist', 'year']) || 'Sans artiste ni date'}
         </p>
         {/* A narrow list has no status column */}
-        <StatusBadge status={status} className="mt-1 @2xl:hidden" />
+        <StatusBadge status={status} className="mt-1 @3xl:hidden" />
       </div>
 
-      <div role="cell" className="hidden @2xl:block">
+      <div role="cell" className="hidden @3xl:block">
         <StatusBadge status={status} />
       </div>
 
-      <div role="cell" className="hidden text-sm text-muted-foreground @2xl:block">
+      <div role="cell" className="hidden text-sm text-muted-foreground @3xl:block">
         <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
           {formatAgo(updatedAt)}
         </time>
@@ -117,14 +117,14 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
 
       <div
         role="cell"
-        className="hidden text-right text-sm tabular-nums text-muted-foreground @2xl:block"
+        className="hidden text-right text-sm tabular-nums text-muted-foreground @3xl:block"
       >
         {formatCount(viewCount)}
         <span className="sr-only"> vues</span>
       </div>
 
       <div role="cell" className="flex items-center justify-end gap-1">
-        <Button asChild size="sm" variant="ghost" className="hidden @3xl:inline-flex">
+        <Button asChild size="sm" variant="ghost" className="hidden @4xl:inline-flex">
           <Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }}>
             <Pencil />
             Modifier
@@ -142,8 +142,8 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           <TooltipContent>Aperçu</TooltipContent>
         </Tooltip>
         <RowMenu disabled={isPending}>
+          {/* Kept at every width: the menu is portaled, out of reach of the list's container */}
           <EditMenuItem
-            className="@3xl:hidden"
             link={<Link to="/dashboard/artworks/$artworkId/edit" params={{ artworkId: id }} />}
           />
           <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">

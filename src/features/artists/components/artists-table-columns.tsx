@@ -23,8 +23,13 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
         >
           {artistFullName(row.original)}
         </Link>
-        {/* In a narrow table, the works column is left out */}
+        {/* In a narrow table, the dates and works columns are left out */}
         <p className="text-xs text-muted-foreground @3xl:hidden">
+          {(row.original.birthDate || row.original.deathDate) && (
+            <span className="@2xl:hidden">
+              {row.original.birthDate ?? '?'} – {row.original.deathDate ?? '?'} ·{' '}
+            </span>
+          )}
           {plural(row.original.artworks.length, 'œuvre')}
         </p>
       </div>
