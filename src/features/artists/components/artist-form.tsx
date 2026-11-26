@@ -1,14 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { editorPresets, RichTextEditor } from '@/components/ui/rich-text-editor';
 import { useValidatedForm } from '@/components/validated-form';
 import { runMutation } from '@/lib/run-mutation';
 import { ArtistFormSchema, type Artist } from '@/schemas/artist';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
 import { createArtist, updateArtist } from '../actions/artist-mutations';
 import { artistKeys } from '../hooks/use-artists';
+import { biographyHtml } from '../lib/biography';
 
 interface ArtistFormProps {
   /** The artist to edit; omit to create one. */
@@ -18,6 +20,7 @@ interface ArtistFormProps {
 export function ArtistForm({ artist }: ArtistFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [biography, setBiography] = useState(() => biographyHtml(artist?.biography ?? null));
   const { onSubmit, isPending, field, fieldError } = useValidatedForm(
     ArtistFormSchema,
     async data => {
@@ -74,13 +77,16 @@ export function ArtistForm({ artist }: ArtistFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="biography">Biographie</Label>
-        <Textarea
-          defaultValue={artist?.biography ?? ''}
-          rows={8}
+        <Label>Biographie</Label>
+        <RichTextEditor
+          label="Biographie"
+          value={biography}
+          onChange={value => setBiography(value ?? '')}
+          features={editorPresets.biography}
           placeholder="Décrivez la vie et l’œuvre de l’artiste…"
-          {...field('biography')}
         />
+        {/* The form reads its values from its fields: the editor's HTML goes through this one */}
+        <input type="hidden" name="biography" value={biography} />
         {fieldError('biography')}
       </div>
 

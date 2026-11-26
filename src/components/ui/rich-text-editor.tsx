@@ -62,6 +62,8 @@ type RichTextFeature = (typeof ALL_FEATURES)[number];
 export const editorPresets = {
   /** References and links: no headings, footnotes or layout */
   bibliography: ['bold', 'italic', 'strike', 'lists', 'link'],
+  /** An artist's life and work: emphasis, lists and links */
+  biography: ['bold', 'italic', 'lists', 'link'],
 } as const satisfies Record<string, readonly RichTextFeature[]>;
 
 // Tiptap gives every heading level the same class, so the levels are styled from their container

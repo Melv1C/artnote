@@ -5,6 +5,7 @@ import { createPrismaClient } from '../src/lib/prisma-client';
 // The seed, in the run's own database. Every seed notice is written by admin; `empire` is a draft.
 export {
   SEED_PASSWORD as PASSWORD,
+  seedArtists as artists,
   seedNotices as notices,
   seedPlaces as places,
 } from '../prisma/seed-data';
