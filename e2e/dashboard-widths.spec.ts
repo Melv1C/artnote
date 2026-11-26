@@ -62,19 +62,6 @@ for (const { label, viewport, phone } of [
     }
 
     if (!phone) {
-      test('reads every notice title in full in the list', async ({ page }) => {
-        await page.goto('/dashboard/artworks');
-        const titles = page.getByRole('table', { name: 'Mes notices' }).getByRole('link', {
-          name: notices.lamb.title,
-        });
-        await expect(titles).toBeVisible();
-        const cut = await page
-          .getByRole('table', { name: 'Mes notices' })
-          .locator('a.work-title')
-          .evaluateAll(links => links.filter(link => link.scrollWidth > link.clientWidth).length);
-        expect(cut).toBe(0);
-      });
-
       test('writes a notice with the side cards under the text, not squeezing it', async ({
         page,
       }) => {
@@ -95,3 +82,29 @@ for (const { label, viewport, phone } of [
     });
   });
 }
+
+// The notices list switches to columns as it widens: every width, the stacked layout and the
+// columns, from where they appear (about 1150px with the sidebar) to a wide screen
+test.describe('an admin reading the notices list', () => {
+  test.beforeEach(async ({ signIn }) => {
+    await signIn('admin');
+  });
+
+  for (const width of [768, 1024, 1100, 1180, 1240, 1280, 1440]) {
+    test(`reads every title in full at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/dashboard/artworks');
+      const list = page.getByRole('table', { name: 'Mes notices' });
+      await expect(list.getByRole('link', { name: notices.lamb.title })).toBeVisible();
+      const cut = await list
+        .locator('a.work-title')
+        .evaluateAll(
+          links =>
+            links.filter(
+              link => link.scrollWidth > link.clientWidth || link.scrollHeight > link.clientHeight,
+            ).length,
+        );
+      expect(cut).toBe(0);
+    });
+  }
+});

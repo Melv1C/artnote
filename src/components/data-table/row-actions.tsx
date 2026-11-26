@@ -28,9 +28,9 @@ export function RowMenu({ children, disabled }: { children: ReactNode; disabled?
 }
 
 /** A menu item that opens the row's edit page, given as a `<Link>` with no text. */
-export function EditMenuItem({ link, className }: { link: ReactElement; className?: string }) {
+export function EditMenuItem({ link }: { link: ReactElement }) {
   return (
-    <DropdownMenuItem asChild className={className}>
+    <DropdownMenuItem asChild>
       {cloneElement(
         link,
         {},

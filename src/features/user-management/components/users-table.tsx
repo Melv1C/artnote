@@ -79,13 +79,13 @@ const columns: ColumnDef<Features, User>[] = [
               <RoleBadge role={row.original.role} className="@lg:hidden" />
             )}
             {accountStatus(row.original) !== 'active' && (
-              <Badge variant="destructive" className="@lg:hidden">
+              <Badge variant="destructive" className="@4xl:hidden">
                 {ACCOUNT_STATUS_LABELS[accountStatus(row.original)]}
               </Badge>
             )}
           </div>
           {/* And the email column */}
-          <div className="text-xs text-muted-foreground lowercase @3xl:hidden">
+          <div className="text-xs text-muted-foreground lowercase @4xl:hidden">
             {row.original.email}
           </div>
         </div>
@@ -95,7 +95,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'email',
     header: ({ column }) => <SortableHeader column={column} label="Email" />,
-    meta: { className: 'hidden @3xl:table-cell' },
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => <div className="lowercase">{row.original.email}</div>,
   },
   {
@@ -118,7 +118,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     id: 'status',
     header: 'Statut',
-    meta: { className: 'hidden @lg:table-cell' },
+    meta: { className: 'hidden @4xl:table-cell' },
     cell: ({ row }) => {
       const status = accountStatus(row.original);
       return status === 'active' ? (
@@ -130,8 +130,9 @@ const columns: ColumnDef<Features, User>[] = [
   },
   {
     accessorKey: 'createdAt',
+    // Shown before email and status: its header is the one way to sort by sign-up
     header: ({ column }) => <SortableHeader column={column} label="Date d’inscription" />,
-    meta: { className: 'hidden @4xl:table-cell' },
+    meta: { className: 'hidden @2xl:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {

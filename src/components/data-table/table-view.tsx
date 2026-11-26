@@ -154,12 +154,15 @@ export function TablePager({
   outOf?: { count: number; noun: string };
   onPageChange: (page: number) => void;
 }) {
+  const count =
+    outOf && outOf.count !== totalCount
+      ? `${plural(totalCount, outOf.noun)} sur ${outOf.count}`
+      : `${totalCount} au total`;
+
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
-        {totalCount > 0
-          ? `Page ${page} sur ${pageCount} · ${outOf && outOf.count !== totalCount ? `${plural(totalCount, outOf.noun)} sur ${outOf.count}` : `${totalCount} au total`}`
-          : null}
+        {totalCount > 0 ? `Page ${page} sur ${pageCount} · ${count}` : null}
       </div>
       {pageCount > 1 && (
         <div className="flex gap-2">

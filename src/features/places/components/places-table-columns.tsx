@@ -28,11 +28,11 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
             <Badge variant="secondary">Sans position</Badge>
           )}
         </div>
-        {/* In a narrow table, the type, city and works columns are left out */}
+        {/* In a narrow table, the type, city, country and works columns are left out */}
         <p className="text-xs text-muted-foreground @3xl:hidden">
           {[
             PLACE_TYPE_LABELS[row.original.type],
-            row.original.city,
+            [row.original.city, row.original.country].filter(Boolean).join(', '),
             plural(row.original.artworks.length, 'œuvre'),
           ]
             .filter(Boolean)
@@ -51,7 +51,13 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
     id: 'city',
     header: 'Ville',
     meta: { className: 'hidden @3xl:table-cell' },
-    cell: ({ row }) => row.original.city || '—',
+    cell: ({ row }) => (
+      <>
+        {row.original.city || '—'}
+        {/* Until the country column shows */}
+        {row.original.country && <span className="@4xl:hidden">, {row.original.country}</span>}
+      </>
+    ),
   },
   {
     id: 'country',
