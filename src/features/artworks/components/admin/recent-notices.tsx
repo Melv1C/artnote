@@ -52,7 +52,7 @@ export function RecentNotices({ artworks }: { artworks: ReturnType<typeof fetchM
                   thumbnail
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="work-title truncate text-base">{artwork.title}</p>
+                  <p className="work-title text-base leading-snug break-words">{artwork.title}</p>
                   <p className="text-xs text-muted-foreground">
                     Modifiée {formatAgo(artwork.updatedAt)}
                   </p>

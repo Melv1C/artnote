@@ -86,7 +86,7 @@ for (const { label, viewport, phone } of [
 // The notices list switches to columns at about 1226px with the sidebar: the stacked layout
 // below, the columns from there to a wide screen. A long title shows whole at every width, and the
 // modification date never disappears with its column.
-test('an admin reads a long notice title and its date in the list at every width', async ({
+test('an admin reads a long notice title in full, with its date, on every width and the home', async ({
   page,
   signIn,
   db,
@@ -113,6 +113,16 @@ test('an admin reads a long notice title and its date in the list at every width
         );
       expect(cut, `titles cut at ${width}px`).toBe(0);
     }
+
+    // The dashboard home lists it first, to pick the writing back up: whole there too
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/dashboard');
+    const recent = page.getByRole('region', { name: 'Reprendre l’écriture' });
+    await expect(recent.getByText(title)).toBeVisible();
+    const cutOnHome = await recent
+      .locator('.work-title')
+      .evaluateAll(titles => titles.filter(title => title.scrollWidth > title.clientWidth).length);
+    expect(cutOnHome, 'titles cut on the dashboard home').toBe(0);
   } finally {
     await db.artwork.deleteMany({ where: { title } });
   }

@@ -107,11 +107,10 @@ export function ArtworkRowAdmin({ artwork }: { artwork: Artwork }) {
           <time dateTime={updatedAt.toISOString()} title={formatLongDate(updatedAt)}>
             Modifiée {formatAgo(updatedAt)}
           </time>
-          {/* A phone keeps the status and the date */}
-          <span aria-hidden="true" className="hidden @lg:inline">
-            ·
-          </span>
-          <span className="hidden @lg:inline">{plural(viewCount, 'vue')}</span>
+          {/* Views count published notices only; a phone keeps the status and the date */}
+          {status !== ArtworkStatusSchema.enum.DRAFT && (
+            <span className="hidden @lg:inline">· {plural(viewCount, 'vue')}</span>
+          )}
         </div>
       </div>
 
