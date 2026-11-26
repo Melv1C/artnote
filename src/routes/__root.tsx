@@ -4,7 +4,6 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { getUmamiWebsiteId } from '@/features/analytics/actions/umami-config';
 import { useUmamiPageViews } from '@/features/analytics/hooks/use-umami-page-views';
 import { NotFound } from '@/components/layout/not-found';
-import { PullToRefresh } from '@/components/pull-to-refresh';
 import { QueryProvider } from '@/lib/query-provider';
 import {
   DEFAULT_OG_IMAGE,
@@ -112,7 +111,6 @@ function RootDocument({ children }: PropsWithChildren) {
               }}
             />
             <ThemeColor />
-            <PullToRefresh />
           </QueryProvider>
         </ThemeProvider>
         <Scripts />

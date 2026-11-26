@@ -1,3 +1,4 @@
+import { PullToRefresh } from '@/components/pull-to-refresh';
 import { useMatches } from '@tanstack/react-router';
 import { Footer } from './footer';
 import { Header } from './header';
@@ -27,6 +28,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       </main>
       <Footer className={fillsPhoneScreen ? 'max-md:hidden' : undefined} />
       <MobileTabBar />
+      <PullToRefresh />
     </div>
   );
 }
