@@ -13,39 +13,50 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'name',
     header: 'Nom',
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
-      <div className="flex flex-wrap items-center gap-2">
-        <Link
-          to="/dashboard/places/$placeId"
-          params={{ placeId: row.original.id }}
-          className="font-medium hover:underline"
-        >
-          {row.original.name}
-        </Link>
-        {(row.original.latitude === null || row.original.longitude === null) && (
-          <Badge variant="secondary">Sans position</Badge>
-        )}
+      <div>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            to="/dashboard/places/$placeId"
+            params={{ placeId: row.original.id }}
+            className="font-medium hover:underline"
+          >
+            {row.original.name}
+          </Link>
+          {(row.original.latitude === null || row.original.longitude === null) && (
+            <Badge variant="secondary">Sans position</Badge>
+          )}
+        </div>
+        {/* On a phone, the columns left out of the table */}
+        <p className="text-xs text-muted-foreground md:hidden">
+          {[PLACE_TYPE_LABELS[row.original.type], row.original.city].filter(Boolean).join(' · ')}
+        </p>
       </div>
     ),
   },
   {
     id: 'type',
     header: 'Type',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>,
   },
   {
     id: 'city',
     header: 'Ville',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => row.original.city || '—',
   },
   {
     id: 'country',
     header: 'Pays',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => row.original.country || '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => (
       <span className="text-sm text-muted-foreground">
         {plural(row.original.artworks.length, 'œuvre')}
@@ -55,10 +66,12 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <PlaceRowActions place={row.original} />,
   },
 ];

@@ -8,12 +8,34 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import {
   flexRender,
+  type CellData,
+  type Column,
+  type ColumnMeta,
   type RowData,
   type Table as TanStackTable,
   type TableFeatures,
 } from '@tanstack/react-table';
+
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<
+    TFeatures extends TableFeatures,
+    TData extends RowData,
+    TValue extends CellData = CellData,
+  > {
+    /** Classes for the column's header and cells, such as `hidden md:table-cell` to drop it on phones */
+    className?: string;
+  }
+}
+
+function columnClass<TFeatures extends TableFeatures, TRow extends RowData>(
+  column: Column<TFeatures, TRow>,
+) {
+  // Generic over the features, so the meta's type stays unresolved; every table here declares none
+  return (column.columnDef.meta as ColumnMeta<TFeatures, TRow> | undefined)?.className;
+}
 
 interface TableViewProps<TFeatures extends TableFeatures, TRow extends RowData> {
   table: TanStackTable<TFeatures, TRow>;
@@ -29,7 +51,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
   isError,
   messages,
 }: TableViewProps<TFeatures, TRow>) {
-  const columnCount = table.getAllLeafColumns().length;
+  const columns = table.getAllLeafColumns();
 
   if (isError) {
     return (
@@ -52,7 +74,10 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
               {headerGroup.headers.map(header => (
                 <TableHead
                   key={header.id}
-                  className="h-10 px-4 text-xs font-medium text-muted-foreground"
+                  className={cn(
+                    'h-10 px-4 text-xs font-medium text-muted-foreground',
+                    columnClass(header.column),
+                  )}
                 >
                   {header.isPlaceholder
                     ? null
@@ -66,8 +91,8 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
           {isLoading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <TableRow key={index} className="hover:bg-transparent">
-                {Array.from({ length: columnCount }).map((_, cell) => (
-                  <TableCell key={cell} className="h-14 px-4">
+                {columns.map(column => (
+                  <TableCell key={column.id} className={cn('h-14 px-4', columnClass(column))}>
                     <Skeleton className="h-4 w-3/4" />
                   </TableCell>
                 ))}
@@ -77,7 +102,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
             table.getRowModel().rows.map(row => (
               <TableRow key={row.id}>
                 {row.getAllCells().map(cell => (
-                  <TableCell key={cell.id} className="h-14 px-4">
+                  <TableCell key={cell.id} className={cn('h-14 px-4', columnClass(cell.column))}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -85,7 +110,10 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columnCount} className="h-32 text-center text-muted-foreground">
+              <TableCell
+                colSpan={columns.length}
+                className="h-32 text-center text-muted-foreground"
+              >
                 {messages.empty}
               </TableCell>
             </TableRow>
@@ -96,7 +124,7 @@ export function TableView<TFeatures extends TableFeatures, TRow extends RowData>
   );
 }
 
-/** "Page 2 sur 5 · 112 au total" and the Précédent and Suivant buttons. */
+/** "Page 2 sur 5 · 112 au total" and, when there is more than one page, Précédent and Suivant. */
 export function TablePager({
   page,
   pageCount,
@@ -114,24 +142,26 @@ export function TablePager({
       <div className="flex-1 text-sm text-muted-foreground tabular-nums">
         {totalCount > 0 ? `Page ${page} sur ${pageCount} · ${totalCount} au total` : null}
       </div>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
-        >
-          Précédent
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= pageCount}
-        >
-          Suivant
-        </Button>
-      </div>
+      {pageCount > 1 && (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1}
+          >
+            Précédent
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= pageCount}
+          >
+            Suivant
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Painting } from '@/components/painting';
 import { formatAgo } from '@/lib/format';
 import { Link } from '@tanstack/react-router';
+import { ArrowRight } from 'lucide-react';
 import { use } from 'react';
 import type { fetchMyArtworks } from '../../actions/artwork-queries';
 import { mainImage } from '../../lib/artwork-display';
@@ -18,8 +19,11 @@ export function RecentNotices({ artworks }: { artworks: ReturnType<typeof fetchM
         <h2 id="recent-notices" className="font-semibold">
           Reprendre l’écriture
         </h2>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/dashboard/artworks">Toutes mes notices</Link>
+        <Button asChild variant="ghost" size="sm" className="-mr-2 text-primary">
+          <Link to="/dashboard/artworks">
+            Toutes mes notices
+            <ArrowRight aria-hidden="true" />
+          </Link>
         </Button>
       </div>
       {recent.length === 0 ? (

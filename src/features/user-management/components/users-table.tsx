@@ -50,21 +50,38 @@ const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => <SortableHeader column={column} label="Nom" />,
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
         <UserAvatar user={row.original} />
-        <div className="font-medium">{row.original.name}</div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-medium">{row.original.name}</span>
+            {/* On a phone, the status column is left out: only a suspension shows */}
+            {accountStatus(row.original) !== 'active' && (
+              <Badge variant="destructive" className="sm:hidden">
+                {ACCOUNT_STATUS_LABELS[accountStatus(row.original)]}
+              </Badge>
+            )}
+          </div>
+          {/* On a phone, the email column is left out too */}
+          <div className="text-xs text-muted-foreground lowercase md:hidden">
+            {row.original.email}
+          </div>
+        </div>
       </div>
     ),
   },
   {
     accessorKey: 'email',
     header: ({ column }) => <SortableHeader column={column} label="Email" />,
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => <div className="lowercase">{row.original.email}</div>,
   },
   {
     id: 'role',
     header: 'Rôle',
+    meta: { className: 'hidden sm:table-cell' },
     cell: ({ row }) => {
       const role = row.original.role;
       // Quiet badges: colour is kept for what needs attention, a suspension
@@ -81,6 +98,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     id: 'emailVerified',
     header: 'Email vérifié',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) =>
       row.original.emailVerified ? (
         <span className="text-sm">Vérifié</span>
@@ -91,6 +109,7 @@ const columns: ColumnDef<Features, User>[] = [
   {
     id: 'status',
     header: 'Statut',
+    meta: { className: 'hidden sm:table-cell' },
     cell: ({ row }) => {
       const status = accountStatus(row.original);
       return status === 'active' ? (
@@ -103,10 +122,12 @@ const columns: ColumnDef<Features, User>[] = [
   {
     accessorKey: 'createdAt',
     header: ({ column }) => <SortableHeader column={column} label="Date d’inscription" />,
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <UserRowActions user={row.original} />,
   },
 ];

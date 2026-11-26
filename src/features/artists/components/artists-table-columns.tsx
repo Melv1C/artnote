@@ -13,29 +13,39 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'name',
     header: 'Nom',
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
-      <Link
-        to="/dashboard/artists/$artistId"
-        params={{ artistId: row.original.id }}
-        className="font-medium hover:underline"
-      >
-        {artistFullName(row.original)}
-      </Link>
+      <div>
+        <Link
+          to="/dashboard/artists/$artistId"
+          params={{ artistId: row.original.id }}
+          className="font-medium hover:underline"
+        >
+          {artistFullName(row.original)}
+        </Link>
+        {/* On a phone, the one column of figures left out of the table */}
+        <p className="text-xs text-muted-foreground md:hidden">
+          {plural(row.original.artworks.length, 'œuvre')}
+        </p>
+      </div>
     ),
   },
   {
     id: 'birthDate',
     header: 'Date de naissance',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => row.original.birthDate ?? '—',
   },
   {
     id: 'deathDate',
     header: 'Date de décès',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => row.original.deathDate ?? '—',
   },
   {
     id: 'artworks',
     header: 'Œuvres',
+    meta: { className: 'hidden md:table-cell whitespace-normal' },
     cell: ({ row }) => {
       const artworks = row.original.artworks;
       return (
@@ -62,10 +72,12 @@ export const columns: PagedColumnDef<ArtistWithRelations>[] = [
   {
     id: 'createdAt',
     header: 'Créé le',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <ArtistRowActions artist={row.original} />,
   },
 ];

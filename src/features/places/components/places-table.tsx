@@ -35,14 +35,16 @@ export function PlacesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <SearchInput
-          label="Rechercher un lieu"
-          value={filters.search}
-          onChange={value => setFilter('search', value)}
-        />
+      <div className="grid grid-cols-2 gap-3 lg:flex lg:items-center">
+        <div className="col-span-2 flex lg:flex-1">
+          <SearchInput
+            label="Rechercher un lieu"
+            value={filters.search}
+            onChange={value => setFilter('search', value)}
+          />
+        </div>
         <Select value={filters.type} onValueChange={value => setFilter('type', value)}>
-          <SelectTrigger className="w-48" aria-label="Type de lieu">
+          <SelectTrigger className="w-full lg:w-44" aria-label="Type de lieu">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -54,28 +56,29 @@ export function PlacesTable() {
             ))}
           </SelectContent>
         </Select>
+        <Toggle
+          variant="outline"
+          pressed={filters.missingPosition}
+          onPressedChange={pressed => setFilter('missingPosition', pressed)}
+          className="lg:order-last"
+        >
+          <MapPinOff />
+          Sans position
+        </Toggle>
         <Input
           placeholder="Ville"
           aria-label="Filtrer par ville"
           value={filters.city}
           onChange={event => setFilter('city', event.target.value)}
-          className="w-32"
+          className="lg:w-36"
         />
         <Input
           placeholder="Pays"
           aria-label="Filtrer par pays"
           value={filters.country}
           onChange={event => setFilter('country', event.target.value)}
-          className="w-32"
+          className="lg:w-36"
         />
-        <Toggle
-          variant="outline"
-          pressed={filters.missingPosition}
-          onPressedChange={pressed => setFilter('missingPosition', pressed)}
-        >
-          <MapPinOff />
-          Sans position
-        </Toggle>
       </div>
 
       <PagedTable
