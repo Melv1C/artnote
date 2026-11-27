@@ -2,6 +2,7 @@ import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
 import { prisma } from '@/lib/prisma';
+import { idsContaining } from '@/lib/text-search';
 import { IdSchema } from '@/schemas/common';
 import { publishedWhere } from '@/features/artworks/lib/artwork-status';
 import { MapPlaceSchema, PlaceFiltersSchema, PlaceWithRelationsSchema } from '@/schemas/place';
@@ -18,7 +19,12 @@ export const fetchPlaces = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(PlaceFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const where = buildPlaceWhere(filters);
+    const textIds = await Promise.all([
+      idsContaining('place', ['name', 'address', 'city'], filters.search),
+      idsContaining('place', ['city'], filters.city),
+      idsContaining('place', ['country'], filters.country),
+    ]);
+    const where = buildPlaceWhere(filters, textIds);
 
     const [totalCount, places] = await Promise.all([
       prisma.place.count({ where }),

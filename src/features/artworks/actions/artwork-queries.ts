@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { prisma } from '@/lib/prisma';
+import { idsContaining } from '@/lib/text-search';
 import { ArtworkSchema, PublicArtworkSchema } from '@/schemas/artwork';
 import { IdSchema, type ArtworkStatus } from '@/schemas/common';
 import { authorSelect } from '@/schemas/user';
@@ -32,12 +33,17 @@ const publicArtworkInclude = {
 export const fetchFilteredArtworks = createServerFn({ method: 'GET' })
   .validator(ArtworkFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const artworks = await prisma.artwork.findMany({
-      where: buildArtworkWhere(filters),
+    const [artworks, artists, places] = await Promise.all([
+      idsContaining('artwork', ['title', 'medium', 'notice'], filters.search),
+      idsContaining('artist', ['firstName', 'lastName'], filters.search),
+      idsContaining('place', ['name'], filters.search),
+    ]);
+    const found = await prisma.artwork.findMany({
+      where: buildArtworkWhere(filters, { artworks, artists, places }),
       include: publicArtworkInclude,
       orderBy: buildArtworkOrderBy(filters),
     });
-    const parsed = PublicArtworkSchema.array().parse(artworks);
+    const parsed = PublicArtworkSchema.array().parse(found);
     return filters.sort === 'artist' ? sortByFirstArtist(parsed, filters.order) : parsed;
   });
 

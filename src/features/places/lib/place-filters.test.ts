@@ -3,11 +3,14 @@ import { PlaceFiltersSchema, type Place } from '@/schemas/place';
 import { describe, expect, it } from 'vite-plus/test';
 import { buildPlaceWhere } from './place-filters';
 
-type Row = Pick<Place, 'name' | 'type' | 'address' | 'city' | 'country' | 'latitude' | 'longitude'>;
+type Row = Pick<
+  Place,
+  'id' | 'name' | 'type' | 'address' | 'city' | 'country' | 'latitude' | 'longitude'
+>;
 
 /**
  * Whether Postgres would return `row` for `where`, for the conditions the place filters use:
- * equality, `null`, `contains` ignoring case, `AND` and `OR`. Throws on any other condition.
+ * equality, `null`, `in`, `AND` and `OR`. Throws on any other condition.
  */
 function matches(row: Row, where: Prisma.PlaceWhereInput): boolean {
   return Object.entries(where).every(([key, condition]: [string, unknown]) => {
@@ -18,16 +21,14 @@ function matches(row: Row, where: Prisma.PlaceWhereInput): boolean {
     }
     const value = row[key as keyof Row];
     if (condition === null || typeof condition !== 'object') return value === condition;
-    if ('contains' in condition && typeof condition.contains === 'string') {
-      return (
-        typeof value === 'string' && value.toLowerCase().includes(condition.contains.toLowerCase())
-      );
-    }
+    if ('in' in condition && Array.isArray(condition.in)) return condition.in.includes(value);
     throw new Error(`Unsupported condition on ${key}: ${JSON.stringify(condition)}`);
   });
 }
 
+// Each place's id is its name, so the text filters' ids read as names
 const place = (row: Partial<Row> & Pick<Row, 'name' | 'type'>): Row => ({
+  id: row.name,
   address: null,
   city: null,
   country: 'Belgique',
@@ -52,24 +53,24 @@ const places = [
   place({ name: 'Rijksmuseum', type: 'MUSEUM', city: 'Amsterdam', country: 'Pays-Bas' }),
 ];
 
-const found = (input: Parameters<typeof PlaceFiltersSchema.parse>[0]) => {
-  const where = buildPlaceWhere(PlaceFiltersSchema.parse(input));
+const found = (
+  input: Parameters<typeof PlaceFiltersSchema.parse>[0],
+  textIds: (string[] | undefined)[] = [],
+) => {
+  const where = buildPlaceWhere(PlaceFiltersSchema.parse(input), textIds);
   return places.filter(row => matches(row, where)).map(row => row.name);
 };
 
 describe('buildPlaceWhere', () => {
   it('keeps every place without filters', () => {
-    expect(found({})).toHaveLength(places.length);
+    expect(found({}, [undefined, undefined])).toHaveLength(places.length);
   });
 
-  it('filters by exact type and by partial city and country, ignoring case', () => {
-    expect(found({ type: 'MUSEUM', city: 'gand', country: 'belg' })).toEqual(['MSK Gent']);
-  });
-
-  it('searches name, address and city, ignoring case', () => {
-    expect(found({ search: 'msk' })).toEqual(['MSK Gent']);
-    expect(found({ search: 'dijver' })).toEqual(['Musée Groeninge']);
-    expect(found({ search: 'AMSTERDAM' })).toEqual(['Rijksmuseum']);
+  it('keeps the places every text filter matches, of the exact type', () => {
+    const search = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Rijksmuseum'];
+    const city = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
+    expect(found({ type: 'MUSEUM' }, [search, city])).toEqual(['MSK Gent']);
+    expect(found({}, [search, undefined, city])).toEqual(['MSK Gent', 'Cathédrale Saint-Bavon']);
   });
 
   it('keeps only places missing a latitude or a longitude', () => {
@@ -81,8 +82,9 @@ describe('buildPlaceWhere', () => {
     expect(found({ missingPosition: false })).toHaveLength(places.length);
   });
 
-  it('applies the missing position and the search together, neither replacing the other', () => {
-    expect(found({ missingPosition: true, search: 'gand', type: 'CHURCH' })).toEqual([
+  it('applies the missing position and the text filters together, neither replacing the other', () => {
+    const gand = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
+    expect(found({ missingPosition: true, type: 'CHURCH' }, [gand])).toEqual([
       'Église Saint-Michel',
     ]);
   });

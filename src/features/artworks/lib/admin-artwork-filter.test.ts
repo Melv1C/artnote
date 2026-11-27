@@ -55,6 +55,14 @@ describe('filterAdminArtworks', () => {
     ]);
   });
 
+  it('ignores accents both ways', () => {
+    const accented = [artwork('Le Dénombrement de Bethléem'), artwork('Eglise de village')];
+    const search = (text: string) =>
+      titles(filterAdminArtworks(accented, filter({ search: text })));
+    expect(search('denombrement')).toEqual(['Le Dénombrement de Bethléem']);
+    expect(search('ÉGLISE')).toEqual(['Eglise de village']);
+  });
+
   it('filters by creation date, inclusive of the whole end day', () => {
     expect(
       titles(

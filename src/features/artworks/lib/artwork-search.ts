@@ -1,6 +1,5 @@
 import { artistFullName } from '@/features/artists/lib/artist-name';
 import type { Prisma } from '@/generated/prisma/client';
-import { containsInsensitive as contains } from '@/lib/prisma-filters';
 import { SearchTextSchema } from '@/schemas/common';
 import { publishedWhere } from './artwork-status';
 import { z } from '@/lib/zod';
@@ -55,30 +54,30 @@ export const toArtworkFilters = (search: ArtworksSearch): ArtworkFilters => ({
   order: search.order,
 });
 
-const artistNamed = (name: string): Prisma.ArtworkWhereInput => ({
-  artists: {
-    some: {
-      OR: [{ artist: { firstName: contains(name) } }, { artist: { lastName: contains(name) } }],
-    },
-  },
-});
+/** Ids of the rows the search matches, from `idsContaining`; `undefined` without a search. */
+export type ArtworkSearchIds = {
+  /** Notices whose title, medium or text contains the search */
+  artworks?: string[];
+  /** Artists whose first or last name contains it */
+  artists?: string[];
+  /** Places whose name contains it */
+  places?: string[];
+};
 
-/** Prisma `where` for published notices matching `filters`. */
+/** Prisma `where` for published notices matching `filters`, given the rows the search matches. */
 export function buildArtworkWhere(
-  filters: z.output<typeof ArtworkFiltersSchema>,
+  { place }: z.output<typeof ArtworkFiltersSchema>,
+  found: ArtworkSearchIds,
 ): Prisma.ArtworkWhereInput {
-  const { search, place } = filters;
   return {
     ...publishedWhere,
     AND: [
-      search
+      found.artworks
         ? {
             OR: [
-              { title: contains(search) },
-              artistNamed(search),
-              { place: { name: contains(search) } },
-              { medium: contains(search) },
-              { notice: contains(search) },
+              { id: { in: found.artworks } },
+              { artists: { some: { artistId: { in: found.artists ?? [] } } } },
+              { placeId: { in: found.places ?? [] } },
             ],
           }
         : {},
