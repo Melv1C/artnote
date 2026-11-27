@@ -43,7 +43,7 @@ const envSchema = z
     // production only; where it is unset, no tracker loads and nothing is measured.
     UMAMI_WEBSITE_ID: z.uuid().optional(),
     // `true` in production only: elsewhere (staging, previews, the dev server) every response
-    // carries `X-Robots-Tag: noindex` and /robots.txt disallows everything.
+    // carries `X-Robots-Tag: noindex, nofollow` and /robots.txt disallows everything.
     ALLOW_INDEXING: z.stringbool().default(false),
   })
   .superRefine((env, ctx) => {
