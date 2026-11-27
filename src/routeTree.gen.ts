@@ -15,6 +15,7 @@ import { Route as CarteRouteImport } from './routes/carte'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
@@ -60,6 +61,11 @@ const DashboardRouteRoute = DashboardRouteRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksIndexRoute = ArtworksIndexRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
+    | '/robots.txt'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
+    | '/robots.txt'
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
+    | '/robots.txt'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   CarteRoute: typeof CarteRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPruneViewRecordsRoute: typeof ApiCronPruneViewRecordsRoute
@@ -348,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/': {
@@ -504,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   CarteRoute: CarteRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPruneViewRecordsRoute: ApiCronPruneViewRecordsRoute,
@@ -515,10 +536,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

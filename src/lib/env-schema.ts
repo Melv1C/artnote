@@ -42,6 +42,9 @@ const envSchema = z
     // Umami Cloud website id (ADR 0010). Not a secret: it ends up in page HTML. Set in
     // production only; where it is unset, no tracker loads and nothing is measured.
     UMAMI_WEBSITE_ID: z.uuid().optional(),
+    // `true` in production only: elsewhere (staging, previews, the dev server) every response
+    // carries `X-Robots-Tag: noindex` and /robots.txt disallows everything.
+    ALLOW_INDEXING: z.stringbool().default(false),
   })
   .superRefine((env, ctx) => {
     // Only a local dev server may fall back to the public dev secret

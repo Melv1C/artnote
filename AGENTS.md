@@ -169,7 +169,7 @@ Audience measurement uses Umami Cloud (ADR 0010, which supersedes ADR 0004). The
 
 ## Environment
 
-Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. With `NODE_ENV=production` (the Docker image) the server refuses to start without `BETTER_AUTH_SECRET`. On a Dokploy preview, `DOKPLOY_DEPLOY_URL` replaces `BASE_URL`. The `S3_*` variables are all set or all unset; without them uploads fail. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered.
+Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. With `NODE_ENV=production` (the Docker image) the server refuses to start without `BETTER_AUTH_SECRET`. On a Dokploy preview, `DOKPLOY_DEPLOY_URL` replaces `BASE_URL`. The `S3_*` variables are all set or all unset; without them uploads fail. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered. `ALLOW_INDEXING=true` is set in production only and decides what "production" means for search engines: without it (staging, previews, the dev server) every response carries `X-Robots-Tag: noindex, nofollow` (`src/start.ts`) and `/robots.txt` disallows everything (`src/lib/search-indexing.ts`).
 
 ## Database
 

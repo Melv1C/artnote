@@ -72,7 +72,7 @@ To release, run the **Release** workflow from the Actions tab on `main` and pick
 
 To roll back, run the **Rollback** workflow with an earlier tag (`gh workflow run rollback.yml -f tag=v1.2.0`). It moves `production` to that tag and changes nothing else.
 
-Each Dokploy app sets these variables (`src/lib/env-schema.ts`): `BASE_URL`, `PRISMA_DATABASE_URL`, `BETTER_AUTH_SECRET`, `CRON_SECRET`, `CLIENT_IP_HEADER=x-real-ip`, the five `S3_*` variables, and `UMAMI_WEBSITE_ID` in production only. Previews get staging's values; Dokploy adds `DOKPLOY_DEPLOY_URL`, which replaces `BASE_URL`. A Dokploy schedule on production and staging calls the nightly cron from inside the container:
+Each Dokploy app sets these variables (`src/lib/env-schema.ts`): `BASE_URL`, `PRISMA_DATABASE_URL`, `BETTER_AUTH_SECRET`, `CRON_SECRET`, `CLIENT_IP_HEADER=x-real-ip`, the five `S3_*` variables, and `UMAMI_WEBSITE_ID` and `ALLOW_INDEXING=true` in production only (without it, search engines are told not to index the site). Previews get staging's values; Dokploy adds `DOKPLOY_DEPLOY_URL`, which replaces `BASE_URL`. A Dokploy schedule on production and staging calls the nightly cron from inside the container:
 
 ```bash
 node -e "fetch('http://localhost:3000/api/cron/prune-view-records',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}}).then(r=>r.text()).then(console.log)"

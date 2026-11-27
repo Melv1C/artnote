@@ -56,4 +56,11 @@ describe('parseEnv', () => {
     });
     expect(() => parseEnv({ ...DATABASE, S3_BUCKET: 'artnote' })).toThrow(/S3_ENDPOINT/);
   });
+
+  it('allows search engine indexing only where ALLOW_INDEXING is true', () => {
+    expect(parseEnv(DATABASE).ALLOW_INDEXING).toBe(false);
+    expect(parseEnv({ ...DATABASE, ALLOW_INDEXING: 'true' }).ALLOW_INDEXING).toBe(true);
+    expect(parseEnv({ ...DATABASE, ALLOW_INDEXING: 'false' }).ALLOW_INDEXING).toBe(false);
+    expect(() => parseEnv({ ...DATABASE, ALLOW_INDEXING: 'yes please' })).toThrow(/ALLOW_INDEXING/);
+  });
 });
