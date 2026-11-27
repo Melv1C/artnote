@@ -13,8 +13,8 @@ test.describe('a reader on a phone', () => {
     await expect(page).toHaveURL(/\/artworks$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Notices' })).toBeVisible();
 
-    await tabs.getByRole('link', { name: 'À propos' }).click();
-    await expect(page).toHaveURL(/\/about$/);
+    await tabs.getByRole('link', { name: 'Carte' }).click();
+    await expect(page).toHaveURL(/\/carte$/);
   });
 
   test('searches the notices and clears a search that finds nothing', async ({ page }) => {
