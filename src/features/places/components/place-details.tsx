@@ -1,3 +1,4 @@
+import { noticeParams } from '@/features/artworks/lib/notice-slug';
 import { plural } from '@/lib/format';
 import { Painting } from '@/components/painting';
 import { cn } from '@/lib/utils';
@@ -52,8 +53,8 @@ export function PlaceDetails({ place, onClose, className, ref }: PlaceDetailsPro
         {place.notices.map(notice => (
           <li key={notice.id}>
             <Link
-              to="/artworks/$artworkId"
-              params={{ artworkId: notice.id }}
+              to="/artworks/$artworkId/$slug"
+              params={noticeParams(notice)}
               className="-mx-1.5 flex items-center gap-3 rounded-md p-1.5 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
             >
               <Painting

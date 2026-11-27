@@ -124,7 +124,9 @@ test.describe('the map of places', () => {
     await expect(details.getByRole('link', { name: /^Voir les/ })).toHaveCount(0);
 
     await details.getByRole('link', { name: notices.icarus.title }).click();
-    await expect(page).toHaveURL(new RegExp(`/artworks/${notices.icarus.id}$`));
+    await expect(page).toHaveURL(
+      new RegExp(`/artworks/${notices.icarus.id}/paysage-avec-la-chute-d-icare$`),
+    );
     await expect(page.getByRole('heading', { level: 1, name: notices.icarus.title })).toBeVisible();
   });
 });

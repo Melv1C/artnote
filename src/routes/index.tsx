@@ -1,3 +1,4 @@
+import { noticeParams } from '@/features/artworks/lib/notice-slug';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchLatestPublishedArtworks } from '@/features/artworks/actions/artwork-queries';
@@ -67,8 +68,8 @@ function FeaturedNotice({ artwork }: { artwork: PublicArtwork }) {
   const artistAndDate = cartelLine(artwork, ['artist', 'year']);
   return (
     <Link
-      to="/artworks/$artworkId"
-      params={{ artworkId: artwork.id }}
+      to="/artworks/$artworkId/$slug"
+      params={noticeParams(artwork)}
       className="group -mx-4 block outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mx-0 sm:rounded-3xl"
     >
       <Painting
