@@ -22,6 +22,19 @@ test.describe('a reader', () => {
     await expect(page.getByText('Icare, lui, disparaît')).toBeVisible();
   });
 
+  test('lands on the URL with the slug from an old or outdated link', async ({ page }) => {
+    const url = new RegExp(`/artworks/${notices.icarus.id}/paysage-avec-la-chute-d-icare$`);
+    for (const link of [`/artworks/${notices.icarus.id}`, `/artworks/${notices.icarus.id}/old`]) {
+      const response = await page.request.get(link, { maxRedirects: 0 });
+      expect(response.status()).toBe(301);
+      await page.goto(link);
+      await expect(page).toHaveURL(url);
+      await expect(
+        page.getByRole('heading', { level: 1, name: notices.icarus.title }),
+      ).toBeVisible();
+    }
+  });
+
   test("counts a view without changing the notice's modified date", async ({ page, db }) => {
     const where = { id: notices.icarus.id };
     const before = await db.artwork.findUniqueOrThrow({ where });

@@ -1,3 +1,4 @@
+import { noticeParams } from '@/features/artworks/lib/notice-slug';
 import type { PublicArtwork } from '@/schemas/artwork';
 import { Link } from '@tanstack/react-router';
 import { artistNames, cartelLine, mainImage } from '../lib/artwork-display';
@@ -17,14 +18,14 @@ interface ArtworkCardProps {
  */
 export function ArtworkCard({ artwork, priority, headingLevel = 2 }: ArtworkCardProps) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
-  const { id, title, images, artists } = artwork;
+  const { title, images, artists } = artwork;
   const artist = artistNames(artists);
   const dateAndPlace = cartelLine(artwork, ['year', 'place']);
 
   return (
     <Link
-      to="/artworks/$artworkId"
-      params={{ artworkId: id }}
+      to="/artworks/$artworkId/$slug"
+      params={noticeParams(artwork)}
       className="group flex flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
     >
       <Painting
