@@ -7,6 +7,15 @@ test.describe('a reader', () => {
     await expect(page.getByText(notices.empire.title)).toHaveCount(0);
   });
 
+  test('sees every notice, newest first, from the home page', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Tout voir' }).click();
+    await expect(page).toHaveURL(/\/artworks\?sort=published&order=desc$/);
+    await expect(page.getByRole('combobox', { name: 'Trier les notices' })).toHaveText(
+      'Dernières publiées',
+    );
+  });
+
   test('reads a published notice', async ({ page }) => {
     await page.goto(`/artworks/${notices.icarus.id}`);
     await expect(page.getByRole('heading', { level: 1, name: notices.icarus.title })).toBeVisible();

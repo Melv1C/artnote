@@ -21,8 +21,5 @@
       "purpose": "maskable"
     }
   ],
-  "shortcuts": [
-    { "name": "Toutes les notices", "url": "/artworks" },
-    { "name": "Nouveautés", "url": "/whats-new" }
-  ]
+  "shortcuts": [{ "name": "Toutes les notices", "url": "/artworks" }]
 }

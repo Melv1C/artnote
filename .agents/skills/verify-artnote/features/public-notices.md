@@ -1,21 +1,20 @@
 # Public notices
 
-Readers, signed in or not, browse published notices: the home page with the latest ones, the list at `/artworks` with search and sort, "Nouveautés" (`/whats-new`), and each notice's page with its details, notice text and writer. Drafts and archived notices are never shown.
+Readers, signed in or not, browse published notices: the home page with the latest ones, the list at `/artworks` with search and sort, and each notice's page with its details, notice text and writer. Drafts and archived notices are never shown.
 
 ## Sub-features
 
-- `public-home` the home page (`heading "La peinture dans tout son art"`) has the "Parcourir les notices" link, a "Dernière notice" card linking to the newest notice, and "Publiées récemment" with a "Tout voir" link to `/whats-new`.
+- `public-home` the home page (`heading "La peinture dans tout son art"`) has the "Parcourir les notices" link, a "Dernière notice" card linking to the newest notice, and "Publiées récemment" with a "Tout voir" link to `/artworks?sort=published&order=desc`.
 - `public-list` `/artworks` (`heading "Notices"`) lists every published notice with its count ("3 notices" on the seed, also in a `status` live region).
 - `public-search` the searchbox "Rechercher une notice" matches title, artist name, place name, technique and notice text, and writes `?search=` into the URL; "Effacer la recherche" clears it. No result: `heading "Aucune notice ne correspond"` and `link "Voir toutes les notices"`.
 - `public-sort` the combobox "Trier les notices" (default "Titre, de A à Z"; also by artist, creation year and publication date, each both ways) writes `?sort=&order=`.
 - `public-notice` a notice page shows the artist, the title as `h1`, the year, technique and dimensions, `region "Notice"`, `region "Où voir l’œuvre"` with the place and `link "Itinéraire (nouvel onglet)"`, and "Notice rédigée par <writer>". The role "peintre" is not shown.
-- `public-whats-new` `/whats-new` (`heading "Nouveautés"`) lists up to 12 notices, newest published first, each with "Publiée le <date>".
 - `public-draft-hidden` a draft's URL shows the not-found page.
 
 ## How to get to it (user POV)
 
-- Header navigation "Navigation principale": "Notices", "Carte", "Nouveautés", "À propos". On a phone the same names sit in a bottom tab bar, plus "Accueil".
-- On the home page: "Parcourir les notices" (`/artworks`), the "Dernière notice" card (the notice), "Tout voir" (`/whats-new`).
+- Header navigation "Navigation principale": "Notices", "Carte", "À propos". On a phone the same names sit in a bottom tab bar, plus "Accueil".
+- On the home page: "Parcourir les notices" (`/artworks`), the "Dernière notice" card (the notice), "Tout voir" (`/artworks?sort=published&order=desc`).
 - A card in a list opens `/artworks/<id>`.
 
 ## Driving it with playwright-cli
@@ -30,8 +29,7 @@ Preconditions:
 - **Sort.** `click "getByRole('button', { name: 'Effacer la recherche' })"`, `click "getByRole('combobox', { name: 'Trier les notices' })"`, `click "getByRole('option', { name: 'Dernières publiées' })"`. The URL becomes `/artworks?sort=published&order=desc` and the first card is "L’Adoration de l’Agneau mystique".
 - **Notice page.** `click "getByRole('link', { name: /Paysage avec la chute d’Icare/ })"`. URL `/artworks/seed-artwork-icarus`; `heading "Paysage avec la chute d’Icare"` level 1, "Pieter Bruegel l’Ancien", "vers 1560", the paragraph "Au premier plan, un laboureur…" in `region "Notice"`, `region "Où voir l’œuvre"` with "Musées royaux des Beaux-Arts de Belgique" and `link "Itinéraire (nouvel onglet)"`, "Notice rédigée par" Admin ArtNote. Save snapshot and screenshot.
 - **Draft hidden.** `goto "$U/artworks/seed-artwork-empire"`: `heading "Page introuvable"`, `link "Parcourir les notices"` and `link "Retour à l’accueil"`.
-- **Nouveautés.** `goto "$U/whats-new"`: `heading "Nouveautés"`, the 3 published notices from the newest ("L’Adoration de l’Agneau mystique") down, each with "Publiée le".
-- **Proof.** Snapshots of the home, the list, the search result, the notice page, the 404 and `/whats-new`, in `$E`.
+- **Proof.** Snapshots of the home, the list, the search result, the notice page, and the 404, in `$E`.
 
 ## Gotchas
 

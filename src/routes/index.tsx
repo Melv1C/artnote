@@ -117,7 +117,8 @@ function Recent({ latest }: { latest: Latest }) {
           Publiées récemment
         </h2>
         <Link
-          to="/whats-new"
+          to="/artworks"
+          search={{ sort: 'published', order: 'desc' }}
           className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           Tout voir

@@ -1,24 +1,15 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PublicArtwork } from '@/schemas/artwork';
-import type { ReactNode } from 'react';
 import { ArtworkCard } from './artwork-card';
 
 const GRID = 'grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3';
 
 /** Notices as cards, one to three a row. The first two cards, at the top, load their image at once. */
-export function ArtworkGrid({
-  artworks,
-  above,
-}: {
-  artworks: PublicArtwork[];
-  /** A line above each card, such as its publication date */
-  above?: (artwork: PublicArtwork) => ReactNode;
-}) {
+export function ArtworkGrid({ artworks }: { artworks: PublicArtwork[] }) {
   return (
     <ul className={GRID}>
       {artworks.map((artwork, index) => (
-        <li key={artwork.id} className={above && 'flex flex-col gap-3'}>
-          {above?.(artwork)}
+        <li key={artwork.id}>
           <ArtworkCard artwork={artwork} priority={index < 2} />
         </li>
       ))}
@@ -26,12 +17,12 @@ export function ArtworkGrid({
   );
 }
 
-export function ArtworkGridSkeleton({ count = 6 }: { count?: number }) {
+export function ArtworkGridSkeleton() {
   return (
     <div aria-busy="true" aria-label="Chargement des notices">
       <Skeleton className="mb-6 h-4 w-32" />
       <div className={GRID}>
-        {Array.from({ length: count }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <div key={i}>
             <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
             <div className="space-y-2 px-1 pt-4">

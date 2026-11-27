@@ -5,7 +5,7 @@ description: Launch this worktree's ArtNote web app (TanStack Start dev server, 
 
 # Verify ArtNote
 
-ArtNote is one web app: public pages (`/`, `/artworks`, `/artworks/<id>`, `/carte`, `/whats-new`, `/about`, `/confidentialite`) for readers, and `/dashboard` for admins who write notices. There is no CLI or public API to drive; every server call is a TanStack `createServerFn` behind the UI, so verification goes through the browser. The UI is French: every handle below is a French accessible name, copy it exactly (typographic apostrophes `’` included).
+ArtNote is one web app: public pages (`/`, `/artworks`, `/artworks/<id>`, `/carte`, `/about`, `/confidentialite`) for readers, and `/dashboard` for admins who write notices. There is no CLI or public API to drive; every server call is a TanStack `createServerFn` behind the UI, so verification goes through the browser. The UI is French: every handle below is a French accessible name, copy it exactly (typographic apostrophes `’` included).
 
 Everything here is per worktree: its own database (`artnote_<folder>`), its own port (`BASE_URL` in `.env`, 3100–3999), shared Postgres and MinIO containers. Two worktrees can be verified side by side. Inside one worktree there is one instance; never start a second.
 
