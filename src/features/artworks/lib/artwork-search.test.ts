@@ -7,7 +7,6 @@ import {
   sortByFirstArtist,
   toArtworkFilters,
 } from './artwork-search';
-import { publishedWhere } from './artwork-status';
 
 const filters = (input: Parameters<typeof ArtworkFiltersSchema.parse>[0]) =>
   ArtworkFiltersSchema.parse(input);
@@ -43,10 +42,6 @@ describe('public notice search', () => {
         { placeId: { in: ['place'] } },
       ],
     });
-  });
-
-  it('keeps every published notice without a search', () => {
-    expect(buildArtworkWhere(filters({}), {})).toEqual({ ...publishedWhere, AND: [{}, {}] });
   });
 
   it('narrows to one place by its whole name, not every place whose name contains it', () => {

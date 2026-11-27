@@ -83,11 +83,7 @@ export function inStatusView(view: ArtworkStatusView, status: ArtworkStatus): bo
 }
 
 /** `text` in lower case without accents, so a search ignores both. */
-const fold = (text: string) =>
-  text
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
+const fold = (text: string) => text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
 // A date-only string parses as UTC midnight; with a time it parses in the writer's own time zone
 const startOfDay = (isoDate: string) => new Date(`${isoDate}T00:00:00`);
