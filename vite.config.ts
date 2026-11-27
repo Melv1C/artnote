@@ -72,6 +72,7 @@ export default defineConfig(({ mode }) => {
       jsPlugins: [
         '@tanstack/eslint-plugin-router',
         { name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' },
+        { name: 'landmines', specifier: '@interfere/landmines' },
       ],
       categories: {
         correctness: 'error',
@@ -85,6 +86,12 @@ export default defineConfig(({ mode }) => {
         '@tanstack/router/create-route-property-order': 'error',
         '@tanstack/router/route-param-names': 'error',
         'vite-plus/prefer-vite-plus-imports': 'error',
+        'landmines/no-test-doubles': 'error',
+        'landmines/no-flake-masking': 'error',
+        'landmines/no-conditional-expect': 'error',
+        'landmines/no-silent-catch': 'error',
+        'landmines/no-parameter-branch': 'error',
+        'landmines/no-imported-mutation': 'error',
         'no-unused-vars': [
           'error',
           {
