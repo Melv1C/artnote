@@ -24,7 +24,8 @@ export default defineConfig({
   webServer: {
     command: 'vpx scripts/e2e-database.ts && vp dev',
     url: env.BASE_URL,
-    env,
+    // Views are counted only for requests carrying this header (reading.spec.ts sends it)
+    env: { ...env, CLIENT_IP_HEADER: 'x-real-ip' },
     // Never reuse a server: it would run on data this run did not seed
     reuseExistingServer: false,
     timeout: 180_000,
