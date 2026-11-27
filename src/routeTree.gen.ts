@@ -15,7 +15,6 @@ import { Route as CarteRouteImport } from './routes/carte'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as WhatsNewRouteImport } from './routes/whats-new'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
@@ -61,11 +60,6 @@ const DashboardRouteRoute = DashboardRouteRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WhatsNewRoute = WhatsNewRouteImport.update({
-  id: '/whats-new',
-  path: '/whats-new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksIndexRoute = ArtworksIndexRouteImport.update({
@@ -159,7 +153,6 @@ export interface FileRoutesByFullPath {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -183,7 +176,6 @@ export interface FileRoutesByTo {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -209,7 +201,6 @@ export interface FileRoutesById {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -236,7 +227,6 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -260,7 +250,6 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
@@ -285,7 +274,6 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -311,7 +299,6 @@ export interface RootRouteChildren {
   CarteRoute: typeof CarteRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
-  WhatsNewRoute: typeof WhatsNewRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPruneViewRecordsRoute: typeof ApiCronPruneViewRecordsRoute
@@ -361,13 +348,6 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/whats-new': {
-      id: '/whats-new'
-      path: '/whats-new'
-      fullPath: '/whats-new'
-      preLoaderRoute: typeof WhatsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/': {
@@ -524,7 +504,6 @@ const rootRouteChildren: RootRouteChildren = {
   CarteRoute: CarteRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
-  WhatsNewRoute: WhatsNewRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPruneViewRecordsRoute: ApiCronPruneViewRecordsRoute,

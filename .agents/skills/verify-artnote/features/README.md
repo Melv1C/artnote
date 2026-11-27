@@ -33,7 +33,7 @@ Each file has an H1, one paragraph of user-visible behavior, then exactly four H
 
 - [Sign-in and access](./sign-in.md): header sign-in dialog, the four seeded roles, dashboard refusal, sign-out.
 - [Dashboard notices](./dashboard-notices.md): a writer creates, edits, publishes and deletes their own notices; another writer cannot see them.
-- [Public notices](./public-notices.md): the home page, the reader's notice list, search and sort, the notice page, "Nouveautés", and drafts kept private.
+- [Public notices](./public-notices.md): the home page, the reader's notice list, search and sort, the notice page, and drafts kept private.
 - [Places map](./places-map.md): `/carte`, a marker per place with its published notices, and the place details on desktop and phone.
 - [Places and artists](./places-artists.md): server-paginated dashboard tables with filters, create forms (a place needs a position) and row actions.
 
