@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vite-plus/test';
  */
 const PUBLIC_SERVER_FUNCTIONS = new Set([
   'fetchFilteredArtworks', // public notices list
-  'fetchLatestPublishedArtworks', // home and "what's new"
+  'fetchLatestPublishedArtworks', // home
   'fetchPublishedArtwork', // public notice page
   'fetchMapPlaces', // public map: places with published notices, public fields only
   'recordNoticeView', // view counter, published notices only
