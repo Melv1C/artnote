@@ -55,6 +55,7 @@ To verify a change: run `vp run check` and commit any `src/routeTree.gen.ts` cha
 
 `e2e/*.spec.ts` drive the real app in Chromium through Playwright (`playwright.config.ts`): sign-ins, access to the dashboard, notice ownership (ADR 0003), publishing and reading. Each run recreates a database of its own, `<this worktree's database>_e2e` (`scripts/e2e-database.ts`: drop, create, `migrate deploy`, seed), and starts `vp dev` on the dev port plus 1000 (`scripts/e2e-env.ts`), so tests may create and change data freely without touching the worktree's database or its dev server.
 
+- Run one spec with `vp run test:e2e e2e/<name>.spec.ts`. Don't add `--`: with it, Playwright drops the filter and runs the whole suite.
 - Import `test` and `expect` from `e2e/fixtures.ts`, not `@playwright/test`. Its `signIn('admin' | 'writer' | 'user' | 'banned')` fixture signs in through Better Auth's endpoint; `notices` and `places` name the seed rows (`prisma/seed-data.ts`, which the seed writes from); `startNotice` opens the notice editor with a title.
 - Leave the seed as you found it: change an account `newReader` signed up for the test, a record the test created, or restore the row through the `db` fixture. CI does not retry a failed test.
 - Find elements by role, label or the French text a reader sees. Before typing into a form, `await page.waitForLoadState('networkidle')`: text typed before React hydrates the page is lost.
