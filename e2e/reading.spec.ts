@@ -22,6 +22,30 @@ test.describe('a reader', () => {
     await expect(page.getByText('Icare, lui, disparaît')).toBeVisible();
   });
 
+  test("counts a view without changing the notice's modified date", async ({ page, db }) => {
+    const where = { id: notices.icarus.id };
+    const before = await db.artwork.findUniqueOrThrow({ where });
+    await page.setExtraHTTPHeaders({ 'x-real-ip': '203.0.113.7' });
+    try {
+      await page.goto(`/artworks/${notices.icarus.id}`);
+      await expect
+        .poll(async () => (await db.artwork.findUniqueOrThrow({ where })).viewCount)
+        .toBe(before.viewCount + 1);
+      const after = await db.artwork.findUniqueOrThrow({ where });
+      expect(after.updatedAt).toEqual(before.updatedAt);
+    } finally {
+      await db.pageView.deleteMany({ where: { artworkId: notices.icarus.id } });
+      await db.artwork.update({
+        where,
+        data: {
+          viewCount: before.viewCount,
+          lastViewedAt: before.lastViewedAt,
+          updatedAt: before.updatedAt,
+        },
+      });
+    }
+  });
+
   test('cannot open a draft notice', async ({ page }) => {
     await page.goto(`/artworks/${notices.empire.id}`);
     await expect(page.getByText('Page introuvable')).toBeVisible();
