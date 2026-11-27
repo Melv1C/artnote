@@ -82,6 +82,13 @@ export function inStatusView(view: ArtworkStatusView, status: ArtworkStatus): bo
   return Boolean(ARTWORK_STATUS_VIEWS.find(({ id }) => id === view)?.statuses.includes(status));
 }
 
+/** `text` in lower case without accents, so a search ignores both. */
+const fold = (text: string) =>
+  text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase();
+
 // A date-only string parses as UTC midnight; with a time it parses in the writer's own time zone
 const startOfDay = (isoDate: string) => new Date(`${isoDate}T00:00:00`);
 const endOfDay = (isoDate: string) => new Date(`${isoDate}T23:59:59.999`);
@@ -108,7 +115,7 @@ export function filterAdminArtworks<T extends FilterableArtwork>(
   artworks: T[],
   filter: AdminArtworkFilter,
 ): T[] {
-  const search = filter.search.trim().toLowerCase();
+  const search = fold(filter.search.trim());
   const after = filter.createdAfter ? startOfDay(filter.createdAfter) : null;
   const before = filter.createdBefore ? endOfDay(filter.createdBefore) : null;
   const direction = filter.sortOrder === 'asc' ? 1 : -1;
@@ -118,8 +125,8 @@ export function filterAdminArtworks<T extends FilterableArtwork>(
     .filter(
       artwork =>
         !search ||
-        [artwork.title, artwork.medium, artwork.creationYear].some(field =>
-          field?.toLowerCase().includes(search),
+        [artwork.title, artwork.medium, artwork.creationYear].some(
+          field => field && fold(field).includes(search),
         ),
     )
     .filter(artwork => !after || artwork.createdAt >= after)

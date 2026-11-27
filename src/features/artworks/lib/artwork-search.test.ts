@@ -7,6 +7,7 @@ import {
   sortByFirstArtist,
   toArtworkFilters,
 } from './artwork-search';
+import { publishedWhere } from './artwork-status';
 
 const filters = (input: Parameters<typeof ArtworkFiltersSchema.parse>[0]) =>
   ArtworkFiltersSchema.parse(input);
@@ -23,26 +24,33 @@ describe('public notice search', () => {
   });
 
   it('only ever matches published notices', () => {
-    const where = buildArtworkWhere(filters({ search: 'Ensor', place: 'Musée Magritte' }));
+    const where = buildArtworkWhere(filters({ search: 'Ensor', place: 'Musée Magritte' }), {
+      artworks: ['a'],
+    });
     expect(where).toMatchObject({ status: 'PUBLISHED', publishedAt: { not: null } });
   });
 
-  it('searches the title, artists, place, medium and text of a notice', () => {
-    const text = { contains: 'Beaux-Arts', mode: 'insensitive' };
-    const where = buildArtworkWhere(filters({ search: 'Beaux-Arts' }));
+  it('matches a notice the search finds in itself, one of its artists or its place', () => {
+    const where = buildArtworkWhere(filters({ search: 'Beaux-Arts' }), {
+      artworks: ['notice'],
+      artists: ['artist'],
+      places: ['place'],
+    });
     expect(where.AND).toContainEqual({
-      OR: expect.arrayContaining([
-        { title: text },
-        { place: { name: text } },
-        { medium: text },
-        { notice: text },
-        expect.objectContaining({ artists: expect.anything() }),
-      ]),
+      OR: [
+        { id: { in: ['notice'] } },
+        { artists: { some: { artistId: { in: ['artist'] } } } },
+        { placeId: { in: ['place'] } },
+      ],
     });
   });
 
+  it('keeps every published notice without a search', () => {
+    expect(buildArtworkWhere(filters({}), {})).toEqual({ ...publishedWhere, AND: [{}, {}] });
+  });
+
   it('narrows to one place by its whole name, not every place whose name contains it', () => {
-    const where = buildArtworkWhere(filters({ place: 'Musée Magritte' }));
+    const where = buildArtworkWhere(filters({ place: 'Musée Magritte' }), {});
     expect(where.AND).toContainEqual({
       place: { name: { equals: 'Musée Magritte', mode: 'insensitive' } },
     });
