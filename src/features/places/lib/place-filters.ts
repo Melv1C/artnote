@@ -7,14 +7,11 @@ import type { PlaceFiltersSchema } from '@/schemas/place';
  * come as `textIds`: for each one given, the ids of the places it matches (`idsContaining`).
  */
 export function buildPlaceWhere(
-  { type, missingPosition }: z.output<typeof PlaceFiltersSchema>,
+  { type }: z.output<typeof PlaceFiltersSchema>,
   textIds: (string[] | undefined)[],
 ): Prisma.PlaceWhereInput {
   return {
     ...(type && { type }),
-    AND: [
-      ...textIds.flatMap(ids => (ids ? [{ id: { in: ids } }] : [])),
-      ...(missingPosition ? [{ OR: [{ latitude: null }, { longitude: null }] }] : []),
-    ],
+    AND: textIds.flatMap(ids => (ids ? [{ id: { in: ids } }] : [])),
   };
 }

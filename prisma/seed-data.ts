@@ -66,13 +66,14 @@ export const seedPlaces = {
     latitude: 50.8428,
     longitude: 4.3586,
   },
-  // No position yet, as places written before positions were required
   groeninge: {
     id: 'seed-place-groeninge',
     name: 'Musée Groeninge',
     type: 'MUSEUM',
     city: 'Bruges',
     country: 'Belgique',
+    latitude: 51.2049,
+    longitude: 3.2248,
   },
 } satisfies Record<string, { type: PlaceType; [field: string]: unknown }>;
 

@@ -3,21 +3,16 @@ import { PlaceFiltersSchema, type Place } from '@/schemas/place';
 import { describe, expect, it } from 'vite-plus/test';
 import { buildPlaceWhere } from './place-filters';
 
-type Row = Pick<
-  Place,
-  'id' | 'name' | 'type' | 'address' | 'city' | 'country' | 'latitude' | 'longitude'
->;
+type Row = Pick<Place, 'id' | 'name' | 'type' | 'address' | 'city' | 'country'>;
 
 /**
  * Whether Postgres would return `row` for `where`, for the conditions the place filters use:
- * equality, `null`, `in`, `AND` and `OR`. Throws on any other condition.
+ * equality, `in` and `AND`. Throws on any other condition.
  */
 function matches(row: Row, where: Prisma.PlaceWhereInput): boolean {
   return Object.entries(where).every(([key, condition]: [string, unknown]) => {
-    if (key === 'AND' || key === 'OR') {
-      const conditions = [condition].flat() as Prisma.PlaceWhereInput[];
-      const met = (each: Prisma.PlaceWhereInput) => matches(row, each);
-      return key === 'AND' ? conditions.every(met) : conditions.some(met);
+    if (key === 'AND') {
+      return ([condition].flat() as Prisma.PlaceWhereInput[]).every(each => matches(row, each));
     }
     const value = row[key as keyof Row];
     if (condition === null || typeof condition !== 'object') return value === condition;
@@ -32,24 +27,14 @@ const place = (row: Partial<Row> & Pick<Row, 'name' | 'type'>): Row => ({
   address: null,
   city: null,
   country: 'Belgique',
-  latitude: 51,
-  longitude: 4,
   ...row,
 });
 
 const places = [
   place({ name: 'MSK Gent', type: 'MUSEUM', address: 'Fernand Scribedreef 1', city: 'Gand' }),
   place({ name: 'Cathédrale Saint-Bavon', type: 'CHURCH', city: 'Gand' }),
-  place({ name: 'Église Saint-Michel', type: 'CHURCH', city: 'Gand', longitude: null }),
-  place({ name: 'Notre-Dame', type: 'CHURCH', city: 'Bruges', latitude: null, longitude: null }),
-  place({
-    name: 'Musée Groeninge',
-    type: 'MUSEUM',
-    address: 'Dijver 12',
-    city: 'Bruges',
-    latitude: null,
-    longitude: null,
-  }),
+  place({ name: 'Église Saint-Michel', type: 'CHURCH', city: 'Gand' }),
+  place({ name: 'Musée Groeninge', type: 'MUSEUM', address: 'Dijver 12', city: 'Bruges' }),
   place({ name: 'Rijksmuseum', type: 'MUSEUM', city: 'Amsterdam', country: 'Pays-Bas' }),
 ];
 
@@ -71,21 +56,5 @@ describe('buildPlaceWhere', () => {
     const city = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
     expect(found({ type: 'MUSEUM' }, [search, city])).toEqual(['MSK Gent']);
     expect(found({}, [search, undefined, city])).toEqual(['MSK Gent', 'Cathédrale Saint-Bavon']);
-  });
-
-  it('keeps only places missing a latitude or a longitude', () => {
-    expect(found({ missingPosition: true })).toEqual([
-      'Église Saint-Michel',
-      'Notre-Dame',
-      'Musée Groeninge',
-    ]);
-    expect(found({ missingPosition: false })).toHaveLength(places.length);
-  });
-
-  it('applies the missing position and the text filters together, neither replacing the other', () => {
-    const gand = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
-    expect(found({ missingPosition: true, type: 'CHURCH' }, [gand])).toEqual([
-      'Église Saint-Michel',
-    ]);
   });
 });

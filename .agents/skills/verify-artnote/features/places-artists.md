@@ -4,7 +4,7 @@ Admins keep the catalogue of places (museums, churches…) and artists that noti
 
 ## Sub-features
 
-- `places-list` `table` with columns Nom, Type, Ville, Pays, Œuvres, Créé le; a "Sans position" badge on places without coordinates. Filters: textbox "Rechercher un lieu", combobox "Type de lieu", textboxes "Filtrer par ville" and "Filtrer par pays", toggle button "Sans position".
+- `places-list` `table` with columns Nom, Type, Ville, Pays, Œuvres, Créé le. Filters: textbox "Rechercher un lieu", combobox "Type de lieu" and textboxes "Filtrer par ville" and "Filtrer par pays".
 - `places-create` "Nouveau lieu" form: "Nom *", combobox "Type *" (Musée, Église, Espace public, Autre), "Adresse", "Ville", "Pays", "Site web", then the position: searchbox "Adresse ou nom du lieu" with "Rechercher", a map (`region "Carte"`) with a draggable marker, and spinbuttons "Latitude *" and "Longitude *"; then "Description". Submit "Créer". Without a position it refuses with "Position manquante : indiquez la latitude" and keeps what was typed.
 - `artists-list` `table` with columns Nom, Date de naissance, Date de décès, Œuvres, Créé le; one filter, textbox "Rechercher un artiste".
 - `artists-create` "Nouvel artiste" form: "Prénom *", "Nom" (optional, for artists known by one name), "Date de naissance", "Date de décès", "Biographie"; submit "Créer".
@@ -23,8 +23,8 @@ Preconditions:
 
 - Baseline from the README. `$C signin admin`, `S=$($C session admin)`, `E=$($C evidence places-artists)`.
 
-- **Places list.** `goto "$U/dashboard"`, `click "getByRole('link', { name: 'Lieux' })"`. `heading "Lieux"` and 4 rows: "Musée Groeninge" (badge "Sans position", "0 œuvre"), "Musée Magritte Museum" ("1 œuvre", the draft), "Cathédrale Saint-Bavon" ("1 œuvre") and "Musées royaux des Beaux-Arts de Belgique" ("2 œuvres").
-- **Filter.** `fill "getByRole('textbox', { name: 'Filtrer par ville' })" "Gand"`: only the Saint-Bavon row remains. Clear it, then `click "getByRole('button', { name: 'Sans position' })"`: only "Musée Groeninge" remains. Click the toggle again to turn it off.
+- **Places list.** `goto "$U/dashboard"`, `click "getByRole('link', { name: 'Lieux' })"`. `heading "Lieux"` and 4 rows: "Musée Groeninge" ("0 œuvre"), "Musée Magritte Museum" ("1 œuvre", the draft), "Cathédrale Saint-Bavon" ("1 œuvre") and "Musées royaux des Beaux-Arts de Belgique" ("2 œuvres").
+- **Filter.** `fill "getByRole('textbox', { name: 'Filtrer par ville' })" "Gand"`: only the Saint-Bavon row remains. Clear it.
 - **Create a place.** `click "getByRole('link', { name: 'Nouveau lieu' })"`, `fill "getByRole('textbox', { name: 'Nom *' })" "[QA] Lieu de vérification"`, `click "getByRole('combobox', { name: 'Type *' })"`, `click "getByRole('option', { name: 'Musée' })"`, `fill "getByRole('textbox', { name: 'Ville', exact: true })" "Liège"`, `fill "getByRole('textbox', { name: 'Pays', exact: true })" "Belgique"`.
   - Refusal: `click "getByRole('button', { name: 'Créer' })"`: the URL stays `/dashboard/places/create`, "Position manquante : indiquez la latitude" shows, "Nom *" still holds the name.
   - Position: `fill "getByRole('spinbutton', { name: 'Latitude *' })" "50.6326"`, `fill "getByRole('spinbutton', { name: 'Longitude *' })" "5.5797"`, snapshot the form, `click "getByRole('button', { name: 'Créer' })"`. The URL becomes `/dashboard/places` with a `[QA] Lieu de vérification` row; `$C sql "select name, type, city, latitude, longitude, \"createdById\" from place where name like '[QA]%'"` returns `MUSEUM`, `Liège`, both coordinates and `seed-user-admin`.
