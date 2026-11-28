@@ -5,6 +5,8 @@
 export const robotsTag = (indexingAllowed: boolean) =>
   indexingAllowed ? null : 'noindex, nofollow';
 
-/** The body of `/robots.txt`. */
-export const robotsTxt = (indexingAllowed: boolean) =>
-  `User-agent: *\n${indexingAllowed ? 'Allow' : 'Disallow'}: /\n`;
+/** The body of `/robots.txt`; where indexing is allowed, it points crawlers to the sitemap. */
+export const robotsTxt = (indexingAllowed: boolean, siteUrl: string) =>
+  indexingAllowed
+    ? `User-agent: *\nAllow: /\n\nSitemap: ${new URL('/sitemap.xml', siteUrl)}\n`
+    : 'User-agent: *\nDisallow: /\n';
