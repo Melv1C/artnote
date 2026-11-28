@@ -15,7 +15,7 @@ function matches(row: Row, where: Prisma.PlaceWhereInput): boolean {
       return ([condition].flat() as Prisma.PlaceWhereInput[]).every(each => matches(row, each));
     }
     const value = row[key as keyof Row];
-    if (typeof condition !== 'object' || condition === null) return value === condition;
+    if (condition === null || typeof condition !== 'object') return value === condition;
     if ('in' in condition && Array.isArray(condition.in)) return condition.in.includes(value);
     throw new Error(`Unsupported condition on ${key}: ${JSON.stringify(condition)}`);
   });
