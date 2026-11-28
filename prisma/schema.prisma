@@ -247,13 +247,12 @@ model ArtworkImage {
 
 // Server-side notice view, kept only to deduplicate `Artwork.viewCount` increments
 // (see src/features/artworks/actions/view-count.ts). The nightly cron prunes old rows.
+// The table still has the unused columns sessionId, userAgent and referrer: a migration drops them
+// after a production release without them in this schema (#208, ADR 0006).
 model PageView {
   id        String   @id @default(cuid())
   artworkId String
-  sessionId String? // Unused
   ipAddress String? // Salted SHA-256 of the client IP, never the raw address
-  userAgent String? // Unused (older rows only)
-  referrer  String? // Unused (older rows only)
   createdAt DateTime @default(now())
 
   artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
