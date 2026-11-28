@@ -16,6 +16,7 @@ import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
@@ -67,6 +68,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksIndexRoute = ArtworksIndexRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/profile'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPruneViewRecordsRoute: typeof ApiCronPruneViewRecordsRoute
@@ -381,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/': {
@@ -545,6 +565,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPruneViewRecordsRoute: ApiCronPruneViewRecordsRoute,
