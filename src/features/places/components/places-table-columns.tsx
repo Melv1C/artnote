@@ -16,18 +16,13 @@ export const columns: PagedColumnDef<PlaceWithRelations>[] = [
     meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
       <div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <Link
-            to="/dashboard/places/$placeId"
-            params={{ placeId: row.original.id }}
-            className="font-medium hover:underline"
-          >
-            {row.original.name}
-          </Link>
-          {(row.original.latitude === null || row.original.longitude === null) && (
-            <Badge variant="secondary">Sans position</Badge>
-          )}
-        </div>
+        <Link
+          to="/dashboard/places/$placeId"
+          params={{ placeId: row.original.id }}
+          className="font-medium hover:underline"
+        >
+          {row.original.name}
+        </Link>
         {/* In a narrow table, the type, city, country and works columns are left out */}
         <p className="text-xs text-muted-foreground @3xl:hidden">
           {[

@@ -9,9 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Toggle } from '@/components/ui/toggle';
 import { PlaceTypeSchema } from '@/schemas/common';
-import { MapPinOff } from 'lucide-react';
 import { usePlaces } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 import { columns } from './places-table-columns';
@@ -22,7 +20,6 @@ export function PlacesTable() {
     type: 'all',
     city: '',
     country: '',
-    missingPosition: false,
   });
   const { data, isLoading, isError } = usePlaces({
     page,
@@ -30,7 +27,6 @@ export function PlacesTable() {
     type: PlaceTypeSchema.safeParse(debounced.type).data,
     city: debounced.city || undefined,
     country: debounced.country || undefined,
-    missingPosition: debounced.missingPosition || undefined,
   });
 
   return (
@@ -70,14 +66,6 @@ export function PlacesTable() {
           onChange={event => setFilter('country', event.target.value)}
           className="@4xl:w-36"
         />
-        <Toggle
-          variant="outline"
-          pressed={filters.missingPosition}
-          onPressedChange={pressed => setFilter('missingPosition', pressed)}
-        >
-          <MapPinOff />
-          Sans position
-        </Toggle>
       </div>
 
       <PagedTable

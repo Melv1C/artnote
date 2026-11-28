@@ -135,8 +135,8 @@ model Place {
   address     String?
   city        String?
   country     String?
-  latitude    Float?
-  longitude   Float?
+  latitude    Float
+  longitude   Float
   website     String?
   description String?
   createdAt   DateTime @default(now())

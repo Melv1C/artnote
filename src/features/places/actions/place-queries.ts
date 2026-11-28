@@ -52,16 +52,12 @@ export const fetchPlace = createServerFn({ method: 'GET' })
   });
 
 /**
- * The places of the public map: those with a position and at least one published notice, each
+ * The places of the public map: those with at least one published notice, each
  * with its number of published notices and its first ones, newest first.
  */
 export const fetchMapPlaces = createServerFn({ method: 'GET' }).handler(async () => {
   const places = await prisma.place.findMany({
-    where: {
-      latitude: { not: null },
-      longitude: { not: null },
-      artworks: { some: publishedWhere },
-    },
+    where: { artworks: { some: publishedWhere } },
     include: {
       _count: { select: { artworks: { where: publishedWhere } } },
       artworks: {

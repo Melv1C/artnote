@@ -15,8 +15,8 @@ export const PlaceSchema = z.object({
   address: z.string().nullable(),
   city: z.string().nullable(),
   country: z.string().nullable(),
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
+  latitude: z.number(),
+  longitude: z.number(),
   website: z.string().nullable(),
   description: z.string().nullable(),
   createdAt: z.date(),
@@ -36,12 +36,10 @@ const MapNoticeSchema = z.object({
 });
 
 /**
- * A place on the public map: its public fields, a position, its number of published notices and
- * the first of them, newest first.
+ * A place on the public map: its public fields, its number of published notices and the first of
+ * them, newest first.
  */
 export const MapPlaceSchema = PublicPlaceSchema.extend({
-  latitude: z.number(),
-  longitude: z.number(),
   noticeCount: z.number().int().positive(),
   notices: MapNoticeSchema.array(),
 });
@@ -56,8 +54,6 @@ export const PlaceFiltersSchema = PaginationSchema.extend({
   type: PlaceTypeSchema.optional(),
   city: SearchTextSchema.optional(),
   country: SearchTextSchema.optional(),
-  /** Only places that lack a latitude or a longitude. */
-  missingPosition: z.boolean().optional(),
 });
 
 /** The largest latitude and longitude, either side of zero. */

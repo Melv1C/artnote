@@ -43,8 +43,8 @@ export function PlaceForm({ place }: PlaceFormProps) {
   const queryClient = useQueryClient();
   // The fields hold what the writer typed; the map shows it once it is a valid position
   const [fields, setFields] = useState<AddressFields>({
-    latitude: place?.latitude?.toString() ?? '',
-    longitude: place?.longitude?.toString() ?? '',
+    latitude: place?.latitude.toString() ?? '',
+    longitude: place?.longitude.toString() ?? '',
     address: place?.address ?? '',
     city: place?.city ?? '',
     country: place?.country ?? '',

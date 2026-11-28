@@ -34,7 +34,7 @@ Seeded data (re-seeded by every `launch`; extra rows are not removed by seeding)
 | `user@example.com`                        | user (reader) | signed-in reader; `/dashboard` shows "Accès non autorisé"                      |
 | `banned@example.com`                      | user, banned  | sign-in refused                                                                |
 
-Notices: `seed-artwork-icarus` "Paysage avec la chute d’Icare", `seed-artwork-census` "Le Dénombrement de Bethléem" and `seed-artwork-lamb` "L’Adoration de l’Agneau mystique" (published), `seed-artwork-empire` "L’Empire des lumières" (draft). Places: "Musées royaux des Beaux-Arts de Belgique" (Icare and the Dénombrement), "Cathédrale Saint-Bavon" (the Agneau), "Musée Magritte Museum" (only the draft, so `/carte` leaves it out) and "Musée Groeninge" (no notice and no position: "Sans position" in `/dashboard/places`). Artists: Pieter Bruegel l’Ancien, Jan van Eyck, René Magritte. The seed's values live in `prisma/seed-data.ts`.
+Notices: `seed-artwork-icarus` "Paysage avec la chute d’Icare", `seed-artwork-census` "Le Dénombrement de Bethléem" and `seed-artwork-lamb` "L’Adoration de l’Agneau mystique" (published), `seed-artwork-empire` "L’Empire des lumières" (draft). Places: "Musées royaux des Beaux-Arts de Belgique" (Icare and the Dénombrement), "Cathédrale Saint-Bavon" (the Agneau), "Musée Magritte Museum" (only the draft, so `/carte` leaves it out) and "Musée Groeninge" (no notice). Artists: Pieter Bruegel l’Ancien, Jan van Eyck, René Magritte. The seed's values live in `prisma/seed-data.ts`.
 
 ## Doctor
 
