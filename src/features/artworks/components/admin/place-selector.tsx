@@ -8,52 +8,40 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { placeLocality } from '@/features/places/lib/place-display';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { type Place } from '@/schemas/place';
+import type { ArtworkEditorValues } from '@/schemas/artwork';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { usePlaceOptions } from '@/features/places/hooks/use-places';
 
+type SelectedPlace = ArtworkEditorValues['place'];
+
 interface PlaceSelectorProps {
-  selectedPlace: Place | null;
-  onSelectionChange: (place: Place | null) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
+  selectedPlace: SelectedPlace;
+  onChange: (place: SelectedPlace) => void;
 }
 
-export function PlaceSelector({
-  selectedPlace,
-  onSelectionChange,
-  placeholder = 'Sélectionner un lieu…',
-  className,
-  disabled = false,
-}: PlaceSelectorProps) {
+/** "Musée Fin-de-Siècle, Bruxelles, Belgique". */
+const placeLabel = (place: NonNullable<SelectedPlace>) =>
+  [place.name, placeLocality(place)].filter(Boolean).join(', ');
+
+/** The notice editor's place picker: search the places, pick one, pick it again to clear it. */
+export function PlaceSelector({ selectedPlace, onChange }: PlaceSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const debouncedSearch = useDebounce(searchValue, 300);
+  const debouncedSearch = useDebounce(searchValue);
 
   const { data: places = [], isLoading } = usePlaceOptions(debouncedSearch);
 
-  const handleSelect = (place: Place) => {
-    if (selectedPlace?.id === place.id) {
-      onSelectionChange(null);
-    } else {
-      onSelectionChange(place);
-    }
+  const handleSelect = (place: NonNullable<SelectedPlace>) => {
+    onChange(selectedPlace?.id === place.id ? null : place);
     setOpen(false);
   };
 
-  const formatPlaceName = (place: Place) => {
-    const parts = [place.name];
-    if (place.city) parts.push(place.city);
-    if (place.country) parts.push(place.country);
-    return parts.join(', ');
-  };
-
   return (
-    <div className={className}>
+    <div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -61,10 +49,9 @@ export function PlaceSelector({
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between font-normal"
-            disabled={disabled}
           >
             <span className="truncate">
-              {selectedPlace ? formatPlaceName(selectedPlace) : placeholder}
+              {selectedPlace ? placeLabel(selectedPlace) : 'Sélectionner un lieu…'}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -82,7 +69,7 @@ export function PlaceSelector({
                 {places.map(place => (
                   <CommandItem
                     key={place.id}
-                    value={formatPlaceName(place)}
+                    value={placeLabel(place)}
                     onSelect={() => handleSelect(place)}
                   >
                     <Check
@@ -93,9 +80,9 @@ export function PlaceSelector({
                     />
                     <div className="flex flex-col">
                       <span className="font-medium">{place.name}</span>
-                      {(place.city || place.country) && (
+                      {placeLocality(place) && (
                         <span className="text-sm text-muted-foreground">
-                          {[place.city, place.country].filter(Boolean).join(', ')}
+                          {placeLocality(place)}
                         </span>
                       )}
                     </div>

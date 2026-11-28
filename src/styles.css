@@ -342,7 +342,6 @@
     line-height: 1.6;
   }
 
-  /* Hide a scrollbar on horizontal rails without losing the scrolling */
   .no-scrollbar {
     scrollbar-width: none;
   }

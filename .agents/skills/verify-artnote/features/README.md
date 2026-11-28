@@ -7,7 +7,7 @@ The maintained source for verifying ArtNote's user-facing behavior. Read this in
 - `C=.agents/skills/verify-artnote/control.sh`, run from the worktree root.
 - `$C launch` printed `READY http://localhost:<port>`, and `$C doctor` exits 0.
 - `U` holds the base URL: `U=$(sed -nE 's/^BASE_URL="?([^"]*)"?$/\1/p' .env)`.
-- The database is as seeded (3 notices, 2 places, 3 artists, 4 accounts) plus nothing titled `[QA]…`. If an earlier run left `[QA]` rows, run `$C cleanup` and `$C launch` again.
+- The database is as seeded (4 notices: 3 published, 1 draft; 4 places; 3 artists; 4 accounts) plus nothing titled `[QA]…`. If an earlier run left `[QA]` rows, run `$C cleanup` and `$C launch` again.
 - Never drive an instance `doctor` says belongs to another worktree.
 
 ## Driving conventions
@@ -16,6 +16,7 @@ The maintained source for verifying ArtNote's user-facing behavior. Read this in
 - Target elements with Playwright role locators and the exact French names written in each file.
 - Name everything you create `[QA] …`.
 - Wait for the observable result (URL, text, row), not a fixed sleep.
+- Prefix every `playwright-cli` call with `timeout 30`: a locator that matches nothing makes it wait forever (see SKILL.md, Drive).
 
 ## Proof and skip reporting
 
@@ -32,7 +33,8 @@ Each file has an H1, one paragraph of user-visible behavior, then exactly four H
 
 - [Sign-in and access](./sign-in.md): header sign-in dialog, the four seeded roles, dashboard refusal, sign-out.
 - [Dashboard notices](./dashboard-notices.md): a writer creates, edits, publishes and deletes their own notices; another writer cannot see them.
-- [Public notices](./public-notices.md): the reader's notice list, search and sort, the notice page, and drafts kept private.
-- [Places and artists](./places-artists.md): server-paginated dashboard tables with filters, create forms and row actions.
+- [Public notices](./public-notices.md): the home page, the reader's notice list, search and sort, the notice page, and drafts kept private.
+- [Places map](./places-map.md): `/carte`, a marker per place with its published notices, and the place details on desktop and phone.
+- [Places and artists](./places-artists.md): server-paginated dashboard tables with filters, create forms (a place needs a position) and row actions.
 
-Not yet mapped: user management (`/dashboard/users`), profile and avatar upload (`/profile`), image attachments in the notice editor, notice preview (`/artworks/<id>/preview`), `/whats-new`.
+Not yet mapped: sign-up, user management (`/dashboard/users`), profile and avatar upload (`/profile`), image attachments in the notice editor, notice preview (`/artworks/<id>/preview`), the place and artist detail pages, `/about` and `/confidentialite`.

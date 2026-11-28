@@ -1,3 +1,4 @@
+import { pageTitle } from '@/lib/seo';
 import { DashboardBreadcrumbs } from '@/components/layout/dashboard-breadcrumbs';
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { UnauthorizedOrError } from '@/components/layout/unauthorized';
@@ -14,7 +15,6 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
-    // Check if user is authenticated and has permission to view the dashboard
     const { user, canViewDashboard } = await getDashboardAccess();
 
     if (!user || !canViewDashboard) {
@@ -24,7 +24,8 @@ export const Route = createFileRoute('/dashboard')({
 
     return { user };
   },
-  head: () => ({ meta: [{ title: 'ArtNote - Tableau de bord' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Tableau de bord') }] }),
+  staticData: { hasOwnLayout: true, measured: false },
   errorComponent: UnauthorizedOrError,
   component: DashboardLayout,
 });
@@ -35,7 +36,8 @@ function DashboardLayout() {
   return (
     <SidebarProvider>
       <DashboardSidebar user={user} />
-      <SidebarInset>
+      {/* min-w-0: a wide table scrolls in its own box rather than widening the page */}
+      <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur-xl md:rounded-t-xl lg:px-6">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-4" />
@@ -47,7 +49,8 @@ function DashboardLayout() {
           </Button>
           <ModeToggle />
         </header>
-        <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 lg:px-8">
+        {/* A container: page grids follow the room the sidebar leaves (`@xl:`), not the screen */}
+        <div className="@container mx-auto w-full max-w-7xl flex-1 px-4 py-8 lg:px-8">
           <Outlet />
         </div>
       </SidebarInset>

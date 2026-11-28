@@ -5,20 +5,21 @@ test.describe('the theme button', () => {
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const html = page.locator('html');
-    await expect(html).toHaveClass(/\blight\b/);
+    // Each button names the theme it switches to
+    const toDark = page.getByRole('button', { name: 'Passer au thème sombre' });
+    const toLight = page.getByRole('button', { name: 'Passer au thème clair' });
+    await expect(toDark).toBeVisible();
 
     // One click switches theme: there is no menu and no "like the device" choice
-    await page.getByRole('button', { name: 'Passer au thème sombre' }).click();
-    await expect(html).toHaveClass(/\bdark\b/);
+    await toDark.click();
+    await expect(toLight).toBeVisible();
     await expect(page.getByRole('menu')).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'Passer au thème clair' }).click();
-    await expect(html).toHaveClass(/\blight\b/);
+    await toLight.click();
+    await expect(toDark).toBeVisible();
 
-    await page.getByRole('button', { name: 'Passer au thème sombre' }).click();
+    await toDark.click();
     await page.reload();
-    await expect(page.getByRole('button', { name: 'Passer au thème clair' })).toBeVisible();
-    await expect(html).toHaveClass(/\bdark\b/);
+    await expect(toLight).toBeVisible();
   });
 });

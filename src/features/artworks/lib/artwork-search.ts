@@ -1,14 +1,22 @@
 import { artistFullName } from '@/features/artists/lib/artist-name';
 import type { Prisma } from '@/generated/prisma/client';
-import { containsInsensitive as contains } from '@/lib/prisma-filters';
 import { SearchTextSchema } from '@/schemas/common';
 import { publishedWhere } from './artwork-status';
 import { z } from '@/lib/zod';
 
-const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
-const SortOrderSchema = z.enum(['asc', 'desc']);
+export const ArtworkSortSchema = z.enum(['title', 'artist', 'year', 'published']);
+export const SortOrderSchema = z.enum(['asc', 'desc']);
 
-// Default search parsing turns numeric values (e.g. `?year=1890`) into numbers, so accept both
+export type ArtworkSort = z.infer<typeof ArtworkSortSchema>;
+export type SortOrder = z.infer<typeof SortOrderSchema>;
+
+/** The public list's order when the URL gives none. */
+export const DEFAULT_ARTWORK_SORT = { sort: 'title', order: 'asc' } as const satisfies {
+  sort: ArtworkSort;
+  order: SortOrder;
+};
+
+// Default search parsing turns numeric values (e.g. `?search=1890`) into numbers, so accept both
 // and keep the parsed value to avoid rewriting the URL. Over-long values are dropped, not errors.
 const searchValue = z
   .union([z.string().max(200), z.number()])
@@ -18,10 +26,8 @@ const searchValue = z
 /** Search params of the public notices list (`/artworks`). Invalid values are dropped. */
 export const ArtworksSearchSchema = z.object({
   search: searchValue,
-  artist: searchValue,
+  /** A place's exact name, set by the map's "Voir les N notices" link */
   place: searchValue,
-  medium: searchValue,
-  year: searchValue,
   sort: ArtworkSortSchema.optional().catch(undefined),
   order: SortOrderSchema.optional().catch(undefined),
 });
@@ -31,12 +37,9 @@ export type ArtworksSearch = z.infer<typeof ArtworksSearchSchema>;
 /** Input of `fetchFilteredArtworks`: every filter as a bounded string. */
 export const ArtworkFiltersSchema = z.object({
   search: SearchTextSchema.optional(),
-  artist: SearchTextSchema.optional(),
   place: SearchTextSchema.optional(),
-  medium: SearchTextSchema.optional(),
-  year: SearchTextSchema.optional(),
-  sort: ArtworkSortSchema.default('title'),
-  order: SortOrderSchema.default('asc'),
+  sort: ArtworkSortSchema.default(DEFAULT_ARTWORK_SORT.sort),
+  order: SortOrderSchema.default(DEFAULT_ARTWORK_SORT.order),
 });
 
 export type ArtworkFilters = z.input<typeof ArtworkFiltersSchema>;
@@ -44,47 +47,41 @@ export type ArtworkFilters = z.input<typeof ArtworkFiltersSchema>;
 const str = (value: string | number | undefined) =>
   value === undefined ? undefined : String(value);
 
-/** Turn URL search params into query filters. */
 export const toArtworkFilters = (search: ArtworksSearch): ArtworkFilters => ({
   search: str(search.search),
-  artist: str(search.artist),
   place: str(search.place),
-  medium: str(search.medium),
-  year: str(search.year),
   sort: search.sort,
   order: search.order,
 });
 
-const artistNamed = (name: string): Prisma.ArtworkWhereInput => ({
-  artists: {
-    some: {
-      OR: [{ artist: { firstName: contains(name) } }, { artist: { lastName: contains(name) } }],
-    },
-  },
-});
+/** Ids of the rows the search matches, from `idsContaining`; `undefined` without a search. */
+export type ArtworkSearchIds = {
+  /** Notices whose title, medium or text contains the search */
+  artworks?: string[];
+  /** Artists whose first or last name contains it */
+  artists?: string[];
+  /** Places whose name contains it */
+  places?: string[];
+};
 
-/** Prisma `where` for published notices matching `filters`. */
+/** Prisma `where` for published notices matching `filters`, given the rows the search matches. */
 export function buildArtworkWhere(
-  filters: z.output<typeof ArtworkFiltersSchema>,
+  { place }: z.output<typeof ArtworkFiltersSchema>,
+  found: ArtworkSearchIds,
 ): Prisma.ArtworkWhereInput {
-  const { search, artist, place, medium, year } = filters;
   return {
     ...publishedWhere,
     AND: [
-      search
+      found.artworks
         ? {
             OR: [
-              { title: contains(search) },
-              artistNamed(search),
-              { medium: contains(search) },
-              { notice: contains(search) },
+              { id: { in: found.artworks } },
+              { artists: { some: { artistId: { in: found.artists ?? [] } } } },
+              { placeId: { in: found.places ?? [] } },
             ],
           }
         : {},
-      artist ? artistNamed(artist) : {},
-      place ? { place: { name: contains(place) } } : {},
-      medium ? { medium: contains(medium) } : {},
-      year ? { creationYear: contains(year) } : {},
+      place ? { place: { name: { equals: place, mode: 'insensitive' } } } : {},
     ],
   };
 }
@@ -115,7 +112,7 @@ export function buildArtworkOrderBy(
 type WithArtists = { artists: { artist: { firstName: string; lastName: string } }[] };
 
 /** Sort notices by their first artist's full name, French collation. Stable for ties. */
-export function sortByFirstArtist<T extends WithArtists>(artworks: T[], order: 'asc' | 'desc') {
+export function sortByFirstArtist<T extends WithArtists>(artworks: T[], order: SortOrder) {
   const name = (artwork: T) => {
     const first = artwork.artists[0]?.artist;
     return first ? artistFullName(first) : '';

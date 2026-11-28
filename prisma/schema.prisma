@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -27,10 +21,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  // Writer-specific relations
   artworks Artwork[]
 
-  // Created/Updated relations
   artistsCreated  Artist[]       @relation("ArtistCreatedBy")
   artistsUpdated  Artist[]       @relation("ArtistUpdatedBy")
   conceptsCreated Concept[]      @relation("ConceptCreatedBy")
@@ -114,7 +106,6 @@ model Artist {
   createdById     String
   updatedById     String
 
-  // Relations
   artworks  ArtworkArtist[]
   createdBy User            @relation("ArtistCreatedBy", fields: [createdById], references: [id])
   updatedBy User            @relation("ArtistUpdatedBy", fields: [updatedById], references: [id])
@@ -131,7 +122,6 @@ model Concept {
   createdById String
   updatedById String
 
-  // Relations
   createdBy User @relation("ConceptCreatedBy", fields: [createdById], references: [id])
   updatedBy User @relation("ConceptUpdatedBy", fields: [updatedById], references: [id])
 
@@ -154,7 +144,6 @@ model Place {
   createdById String
   updatedById String
 
-  // Relations
   artworks  Artwork[]
   createdBy User      @relation("PlaceCreatedBy", fields: [createdById], references: [id])
   updatedBy User      @relation("PlaceUpdatedBy", fields: [updatedById], references: [id])
@@ -175,19 +164,15 @@ model Artwork {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Analytics fields (Hybrid Approach - Phase 1)
   viewCount    Int       @default(0)
   lastViewedAt DateTime?
 
-  // Relations
   writerId  String
   writer    User            @relation(fields: [writerId], references: [id])
   placeId   String?
   place     Place?          @relation(fields: [placeId], references: [id])
-  // Many-to-many relations
   artists   ArtworkArtist[]
   images    ArtworkImage[]
-  // Analytics relations
   pageViews PageView[]
 
   @@map("artwork")
@@ -202,7 +187,6 @@ model Keyword {
   createdById String
   updatedById String
 
-  // Relations
   createdBy User @relation("KeywordCreatedBy", fields: [createdById], references: [id])
   updatedBy User @relation("KeywordUpdatedBy", fields: [updatedById], references: [id])
 
@@ -219,13 +203,10 @@ model Image {
   size     Int?
   mimeType String?
 
-  // Relations
   artworks ArtworkImage[]
 
   @@map("image")
 }
-
-// Junction tables for many-to-many relationships
 
 model ArtworkArtist {
   id        String  @id @default(cuid())
@@ -244,7 +225,7 @@ model ArtworkImage {
   id        String  @id @default(cuid())
   artworkId String
   imageId   String
-  sortOrder Int     @default(0) // For image sorting
+  sortOrder Int     @default(0)
   isMain    Boolean @default(false)
   legend    String? // Rich text legend/caption for the image
   source    String? // Source/credit for the image
@@ -264,22 +245,16 @@ model ArtworkImage {
   @@map("artwork_image")
 }
 
-// =============================================================================
-// ANALYTICS MODELS (Enhanced Analytics System)
-// =============================================================================
-
 // Server-side notice view, kept only to deduplicate `Artwork.viewCount` increments
 // (see src/features/artworks/actions/view-count.ts). The nightly cron prunes old rows.
+// The table still has the unused columns sessionId, userAgent and referrer: a migration drops them
+// after a production release without them in this schema (#208, ADR 0006).
 model PageView {
   id        String   @id @default(cuid())
   artworkId String
-  sessionId String? // Unused
   ipAddress String? // Salted SHA-256 of the client IP, never the raw address
-  userAgent String? // Unused (older rows only)
-  referrer  String? // Unused (older rows only)
   createdAt DateTime @default(now())
 
-  // Relations
   artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
 
   @@index([artworkId])

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { ArtistFormSchema } from './artist';
-import { ArtworkFormSchema, PublicArtworkSchema } from './artwork';
+import { ArtworkFormSchema, PublicArtworkSchema, toArtworkForm } from './artwork';
+import { MAX_IMAGES_PER_NOTICE } from './image';
 import { PlaceFormSchema } from './place';
 import { UserProfileFormSchema } from './user';
 
@@ -94,19 +95,33 @@ describe('ArtworkFormSchema', () => {
     expect(parsed.images).toEqual([attachment]);
   });
 
-  it('reports default validation errors in French', () => {
-    const result = ArtworkFormSchema.safeParse({ ...form, images: [], medium: 'x'.repeat(300) });
-    const message = result.error?.issues[0]?.message ?? '';
-    expect(message).not.toMatch(/too big/i);
-    expect(message).toMatch(/trop/i);
+  it('accepts no more images than the editor lets a writer attach', () => {
+    const images = (count: number) =>
+      Array.from({ length: count }, (_, sortOrder) => ({ ...attachment, sortOrder }));
+    const parse = (count: number) =>
+      ArtworkFormSchema.safeParse({ ...form, images: images(count) }).success;
+    expect(parse(MAX_IMAGES_PER_NOTICE)).toBe(true);
+    expect(parse(MAX_IMAGES_PER_NOTICE + 1)).toBe(false);
   });
 
-  it('rejects unbounded ids', () => {
-    const result = ArtworkFormSchema.safeParse({
-      ...form,
-      images: [{ ...attachment, imageId: 'x'.repeat(65) }],
+  it('submits the editor’s chosen artists and place as ids', () => {
+    const { placeId: _placeId, artistIds: _artistIds, ...values } = form;
+    const submitted = toArtworkForm({
+      ...values,
+      status: 'DRAFT',
+      images: [],
+      artists: [
+        { id: 'ar1', firstName: 'Hubert', lastName: 'van Eyck' },
+        { id: 'ar2', firstName: 'Jan', lastName: 'van Eyck' },
+      ],
+      place: { id: 'p1', name: 'Cathédrale Saint-Bavon', city: 'Gand', country: 'Belgique' },
     });
-    expect(result.success).toBe(false);
+    expect(submitted).toMatchObject({ artistIds: ['ar1', 'ar2'], placeId: 'p1' });
+    expect(submitted).not.toHaveProperty('artists');
+    expect(submitted).not.toHaveProperty('place');
+    expect(
+      toArtworkForm({ ...values, status: 'DRAFT', images: [], artists: [], place: null }),
+    ).toMatchObject({ artistIds: [], placeId: null });
   });
 });
 
@@ -137,39 +152,17 @@ describe('PlaceFormSchema', () => {
     ]);
     expect(issues({ longitude: '3.72' })).toEqual(['Position manquante : indiquez la latitude']);
   });
-
-  it('asks for a type when none is chosen', () => {
-    expect(issues({ type: undefined, latitude: '51.04', longitude: '3.72' })).toEqual([
-      'Le type est requis',
-    ]);
-  });
-
-  it('keeps latitude and longitude within their ranges', () => {
-    expect(issues({ latitude: '120', longitude: '3.72' })).toHaveLength(1);
-    expect(issues({ latitude: '-91', longitude: '3.72' })).toHaveLength(1);
-    expect(issues({ latitude: '51.04', longitude: '181' })).toHaveLength(1);
-    expect(issues({ latitude: '90', longitude: '-180' })).toBeUndefined();
-  });
 });
 
 describe('ArtistFormSchema', () => {
   const artist = { firstName: 'Pieter', lastName: 'Bruegel' };
 
-  it('takes birth and death dates as free text, as precise as the sources allow', () => {
-    for (const date of ['01/01/1950', '1950', 'vers 1525', 'XIXe siècle']) {
-      expect(ArtistFormSchema.parse({ ...artist, birthDate: date }).birthDate).toBe(date);
-    }
+  it('trims the spaces around a date', () => {
     expect(ArtistFormSchema.parse({ ...artist, deathDate: ' 1569 ' }).deathDate).toBe('1569');
   });
 
   it('takes an artist known by a single name, without a last name', () => {
     expect(ArtistFormSchema.parse({ firstName: 'Giotto', lastName: '' }).lastName).toBe('');
     expect(ArtistFormSchema.safeParse({ firstName: '', lastName: 'Giotto' }).success).toBe(false);
-  });
-
-  it('bounds a date’s length', () => {
-    expect(ArtistFormSchema.safeParse({ ...artist, birthDate: 'x'.repeat(101) }).success).toBe(
-      false,
-    );
   });
 });

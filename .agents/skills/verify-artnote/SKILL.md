@@ -5,7 +5,7 @@ description: Launch this worktree's ArtNote web app (TanStack Start dev server, 
 
 # Verify ArtNote
 
-ArtNote is one web app: public pages (`/`, `/artworks`, `/artworks/<id>`, `/whats-new`, `/about`) for readers, and `/dashboard` for admins who write notices. There is no CLI or public API to drive; every server call is a TanStack `createServerFn` behind the UI, so verification goes through the browser. The UI is French: every handle below is a French accessible name, copy it exactly (typographic apostrophes `’` included).
+ArtNote is one web app: public pages (`/`, `/artworks`, `/artworks/<id>`, `/carte`, `/about`, `/confidentialite`) for readers, and `/dashboard` for admins who write notices. There is no CLI or public API to drive; every server call is a TanStack `createServerFn` behind the UI, so verification goes through the browser. The UI is French: every handle below is a French accessible name, copy it exactly (typographic apostrophes `’` included).
 
 Everything here is per worktree: its own database (`artnote_<folder>`), its own port (`BASE_URL` in `.env`, 3100–3999), shared Postgres and MinIO containers. Two worktrees can be verified side by side. Inside one worktree there is one instance; never start a second.
 
@@ -29,12 +29,12 @@ Seeded data (re-seeded by every `launch`; extra rows are not removed by seeding)
 
 | Account (password `artnote-dev-password`) | Role          | What it shows                                                                  |
 | ----------------------------------------- | ------------- | ------------------------------------------------------------------------------ |
-| `admin@example.com` ("Admin ArtNote")     | admin         | the dashboard; writer of all 3 seed notices                                    |
+| `admin@example.com` ("Admin ArtNote")     | admin         | the dashboard; writer of all 4 seed notices                                    |
 | `writer@example.com`                      | admin         | ownership: sees no seed notice in "Mes notices"; their edit URLs are not found |
 | `user@example.com`                        | user (reader) | signed-in reader; `/dashboard` shows "Accès non autorisé"                      |
 | `banned@example.com`                      | user, banned  | sign-in refused                                                                |
 
-Notices: `seed-artwork-icarus` "Paysage avec la chute d’Icare" and `seed-artwork-lamb` "L’Adoration de l’Agneau mystique" (published), `seed-artwork-empire` "L’Empire des lumières" (draft). Places: "Musées royaux des Beaux-Arts de Belgique", "Cathédrale Saint-Bavon". Artists: Pieter Bruegel l’Ancien, Jan van Eyck, René Magritte.
+Notices: `seed-artwork-icarus` "Paysage avec la chute d’Icare", `seed-artwork-census` "Le Dénombrement de Bethléem" and `seed-artwork-lamb` "L’Adoration de l’Agneau mystique" (published), `seed-artwork-empire` "L’Empire des lumières" (draft). Places: "Musées royaux des Beaux-Arts de Belgique" (Icare and the Dénombrement), "Cathédrale Saint-Bavon" (the Agneau), "Musée Magritte Museum" (only the draft, so `/carte` leaves it out) and "Musée Groeninge" (no notice and no position: "Sans position" in `/dashboard/places`). Artists: Pieter Bruegel l’Ancien, Jan van Eyck, René Magritte. The seed's values live in `prisma/seed-data.ts`.
 
 ## Doctor
 
@@ -52,21 +52,24 @@ Harness: `playwright-cli` (headless Chrome, in-memory profile). Session names ar
 $C signin admin                 # opens session artnote-<port>-admin, signs in through the header dialog,
                                 # then checks /api/auth/get-session returns admin@example.com
 S=$($C session admin)
+P="timeout 30 playwright-cli -s=$S"   # see the first rule below
 U=$(sed -nE 's/^BASE_URL="?([^"]*)"?$/\1/p' .env)
-playwright-cli -s=$S goto "$U/dashboard/artworks"
-playwright-cli -s=$S --raw snapshot "getByRole('main').last()"
+$P goto "$U/dashboard/artworks"
+$P --raw snapshot "getByRole('main').last()"
 ```
 
 `$C signin <admin|writer|user|banned> [name]` takes an optional second argument to open several sessions for the same account. Each session is an isolated browser context, so admin and writer can be open at once.
 
 Rules that keep drives stable:
 
+- Prefix every `playwright-cli` call with `timeout 30` (`P="timeout 30 playwright-cli -s=$S"`). It has no action timeout of its own: an action on a locator that matches nothing waits forever and blocks the whole shell. Exit code 124 means it timed out; the browser session stays busy with the stuck action for a while, so the next command may time out too. Run `$C doctor`, wait until `$P --raw eval "location.pathname"` answers again, snapshot, and only then retry (or `close` the session and sign in again).
 - Target by role and accessible name, as Playwright locators: `"getByRole('button', { name: 'Créer la notice' })"`. Refs like `e42` change after every navigation; use them only inside one snapshot-act step.
-- Scope by container when a name repeats: the sign-in dialog has its own "Se connecter" button (`getByRole('dialog', { name: 'Se connecter' }).getByRole('button', { name: 'Se connecter' })`); the editor's undo button is also called "Annuler" (the form's cancel is `getByRole('button', { name: 'Annuler' }).last()`).
+- Names match as case-insensitive substrings unless you pass `exact: true`, and a locator that matches two elements fails in strict mode: on `/dashboard`, `name: 'Mes notices'` also matches "Toutes mes notices".
+- Scope by container when a name repeats: the sign-in dialog has its own "Se connecter" button (`getByRole('dialog', { name: 'Se connecter' }).getByRole('button', { name: 'Se connecter' })`); the editors' undo buttons are also called "Annuler" (the form's cancel is `getByRole('button', { name: 'Annuler' }).last()`).
 - The dashboard has one `main` landmark (the inset beside the sidebar); `"getByRole('main').last()"` works on every page.
-- Rich text fields (Notice, Bibliographie) are Tiptap editors with no accessible name: `click "[contenteditable=true] >> nth=0"` (Notice) or `nth=1` (Bibliographie), then `type "…"`.
+- Rich text fields are Tiptap editors exposed as textboxes "Notice" and "Bibliographie": `click "getByRole('textbox', { name: 'Notice', exact: true })"`, then `type "…"`.
 - Deletes ask in an in-page `alertdialog` ("Supprimer « … » ?"), not the browser's `confirm()`: click its destructive button ("Supprimer la notice", "Supprimer", "Supprimer le compte") or "Annuler". Focus starts on "Annuler".
-- After an action, wait for its result, not a fixed time: poll `playwright-cli -s=$S --raw eval "location.pathname"` or `find "<text>"`. Toasts live in `region "Notifications alt+T"` and vanish after a few seconds.
+- After an action, wait for its result, not a fixed time: poll `$P --raw eval "location.pathname"` or `find "<text>"`. Toasts live in `region "Notifications alt+T"` and vanish after a few seconds.
 - Read state back from the database (each query runs in a read-only transaction, a guard against mistakes, not a sandbox): `$C sql "select id, title, status from artwork where title like '[QA]%'"`. Tables use `@@map` names (`artwork`, `artist`, `place`, `artwork_artist`, `"user"`) with camelCase quoted columns (`"writerId"`, `"placeId"`, `"publishedAt"`, `"viewCount"`).
 
 Recipes per feature are in [`features/README.md`](features/README.md). A proof that covers one entry point of a feature does not cover the others listed there.
@@ -75,8 +78,8 @@ Recipes per feature are in [`features/README.md`](features/README.md). A proof t
 
 ```bash
 E=$($C evidence dashboard-notices)   # .verify/evidence/<timestamp>-dashboard-notices/, with run.txt (commit, branch, URL)
-playwright-cli -s=$S --raw snapshot "getByRole('main').last()" > "$E/01-form.aria.yml"
-playwright-cli -s=$S screenshot --filename="$E/01-form.png"
+$P --raw snapshot "getByRole('main').last()" > "$E/01-form.aria.yml"
+$P screenshot --filename="$E/01-form.png"
 $C sql "select …" > "$E/02-db.txt"
 ```
 

@@ -1,10 +1,12 @@
-import { Painting } from '@/features/artworks/components/painting';
+import { noticeParams } from '@/features/artworks/lib/notice-slug';
+import { plural } from '@/lib/format';
+import { Painting } from '@/components/painting';
 import { cn } from '@/lib/utils';
 import type { MapPlace } from '@/schemas/place';
 import { Link } from '@tanstack/react-router';
 import { X } from 'lucide-react';
 import { useId, type Ref } from 'react';
-import { moreNoticesLabel, noticeCountLabel } from '../lib/place-map';
+import { moreNoticesLabel } from '../lib/place-map';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
 
 interface PlaceDetailsProps {
@@ -45,22 +47,21 @@ export function PlaceDetails({ place, onClose, className, ref }: PlaceDetailsPro
         {[PLACE_TYPE_LABELS[place.type], place.city].filter(Boolean).join(' · ')}
       </p>
       <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-        {noticeCountLabel(place.noticeCount)}
+        {plural(place.noticeCount, 'notice')}
       </p>
       <ul className="mt-1.5 space-y-1">
         {place.notices.map(notice => (
           <li key={notice.id}>
             <Link
-              to="/artworks/$artworkId"
-              params={{ artworkId: notice.id }}
+              to="/artworks/$artworkId/$slug"
+              params={noticeParams(notice)}
               className="-mx-1.5 flex items-center gap-3 rounded-md p-1.5 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
             >
               <Painting
                 image={notice.image ?? undefined}
                 title={notice.title}
-                className="size-11 shrink-0 rounded-sm p-1 [&_span]:hidden [&_svg]:size-4"
-                imgClassName="shadow-sm"
-                decorative
+                className="size-11 shrink-0 rounded-sm p-1"
+                thumbnail
               />
               <span className="work-title line-clamp-2 text-sm">{notice.title}</span>
             </Link>

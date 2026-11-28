@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { buildWorktreeEnv } from './worktree-env';
+import {
+  buildWorktreeEnv,
+  databaseName,
+  e2eDatabaseName,
+  isE2eDatabaseName,
+  worktreeDatabaseName,
+} from './worktree-env';
 
 const EXAMPLE = `# Public base URL
 BASE_URL="http://localhost:3000"
@@ -41,5 +47,26 @@ BASE_URL="http://localhost:3142"
 # Object storage
 S3_BUCKET="artnote"
 `);
+  });
+});
+
+describe('database names', () => {
+  it("keeps a worktree's database and its end-to-end one within Postgres' 63 characters", () => {
+    const slug = 'a'.repeat(70);
+    expect(worktreeDatabaseName(slug)).toBe(`artnote_${'a'.repeat(55)}`);
+    expect(e2eDatabaseName(worktreeDatabaseName(slug))).toBe(`artnote_${'a'.repeat(51)}_e2e`);
+    expect(e2eDatabaseName('artnote_feat_x')).toBe('artnote_feat_x_e2e');
+  });
+
+  it('treats only an end-to-end database as throwaway', () => {
+    expect(isE2eDatabaseName('artnote_feat_x_e2e')).toBe(true);
+    expect(isE2eDatabaseName('artnote_feat_x')).toBe(false);
+    expect(isE2eDatabaseName('_e2e')).toBe(false);
+  });
+
+  it('reads the database from a URL and refuses a name unsafe to quote into SQL', () => {
+    expect(databaseName('postgresql://u:p@localhost:5432/artnote_x')).toBe('artnote_x');
+    expect(() => databaseName('postgresql://u:p@localhost:5432/Artnote')).toThrow(/lowercase/);
+    expect(() => databaseName('postgresql://u:p@localhost:5432/a%22b')).toThrow(/lowercase/);
   });
 });

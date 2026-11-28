@@ -2,15 +2,13 @@ import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
 import { prisma } from '@/lib/prisma';
+import { idsContaining } from '@/lib/text-search';
 import { ArtistFiltersSchema, ArtistWithRelationsSchema } from '@/schemas/artist';
 import { IdSchema } from '@/schemas/common';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { buildArtistWhere } from '../lib/artist-filters';
 
 const artistInclude = {
-  createdBy: { select: { id: true, name: true } },
-  updatedBy: { select: { id: true, name: true } },
   artworks: {
     select: {
       id: true,
@@ -24,7 +22,12 @@ export const fetchArtists = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(ArtistFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const where = buildArtistWhere(filters);
+    const ids = await idsContaining(
+      'artist',
+      ['firstName', 'lastName', 'biography'],
+      filters.search,
+    );
+    const where: Prisma.ArtistWhereInput = ids ? { id: { in: ids } } : {};
 
     const [totalCount, artists] = await Promise.all([
       prisma.artist.count({ where }),

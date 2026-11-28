@@ -1,16 +1,18 @@
 import { createIsomorphicFn, createMiddleware, createServerFn } from '@tanstack/react-start';
 import { setResponseStatus } from '@tanstack/react-start/server';
 import { getUser } from './auth-server';
-import { DASHBOARD_PERMISSIONS, hasRolePermission, type PermissionCheck } from './permissions';
+import {
+  DASHBOARD_PERMISSIONS,
+  canViewDashboard,
+  hasRolePermission,
+  type PermissionCheck,
+} from './permissions';
 
 export const UNAUTHORIZED_ERROR = 'UNAUTHORIZED';
 
 export const getDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await getUser();
-  return {
-    user,
-    canViewDashboard: !!user && hasRolePermission(user.role, DASHBOARD_PERMISSIONS),
-  };
+  return { user, canViewDashboard: canViewDashboard(user) };
 });
 
 /**

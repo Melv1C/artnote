@@ -55,7 +55,9 @@ To verify a change: run `vp run check` and commit any `src/routeTree.gen.ts` cha
 
 `e2e/*.spec.ts` drive the real app in Chromium through Playwright (`playwright.config.ts`): sign-ins, access to the dashboard, notice ownership (ADR 0003), publishing and reading. Each run recreates a database of its own, `<this worktree's database>_e2e` (`scripts/e2e-database.ts`: drop, create, `migrate deploy`, seed), and starts `vp dev` on the dev port plus 1000 (`scripts/e2e-env.ts`), so tests may create and change data freely without touching the worktree's database or its dev server.
 
-- Import `test` and `expect` from `e2e/fixtures.ts`, not `@playwright/test`. Its `signIn('admin' | 'writer' | 'user' | 'banned')` fixture signs in through Better Auth's endpoint; `notices` names the seed notices.
+- Run one spec with `vp run test:e2e e2e/<name>.spec.ts`. Don't add `--`: with it, Playwright drops the filter and runs the whole suite.
+- Import `test` and `expect` from `e2e/fixtures.ts`, not `@playwright/test`. Its `signIn('admin' | 'writer' | 'user' | 'banned')` fixture signs in through Better Auth's endpoint; `notices` and `places` name the seed rows (`prisma/seed-data.ts`, which the seed writes from); `startNotice` opens the notice editor with a title.
+- Leave the seed as you found it: change an account `newReader` signed up for the test, a record the test created, or restore the row through the `db` fixture. CI does not retry a failed test.
 - Find elements by role, label or the French text a reader sees. Before typing into a form, `await page.waitForLoadState('networkidle')`: text typed before React hydrates the page is lost.
 - An assertion that something is absent (`toHaveCount(0)`) proves nothing until the page has loaded: assert something visible first, such as an empty state.
 - Chromium comes from `vp exec playwright install chromium`, once per machine.
@@ -100,17 +102,21 @@ src/
                        Unit-tested next to the code as <name>.test.ts.
   schemas/             Zod schemas per entity: row schemas, form schemas, input schemas.
   lib/                 Cross-feature infrastructure: env, Prisma, Better Auth, permissions,
-                       guard middleware, uploads, SEO.
+                       guard middleware, uploads, SEO; and for the UI runMutation and format
+                       (dates, counts, plurals).
   hooks/               Cross-feature React hooks (useDebounce, useIsMobile).
-  components/ui/       shadcn components and the rich text editor. components/layout/: app shell;
-                       components/data-table/: PagedTable.
+  components/          UI shared by several features: StatCard, Painting, UserAvatar,
+                       FullPageMessage, useValidatedForm. ui/: shadcn components, the map and
+                       the rich text editor. layout/: the app shell, which composes features as
+                       routes do. data-table/: the dashboard tables (TableView, PagedTable,
+                       RowMenu, SearchInput, useTableFilters).
 e2e/                   Playwright end-to-end tests and their fixtures (fixtures.ts).
 scripts/               Setup scripts: worktree setup, the e2e database, preflight checks.
 ```
 
-Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places`, `analytics` (the Umami tracker: which pages are measured, page views and notice readings), `admin-dashboard` (the dashboard home: content figures and the link to Umami), `user-management`, `profile`, `auth`.
+Features: `artworks` (notices, public and dashboard, and the view count), `artists`, `places` (and the maps), `analytics` (the Umami tracker: page views and notice readings), `admin-dashboard` (the dashboard home's own cards: content figures, quick actions and the link to Umami), `user-management`, `profile`, `auth`.
 
-Dashboard lists come in two kinds. Artists and places are server-paginated: `PagedTable` (`src/components/data-table/paged-table.tsx`) renders one page, the server filters, orders and pages (`paginate`, `pageWindow` in `src/lib/pagination.ts`), and each feature keeps its filter-to-`where` mapping as a tested pure builder in `lib/` (`buildArtistWhere`, `buildPlaceWhere`). The writer's notices and the users are small lists loaded whole and filtered in the browser (`filterAdminArtworks`; users are capped at 100 by `fetchUsers`). `buildArtworkWhere` belongs to the public notices list, not the dashboard.
+Dashboard lists come in two kinds. Artists and places are server-paginated: `PagedTable` (`src/components/data-table/paged-table.tsx`) renders one page, the server filters, orders and pages (`paginate`, `pageWindow` in `src/lib/pagination.ts`), and each feature keeps its filter-to-`where` mapping as a pure builder in `lib/` (`buildPlaceWhere`; the text filters of both match through `idsContaining` (`src/lib/text-search.ts`), which ignores case and accents with Postgres `unaccent`). The writer's notices and the users are small lists loaded whole and filtered in the browser by tested `lib/` functions (`filterAdminArtworks`, `filterUsers`; users are capped at 100 by `fetchUsers`). The artists, places and users tables filter through `useTableFilters`, and every dashboard row's actions are a `RowMenu` (`EditMenuItem`, `DeleteMenuItem`). `buildArtworkWhere` belongs to the public notices list, not the dashboard.
 
 Import from the file that defines a symbol (`@/features/artworks/actions/artwork-queries`). There are no barrel `index.ts` files; do not add any. A feature may import another feature's `actions/`, `hooks/` and `lib/` (the dashboard composes `artworks` and `user-management` queries); UI shared by several features lives in `src/components/`.
 
@@ -151,20 +157,20 @@ export const updatePlace = createServerFn({ method: 'POST' })
 
 ## Reading and mutating from the UI
 
-- **Page data**: the route `loader` calls server functions. Return un-awaited promises for content that streams behind `<Suspense>` and `use()` (see `loadAdminDashboardData`).
+- **Page data**: the route `loader` calls server functions. Return un-awaited promises for content that streams behind `<Suspense>` and `use()` (see `routes/dashboard/index.tsx`); a `StatCard` takes such a promise and shows its own skeleton.
 - **Client-driven reads** (tables with filters, pickers): React Query hooks in `features/<feature>/hooks/`, keyed by the feature's key factory (`artistKeys`, `placeKeys`, `userKeys`).
-- **Mutations**: call the server function in a `try`/`catch`, then refresh: `router.invalidate()` for loader data, `queryClient.invalidateQueries({ queryKey: <keys>.all })` for React Query data. On failure, `console.error` the error and `toast.error` a French message written in the component; do not show `error.message`, which can carry internals.
-- **Forms**: validate with the same Zod schema the server function uses (`zodResolver(Schema)` or `Schema.safeParse(Object.fromEntries(formData))`). The one extension is the notice editor: `ArtworkEditorSchema` adds each attached image's details for previews, and `ArtworkFormSchema` drops them on the server. Import `z` from `@/lib/zod` (lint forbids `'zod'`): it sets French default messages, so give a field a custom message only when the default is unclear.
+- **Mutations**: go through `runMutation` (`src/lib/run-mutation.ts`): its callback calls the server function, then refreshes, `router.invalidate()` for loader data, `queryClient.invalidateQueries({ queryKey: <keys>.all })` for React Query data. It toasts the success, and on failure logs the error and toasts the French message the component gives; never show `error.message`, which can carry internals.
+- **Forms**: validate with the same Zod schema the server function uses: `zodResolver(Schema)` for react-hook-form forms (the notice editor, the profile, sign-in), `useValidatedForm(Schema, save)` for plain forms read from `FormData` (artists, places), which shows each field's message beside it. The one extension is the notice editor: `ArtworkEditorSchema` adds each attached image's details for previews, and `ArtworkFormSchema` drops them on the server. Import `z` from `@/lib/zod` (lint forbids `'zod'`): it sets French default messages, so give a field a custom message only when the default is unclear.
 
 ## Analytics
 
-Audience measurement uses Umami Cloud (ADR 0010, which supersedes ADR 0004). The root layout renders Umami's script only where `UMAMI_WEBSITE_ID` is set (production), served with its collect endpoint under `/stats/` on our own domain (Nitro route rules in `vite.config.ts`). Automatic page views are off: `useUmamiPageViews` sends one for each route that `isMeasuredPath` accepts (public pages, not the dashboard or previews), and notice pages send a `notice_read` with its reading-time bracket when the reader leaves (`useNoticeReading`). The rules live in the pure, tested `features/analytics/lib/umami.ts`. Umami is cookieless, and missing or blocked it does nothing. Admins read the figures in Umami, from the "Voir les statistiques" link on the dashboard home; the app has no analytics charts or queries. The first-party analytics tables were dropped; their earlier daily summaries survive only in a CSV archive outside the repo.
+Audience measurement uses Umami Cloud (ADR 0010, which supersedes ADR 0004). The root layout renders Umami's script only where `UMAMI_WEBSITE_ID` is set (production), served with its collect endpoint under `/stats/` on our own domain (Nitro route rules in `vite.config.ts`). Automatic page views are off: `useUmamiPageViews` sends one for each page, except where a route declares `staticData: { measured: false }` (the dashboard and notice previews), and notice pages send a `notice_read` with its reading-time bracket when the reader leaves (`useNoticeReading`). The rules live in the pure, tested `features/analytics/lib/umami.ts`. Umami is cookieless, and missing or blocked it does nothing. Admins read the figures in Umami, from the "Voir les statistiques" link on the dashboard home; the app has no analytics charts or queries. The first-party analytics tables were dropped; their earlier daily summaries survive only in a CSV archive outside the repo.
 
 `Artwork.viewCount` is a separate server-side counter: the notice page calls `recordNoticeView` on mount (`useRecordNoticeView`), which counts published notices only, once per client IP per 30 minutes, and stores only salted IP hashes (`features/artworks/actions/view-count.ts`). A Dokploy schedule calls `/api/cron/prune-view-records` nightly with `CRON_SECRET` to delete the deduplication records that can no longer affect a count; it is the only cron (README, Deployments). The IP comes from the header named by `CLIENT_IP_HEADER` (`x-real-ip`, set by Traefik); where it is unset, such as on the local dev server, views are not counted.
 
 ## Environment
 
-Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. With `NODE_ENV=production` (the Docker image) the server refuses to start without `BETTER_AUTH_SECRET`. On a Dokploy preview, `DOKPLOY_DEPLOY_URL` replaces `BASE_URL`. The `S3_*` variables are all set or all unset; without them uploads fail. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered.
+Read configuration from `env` (`src/lib/env.ts`), never from `process.env` (lint enforces it). The schema is in `src/lib/env-schema.ts`. With `NODE_ENV=production` (the Docker image) the server refuses to start without `BETTER_AUTH_SECRET`. On a Dokploy preview, `DOKPLOY_DEPLOY_URL` replaces `BASE_URL`. The `S3_*` variables are all set or all unset; without them uploads fail. The cron endpoint rejects every request when `CRON_SECRET` is unset. `UMAMI_WEBSITE_ID` is optional and set in production only; without it no Umami script is rendered. `ALLOW_INDEXING=true` is set in production only and decides what "production" means for search engines: without it (staging, previews, the dev server) every response carries `X-Robots-Tag: noindex, nofollow` (`src/start.ts`) and `/robots.txt` disallows everything (`src/lib/search-indexing.ts`); with it, `/robots.txt` names `/sitemap.xml`, which lists the public pages and every published notice.
 
 ## Database
 

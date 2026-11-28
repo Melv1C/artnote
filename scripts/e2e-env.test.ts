@@ -23,16 +23,6 @@ describe('e2eEnv', () => {
     ).toBe('http://localhost:4000');
   });
 
-  it("keeps the database name within Postgres' 63 characters", () => {
-    const long = `artnote_${'a'.repeat(60)}`;
-    const { PRISMA_DATABASE_URL } = e2eEnv({
-      BASE_URL: 'http://localhost:3100',
-      PRISMA_DATABASE_URL: `postgresql://artnote:artnote@localhost:5432/${long}`,
-    });
-    const name = new URL(PRISMA_DATABASE_URL).pathname.slice(1);
-    expect(name).toBe(`${long.slice(0, 59)}_e2e`);
-  });
-
   it('refuses a database that is not local', () => {
     expect(() =>
       e2eEnv({

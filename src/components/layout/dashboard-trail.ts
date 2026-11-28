@@ -1,9 +1,4 @@
-const SECTION_LABELS: Record<string, string> = {
-  artworks: 'Mes notices',
-  artists: 'Artistes',
-  places: 'Lieux',
-  users: 'Utilisateurs',
-};
+import { DASHBOARD_HOME, DASHBOARD_NAV } from './dashboard-navigation';
 
 const ACTION_LABELS: Record<string, string> = {
   create: 'Nouveau',
@@ -11,17 +6,20 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 /**
- * The breadcrumb steps of a dashboard path: "Tableau de bord", then its section, then the page
+ * The breadcrumb steps of a dashboard path: the dashboard home, then its section, then the page
  * ("Nouveau", "Modifier"). Ids in the path are not shown.
  */
 export function dashboardTrail(pathname: string): { label: string; href: string }[] {
   const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
-  const trail = [{ label: 'Tableau de bord', href: '/dashboard' }];
+  const trail: { label: string; href: string }[] = [
+    { label: DASHBOARD_HOME.label, href: DASHBOARD_HOME.to },
+  ];
   const [root, section, ...rest] = segments;
   if (root !== 'dashboard' || !section) return trail;
 
   const sectionHref = `/dashboard/${section}`;
-  trail.push({ label: SECTION_LABELS[section] ?? section, href: sectionHref });
+  const sectionItem = DASHBOARD_NAV.find(item => item.to === sectionHref);
+  trail.push({ label: sectionItem?.label ?? section, href: sectionHref });
 
   const action = rest.find(segment => segment in ACTION_LABELS);
   if (action) {

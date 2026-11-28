@@ -1,38 +1,91 @@
-import { PlaceFiltersSchema } from '@/schemas/place';
+import type { Prisma } from '@/generated/prisma/client';
+import { PlaceFiltersSchema, type Place } from '@/schemas/place';
 import { describe, expect, it } from 'vite-plus/test';
 import { buildPlaceWhere } from './place-filters';
 
-const where = (input: Parameters<typeof PlaceFiltersSchema.parse>[0]) =>
-  buildPlaceWhere(PlaceFiltersSchema.parse(input));
+type Row = Pick<
+  Place,
+  'id' | 'name' | 'type' | 'address' | 'city' | 'country' | 'latitude' | 'longitude'
+>;
+
+/**
+ * Whether Postgres would return `row` for `where`, for the conditions the place filters use:
+ * equality, `null`, `in`, `AND` and `OR`. Throws on any other condition.
+ */
+function matches(row: Row, where: Prisma.PlaceWhereInput): boolean {
+  return Object.entries(where).every(([key, condition]: [string, unknown]) => {
+    if (key === 'AND' || key === 'OR') {
+      const conditions = [condition].flat() as Prisma.PlaceWhereInput[];
+      const met = (each: Prisma.PlaceWhereInput) => matches(row, each);
+      return key === 'AND' ? conditions.every(met) : conditions.some(met);
+    }
+    const value = row[key as keyof Row];
+    if (condition === null || typeof condition !== 'object') return value === condition;
+    if ('in' in condition && Array.isArray(condition.in)) return condition.in.includes(value);
+    throw new Error(`Unsupported condition on ${key}: ${JSON.stringify(condition)}`);
+  });
+}
+
+// Each place's id is its name, so the text filters' ids read as names
+const place = (row: Partial<Row> & Pick<Row, 'name' | 'type'>): Row => ({
+  id: row.name,
+  address: null,
+  city: null,
+  country: 'Belgique',
+  latitude: 51,
+  longitude: 4,
+  ...row,
+});
+
+const places = [
+  place({ name: 'MSK Gent', type: 'MUSEUM', address: 'Fernand Scribedreef 1', city: 'Gand' }),
+  place({ name: 'Cathédrale Saint-Bavon', type: 'CHURCH', city: 'Gand' }),
+  place({ name: 'Église Saint-Michel', type: 'CHURCH', city: 'Gand', longitude: null }),
+  place({ name: 'Notre-Dame', type: 'CHURCH', city: 'Bruges', latitude: null, longitude: null }),
+  place({
+    name: 'Musée Groeninge',
+    type: 'MUSEUM',
+    address: 'Dijver 12',
+    city: 'Bruges',
+    latitude: null,
+    longitude: null,
+  }),
+  place({ name: 'Rijksmuseum', type: 'MUSEUM', city: 'Amsterdam', country: 'Pays-Bas' }),
+];
+
+const found = (
+  input: Parameters<typeof PlaceFiltersSchema.parse>[0],
+  textIds: (string[] | undefined)[] = [],
+) => {
+  const where = buildPlaceWhere(PlaceFiltersSchema.parse(input), textIds);
+  return places.filter(row => matches(row, where)).map(row => row.name);
+};
 
 describe('buildPlaceWhere', () => {
-  it('has no conditions without filters', () => {
-    expect(where({})).toEqual({});
+  it('keeps every place without filters', () => {
+    expect(found({}, [undefined, undefined])).toHaveLength(places.length);
   });
 
-  it('filters by exact type and by partial city and country, ignoring case', () => {
-    expect(where({ type: 'MUSEUM', city: 'gand', country: 'belg' })).toEqual({
-      type: 'MUSEUM',
-      city: { contains: 'gand', mode: 'insensitive' },
-      country: { contains: 'belg', mode: 'insensitive' },
-    });
-  });
-
-  it('searches name, address and city', () => {
-    expect(where({ search: 'MSK' }).OR).toHaveLength(3);
+  it('keeps the places every text filter matches, of the exact type', () => {
+    const search = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Rijksmuseum'];
+    const city = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
+    expect(found({ type: 'MUSEUM' }, [search, city])).toEqual(['MSK Gent']);
+    expect(found({}, [search, undefined, city])).toEqual(['MSK Gent', 'Cathédrale Saint-Bavon']);
   });
 
   it('keeps only places missing a latitude or a longitude', () => {
-    expect(where({ missingPosition: true })).toEqual({
-      AND: [{ OR: [{ latitude: null }, { longitude: null }] }],
-    });
-    expect(where({ missingPosition: false })).toEqual({});
+    expect(found({ missingPosition: true })).toEqual([
+      'Église Saint-Michel',
+      'Notre-Dame',
+      'Musée Groeninge',
+    ]);
+    expect(found({ missingPosition: false })).toHaveLength(places.length);
   });
 
-  it('combines the missing position with search and type', () => {
-    const combined = where({ missingPosition: true, search: 'gand', type: 'CHURCH' });
-    expect(combined.type).toBe('CHURCH');
-    expect(combined.OR).toHaveLength(3);
-    expect(combined.AND).toEqual([{ OR: [{ latitude: null }, { longitude: null }] }]);
+  it('applies the missing position and the text filters together, neither replacing the other', () => {
+    const gand = ['MSK Gent', 'Cathédrale Saint-Bavon', 'Église Saint-Michel'];
+    expect(found({ missingPosition: true, type: 'CHURCH' }, [gand])).toEqual([
+      'Église Saint-Michel',
+    ]);
   });
 });

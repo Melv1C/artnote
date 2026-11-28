@@ -2,6 +2,7 @@ import type { Prisma } from '@/generated/prisma/client';
 import { dashboardAccessMiddleware } from '@/lib/auth-functions';
 import { pageWindow, paginate } from '@/lib/pagination';
 import { prisma } from '@/lib/prisma';
+import { idsContaining } from '@/lib/text-search';
 import { IdSchema } from '@/schemas/common';
 import { publishedWhere } from '@/features/artworks/lib/artwork-status';
 import { MapPlaceSchema, PlaceFiltersSchema, PlaceWithRelationsSchema } from '@/schemas/place';
@@ -11,8 +12,6 @@ import { buildPlaceWhere } from '../lib/place-filters';
 import { MAP_NOTICES_SHOWN } from '../lib/place-map';
 
 const placeInclude = {
-  createdBy: { select: { id: true, name: true } },
-  updatedBy: { select: { id: true, name: true } },
   artworks: { select: { id: true, title: true } },
 } satisfies Prisma.PlaceInclude;
 
@@ -20,7 +19,12 @@ export const fetchPlaces = createServerFn({ method: 'GET' })
   .middleware([dashboardAccessMiddleware])
   .validator(PlaceFiltersSchema)
   .handler(async ({ data: filters }) => {
-    const where = buildPlaceWhere(filters);
+    const textIds = await Promise.all([
+      idsContaining('place', ['name', 'address', 'city'], filters.search),
+      idsContaining('place', ['city'], filters.city),
+      idsContaining('place', ['country'], filters.country),
+    ]);
+    const where = buildPlaceWhere(filters, textIds);
 
     const [totalCount, places] = await Promise.all([
       prisma.place.count({ where }),
@@ -67,7 +71,6 @@ export const fetchMapPlaces = createServerFn({ method: 'GET' }).handler(async ()
         select: {
           id: true,
           title: true,
-          // The main image, else the first
           images: {
             select: { image: true },
             orderBy: [{ isMain: 'desc' }, { sortOrder: 'asc' }],

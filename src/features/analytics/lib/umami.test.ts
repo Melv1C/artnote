@@ -1,27 +1,25 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { isMeasuredPath, noticeReadingEvent, readingTimeBracket } from './umami';
+import { measuredPagePath, noticeReadingEvent, readingTimeBracket } from './umami';
 
-describe('isMeasuredPath', () => {
-  it.each(['/', '/artworks', '/artworks/abc123', '/about', '/confidentialite', '/whats-new'])(
-    '%s is measured',
-    path => {
-      expect(isMeasuredPath(path)).toBe(true);
-    },
-  );
-
-  it.each([
-    '/dashboard',
-    '/dashboard/',
-    '/dashboard/artworks',
-    '/Dashboard/Places',
-    '/artworks/abc123/preview',
-    '/artworks/abc123/preview/',
-  ])('%s is not measured', path => {
-    expect(isMeasuredPath(path)).toBe(false);
+describe('measuredPagePath', () => {
+  const page = (path: string, resolvedPath: string | undefined, measured?: boolean) => ({
+    location: { pathname: path },
+    resolvedLocation: resolvedPath === undefined ? undefined : { pathname: resolvedPath },
+    matches: [{ staticData: {} }, { staticData: { measured } }],
   });
 
-  it('does not mistake a path that only starts like the dashboard', () => {
-    expect(isMeasuredPath('/dashboards')).toBe(true);
+  it('is the path of a loaded page', () => {
+    expect(measuredPagePath(page('/artworks/abc123', '/artworks/abc123'))).toBe('/artworks/abc123');
+  });
+
+  it('waits for the page to load: until then the matches can be the previous page’s', () => {
+    expect(measuredPagePath(page('/dashboard', '/'))).toBeUndefined();
+    expect(measuredPagePath(page('/', '/dashboard'))).toBeUndefined();
+    expect(measuredPagePath(page('/', undefined))).toBeUndefined();
+  });
+
+  it('leaves out a page one of whose routes is not measured', () => {
+    expect(measuredPagePath(page('/dashboard', '/dashboard', false))).toBeUndefined();
   });
 });
 

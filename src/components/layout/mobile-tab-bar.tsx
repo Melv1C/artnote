@@ -12,9 +12,9 @@ export function MobileTabBar() {
       aria-label="Navigation principale"
       className="pb-safe px-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background md:hidden"
     >
-      <ul className="mx-auto grid h-(--tabbar-height) max-w-md grid-cols-5">
+      <ul className="mx-auto flex h-(--tabbar-height) max-w-md">
         {SITE_NAV.map(item => (
-          <li key={item.to} className="flex">
+          <li key={item.to} className="flex flex-1">
             <Link
               to={item.to}
               activeOptions={{ exact: item.exact }}

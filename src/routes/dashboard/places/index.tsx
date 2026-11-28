@@ -1,3 +1,4 @@
+import { pageTitle } from '@/lib/seo';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { PlacesTable } from '@/features/places/components/places-table';
@@ -5,7 +6,7 @@ import { Plus } from 'lucide-react';
 import { Link, createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/places/')({
-  head: () => ({ meta: [{ title: 'ArtNote - Lieux' }] }),
+  head: () => ({ meta: [{ title: pageTitle('Lieux') }] }),
   component: PlacesPage,
 });
 

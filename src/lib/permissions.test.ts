@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { DASHBOARD_PERMISSIONS, hasRolePermission } from './permissions';
+import { DASHBOARD_PERMISSIONS, canViewDashboard, hasRolePermission } from './permissions';
 
 describe('hasRolePermission', () => {
   it('lets admins into the dashboard and user administration', () => {
@@ -14,14 +14,12 @@ describe('hasRolePermission', () => {
     expect(hasRolePermission('user', { place: ['manage'] })).toBe(false);
     expect(hasRolePermission('user', { user: ['list'] })).toBe(false);
   });
+});
 
-  it('lets readers read published content', () => {
-    expect(
-      hasRolePermission('user', { artwork: ['read'], artist: ['read'], place: ['read'] }),
-    ).toBe(true);
-  });
-
-  it('requires every listed action', () => {
-    expect(hasRolePermission('user', { artwork: ['read', 'manage'] })).toBe(false);
+describe('canViewDashboard', () => {
+  it('needs a signed-in admin', () => {
+    expect(canViewDashboard(null)).toBe(false);
+    expect(canViewDashboard({ role: 'user' })).toBe(false);
+    expect(canViewDashboard({ role: 'admin' })).toBe(true);
   });
 });

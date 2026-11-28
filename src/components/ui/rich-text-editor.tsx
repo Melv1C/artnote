@@ -3,16 +3,13 @@ import './rich-text-editor.css';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { linkHref, shortenAddressLinks } from '@/lib/rich-text-links';
 import { cn } from '@/lib/utils';
-import { Color } from '@tiptap/extension-color';
 import Document from '@tiptap/extension-document';
 import { Highlight } from '@tiptap/extension-highlight';
-import { Link } from '@tiptap/extension-link';
 import { Superscript } from '@tiptap/extension-superscript';
 import { TextAlign } from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { Underline } from '@tiptap/extension-underline';
-import { EditorContent, useEditor } from '@tiptap/react';
+import { type AnyExtension, type Editor, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import {
   AlignCenter,
@@ -37,308 +34,385 @@ import {
   Undo,
   Unlink,
 } from 'lucide-react';
-import { shortenAddressLinks } from '@/lib/rich-text-links';
-import { useEffect } from 'react';
+import { Fragment, type ReactNode, useEffect } from 'react';
 import { Footnote, FootnoteReference, Footnotes } from 'tiptap-footnotes';
 
-const headingsClass =
-  '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_h3]:mb-2';
+/**
+ * The formatting a rich text field keeps. Every editor loads all of it, so saving never drops
+ * formatting a stored text already has; `features` only chooses the toolbar's buttons. Undo and
+ * redo are always there.
+ */
+const ALL_FEATURES = [
+  'headings',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'superscript',
+  'highlight',
+  'alignment',
+  'lists',
+  'blockquote',
+  'link',
+  'footnotes',
+] as const;
 
-// Configuration interfaces
-export interface RichTextEditorToolbarConfig {
-  // History controls
-  history?: {
-    undo?: boolean;
-    redo?: boolean;
-  };
-  // Headings and text types
-  headings?: {
-    h1?: boolean;
-    h2?: boolean;
-    h3?: boolean;
-    paragraph?: boolean;
-  };
-  // Text formatting
-  formatting?: {
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-    strikethrough?: boolean;
-    superscript?: boolean;
-    highlight?: boolean;
-  };
-  // Text alignment
-  alignment?: {
-    left?: boolean;
-    center?: boolean;
-    right?: boolean;
-    justify?: boolean;
-  };
-  // Lists and blocks
-  blocks?: {
-    bulletList?: boolean;
-    orderedList?: boolean;
-    blockquote?: boolean;
-  };
-  // Links
-  links?: {
-    enabled?: boolean;
-  };
-  // Footnotes
-  footnotes?: {
-    enabled?: boolean;
-  };
-}
+type RichTextFeature = (typeof ALL_FEATURES)[number];
 
-export interface RichTextEditorConfig {
-  toolbar?: RichTextEditorToolbarConfig;
-  // Editor behavior
-  minHeight?: string;
-  maxHeight?: string;
-  // Extensions to disable
-  disableExtensions?: string[];
-}
-
-// Default configuration
-const defaultConfig: RichTextEditorConfig = {
-  toolbar: {
-    history: { undo: true, redo: true },
-    headings: { h1: true, h2: true, h3: true, paragraph: true },
-    formatting: {
-      bold: true,
-      italic: true,
-      underline: true,
-      strikethrough: true,
-      superscript: true,
-      highlight: true,
-    },
-    alignment: { left: true, center: true, right: true, justify: true },
-    blocks: { bulletList: true, orderedList: true, blockquote: true },
-    links: { enabled: true },
-    footnotes: { enabled: true },
-  },
-  minHeight: '150px',
-};
-
-// Common presets
 export const editorPresets = {
-  // Basic formatting only (bold, italic)
-  basic: {
-    toolbar: {
-      formatting: { bold: true, italic: true },
-    },
-  } as RichTextEditorConfig,
+  /** References and links: no headings, footnotes or layout */
+  bibliography: ['bold', 'italic', 'strike', 'lists', 'link'],
+  /** An artist's life and work: emphasis, lists and links */
+  biography: ['bold', 'italic', 'lists', 'link'],
+} as const satisfies Record<string, readonly RichTextFeature[]>;
 
-  // Full featured editor
-  full: defaultConfig,
+// Tiptap gives every heading level the same class, so the levels are styled from their container
+const headingsClass =
+  '[&_:is(h1,h2,h3)]:font-bold [&_:is(h1,h2,h3)]:leading-tight [&_h1]:text-2xl [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:mt-5 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:mt-4 [&_h3]:mb-2';
 
-  // Minimal editor for comments
-  minimal: {
-    toolbar: {
-      formatting: { bold: true, italic: true, strikethrough: true },
-      blocks: { bulletList: true, orderedList: true },
-      links: { enabled: true },
-    },
-  } as RichTextEditorConfig,
-};
+export const richTextLinkClass =
+  'text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50';
 
-// Shared configuration for both editor and viewer
-const getEditorExtensions = (isViewer = false, config: RichTextEditorConfig = defaultConfig) => {
-  const extensions = [];
-
-  // StarterKit - always needed but configure based on config
-  const starterKitConfig: Record<
-    string,
-    false | { HTMLAttributes?: { class?: string }; levels?: number[] } | boolean
-  > = {
-    // Configure extensions with Tailwind classes
-    bulletList:
-      config.toolbar?.blocks?.bulletList !== false
-        ? {
-            HTMLAttributes: {
-              class: 'list-disc pl-6 space-y-1',
-            },
-          }
-        : false,
-    orderedList:
-      config.toolbar?.blocks?.orderedList !== false
-        ? {
-            HTMLAttributes: {
-              class: 'list-decimal pl-6 space-y-1',
-            },
-          }
-        : false,
-    listItem: {
-      HTMLAttributes: {
-        class: 'leading-relaxed',
+function editorExtensions(): AnyExtension[] {
+  return [
+    StarterKit.configure({
+      // tiptap-footnotes needs a document that ends with the footnotes, added below
+      document: false,
+      heading: { levels: [1, 2, 3] },
+      underline: { HTMLAttributes: { class: 'underline decoration-2' } },
+      bulletList: { HTMLAttributes: { class: 'list-disc pl-6 space-y-1' } },
+      orderedList: { HTMLAttributes: { class: 'list-decimal pl-6 space-y-1' } },
+      listItem: { HTMLAttributes: { class: 'leading-relaxed' } },
+      blockquote: {
+        HTMLAttributes: {
+          class: 'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
+        },
       },
-    },
-    blockquote:
-      config.toolbar?.blocks?.blockquote !== false
-        ? {
-            HTMLAttributes: {
-              class: 'border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground my-4',
-            },
-          }
-        : false,
-    heading:
-      config.toolbar?.headings?.h1 !== false ||
-      config.toolbar?.headings?.h2 !== false ||
-      config.toolbar?.headings?.h3 !== false
-        ? {
-            levels: [
-              ...(config.toolbar?.headings?.h1 !== false ? [1] : []),
-              ...(config.toolbar?.headings?.h2 !== false ? [2] : []),
-              ...(config.toolbar?.headings?.h3 !== false ? [3] : []),
-            ],
-            HTMLAttributes: {
-              class: 'font-bold leading-tight',
-            },
-          }
-        : false,
-    paragraph: {
-      HTMLAttributes: {
-        class: 'leading-relaxed',
-      },
-    },
-    bold: config.toolbar?.formatting?.bold !== false,
-    italic: config.toolbar?.formatting?.italic !== false,
-    strike: config.toolbar?.formatting?.strikethrough !== false,
+      paragraph: { HTMLAttributes: { class: 'leading-relaxed' } },
+      link: { HTMLAttributes: { class: richTextLinkClass } },
+    }),
+    Superscript.configure({ HTMLAttributes: { class: 'text-xs align-super' } }),
+    Highlight.configure({
+      HTMLAttributes: { class: 'bg-yellow-200 text-inherit dark:bg-yellow-900/50 rounded px-1' },
+    }),
+    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    Document.extend({ content: 'block+ footnotes?' }),
+    Footnotes,
+    Footnote,
+    FootnoteReference,
+  ];
+}
+
+/**
+ * Shows a value set from outside the editor, such as a form being reset, without reporting it back
+ * as an edit: the editor's HTML can differ from a stored value that means the same.
+ */
+export function useEditorValue(editor: Editor | null, value: string | null) {
+  useEffect(() => {
+    // An empty editor holds `<p></p>`, which an empty value already means
+    if (!editor || (editor.isEmpty && !value) || value === editor.getHTML()) return;
+    editor.commands.setContent(value ?? '', { emitUpdate: false });
+  }, [editor, value]);
+}
+
+interface ToggleButton {
+  feature: RichTextFeature;
+  name: string;
+  title: string;
+  icon: ReactNode;
+  toggle: (editor: Editor) => void;
+}
+
+const MARK_BUTTONS: ToggleButton[] = [
+  {
+    feature: 'bold',
+    name: 'bold',
+    title: 'Gras',
+    icon: <Bold />,
+    toggle: editor => editor.chain().focus().toggleBold().run(),
+  },
+  {
+    feature: 'italic',
+    name: 'italic',
+    title: 'Italique',
+    icon: <Italic />,
+    toggle: editor => editor.chain().focus().toggleItalic().run(),
+  },
+  {
+    feature: 'underline',
+    name: 'underline',
+    title: 'Souligné',
+    icon: <UnderlineIcon />,
+    toggle: editor => editor.chain().focus().toggleUnderline().run(),
+  },
+  {
+    feature: 'strike',
+    name: 'strike',
+    title: 'Barré',
+    icon: <Strikethrough />,
+    toggle: editor => editor.chain().focus().toggleStrike().run(),
+  },
+  {
+    feature: 'superscript',
+    name: 'superscript',
+    title: 'Exposant',
+    icon: <SuperscriptIcon />,
+    toggle: editor => editor.chain().focus().toggleSuperscript().run(),
+  },
+];
+
+const BLOCK_BUTTONS: ToggleButton[] = [
+  {
+    feature: 'lists',
+    name: 'bulletList',
+    title: 'Liste à puces',
+    icon: <List />,
+    toggle: editor => editor.chain().focus().toggleBulletList().run(),
+  },
+  {
+    feature: 'lists',
+    name: 'orderedList',
+    title: 'Liste numérotée',
+    icon: <ListOrdered />,
+    toggle: editor => editor.chain().focus().toggleOrderedList().run(),
+  },
+  {
+    feature: 'blockquote',
+    name: 'blockquote',
+    title: 'Citation',
+    icon: <Quote />,
+    toggle: editor => editor.chain().focus().toggleBlockquote().run(),
+  },
+];
+
+const ALIGNMENTS = [
+  { value: 'left', title: 'Aligner à gauche', icon: <AlignLeft /> },
+  { value: 'center', title: 'Centrer', icon: <AlignCenter /> },
+  { value: 'right', title: 'Aligner à droite', icon: <AlignRight /> },
+  { value: 'justify', title: 'Justifier', icon: <AlignJustify /> },
+];
+
+function ToggleButtons({ editor, buttons }: { editor: Editor; buttons: ToggleButton[] }) {
+  const active = buttons.filter(button => editor.isActive(button.name)).map(({ name }) => name);
+  return (
+    <ToggleGroup
+      type="multiple"
+      value={active}
+      onValueChange={values => {
+        const pressed = buttons.find(({ name }) => values.includes(name) !== active.includes(name));
+        pressed?.toggle(editor);
+      }}
+      size="sm"
+      className="border rounded-md"
+    >
+      {buttons.map(({ name, title, icon }) => (
+        <ToggleGroupItem key={name} value={name} className="h-8 px-3" title={title}>
+          {icon}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  );
+}
+
+function Toolbar({ editor, features }: { editor: Editor; features: readonly RichTextFeature[] }) {
+  const has = (feature: RichTextFeature) => features.includes(feature);
+  const marks = MARK_BUTTONS.filter(({ feature }) => has(feature));
+  const blocks = BLOCK_BUTTONS.filter(({ feature }) => has(feature));
+
+  const addLink = () => {
+    const href = linkHref(window.prompt('URL du lien:') ?? '');
+    if (href) editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
   };
 
-  extensions.push(StarterKit.configure(starterKitConfig));
+  const groups = [
+    <div key="history" className="flex items-center">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        className="h-8 w-8 p-0"
+        title="Annuler"
+      >
+        <Undo />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        className="h-8 w-8 p-0"
+        title="Rétablir"
+      >
+        <Redo />
+      </Button>
+    </div>,
+    has('headings') && (
+      <ToggleGroup
+        key="headings"
+        type="single"
+        value={
+          ([1, 2, 3] as const).find(level => editor.isActive('heading', { level }))?.toString() ??
+          'p'
+        }
+        onValueChange={value => {
+          if (value === 'p') editor.chain().focus().setParagraph().run();
+          else if (value === '1' || value === '2' || value === '3')
+            editor
+              .chain()
+              .focus()
+              .setHeading({ level: Number(value) as 1 | 2 | 3 })
+              .run();
+        }}
+        size="sm"
+        className="border rounded-md"
+      >
+        <ToggleGroupItem value="p" className="h-8 px-3" title="Paragraphe">
+          <Type />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="1" className="h-8 px-3 font-bold text-base" title="Titre 1">
+          <Heading1 className="size-5" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="2" className="h-8 px-3 font-bold" title="Titre 2">
+          <Heading2 className="size-[18px]" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="3" className="h-8 px-3 font-semibold" title="Titre 3">
+          <Heading3 />
+        </ToggleGroupItem>
+      </ToggleGroup>
+    ),
+    marks.length > 0 && <ToggleButtons key="marks" editor={editor} buttons={marks} />,
+    has('highlight') && (
+      <Button
+        key="highlight"
+        type="button"
+        variant={editor.isActive('highlight') ? 'secondary' : 'ghost'}
+        size="sm"
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
+        className="h-8 px-3"
+        title="Surligner"
+      >
+        <Highlighter />
+      </Button>
+    ),
+    has('alignment') && (
+      <ToggleGroup
+        key="alignment"
+        type="single"
+        value={
+          ALIGNMENTS.find(({ value }) => editor.isActive({ textAlign: value }))?.value ?? 'left'
+        }
+        onValueChange={value => {
+          if (value) editor.chain().focus().setTextAlign(value).run();
+        }}
+        size="sm"
+        className="border rounded-md"
+      >
+        {ALIGNMENTS.map(({ value, title, icon }) => (
+          <ToggleGroupItem key={value} value={value} className="h-8 px-3" title={title}>
+            {icon}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    ),
+    blocks.length > 0 && <ToggleButtons key="blocks" editor={editor} buttons={blocks} />,
+    has('link') && (
+      <div key="link" className="flex items-center border rounded-md">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={addLink}
+          className={cn(
+            'h-8 px-3 rounded-r-none border-r',
+            editor.isActive('link') && 'bg-accent text-accent-foreground',
+          )}
+          title="Ajouter/Modifier un lien"
+        >
+          <LinkIcon />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().unsetLink().run()}
+          disabled={!editor.isActive('link')}
+          className="h-8 px-3 rounded-l-none"
+          title="Supprimer le lien"
+        >
+          <Unlink />
+        </Button>
+      </div>
+    ),
+    has('footnotes') && (
+      <Button
+        key="footnotes"
+        type="button"
+        variant={editor.isActive('footnote') ? 'secondary' : 'ghost'}
+        size="sm"
+        onClick={() => editor.commands.addFootnote()}
+        className="h-8 px-3"
+        title="Ajouter une note de bas de page"
+      >
+        <span className="text-sm font-medium">A</span>
+        <sup className="text-xs font-bold ml-0.5">1</sup>
+      </Button>
+    ),
+  ].filter(Boolean);
 
-  // Conditional extensions based on configuration
-  if (
-    config.toolbar?.formatting?.underline !== false ||
-    config.toolbar?.formatting?.highlight !== false
-  ) {
-    extensions.push(TextStyle, Color);
-  }
+  return (
+    <div className="border-b p-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        {groups.map((group, index) => (
+          <Fragment key={index}>
+            {index > 0 && <Separator orientation="vertical" className="h-6" />}
+            {group}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  if (config.toolbar?.formatting?.underline !== false) {
-    extensions.push(
-      Underline.configure({
-        HTMLAttributes: {
-          class: 'underline decoration-2',
-        },
-      }),
-    );
-  }
-
-  if (config.toolbar?.formatting?.highlight !== false) {
-    extensions.push(
-      Highlight.configure({
-        multicolor: true,
-        HTMLAttributes: {
-          class: 'bg-yellow-200 dark:bg-yellow-900/50 rounded px-1',
-        },
-      }),
-    );
-  }
-
-  if (config.toolbar?.formatting?.superscript !== false) {
-    extensions.push(
-      Superscript.configure({
-        HTMLAttributes: {
-          class: 'text-xs align-super',
-        },
-      }),
-    );
-  }
-
-  if (config.toolbar?.alignment) {
-    extensions.push(
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-    );
-  }
-
-  if (config.toolbar?.links?.enabled !== false) {
-    extensions.push(
-      Link.configure({
-        openOnClick: isViewer,
-        HTMLAttributes: {
-          class: `text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50 ${
-            isViewer ? 'cursor-pointer' : ''
-          }`,
-        },
-      }),
-    );
-  }
-
-  if (config.toolbar?.footnotes?.enabled !== false) {
-    extensions.push(
-      Document.extend({
-        content: 'block+ footnotes?',
-      }),
-      Footnotes,
-      Footnote,
-      FootnoteReference,
-    );
-  }
-
-  return extensions;
-};
-
-const getEditorProps = (isViewer = false, config: RichTextEditorConfig = defaultConfig) => {
-  const minHeight = config.minHeight || '150px';
-  const maxHeight = config.maxHeight;
-
-  return {
-    attributes: {
-      class: `prose prose-sm max-w-none ${
-        isViewer ? '' : `min-h-[${minHeight}]`
-      } ${maxHeight ? `max-h-[${maxHeight}] overflow-y-auto` : ''} prose-headings:font-bold prose-headings:leading-tight prose-h1:text-2xl prose-h1:mt-6 prose-h1:mb-4 prose-h2:text-xl prose-h2:mt-5 prose-h2:mb-3 prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 focus:outline-none`,
-    },
-  };
-};
-
-// Rich Text Editor Component
 interface RichTextEditorProps {
   value: string | null;
   onChange: (value: string | null) => void;
+  /** The field's accessible name, such as its form label */
+  label: string;
   className?: string;
   placeholder?: string;
-  config?: Partial<RichTextEditorConfig>;
+  features?: readonly RichTextFeature[];
 }
 
 export function RichTextEditor({
   value,
   onChange,
+  label,
   className,
   placeholder = 'Commencez à écrire…',
-  config,
+  features = ALL_FEATURES,
 }: RichTextEditorProps) {
-  const finalConfig = config || defaultConfig;
-
   const editor = useEditor({
-    extensions: getEditorExtensions(false, finalConfig),
+    extensions: editorExtensions(),
     content: value || '',
     immediatelyRender: false,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      // Only call onChange if content actually changed
-      if (html !== value) {
-        onChange(editor.isEmpty ? null : html);
-      }
+    onUpdate: ({ editor }) => onChange(editor.isEmpty ? null : editor.getHTML()),
+    editorProps: {
+      attributes: {
+        role: 'textbox',
+        'aria-label': label,
+        'aria-multiline': 'true',
+        class: 'min-h-[150px] focus:outline-none',
+      },
     },
-    editorProps: getEditorProps(false, finalConfig),
   });
-
-  useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || '');
-    }
-  }, [value, editor]);
+  useEditorValue(editor, value);
 
   if (!editor) {
     return (
-      <div
-        className={cn('border rounded-lg animate-pulse', className)}
-        style={{ minHeight: '200px' }}
-      >
+      <div className={cn('border rounded-lg animate-pulse min-h-[200px]', className)}>
         <div className="border-b p-3">
           <div className="h-8 bg-muted rounded w-full"></div>
         </div>
@@ -351,436 +425,11 @@ export function RichTextEditor({
     );
   }
 
-  // Helper functions to check if toolbar sections should be shown
-  const showHistory = finalConfig.toolbar?.history?.undo || finalConfig.toolbar?.history?.redo;
-  const showHeadings =
-    finalConfig.toolbar?.headings?.h1 ||
-    finalConfig.toolbar?.headings?.h2 ||
-    finalConfig.toolbar?.headings?.h3 ||
-    finalConfig.toolbar?.headings?.paragraph;
-  const showFormatting =
-    finalConfig.toolbar?.formatting?.bold ||
-    finalConfig.toolbar?.formatting?.italic ||
-    finalConfig.toolbar?.formatting?.underline ||
-    finalConfig.toolbar?.formatting?.strikethrough ||
-    finalConfig.toolbar?.formatting?.superscript;
-  const showHighlight = finalConfig.toolbar?.formatting?.highlight;
-  const showAlignment =
-    finalConfig.toolbar?.alignment?.left ||
-    finalConfig.toolbar?.alignment?.center ||
-    finalConfig.toolbar?.alignment?.right ||
-    finalConfig.toolbar?.alignment?.justify;
-  const showBlocks =
-    finalConfig.toolbar?.blocks?.bulletList ||
-    finalConfig.toolbar?.blocks?.orderedList ||
-    finalConfig.toolbar?.blocks?.blockquote;
-  const showLinks = finalConfig.toolbar?.links?.enabled;
-  const showFootnotes = finalConfig.toolbar?.footnotes?.enabled;
-
-  // Count visible sections for conditional separators
-  const visibleSections = [
-    showHistory,
-    showHeadings,
-    showFormatting,
-    showHighlight,
-    showAlignment,
-    showBlocks,
-    showLinks,
-    showFootnotes,
-  ].filter(Boolean).length;
-
-  const addLink = () => {
-    const url = window.prompt('URL du lien:');
-    if (url) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-    }
-  };
-
-  const removeLink = () => {
-    editor.chain().focus().unsetLink().run();
-  };
-
   return (
     <div className={cn('border rounded-lg overflow-hidden', className)}>
-      {/* Toolbar - only show if not single line and has visible sections */}
-      {visibleSections > 0 && (
-        <div className="border-b p-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Undo/Redo */}
-            {showHistory && (
-              <>
-                <div className="flex items-center">
-                  {finalConfig.toolbar?.history?.undo && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => editor.chain().focus().undo().run()}
-                      disabled={!editor.can().undo()}
-                      className="h-8 w-8 p-0"
-                      title="Annuler"
-                    >
-                      <Undo className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {finalConfig.toolbar?.history?.redo && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => editor.chain().focus().redo().run()}
-                      disabled={!editor.can().redo()}
-                      className="h-8 w-8 p-0"
-                      title="Rétablir"
-                    >
-                      <Redo className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                {showHeadings && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Heading Selection */}
-            {showHeadings && (
-              <>
-                <ToggleGroup
-                  type="single"
-                  value={
-                    editor.isActive('heading', { level: 1 })
-                      ? 'h1'
-                      : editor.isActive('heading', { level: 2 })
-                        ? 'h2'
-                        : editor.isActive('heading', { level: 3 })
-                          ? 'h3'
-                          : editor.isActive('paragraph')
-                            ? 'p'
-                            : 'p'
-                  }
-                  onValueChange={value => {
-                    if (value === 'h1' && finalConfig.toolbar?.headings?.h1) {
-                      editor.chain().focus().setHeading({ level: 1 }).run();
-                    } else if (value === 'h2' && finalConfig.toolbar?.headings?.h2) {
-                      editor.chain().focus().setHeading({ level: 2 }).run();
-                    } else if (value === 'h3' && finalConfig.toolbar?.headings?.h3) {
-                      editor.chain().focus().setHeading({ level: 3 }).run();
-                    } else if (value === 'p' && finalConfig.toolbar?.headings?.paragraph) {
-                      editor.chain().focus().setParagraph().run();
-                    }
-                  }}
-                  size="sm"
-                  className="border rounded-md"
-                >
-                  {finalConfig.toolbar?.headings?.paragraph && (
-                    <ToggleGroupItem value="p" className="h-8 px-3" title="Paragraphe">
-                      <Type className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.headings?.h1 && (
-                    <ToggleGroupItem
-                      value="h1"
-                      className="h-8 px-3 font-bold text-base"
-                      title="Titre 1"
-                    >
-                      <Heading1 className="h-5 w-5" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.headings?.h2 && (
-                    <ToggleGroupItem value="h2" className="h-8 px-3 font-bold" title="Titre 2">
-                      <Heading2 className="h-[18px] w-[18px]" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.headings?.h3 && (
-                    <ToggleGroupItem value="h3" className="h-8 px-3 font-semibold" title="Titre 3">
-                      <Heading3 className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                </ToggleGroup>
-                {showFormatting && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Text Formatting */}
-            {showFormatting && (
-              <>
-                <ToggleGroup
-                  type="multiple"
-                  value={[
-                    ...(editor.isActive('bold') ? ['bold'] : []),
-                    ...(editor.isActive('italic') ? ['italic'] : []),
-                    ...(editor.isActive('underline') ? ['underline'] : []),
-                    ...(editor.isActive('strike') ? ['strike'] : []),
-                    ...(editor.isActive('superscript') ? ['superscript'] : []),
-                  ]}
-                  onValueChange={values => {
-                    // Handle bold
-                    if (finalConfig.toolbar?.formatting?.bold) {
-                      const shouldBeBold = values.includes('bold');
-                      const isBold = editor.isActive('bold');
-                      if (shouldBeBold !== isBold) {
-                        editor.chain().focus().toggleBold().run();
-                      }
-                    }
-
-                    // Handle italic
-                    if (finalConfig.toolbar?.formatting?.italic) {
-                      const shouldBeItalic = values.includes('italic');
-                      const isItalic = editor.isActive('italic');
-                      if (shouldBeItalic !== isItalic) {
-                        editor.chain().focus().toggleItalic().run();
-                      }
-                    }
-
-                    // Handle underline
-                    if (finalConfig.toolbar?.formatting?.underline) {
-                      const shouldBeUnderline = values.includes('underline');
-                      const isUnderline = editor.isActive('underline');
-                      if (shouldBeUnderline !== isUnderline) {
-                        editor.chain().focus().toggleUnderline().run();
-                      }
-                    }
-
-                    // Handle strike
-                    if (finalConfig.toolbar?.formatting?.strikethrough) {
-                      const shouldBeStrike = values.includes('strike');
-                      const isStrike = editor.isActive('strike');
-                      if (shouldBeStrike !== isStrike) {
-                        editor.chain().focus().toggleStrike().run();
-                      }
-                    }
-
-                    // Handle superscript
-                    if (finalConfig.toolbar?.formatting?.superscript) {
-                      const shouldBeSuperscript = values.includes('superscript');
-                      const isSuperscript = editor.isActive('superscript');
-                      if (shouldBeSuperscript !== isSuperscript) {
-                        editor.chain().focus().toggleSuperscript().run();
-                      }
-                    }
-                  }}
-                  size="sm"
-                  className="border rounded-md"
-                >
-                  {finalConfig.toolbar?.formatting?.bold && (
-                    <ToggleGroupItem value="bold" className="h-8 px-3" title="Gras">
-                      <Bold className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.formatting?.italic && (
-                    <ToggleGroupItem value="italic" className="h-8 px-3" title="Italique">
-                      <Italic className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.formatting?.underline && (
-                    <ToggleGroupItem value="underline" className="h-8 px-3" title="Souligné">
-                      <UnderlineIcon className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.formatting?.strikethrough && (
-                    <ToggleGroupItem value="strike" className="h-8 px-3" title="Barré">
-                      <Strikethrough className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.formatting?.superscript && (
-                    <ToggleGroupItem value="superscript" className="h-8 px-3" title="Exposant">
-                      <SuperscriptIcon className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                </ToggleGroup>
-                {showHighlight && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Highlight */}
-            {showHighlight && (
-              <>
-                <Button
-                  type="button"
-                  variant={editor.isActive('highlight') ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()}
-                  className="h-8 px-3"
-                  title="Surligner"
-                >
-                  <Highlighter className="h-4 w-4" />
-                </Button>
-                {showAlignment && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Text Alignment */}
-            {showAlignment && (
-              <>
-                <ToggleGroup
-                  type="single"
-                  value={
-                    editor.isActive({ textAlign: 'left' })
-                      ? 'left'
-                      : editor.isActive({ textAlign: 'center' })
-                        ? 'center'
-                        : editor.isActive({ textAlign: 'right' })
-                          ? 'right'
-                          : editor.isActive({ textAlign: 'justify' })
-                            ? 'justify'
-                            : 'left'
-                  }
-                  onValueChange={value => {
-                    if (value) {
-                      editor.chain().focus().setTextAlign(value).run();
-                    }
-                  }}
-                  size="sm"
-                  className="border rounded-md"
-                >
-                  {finalConfig.toolbar?.alignment?.left && (
-                    <ToggleGroupItem value="left" className="h-8 px-3" title="Aligner à gauche">
-                      <AlignLeft className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.alignment?.center && (
-                    <ToggleGroupItem value="center" className="h-8 px-3" title="Centrer">
-                      <AlignCenter className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.alignment?.right && (
-                    <ToggleGroupItem value="right" className="h-8 px-3" title="Aligner à droite">
-                      <AlignRight className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.alignment?.justify && (
-                    <ToggleGroupItem value="justify" className="h-8 px-3" title="Justifier">
-                      <AlignJustify className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                </ToggleGroup>
-                {showBlocks && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Lists and Quote */}
-            {showBlocks && (
-              <>
-                <ToggleGroup
-                  type="multiple"
-                  value={[
-                    ...(editor.isActive('bulletList') ? ['bulletList'] : []),
-                    ...(editor.isActive('orderedList') ? ['orderedList'] : []),
-                    ...(editor.isActive('blockquote') ? ['blockquote'] : []),
-                  ]}
-                  onValueChange={values => {
-                    // Handle bullet list
-                    if (finalConfig.toolbar?.blocks?.bulletList) {
-                      const shouldBeBulletList = values.includes('bulletList');
-                      const isBulletList = editor.isActive('bulletList');
-                      if (shouldBeBulletList !== isBulletList) {
-                        editor.chain().focus().toggleBulletList().run();
-                      }
-                    }
-
-                    // Handle ordered list
-                    if (finalConfig.toolbar?.blocks?.orderedList) {
-                      const shouldBeOrderedList = values.includes('orderedList');
-                      const isOrderedList = editor.isActive('orderedList');
-                      if (shouldBeOrderedList !== isOrderedList) {
-                        editor.chain().focus().toggleOrderedList().run();
-                      }
-                    }
-
-                    // Handle blockquote
-                    if (finalConfig.toolbar?.blocks?.blockquote) {
-                      const shouldBeBlockquote = values.includes('blockquote');
-                      const isBlockquote = editor.isActive('blockquote');
-                      if (shouldBeBlockquote !== isBlockquote) {
-                        editor.chain().focus().toggleBlockquote().run();
-                      }
-                    }
-                  }}
-                  size="sm"
-                  className="border rounded-md"
-                >
-                  {finalConfig.toolbar?.blocks?.bulletList && (
-                    <ToggleGroupItem value="bulletList" className="h-8 px-3" title="Liste à puces">
-                      <List className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.blocks?.orderedList && (
-                    <ToggleGroupItem
-                      value="orderedList"
-                      className="h-8 px-3"
-                      title="Liste numérotée"
-                    >
-                      <ListOrdered className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                  {finalConfig.toolbar?.blocks?.blockquote && (
-                    <ToggleGroupItem value="blockquote" className="h-8 px-3" title="Citation">
-                      <Quote className="h-4 w-4" />
-                    </ToggleGroupItem>
-                  )}
-                </ToggleGroup>
-                {showLinks && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Link */}
-            {showLinks && (
-              <>
-                <div className="flex items-center border rounded-md">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={addLink}
-                    className={cn(
-                      'h-8 px-3 rounded-r-none border-r',
-                      editor.isActive('link') && 'bg-accent text-accent-foreground',
-                    )}
-                    title="Ajouter/Modifier un lien"
-                  >
-                    <LinkIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={removeLink}
-                    disabled={!editor.isActive('link')}
-                    className="h-8 px-3 rounded-l-none"
-                    title="Supprimer le lien"
-                  >
-                    <Unlink className="h-4 w-4" />
-                  </Button>
-                </div>
-                {showFootnotes && <Separator orientation="vertical" className="h-6" />}
-              </>
-            )}
-
-            {/* Footnote */}
-            {showFootnotes && (
-              <Button
-                type="button"
-                variant={editor.isActive('footnote') ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => editor.commands.addFootnote()}
-                className="h-8 px-3"
-                title="Ajouter une note de bas de page"
-              >
-                <span className="text-sm font-medium">A</span>
-                <sup className="text-xs font-bold ml-0.5">1</sup>
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Editor Content */}
+      <Toolbar editor={editor} features={features} />
       <div className="relative p-4">
-        <EditorContent
-          editor={editor}
-          className={cn('[&_.ProseMirror]:min-h-[150px]', headingsClass)}
-        />
-
-        {/* Placeholder */}
+        <EditorContent editor={editor} className={headingsClass} />
         {editor.isEmpty && (
           <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none select-none">
             {placeholder}
@@ -791,30 +440,23 @@ export function RichTextEditor({
   );
 }
 
-// Rich Text Viewer Component
-interface RichTextViewerProps {
+export function RichTextViewer({
+  content,
+  className,
+}: {
   content: string | null;
   className?: string;
-  config?: Partial<RichTextEditorConfig>;
-}
-
-export function RichTextViewer({ content: written, className, config }: RichTextViewerProps) {
-  const finalConfig = config || defaultConfig;
-  const content = written ? shortenAddressLinks(written) : written;
-
+}) {
+  const html = content ? shortenAddressLinks(content) : '';
   const editor = useEditor({
-    extensions: getEditorExtensions(true, finalConfig),
-    content: content || '',
+    extensions: editorExtensions(),
+    content: html,
     immediatelyRender: false,
-    editable: false, // Make it read-only
-    editorProps: getEditorProps(true, finalConfig),
+    editable: false,
   });
+  useEditorValue(editor, html);
 
-  useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '');
-    }
-  }, [content, editor]);
+  if (!html.trim() || html === '<p></p>') return null;
 
   if (!editor) {
     return (
@@ -828,13 +470,8 @@ export function RichTextViewer({ content: written, className, config }: RichText
     );
   }
 
-  // Don't render anything if there's no content
-  if (!content || content.trim() === '' || content === '<p></p>') {
-    return null;
-  }
-
   return (
-    <div className={cn('prose prose-sm max-w-none wrap-anywhere', className)}>
+    <div className={cn('wrap-anywhere', className)}>
       <EditorContent editor={editor} className={headingsClass} />
     </div>
   );

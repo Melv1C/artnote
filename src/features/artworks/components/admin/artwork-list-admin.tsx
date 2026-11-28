@@ -2,51 +2,35 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import type { Artwork } from '@/schemas/artwork';
-import type { ArtworkStatus } from '@/schemas/common';
 import { Link } from '@tanstack/react-router';
 import { FileText, PlusIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { use, useMemo, useState } from 'react';
+import type { fetchMyArtworks } from '../../actions/artwork-queries';
 import {
+  ARTWORK_STATUS_VIEWS,
   countActiveFilters,
   DEFAULT_ADMIN_ARTWORK_FILTER,
   filterAdminArtworks,
-  type AdminArtworkFilter,
+  inStatusView,
 } from '../../lib/admin-artwork-filter';
 import { ArtworkFilters } from './artwork-filters';
-import { ArtworkRowAdmin } from './artwork-row-admin';
+import { ArtworkRowAdmin, ArtworkTableHeader } from './artwork-row-admin';
 
-interface ArtworkListAdminProps {
-  initialArtworks: Artwork[];
-  onDelete: (artworkId: string) => Promise<void>;
-  onStatusChange: (artworkId: string, status: ArtworkStatus) => Promise<void>;
-}
-
-/** The status views above the list; "En cours" is the default, archives set aside. */
-const STATUS_VIEWS: { label: string; status: ArtworkStatus[] }[] = [
-  { label: 'En cours', status: ['DRAFT', 'PUBLISHED'] },
-  { label: 'Brouillons', status: ['DRAFT'] },
-  { label: 'Publiées', status: ['PUBLISHED'] },
-  { label: 'Archivées', status: ['ARCHIVED'] },
-];
-
-const sameStatuses = (a: ArtworkStatus[] = [], b: ArtworkStatus[]) =>
-  a.length === b.length && b.every(status => a.includes(status));
-
-export function ArtworkListAdmin({
-  initialArtworks,
-  onDelete,
-  onStatusChange,
-}: ArtworkListAdminProps) {
-  const [filters, setFilters] = useState<AdminArtworkFilter>(DEFAULT_ADMIN_ARTWORK_FILTER);
-  const debouncedSearch = useDebounce(filters.search ?? '', 300);
-  const artworks = useMemo(
-    () => filterAdminArtworks(initialArtworks, { ...filters, search: debouncedSearch }),
-    [initialArtworks, filters, debouncedSearch],
+/** The writer's notices in the dashboard: status tabs, search, sort and date filters. */
+export function ArtworkListAdmin(props: { artworks: ReturnType<typeof fetchMyArtworks> }) {
+  const artworks = use(props.artworks);
+  const [filters, setFilters] = useState(DEFAULT_ADMIN_ARTWORK_FILTER);
+  const debouncedSearch = useDebounce(filters.search);
+  const shown = useMemo(
+    () => filterAdminArtworks(artworks, { ...filters, search: debouncedSearch }),
+    [artworks, filters, debouncedSearch],
   );
-  const isFiltered = countActiveFilters(filters) > 0 || Boolean(filters.search);
+  const isFiltered =
+    filters.view !== DEFAULT_ADMIN_ARTWORK_FILTER.view ||
+    Boolean(filters.search) ||
+    countActiveFilters(filters) > 0;
 
-  if (initialArtworks.length === 0) {
+  if (artworks.length === 0) {
     return (
       <EmptyState
         title="Aucune notice créée"
@@ -65,21 +49,21 @@ export function ArtworkListAdmin({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 @4xl:flex-row @4xl:items-center @4xl:justify-between">
         <div
           className="inline-flex w-fit flex-wrap rounded-lg bg-muted p-1"
           role="group"
           aria-label="Statut des notices"
         >
-          {STATUS_VIEWS.map(view => {
-            const active = sameStatuses(filters.status, view.status);
-            const count = initialArtworks.filter(a => view.status.includes(a.status)).length;
+          {ARTWORK_STATUS_VIEWS.map(view => {
+            const active = filters.view === view.id;
+            const count = artworks.filter(a => inStatusView(view.id, a.status)).length;
             return (
               <button
-                key={view.label}
+                key={view.id}
                 type="button"
                 aria-pressed={active}
-                onClick={() => setFilters({ ...filters, status: view.status })}
+                onClick={() => setFilters({ ...filters, view: view.id })}
                 className={cn(
                   'inline-flex h-8 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
                   active && 'bg-card text-foreground shadow-sm',
@@ -91,10 +75,10 @@ export function ArtworkListAdmin({
             );
           })}
         </div>
-        <ArtworkFilters filters={filters} onFilterChange={setFilters} />
+        <ArtworkFilters filters={filters} onChange={setFilters} />
       </div>
 
-      {artworks.length === 0 ? (
+      {shown.length === 0 ? (
         <EmptyState
           title="Aucune notice trouvée"
           text="Aucune de vos notices ne correspond à cette recherche ou à ces filtres."
@@ -108,39 +92,18 @@ export function ArtworkListAdmin({
         <div
           role="table"
           aria-label="Mes notices"
-          aria-rowcount={artworks.length + 1}
-          className="overflow-hidden rounded-xl border bg-card shadow-xs"
+          aria-rowcount={shown.length + 1}
+          className="@container overflow-hidden rounded-xl border bg-card shadow-xs"
         >
-          <div
-            role="row"
-            className="hidden grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_4.5rem] gap-x-4 lg:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_4rem_10.5rem] border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground md:grid"
-          >
-            <span role="columnheader">
-              <span className="sr-only">Image</span>
-            </span>
-            <span role="columnheader">Notice</span>
-            <span role="columnheader">Statut</span>
-            <span role="columnheader">Modifiée</span>
-            <span role="columnheader" className="text-right">
-              Vues
-            </span>
-            <span role="columnheader">
-              <span className="sr-only">Actions</span>
-            </span>
-          </div>
+          <ArtworkTableHeader />
           <div role="rowgroup" className="divide-y">
-            {artworks.map(artwork => (
-              <ArtworkRowAdmin
-                key={artwork.id}
-                artwork={artwork}
-                onDelete={onDelete}
-                onStatusChange={onStatusChange}
-              />
+            {shown.map(artwork => (
+              <ArtworkRowAdmin key={artwork.id} artwork={artwork} />
             ))}
           </div>
           {isFiltered && (
             <p className="border-t px-4 py-2.5 text-xs text-muted-foreground">
-              {artworks.length} sur {initialArtworks.length} notices
+              {shown.length} sur {artworks.length} notices
             </p>
           )}
         </div>
@@ -170,7 +133,7 @@ function EmptyState({
   );
 }
 
-export function ArtworkListSkeleton() {
+export function ArtworkListAdminSkeleton() {
   return (
     <div className="space-y-4" aria-busy="true" aria-label="Chargement des notices">
       <Skeleton className="h-10 w-80" />

@@ -15,13 +15,15 @@ import { Route as CarteRouteImport } from './routes/carte'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as WhatsNewRouteImport } from './routes/whats-new'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ArtworksIndexRouteImport } from './routes/artworks/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronPruneViewRecordsRouteImport } from './routes/api/cron/prune-view-records'
 import { Route as ArtworksArtworkIdIndexRouteImport } from './routes/artworks/$artworkId/index'
+import { Route as ArtworksArtworkIdSlugRouteImport } from './routes/artworks/$artworkId/$slug'
 import { Route as ArtworksArtworkIdPreviewRouteImport } from './routes/artworks/$artworkId/preview'
 import { Route as DashboardArtistsIndexRouteImport } from './routes/dashboard/artists/index'
 import { Route as DashboardArtistsArtistIdRouteImport } from './routes/dashboard/artists/$artistId'
@@ -63,9 +65,14 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WhatsNewRoute = WhatsNewRouteImport.update({
-  id: '/whats-new',
-  path: '/whats-new',
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksIndexRoute = ArtworksIndexRouteImport.update({
@@ -96,6 +103,11 @@ const ApiCronPruneViewRecordsRoute = ApiCronPruneViewRecordsRouteImport.update({
 const ArtworksArtworkIdIndexRoute = ArtworksArtworkIdIndexRouteImport.update({
   id: '/artworks/$artworkId/',
   path: '/artworks/$artworkId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArtworksArtworkIdSlugRoute = ArtworksArtworkIdSlugRouteImport.update({
+  id: '/artworks/$artworkId/$slug',
+  path: '/artworks/$artworkId/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtworksArtworkIdPreviewRoute =
@@ -159,12 +171,14 @@ export interface FileRoutesByFullPath {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
+  '/artworks/$artworkId/$slug': typeof ArtworksArtworkIdSlugRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -183,12 +197,14 @@ export interface FileRoutesByTo {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks': typeof ArtworksIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
+  '/artworks/$artworkId/$slug': typeof ArtworksArtworkIdSlugRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -209,12 +225,14 @@ export interface FileRoutesById {
   '/carte': typeof CarteRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/profile': typeof ProfileRoute
-  '/whats-new': typeof WhatsNewRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/artworks/': typeof ArtworksIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/prune-view-records': typeof ApiCronPruneViewRecordsRoute
+  '/artworks/$artworkId/$slug': typeof ArtworksArtworkIdSlugRoute
   '/artworks/$artworkId/preview': typeof ArtworksArtworkIdPreviewRoute
   '/dashboard/artists/$artistId': typeof DashboardArtistsArtistIdRoute
   '/dashboard/artists/create': typeof DashboardArtistsCreateRoute
@@ -236,12 +254,14 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/cron/prune-view-records'
+    | '/artworks/$artworkId/$slug'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -260,12 +280,14 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks'
     | '/dashboard'
     | '/api/auth/$'
     | '/api/cron/prune-view-records'
+    | '/artworks/$artworkId/$slug'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -285,12 +307,14 @@ export interface FileRouteTypes {
     | '/carte'
     | '/confidentialite'
     | '/profile'
-    | '/whats-new'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/dashboard/users'
     | '/artworks/'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/cron/prune-view-records'
+    | '/artworks/$artworkId/$slug'
     | '/artworks/$artworkId/preview'
     | '/dashboard/artists/$artistId'
     | '/dashboard/artists/create'
@@ -311,10 +335,12 @@ export interface RootRouteChildren {
   CarteRoute: typeof CarteRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ProfileRoute: typeof ProfileRoute
-  WhatsNewRoute: typeof WhatsNewRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArtworksIndexRoute: typeof ArtworksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPruneViewRecordsRoute: typeof ApiCronPruneViewRecordsRoute
+  ArtworksArtworkIdSlugRoute: typeof ArtworksArtworkIdSlugRoute
   ArtworksArtworkIdPreviewRoute: typeof ArtworksArtworkIdPreviewRoute
   ArtworksArtworkIdIndexRoute: typeof ArtworksArtworkIdIndexRoute
 }
@@ -363,11 +389,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/whats-new': {
-      id: '/whats-new'
-      path: '/whats-new'
-      fullPath: '/whats-new'
-      preLoaderRoute: typeof WhatsNewRouteImport
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/': {
@@ -410,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/artworks/$artworkId'
       fullPath: '/artworks/$artworkId/'
       preLoaderRoute: typeof ArtworksArtworkIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/artworks/$artworkId/$slug': {
+      id: '/artworks/$artworkId/$slug'
+      path: '/artworks/$artworkId/$slug'
+      fullPath: '/artworks/$artworkId/$slug'
+      preLoaderRoute: typeof ArtworksArtworkIdSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artworks/$artworkId/preview': {
@@ -524,10 +564,12 @@ const rootRouteChildren: RootRouteChildren = {
   CarteRoute: CarteRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ProfileRoute: ProfileRoute,
-  WhatsNewRoute: WhatsNewRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArtworksIndexRoute: ArtworksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPruneViewRecordsRoute: ApiCronPruneViewRecordsRoute,
+  ArtworksArtworkIdSlugRoute: ArtworksArtworkIdSlugRoute,
   ArtworksArtworkIdPreviewRoute: ArtworksArtworkIdPreviewRoute,
   ArtworksArtworkIdIndexRoute: ArtworksArtworkIdIndexRoute,
 }
@@ -536,10 +578,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

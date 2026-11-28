@@ -2,7 +2,7 @@
 export const VIEW_DEDUPLICATION_WINDOW_MS = 30 * 60 * 1000;
 
 /** Deduplication records are kept a day: well past the window, so pruning never re-opens one. */
-const VIEW_RECORD_RETENTION_MS = 24 * 60 * 60 * 1000;
+export const VIEW_RECORD_RETENTION_MS = 24 * 60 * 60 * 1000;
 
 /** Records created before this moment can be deleted. */
 export const viewRecordsExpireBefore = (now: Date) =>

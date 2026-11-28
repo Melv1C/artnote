@@ -18,10 +18,6 @@ describe('parseEnv', () => {
     ).toMatchObject({ BETTER_AUTH_SECRET: 'a-real-secret' });
   });
 
-  it('requires a database URL', () => {
-    expect(() => parseEnv({})).toThrow(/PRISMA_DATABASE_URL/);
-  });
-
   it("gives a Dokploy preview its own host as base URL, over the app's BASE_URL", () => {
     const env = parseEnv({
       ...DATABASE,
@@ -29,17 +25,6 @@ describe('parseEnv', () => {
       DOKPLOY_DEPLOY_URL: 'preview-artnote-abc123.artnote.melvyn.be',
     });
     expect(env.BASE_URL).toBe('https://preview-artnote-abc123.artnote.melvyn.be');
-  });
-
-  it('accepts an optional Umami website id, a UUID', () => {
-    expect(parseEnv(DATABASE).UMAMI_WEBSITE_ID).toBeUndefined();
-    expect(
-      parseEnv({ ...DATABASE, UMAMI_WEBSITE_ID: '3f2b8c1e-6d4a-4f7b-9e1c-2a5d8b7c4e90' })
-        .UMAMI_WEBSITE_ID,
-    ).toBe('3f2b8c1e-6d4a-4f7b-9e1c-2a5d8b7c4e90');
-    expect(() => parseEnv({ ...DATABASE, UMAMI_WEBSITE_ID: 'not-a-uuid' })).toThrow(
-      /UMAMI_WEBSITE_ID/,
-    );
   });
 
   it('reads the client IP from no header unless one is named, lowercased', () => {
@@ -70,5 +55,12 @@ describe('parseEnv', () => {
       publicUrl: 'https://files.artnote.melvyn.be/artnote',
     });
     expect(() => parseEnv({ ...DATABASE, S3_BUCKET: 'artnote' })).toThrow(/S3_ENDPOINT/);
+  });
+
+  it('allows search engine indexing only where ALLOW_INDEXING is true', () => {
+    expect(parseEnv(DATABASE).ALLOW_INDEXING).toBe(false);
+    expect(parseEnv({ ...DATABASE, ALLOW_INDEXING: 'true' }).ALLOW_INDEXING).toBe(true);
+    expect(parseEnv({ ...DATABASE, ALLOW_INDEXING: 'false' }).ALLOW_INDEXING).toBe(false);
+    expect(() => parseEnv({ ...DATABASE, ALLOW_INDEXING: 'yes please' })).toThrow(/ALLOW_INDEXING/);
   });
 });

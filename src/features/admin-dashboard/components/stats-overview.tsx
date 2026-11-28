@@ -1,53 +1,26 @@
-/**
- * StatsOverview Component with Suspense Loading
- *
- * This component implements a performance-optimized approach using React Suspense
- * to display admin dashboard statistics. Each stat card loads independently with
- * its own skeleton loader, preventing any single slow query from blocking the
- * entire dashboard.
- *
- * Architecture:
- * - Each stat resolves its own deferred loader promise
- * - Individual Suspense boundaries for each card
- * - Skeleton loaders maintain layout consistency during loading
- * - Non-blocking loading allows for better UX
- */
-
-import { StatCard } from '@/components/stats/stat-card';
-import { StatCardSkeleton } from '@/components/stats/stat-card-skeleton';
-import type { AdminDashboardData } from '../actions/dashboard-queries';
-import { AudienceLinkCard } from './audience-link-card';
+import { StatCard } from '@/components/stat-card';
 import { NotebookPen, Users } from 'lucide-react';
-import { Suspense, use } from 'react';
+import type { fetchPublishedArtworkCount } from '@/features/artworks/actions/artwork-queries';
+import type { fetchUserStats } from '@/features/user-management/actions/user-queries';
+import { AudienceLinkCard } from './audience-link-card';
 
-type StatsOverviewProps = {
-  data: AdminDashboardData['stats'];
-};
-
-// Individual components for each stat
-function UserCountCard({ count }: { count: Promise<number> }) {
-  const userCount = use(count);
-  return <StatCard title="Comptes" value={userCount} icon={Users} />;
-}
-
-function NoticeCountCard({ count }: { count: Promise<number> }) {
-  const noticeCount = use(count);
+export function StatsOverview({
+  userStats,
+  publishedCount,
+}: {
+  userStats: ReturnType<typeof fetchUserStats>;
+  publishedCount: ReturnType<typeof fetchPublishedArtworkCount>;
+}) {
   return (
-    <StatCard title="Notices publiées" value={noticeCount} icon={NotebookPen} tone="success" />
-  );
-}
-
-export function StatsOverview({ data }: StatsOverviewProps) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      <Suspense fallback={<StatCardSkeleton title="Comptes" icon={Users} />}>
-        <UserCountCard count={data.userCount} />
-      </Suspense>
-
-      <Suspense fallback={<StatCardSkeleton title="Notices publiées" icon={NotebookPen} />}>
-        <NoticeCountCard count={data.noticeCount} />
-      </Suspense>
-
+    <div className="grid gap-4 @xl:grid-cols-3">
+      <StatCard title="Comptes" icon={Users} data={userStats} value={stats => stats.total} />
+      <StatCard
+        title="Notices publiées"
+        icon={NotebookPen}
+        tone="success"
+        data={publishedCount}
+        value={count => count}
+      />
       <AudienceLinkCard />
     </div>
   );

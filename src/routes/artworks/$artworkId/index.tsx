@@ -1,52 +1,17 @@
-import { artistFullName } from '@/features/artists/lib/artist-name';
 import { NotFound } from '@/components/layout/not-found';
 import { fetchPublishedArtwork } from '@/features/artworks/actions/artwork-queries';
-import { useNoticeReading } from '@/features/analytics/hooks/use-notice-reading';
-import { useRecordNoticeView } from '@/features/artworks/hooks/use-record-notice-view';
-import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
-import { DEFAULT_OG_IMAGE, ogImageMeta, pageMeta } from '@/lib/seo';
-import { createFileRoute } from '@tanstack/react-router';
+import { noticeParams } from '@/features/artworks/lib/notice-slug';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
+/** A link without the slug, from before notice URLs had one, leads to the current URL. */
 export const Route = createFileRoute('/artworks/$artworkId/')({
-  loader: ({ params }) => fetchPublishedArtwork({ data: params.artworkId }),
-  head: ({ loaderData: artwork, matches }) => {
-    if (!artwork) {
-      return { meta: [{ title: 'ArtNote - Œuvre non trouvée' }] };
-    }
-
-    // The root route's loader data (src/routes/__root.tsx)
-    const root = matches[0]?.loaderData as { siteUrl: string } | undefined;
-    const siteUrl = root?.siteUrl ?? '';
-    const mainImages = artwork.images.filter(image => image.isMain);
-
-    return {
-      meta: [
-        ...pageMeta(
-          `ArtNote - ${artwork.title}`,
-          `Découvrez la notice "${artwork.title}" de ${artwork.artists.map(({ artist }) => artistFullName(artist)).join(', ')}.`,
-        ),
-        ...ogImageMeta(
-          siteUrl,
-          mainImages.length
-            ? mainImages.map(image => ({
-                url: image.image.url,
-                width: image.image.width || undefined,
-                height: image.image.height || undefined,
-                alt: artwork.title,
-              }))
-            : [DEFAULT_OG_IMAGE],
-        ),
-      ],
-    };
+  loader: async ({ params }) => {
+    const artwork = await fetchPublishedArtwork({ data: params.artworkId });
+    throw redirect({
+      to: '/artworks/$artworkId/$slug',
+      params: noticeParams(artwork),
+      statusCode: 301,
+    });
   },
-  component: ArtworkPage,
   notFoundComponent: NotFound,
 });
-
-function ArtworkPage() {
-  const artwork = Route.useLoaderData();
-  useNoticeReading(artwork.id, artwork.title);
-  useRecordNoticeView(artwork.id);
-
-  return <ArtworkDetail artwork={artwork} />;
-}

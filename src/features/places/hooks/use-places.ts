@@ -1,8 +1,7 @@
 import type { PlaceFilters } from '@/schemas/place';
+import { MAX_PAGE_SIZE } from '@/lib/pagination';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchPlaces } from '../actions/place-queries';
-
-const TABLE_PAGE_SIZE = 25;
 
 /** React Query keys for place reads. Invalidate `placeKeys.all` after any place mutation. */
 export const placeKeys = {
@@ -14,20 +13,17 @@ export const placeKeys = {
 export function usePlaces(filters: PlaceFilters = {}) {
   return useQuery({
     queryKey: placeKeys.list(filters),
-    queryFn: () => fetchPlaces({ data: { limit: TABLE_PAGE_SIZE, ...filters } }),
+    queryFn: () => fetchPlaces({ data: filters }),
     staleTime: 30 * 1000,
-    // Keep the current page on screen while the next one loads
     placeholderData: keepPreviousData,
   });
 }
-
-const OPTIONS_LIMIT = 100;
 
 /** Places matching `search`, for the notice editor's place picker. */
 export function usePlaceOptions(search?: string) {
   return useQuery({
     queryKey: placeKeys.options(search),
-    queryFn: async () => (await fetchPlaces({ data: { search, limit: OPTIONS_LIMIT } })).places,
+    queryFn: async () => (await fetchPlaces({ data: { search, limit: MAX_PAGE_SIZE } })).places,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -24,5 +24,9 @@ declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     /** The page fills the phone screen: no footer below it on phones (`MainLayout`). */
     fillsPhoneScreen?: boolean;
+    /** The route and the routes below it bring their own shell instead of the reader's `MainLayout`. */
+    hasOwnLayout?: boolean;
+    /** False: no Umami page view for the route and the routes below it, which are not reading (ADR 0010). */
+    measured?: boolean;
   }
 }

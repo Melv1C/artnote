@@ -1,9 +1,41 @@
 import { ArtworkStatusSchema, type ArtworkStatus } from '@/schemas/common';
 
-export const ARTWORK_STATUS_LABELS: Record<ArtworkStatus, string> = {
-  DRAFT: 'Brouillon',
-  PUBLISHED: 'Publié',
-  ARCHIVED: 'Archivé',
+interface StatusVocabulary {
+  /** One notice in this status ("une notice publiée": feminine) */
+  label: string;
+  /** Several of them, for tabs and figures */
+  plural: string;
+  /** Moving a notice to this status, in the writer's menu */
+  action: string;
+  /** The confirmation once it moved */
+  done: string;
+  /** The colour of its dot: published is live, a draft waits, an archive is put away */
+  dotClassName: string;
+}
+
+/** How the dashboard and the preview name and show each status. */
+export const ARTWORK_STATUS: Record<ArtworkStatus, StatusVocabulary> = {
+  DRAFT: {
+    label: 'Brouillon',
+    plural: 'Brouillons',
+    action: 'Repasser en brouillon',
+    done: 'Notice repassée en brouillon',
+    dotClassName: 'bg-warning',
+  },
+  PUBLISHED: {
+    label: 'Publiée',
+    plural: 'Publiées',
+    action: 'Publier',
+    done: 'Notice publiée',
+    dotClassName: 'bg-success',
+  },
+  ARCHIVED: {
+    label: 'Archivée',
+    plural: 'Archivées',
+    action: 'Archiver',
+    done: 'Notice archivée',
+    dotClassName: 'bg-muted-foreground/60',
+  },
 };
 
 /**

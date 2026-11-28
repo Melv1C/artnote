@@ -2,6 +2,7 @@
 // worktree was never set up, instead of a cryptic `prisma: command not found`. It imports nothing
 // from node_modules, so it runs before `vp install`.
 import { existsSync } from 'node:fs';
+import { ENV_FILES } from './env-files';
 
 type Command = 'dev' | 'check';
 
@@ -30,7 +31,7 @@ if (import.meta.main) {
   }
   const missing = missingSetup(command, {
     dependencies: existsSync('node_modules/.bin/prisma'),
-    envFile: existsSync('.env') || existsSync('.env.local'),
+    envFile: ENV_FILES.some(file => existsSync(file)),
     databaseUrl: Boolean(process.env.PRISMA_DATABASE_URL),
     prismaClient: existsSync('src/generated/prisma/client.ts'),
   });

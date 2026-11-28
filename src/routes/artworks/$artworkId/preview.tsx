@@ -4,12 +4,15 @@ import { Button } from '@/components/ui/button';
 import { fetchArtworkPreview } from '@/features/artworks/actions/artwork-queries';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { ArtworkDetail } from '@/features/artworks/components/artwork-detail';
-import { ARTWORK_STATUS_LABELS } from '@/features/artworks/lib/artwork-status';
+import { ARTWORK_STATUS } from '@/features/artworks/lib/artwork-status';
+import { ArtworkStatusSchema } from '@/schemas/common';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { EyeOff, Pencil } from 'lucide-react';
 
 export const Route = createFileRoute('/artworks/$artworkId/preview')({
   loader: ({ params }) => fetchArtworkPreview({ data: params.artworkId }),
+  // Admin work, not reading
+  staticData: { measured: false },
   component: ArtworkPreviewPage,
   errorComponent: UnauthorizedOrError,
   notFoundComponent: NotFound,
@@ -17,7 +20,7 @@ export const Route = createFileRoute('/artworks/$artworkId/preview')({
 
 function ArtworkPreviewPage() {
   const artwork = Route.useLoaderData();
-  const isPublished = artwork.status === 'PUBLISHED';
+  const isPublished = artwork.status === ArtworkStatusSchema.enum.PUBLISHED;
   const { user } = useAuth();
   // Only the writer can edit a notice (ADR 0003); other admins only preview it
   const isOwn = user?.id === artwork.writer.id;
@@ -33,7 +36,7 @@ function ArtworkPreviewPage() {
               <strong className="font-semibold">Mode Aperçu</strong>
               <span className="text-muted-foreground">
                 {' '}
-                · {ARTWORK_STATUS_LABELS[artwork.status]}
+                · {ARTWORK_STATUS[artwork.status].label}
                 {isPublished ? ', visible par les lecteurs' : ', invisible pour les lecteurs'}
               </span>
             </span>

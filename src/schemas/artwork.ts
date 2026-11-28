@@ -1,7 +1,7 @@
 import { z } from '@/lib/zod';
 import { ArtistSchema, PublicArtistSchema } from './artist';
 import { ArtworkImageInputSchema, ArtworkImageSchema } from './artwork-image';
-import { ImageSchema } from './image';
+import { ImageSchema, MAX_IMAGES_PER_NOTICE } from './image';
 import { ArtworkStatusSchema, IdSchema } from './common';
 import { PlaceSchema, PublicPlaceSchema } from './place';
 import { AuthorSchema } from './user';
@@ -58,21 +58,35 @@ export const ArtworkFormSchema = z.object({
   sources: optionalText(100_000),
   status: ArtworkStatusSchema,
   placeId: IdSchema.nullable(),
-  images: ArtworkImageInputSchema.array().max(50),
+  images: ArtworkImageInputSchema.array().max(MAX_IMAGES_PER_NOTICE),
   artistIds: IdSchema.array().max(50),
 });
 
 export type Artwork = z.infer<typeof ArtworkSchema>;
 export type PublicArtwork = z.infer<typeof PublicArtworkSchema>;
+export type ArtworkForm = z.infer<typeof ArtworkFormSchema>;
+
 /**
- * The notice editor's state: the submitted form plus each attached image's details, for
- * previews. `ArtworkFormSchema` drops those details when the server parses the submission.
+ * The notice editor's state: the form, with each attached image's details for previews, and the
+ * chosen artists and place themselves rather than their ids. `toArtworkForm` turns it into the
+ * submitted form; `ArtworkFormSchema` then drops the image details on the server.
  */
-export const ArtworkEditorSchema = ArtworkFormSchema.extend({
+export const ArtworkEditorSchema = ArtworkFormSchema.omit({
+  artistIds: true,
+  placeId: true,
+}).extend({
   images: ArtworkImageInputSchema.extend({ id: z.string().optional(), image: ImageSchema })
     .array()
-    .max(50),
+    .max(MAX_IMAGES_PER_NOTICE),
+  artists: ArtistSchema.pick({ id: true, firstName: true, lastName: true }).array().max(50),
+  place: PlaceSchema.pick({ id: true, name: true, city: true, country: true }).nullable(),
 });
 
-export type ArtworkForm = z.infer<typeof ArtworkFormSchema>;
 export type ArtworkEditorValues = z.infer<typeof ArtworkEditorSchema>;
+
+/** What the editor submits: its values, with the chosen artists and place as ids. */
+export const toArtworkForm = ({ artists, place, ...values }: ArtworkEditorValues): ArtworkForm => ({
+  ...values,
+  artistIds: artists.map(artist => artist.id),
+  placeId: place?.id ?? null,
+});

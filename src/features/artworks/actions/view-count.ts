@@ -5,9 +5,6 @@ import { createHash } from 'node:crypto';
 import { publishedWhere } from '../lib/artwork-status';
 import { VIEW_DEDUPLICATION_WINDOW_MS, viewRecordsExpireBefore } from '../lib/view-count';
 
-// The view count module: records views of published notices once per client IP per window, and
-// prunes the records it keeps for deduplication. Only salted IP hashes are stored.
-
 /** Keep the client IP only as a salted hash, so stored rows can't be traced back to an address. */
 const hashIp = (ip: string) =>
   createHash('sha256').update(`${env.BETTER_AUTH_SECRET}:${ip}`).digest('hex');
@@ -43,9 +40,20 @@ export async function recordView({
 
     await prisma.$transaction(async tx => {
       // Only published notices count; an unknown or unpublished id is ignored
-      const { count } = await tx.artwork.updateMany({
+      const artwork = await tx.artwork.findFirst({
         where: { id: artworkId, ...publishedWhere },
-        data: { viewCount: { increment: 1 }, lastViewedAt: new Date() },
+        select: { updatedAt: true },
+      });
+      if (!artwork) return;
+      // A view is not an edit: keep the modified date that `@updatedAt` would otherwise move. An
+      // edit saved since the read wins, and this view goes uncounted.
+      const { count } = await tx.artwork.updateMany({
+        where: { id: artworkId, updatedAt: artwork.updatedAt },
+        data: {
+          viewCount: { increment: 1 },
+          lastViewedAt: new Date(),
+          updatedAt: artwork.updatedAt,
+        },
       });
       if (count) await tx.pageView.create({ data: { artworkId, ipAddress: ipHash } });
     });

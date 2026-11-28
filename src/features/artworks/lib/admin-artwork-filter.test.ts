@@ -30,6 +30,10 @@ const artworks = [
 ];
 
 const titles = (list: { title: string }[]) => list.map(a => a.title);
+const filter = (changes: Partial<typeof DEFAULT_ADMIN_ARTWORK_FILTER>) => ({
+  ...DEFAULT_ADMIN_ARTWORK_FILTER,
+  ...changes,
+});
 
 describe('filterAdminArtworks', () => {
   it('hides archived notices by default, most recently updated first', () => {
@@ -39,35 +43,57 @@ describe('filterAdminArtworks', () => {
     ]);
   });
 
+  it('shows one status under its tab', () => {
+    expect(titles(filterAdminArtworks(artworks, filter({ view: 'ARCHIVED' })))).toEqual([
+      'Vieux tableau',
+    ]);
+  });
+
   it('searches title, medium and year case-insensitively', () => {
-    expect(titles(filterAdminArtworks(artworks, { search: 'HUILE' }))).toEqual(["L'Intrigue"]);
+    expect(titles(filterAdminArtworks(artworks, filter({ search: 'HUILE' })))).toEqual([
+      "L'Intrigue",
+    ]);
+  });
+
+  it('ignores accents both ways', () => {
+    const accented = [artwork('Le Dénombrement de Bethléem'), artwork('Eglise de village')];
+    const search = (text: string) =>
+      titles(filterAdminArtworks(accented, filter({ search: text })));
+    expect(search('denombrement')).toEqual(['Le Dénombrement de Bethléem']);
+    expect(search('ÉGLISE')).toEqual(['Eglise de village']);
   });
 
   it('filters by creation date, inclusive of the whole end day', () => {
     expect(
       titles(
-        filterAdminArtworks(artworks, { createdAfter: '2026-01-10', createdBefore: '2026-01-10' }),
+        filterAdminArtworks(
+          artworks,
+          filter({ createdAfter: '2026-01-10', createdBefore: '2026-01-10' }),
+        ),
       ),
     ).toEqual(['La Mort de Marat', "L'Intrigue"]);
   });
 
-  it('sorts by any column in either direction', () => {
+  it('counts the whole start day in the writer’s time zone', () => {
+    const justAfterMidnight = { ...artworks[0], createdAt: new Date(2026, 0, 10, 0, 30) };
     expect(
-      titles(filterAdminArtworks(artworks, { sortBy: 'viewCount', sortOrder: 'desc' }))[0],
-    ).toBe('La Mort de Marat');
-    expect(titles(filterAdminArtworks(artworks, { sortBy: 'title', sortOrder: 'asc' }))).toEqual([
-      "L'Intrigue",
+      filterAdminArtworks([justAfterMidnight], filter({ createdAfter: '2026-01-10' })),
+    ).toHaveLength(1);
+  });
+
+  it('sorts by any column in either direction', () => {
+    expect(titles(filterAdminArtworks(artworks, filter({ sortBy: 'viewCount' })))[0]).toBe(
       'La Mort de Marat',
-      'Vieux tableau',
-    ]);
+    );
+    expect(
+      titles(filterAdminArtworks(artworks, filter({ sortBy: 'title', sortOrder: 'asc' }))),
+    ).toEqual(["L'Intrigue", 'La Mort de Marat']);
   });
 });
 
 describe('countActiveFilters', () => {
-  it('ignores defaults and search', () => {
-    expect(countActiveFilters({ ...DEFAULT_ADMIN_ARTWORK_FILTER, search: 'x' })).toBe(0);
-    expect(
-      countActiveFilters({ status: ['ARCHIVED'], sortBy: 'title', createdAfter: '2026-01-01' }),
-    ).toBe(3);
+  it('counts the sort and dates that differ from the defaults, not the tab or the search', () => {
+    expect(countActiveFilters(filter({ view: 'ARCHIVED', search: 'x' }))).toBe(0);
+    expect(countActiveFilters(filter({ sortBy: 'title', createdAfter: '2026-01-01' }))).toBe(2);
   });
 });

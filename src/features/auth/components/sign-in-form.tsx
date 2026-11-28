@@ -16,47 +16,29 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from '@/lib/zod';
+import { SignInSchema, type SignInInput } from '@/schemas/user';
 
-const signInSchema = z.object({
-  email: z.email('Adresse email invalide'),
-  password: z.string().min(1, 'Le mot de passe est requis'),
-});
-
-type SignInFormData = z.infer<typeof signInSchema>;
-
-interface SignInFormProps {
-  onSuccess?: () => void;
-}
-
-export function SignInForm({ onSuccess }: SignInFormProps) {
+export function SignInForm({ onSuccess }: { onSuccess: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+  const form = useForm<SignInInput>({
+    resolver: zodResolver(SignInSchema),
+    defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (data: SignInInput) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await signIn.email({
-        email: data.email,
-        password: data.password,
-      });
-
+      const result = await signIn.email(data);
       if (result.error) {
         setError('Email ou mot de passe incorrect');
         return;
       }
       toast.success('Connexion réussie !');
-      onSuccess?.();
+      onSuccess();
     } catch (err) {
       console.error('Sign in error:', err);
       setError('Une erreur est survenue lors de la connexion');

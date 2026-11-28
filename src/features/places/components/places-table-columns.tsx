@@ -1,73 +1,112 @@
+import { DeleteMenuItem, EditMenuItem, RowMenu } from '@/components/data-table/row-actions';
+import type { PagedColumnDef } from '@/components/data-table/paged-table';
 import { Badge } from '@/components/ui/badge';
+import { formatShortDate, plural } from '@/lib/format';
 import type { PlaceWithRelations } from '@/schemas/place';
-import type { DataTableFeatures } from '@/lib/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { deletePlace } from '../actions/place-mutations';
+import { placeKeys } from '../hooks/use-places';
 import { PLACE_TYPE_LABELS } from '../lib/place-types';
-import { PlaceRowActions } from './place-row-actions';
 
-export const columns: ColumnDef<DataTableFeatures, PlaceWithRelations>[] = [
+export const columns: PagedColumnDef<PlaceWithRelations>[] = [
   {
-    accessorKey: 'name',
+    id: 'name',
     header: 'Nom',
+    meta: { className: 'whitespace-normal' },
     cell: ({ row }) => (
-      <div className="flex flex-wrap items-center gap-2">
-        <Link
-          to="/dashboard/places/$placeId"
-          params={{ placeId: row.original.id }}
-          className="font-medium hover:underline"
-        >
-          {row.getValue('name')}
-        </Link>
-        {(row.original.latitude === null || row.original.longitude === null) && (
-          <Badge variant="secondary">Sans position</Badge>
-        )}
+      <div>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            to="/dashboard/places/$placeId"
+            params={{ placeId: row.original.id }}
+            className="font-medium hover:underline"
+          >
+            {row.original.name}
+          </Link>
+          {(row.original.latitude === null || row.original.longitude === null) && (
+            <Badge variant="secondary">Sans position</Badge>
+          )}
+        </div>
+        {/* In a narrow table, the type, city, country and works columns are left out */}
+        <p className="text-xs text-muted-foreground @3xl:hidden">
+          {[
+            PLACE_TYPE_LABELS[row.original.type],
+            [row.original.city, row.original.country].filter(Boolean).join(', '),
+            plural(row.original.artworks.length, 'œuvre'),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
       </div>
     ),
   },
   {
-    accessorKey: 'type',
+    id: 'type',
     header: 'Type',
-    cell: ({ row }) => {
-      return <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>;
-    },
+    meta: { className: 'hidden @3xl:table-cell' },
+    cell: ({ row }) => <Badge variant="outline">{PLACE_TYPE_LABELS[row.original.type]}</Badge>,
   },
   {
-    accessorKey: 'city',
+    id: 'city',
     header: 'Ville',
-    cell: ({ row }) => row.getValue('city') || '—',
-  },
-  {
-    accessorKey: 'country',
-    header: 'Pays',
-    cell: ({ row }) => row.getValue('country') || '—',
-  },
-  {
-    accessorKey: 'artworks',
-    header: 'Œuvres',
-    cell: ({ row }) => {
-      const artworks = row.getValue('artworks') as {
-        id: string;
-        title: string;
-      }[];
-      return (
-        <span className="text-sm text-muted-foreground">
-          {artworks.length} œuvre{artworks.length > 1 ? 's' : ''}
+    meta: { className: 'hidden @3xl:table-cell' },
+    cell: ({ row }) => (
+      <>
+        {/* With the country, until its column shows */}
+        <span className="@4xl:hidden">
+          {[row.original.city, row.original.country].filter(Boolean).join(', ') || '—'}
         </span>
-      );
-    },
+        <span className="hidden @4xl:inline">{row.original.city || '—'}</span>
+      </>
+    ),
   },
   {
-    accessorKey: 'createdAt',
+    id: 'country',
+    header: 'Pays',
+    meta: { className: 'hidden @4xl:table-cell' },
+    cell: ({ row }) => row.original.country || '—',
+  },
+  {
+    id: 'artworks',
+    header: 'Œuvres',
+    meta: { className: 'hidden @3xl:table-cell' },
+    cell: ({ row }) => (
+      <span className="text-sm text-muted-foreground">
+        {plural(row.original.artworks.length, 'œuvre')}
+      </span>
+    ),
+  },
+  {
+    id: 'createdAt',
     header: 'Créé le',
-    cell: ({ row }) => {
-      const date = new Date(row.getValue('createdAt'));
-      return date.toLocaleDateString('fr-FR');
-    },
+    meta: { className: 'hidden @5xl:table-cell' },
+    cell: ({ row }) => formatShortDate(row.original.createdAt),
   },
   {
     id: 'actions',
-    enableHiding: false,
+    header: () => <span className="sr-only">Actions</span>,
+    meta: { className: 'w-14 text-right' },
     cell: ({ row }) => <PlaceRowActions place={row.original} />,
   },
 ];
+
+function PlaceRowActions({ place }: { place: PlaceWithRelations }) {
+  const queryClient = useQueryClient();
+  return (
+    <RowMenu>
+      <EditMenuItem
+        link={<Link to="/dashboard/places/$placeId" params={{ placeId: place.id }} />}
+      />
+      <DeleteMenuItem
+        title={`Supprimer ${place.name} ?`}
+        consequence="Les notices conservées dans ce lieu n’auront plus de lieu."
+        onDelete={async () => {
+          await deletePlace({ data: place.id });
+          await queryClient.invalidateQueries({ queryKey: placeKeys.all });
+        }}
+        messages={{ deleted: 'Lieu supprimé', failed: 'Le lieu n’a pas pu être supprimé.' }}
+      />
+    </RowMenu>
+  );
+}
