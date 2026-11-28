@@ -4,7 +4,7 @@
 
 ### Issue tracker
 
-Issues and specs live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+Issues and specs live as GitHub issues in `Melv1C/artnote` (`gh` CLI). See `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 
